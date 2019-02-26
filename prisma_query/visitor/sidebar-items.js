@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["Sqlite","A visitor for generating queries for an SQLite database. Requires that `rusqlite` feature flag is selected."]],"trait":[["Visitor","A function travelling through the query AST, building the final query string and gathering parameters sent to the database together with the query."]]});
