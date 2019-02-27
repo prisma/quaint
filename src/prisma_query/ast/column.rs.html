@@ -208,6 +208,7 @@
 <span id="208">208</span>
 <span id="209">209</span>
 <span id="210">210</span>
+<span id="211">211</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">ast</span>::{<span class="ident">Comparable</span>, <span class="ident">Compare</span>, <span class="ident">DatabaseValue</span>, <span class="ident">Table</span>};
 
@@ -236,6 +237,7 @@
         }
     }
 
+    <span class="doccomment">/// Include the table name in the column expression.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">table</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">table</span>: <span class="ident">Table</span>) <span class="op">-&gt;</span> <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">table</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">table</span>);
         <span class="self">self</span>
