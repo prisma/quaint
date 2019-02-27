@@ -366,6 +366,36 @@
 <span id="366">366</span>
 <span id="367">367</span>
 <span id="368">368</span>
+<span id="369">369</span>
+<span id="370">370</span>
+<span id="371">371</span>
+<span id="372">372</span>
+<span id="373">373</span>
+<span id="374">374</span>
+<span id="375">375</span>
+<span id="376">376</span>
+<span id="377">377</span>
+<span id="378">378</span>
+<span id="379">379</span>
+<span id="380">380</span>
+<span id="381">381</span>
+<span id="382">382</span>
+<span id="383">383</span>
+<span id="384">384</span>
+<span id="385">385</span>
+<span id="386">386</span>
+<span id="387">387</span>
+<span id="388">388</span>
+<span id="389">389</span>
+<span id="390">390</span>
+<span id="391">391</span>
+<span id="392">392</span>
+<span id="393">393</span>
+<span id="394">394</span>
+<span id="395">395</span>
+<span id="396">396</span>
+<span id="397">397</span>
+<span id="398">398</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">ast</span>::<span class="kw-2">*</span>, <span class="ident">visitor</span>::<span class="ident">Visitor</span>};
 
@@ -707,7 +737,7 @@
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_simple_join</span>() {
+    <span class="kw">fn</span> <span class="ident">test_simple_inner_join</span>() {
         <span class="kw">let</span> <span class="ident">expected_sql</span> <span class="op">=</span>
             <span class="string">&quot;SELECT * FROM `users` INNER JOIN `posts` ON `users`.`id` = `posts`.`user_id` LIMIT -1&quot;</span>;
 
@@ -719,11 +749,41 @@
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_additional_condition_join</span>() {
+    <span class="kw">fn</span> <span class="ident">test_additional_condition_inner_join</span>() {
         <span class="kw">let</span> <span class="ident">expected_sql</span> <span class="op">=</span>
             <span class="string">&quot;SELECT * FROM `users` INNER JOIN `posts` ON (`users`.`id` = `posts`.`user_id` AND `posts`.`published` = ?) LIMIT -1&quot;</span>;
 
         <span class="kw">let</span> <span class="ident">query</span> <span class="op">=</span> <span class="ident">Select</span>::<span class="ident">from</span>(<span class="string">&quot;users&quot;</span>).<span class="ident">inner_join</span>(
+            <span class="string">&quot;posts&quot;</span>.<span class="ident">on</span>((<span class="string">&quot;users&quot;</span>, <span class="string">&quot;id&quot;</span>)
+                .<span class="ident">equals</span>(<span class="ident">Column</span>::<span class="ident">from</span>((<span class="string">&quot;posts&quot;</span>, <span class="string">&quot;user_id&quot;</span>)))
+                .<span class="ident">and</span>((<span class="string">&quot;posts&quot;</span>, <span class="string">&quot;published&quot;</span>).<span class="ident">equals</span>(<span class="bool-val">true</span>))),
+        );
+
+        <span class="kw">let</span> (<span class="ident">sql</span>, <span class="ident">params</span>) <span class="op">=</span> <span class="ident">Sqlite</span>::<span class="ident">build</span>(<span class="ident">query</span>);
+
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">expected_sql</span>, <span class="ident">sql</span>);
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="ident">ParameterizedValue</span>::<span class="ident">Boolean</span>(<span class="bool-val">true</span>),], <span class="ident">params</span>);
+    }
+
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="kw">fn</span> <span class="ident">test_simple_left_join</span>() {
+        <span class="kw">let</span> <span class="ident">expected_sql</span> <span class="op">=</span>
+            <span class="string">&quot;SELECT * FROM `users` LEFT OUTER JOIN `posts` ON `users`.`id` = `posts`.`user_id` LIMIT -1&quot;</span>;
+
+        <span class="kw">let</span> <span class="ident">query</span> <span class="op">=</span> <span class="ident">Select</span>::<span class="ident">from</span>(<span class="string">&quot;users&quot;</span>).<span class="ident">left_outer_join</span>(
+            <span class="string">&quot;posts&quot;</span>.<span class="ident">on</span>((<span class="string">&quot;users&quot;</span>, <span class="string">&quot;id&quot;</span>).<span class="ident">equals</span>(<span class="ident">Column</span>::<span class="ident">from</span>((<span class="string">&quot;posts&quot;</span>, <span class="string">&quot;user_id&quot;</span>)))),
+        );
+        <span class="kw">let</span> (<span class="ident">sql</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="ident">Sqlite</span>::<span class="ident">build</span>(<span class="ident">query</span>);
+
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">expected_sql</span>, <span class="ident">sql</span>);
+    }
+
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="kw">fn</span> <span class="ident">test_additional_condition_left_join</span>() {
+        <span class="kw">let</span> <span class="ident">expected_sql</span> <span class="op">=</span>
+            <span class="string">&quot;SELECT * FROM `users` LEFT OUTER JOIN `posts` ON (`users`.`id` = `posts`.`user_id` AND `posts`.`published` = ?) LIMIT -1&quot;</span>;
+
+        <span class="kw">let</span> <span class="ident">query</span> <span class="op">=</span> <span class="ident">Select</span>::<span class="ident">from</span>(<span class="string">&quot;users&quot;</span>).<span class="ident">left_outer_join</span>(
             <span class="string">&quot;posts&quot;</span>.<span class="ident">on</span>((<span class="string">&quot;users&quot;</span>, <span class="string">&quot;id&quot;</span>)
                 .<span class="ident">equals</span>(<span class="ident">Column</span>::<span class="ident">from</span>((<span class="string">&quot;posts&quot;</span>, <span class="string">&quot;user_id&quot;</span>)))
                 .<span class="ident">and</span>((<span class="string">&quot;posts&quot;</span>, <span class="string">&quot;published&quot;</span>).<span class="ident">equals</span>(<span class="bool-val">true</span>))),

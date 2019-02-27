@@ -54,6 +54,8 @@
 <span id="54">54</span>
 <span id="55">55</span>
 <span id="56">56</span>
+<span id="57">57</span>
+<span id="58">58</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">ast</span>::{<span class="ident">ConditionTree</span>, <span class="ident">Table</span>};
 
@@ -69,6 +71,8 @@
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Join</span> {
     <span class="doccomment">/// Implements an `INNER JOIN` with given `JoinData`.</span>
     <span class="ident">Inner</span>(<span class="ident">JoinData</span>),
+    <span class="doccomment">/// Implements an `LEFT OUTER JOIN` with given `JoinData`.</span>
+    <span class="ident">LeftOuter</span>(<span class="ident">JoinData</span>),
 }
 
 <span class="doccomment">/// An item that can be joined.</span>

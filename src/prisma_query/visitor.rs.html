@@ -345,6 +345,9 @@
 <span id="345">345</span>
 <span id="346">346</span>
 <span id="347">347</span>
+<span id="348">348</span>
+<span id="349">349</span>
+<span id="350">350</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Visitors for reading an abstract SQL syntax tree, generating the query and</span>
 <span class="doccomment">//! gathering parameters in the right order.</span>
@@ -394,6 +397,9 @@
         <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">joins</span>.<span class="ident">into_iter</span>().<span class="ident">fold</span>(<span class="ident">Vec</span>::<span class="ident">new</span>(), <span class="op">|</span><span class="kw-2">mut</span> <span class="ident">acc</span>, <span class="ident">j</span><span class="op">|</span> {
             <span class="kw">match</span> <span class="ident">j</span> {
                 <span class="ident">Join</span>::<span class="ident">Inner</span>(<span class="ident">data</span>) <span class="op">=&gt;</span> <span class="ident">acc</span>.<span class="ident">push</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;INNER JOIN {}&quot;</span>, <span class="self">self</span>.<span class="ident">visit_join_data</span>(<span class="ident">data</span>))),
+                <span class="ident">Join</span>::<span class="ident">LeftOuter</span>(<span class="ident">data</span>) <span class="op">=&gt;</span> {
+                    <span class="ident">acc</span>.<span class="ident">push</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;LEFT OUTER JOIN {}&quot;</span>, <span class="self">self</span>.<span class="ident">visit_join_data</span>(<span class="ident">data</span>)))
+                }
             }
 
             <span class="ident">acc</span>
