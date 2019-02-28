@@ -453,7 +453,7 @@
 <span id="453">453</span>
 <span id="454">454</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">ast</span>::{<span class="ident">Column</span>, <span class="ident">ConditionTree</span>, <span class="ident">Conjuctive</span>, <span class="ident">DatabaseValue</span>, <span class="ident">Expression</span>, <span class="ident">Row</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">ast</span>::{<span class="ident">Column</span>, <span class="ident">ConditionTree</span>, <span class="ident">Conjuctive</span>, <span class="ident">DatabaseValue</span>, <span class="ident">Expression</span>};
 
 <span class="doccomment">/// For modeling comparison expression</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">PartialEq</span>)]</span>
@@ -471,9 +471,9 @@
     <span class="doccomment">/// `left &gt;= right`</span>
     <span class="ident">GreaterThanOrEquals</span>(<span class="ident">Box</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&gt;</span>, <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&gt;</span>),
     <span class="doccomment">/// `left IN (..)`</span>
-    <span class="ident">In</span>(<span class="ident">Box</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&gt;</span>, <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">Row</span><span class="op">&gt;</span>),
+    <span class="ident">In</span>(<span class="ident">Box</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&gt;</span>, <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&gt;</span>),
     <span class="doccomment">/// `left NOT IN (..)`</span>
-    <span class="ident">NotIn</span>(<span class="ident">Box</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&gt;</span>, <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">Row</span><span class="op">&gt;</span>),
+    <span class="ident">NotIn</span>(<span class="ident">Box</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&gt;</span>, <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&gt;</span>),
     <span class="doccomment">/// `left LIKE %..%`</span>
     <span class="ident">Like</span>(<span class="ident">Box</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&gt;</span>, <span class="ident">String</span>),
     <span class="doccomment">/// `left NOT LIKE %..%`</span>
@@ -630,7 +630,7 @@
     <span class="doccomment">///     ParameterizedValue::Integer(2),</span>
     <span class="doccomment">/// ], params);</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">fn</span> <span class="ident">in_selection</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">selection</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>) <span class="op">-&gt;</span> <span class="ident">Compare</span>
+    <span class="kw">fn</span> <span class="ident">in_selection</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">selection</span>: <span class="ident">T</span>) <span class="op">-&gt;</span> <span class="ident">Compare</span>
     <span class="kw">where</span>
         <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&gt;</span>;
 
@@ -647,7 +647,7 @@
     <span class="doccomment">///     ParameterizedValue::Integer(2),</span>
     <span class="doccomment">/// ], params);</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">fn</span> <span class="ident">not_in_selection</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">selection</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>) <span class="op">-&gt;</span> <span class="ident">Compare</span>
+    <span class="kw">fn</span> <span class="ident">not_in_selection</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">selection</span>: <span class="ident">T</span>) <span class="op">-&gt;</span> <span class="ident">Compare</span>
     <span class="kw">where</span>
         <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&gt;</span>;
 
@@ -817,7 +817,7 @@
                     <span class="ident">val</span>.<span class="ident">greater_than_or_equals</span>(<span class="ident">comparison</span>)
                 }
 
-                <span class="kw">fn</span> <span class="ident">in_selection</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">selection</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>) <span class="op">-&gt;</span> <span class="ident">Compare</span>
+                <span class="kw">fn</span> <span class="ident">in_selection</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">selection</span>: <span class="ident">T</span>) <span class="op">-&gt;</span> <span class="ident">Compare</span>
                 <span class="kw">where</span>
                     <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&gt;</span>,
                 {
@@ -826,7 +826,7 @@
                     <span class="ident">val</span>.<span class="ident">in_selection</span>(<span class="ident">selection</span>)
                 }
 
-                <span class="kw">fn</span> <span class="ident">not_in_selection</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">selection</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>) <span class="op">-&gt;</span> <span class="ident">Compare</span>
+                <span class="kw">fn</span> <span class="ident">not_in_selection</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">selection</span>: <span class="ident">T</span>) <span class="op">-&gt;</span> <span class="ident">Compare</span>
                 <span class="kw">where</span>
                     <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&gt;</span>,
                 {

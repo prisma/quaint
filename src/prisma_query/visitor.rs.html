@@ -609,12 +609,12 @@
             <span class="ident">Compare</span>::<span class="ident">In</span>(<span class="ident">left</span>, <span class="ident">right</span>) <span class="op">=&gt;</span> <span class="macro">format</span><span class="macro">!</span>(
                 <span class="string">&quot;{} IN {}&quot;</span>,
                 <span class="self">self</span>.<span class="ident">visit_database_value</span>(<span class="kw-2">*</span><span class="ident">left</span>),
-                <span class="self">self</span>.<span class="ident">visit_row</span>(<span class="kw-2">*</span><span class="ident">right</span>),
+                <span class="self">self</span>.<span class="ident">visit_database_value</span>(<span class="kw-2">*</span><span class="ident">right</span>),
             ),
             <span class="ident">Compare</span>::<span class="ident">NotIn</span>(<span class="ident">left</span>, <span class="ident">right</span>) <span class="op">=&gt;</span> <span class="macro">format</span><span class="macro">!</span>(
                 <span class="string">&quot;{} NOT IN {}&quot;</span>,
                 <span class="self">self</span>.<span class="ident">visit_database_value</span>(<span class="kw-2">*</span><span class="ident">left</span>),
-                <span class="self">self</span>.<span class="ident">visit_row</span>(<span class="kw-2">*</span><span class="ident">right</span>),
+                <span class="self">self</span>.<span class="ident">visit_database_value</span>(<span class="kw-2">*</span><span class="ident">right</span>),
             ),
             <span class="ident">Compare</span>::<span class="ident">Like</span>(<span class="ident">left</span>, <span class="ident">right</span>) <span class="op">=&gt;</span> {
                 <span class="kw">let</span> <span class="ident">expression</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">visit_database_value</span>(<span class="kw-2">*</span><span class="ident">left</span>);
