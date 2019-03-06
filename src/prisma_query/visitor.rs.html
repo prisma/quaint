@@ -348,6 +348,14 @@
 <span id="348">348</span>
 <span id="349">349</span>
 <span id="350">350</span>
+<span id="351">351</span>
+<span id="352">352</span>
+<span id="353">353</span>
+<span id="354">354</span>
+<span id="355">355</span>
+<span id="356">356</span>
+<span id="357">357</span>
+<span id="358">358</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Visitors for reading an abstract SQL syntax tree, generating the query and</span>
 <span class="doccomment">//! gathering parameters in the right order.</span>
@@ -370,6 +378,7 @@
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Visitor</span> {
     <span class="doccomment">/// Parameter character when parameterizing values in the query.</span>
     <span class="kw">const</span> <span class="ident">C_PARAM</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>;
+
     <span class="doccomment">/// Backtick character to surround identifiers, such as column and table names.</span>
     <span class="kw">const</span> <span class="ident">C_BACKTICK</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>;
     <span class="doccomment">/// Wildcard character to be used in `LIKE` queries.</span>
@@ -520,14 +529,21 @@
 
     <span class="doccomment">/// A database column identifier</span>
     <span class="kw">fn</span> <span class="ident">visit_column</span>(<span class="ident">column</span>: <span class="ident">Column</span>) <span class="op">-&gt;</span> <span class="ident">String</span> {
-        <span class="kw">match</span> <span class="ident">column</span>.<span class="ident">table</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">column_identifier</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">column</span>.<span class="ident">table</span> {
             <span class="prelude-val">Some</span>(<span class="ident">table</span>) <span class="op">=&gt;</span> <span class="macro">format</span><span class="macro">!</span>(
                 <span class="string">&quot;{}.{}&quot;</span>,
                 <span class="self">Self</span>::<span class="ident">visit_table</span>(<span class="ident">table</span>, <span class="bool-val">false</span>),
                 <span class="self">Self</span>::<span class="ident">delimited_identifiers</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="ident">column</span>.<span class="ident">name</span>])
             ),
             <span class="kw">_</span> <span class="op">=&gt;</span> <span class="self">Self</span>::<span class="ident">delimited_identifiers</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="ident">column</span>.<span class="ident">name</span>]),
+        };
+
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">alias</span>) <span class="op">=</span> <span class="ident">column</span>.<span class="ident">alias</span> {
+            <span class="ident">column_identifier</span>.<span class="ident">push_str</span>(<span class="string">&quot; AS &quot;</span>);
+            <span class="ident">column_identifier</span>.<span class="ident">push_str</span>(<span class="kw-2">&amp;</span><span class="self">Self</span>::<span class="ident">delimited_identifiers</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="ident">alias</span>]));
         }
+
+        <span class="ident">column_identifier</span>
     }
 
     <span class="doccomment">/// A row of data used as an expression</span>

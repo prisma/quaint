@@ -209,6 +209,15 @@
 <span id="209">209</span>
 <span id="210">210</span>
 <span id="211">211</span>
+<span id="212">212</span>
+<span id="213">213</span>
+<span id="214">214</span>
+<span id="215">215</span>
+<span id="216">216</span>
+<span id="217">217</span>
+<span id="218">218</span>
+<span id="219">219</span>
+<span id="220">220</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">ast</span>::{<span class="ident">Comparable</span>, <span class="ident">Compare</span>, <span class="ident">DatabaseValue</span>, <span class="ident">Table</span>};
 
@@ -217,6 +226,7 @@
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Column</span> {
     <span class="kw">pub</span> <span class="ident">name</span>: <span class="ident">String</span>,
     <span class="kw">pub</span> <span class="ident">table</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Table</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">alias</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Column</span> {
@@ -242,13 +252,21 @@
         <span class="self">self</span>.<span class="ident">table</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">table</span>);
         <span class="self">self</span>
     }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">alias</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">alias</span>: <span class="ident">S</span>) <span class="op">-&gt;</span> <span class="self">Self</span>
+    <span class="kw">where</span>
+        <span class="ident">S</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
+    {
+        <span class="self">self</span>.<span class="ident">alias</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">alias</span>.<span class="ident">into</span>());
+        <span class="self">self</span>
+    }
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Column</span> {
     <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">s</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>) <span class="op">-&gt;</span> <span class="ident">Column</span> {
         <span class="ident">Column</span> {
             <span class="ident">name</span>: <span class="ident">s</span>.<span class="ident">to_string</span>(),
-            <span class="ident">table</span>: <span class="prelude-val">None</span>,
+            ..<span class="ident">Default</span>::<span class="ident">default</span>()
         }
     }
 }
@@ -275,7 +293,7 @@
     <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">s</span>: <span class="ident">String</span>) <span class="op">-&gt;</span> <span class="ident">Column</span> {
         <span class="ident">Column</span> {
             <span class="ident">name</span>: <span class="ident">s</span>,
-            <span class="ident">table</span>: <span class="prelude-val">None</span>,
+            ..<span class="ident">Default</span>::<span class="ident">default</span>()
         }
     }
 }
