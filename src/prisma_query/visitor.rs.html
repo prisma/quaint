@@ -363,6 +363,9 @@
 <span id="363">363</span>
 <span id="364">364</span>
 <span id="365">365</span>
+<span id="366">366</span>
+<span id="367">367</span>
+<span id="368">368</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Visitors for reading an abstract SQL syntax tree, generating the query and</span>
 <span class="doccomment">//! gathering parameters in the right order.</span>
@@ -433,7 +436,7 @@
     <span class="kw">fn</span> <span class="ident">visit_join_data</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">data</span>: <span class="ident">JoinData</span>) <span class="op">-&gt;</span> <span class="ident">String</span> {
         <span class="macro">format</span><span class="macro">!</span>(
             <span class="string">&quot;{} ON {}&quot;</span>,
-            <span class="self">Self</span>::<span class="ident">visit_table</span>(<span class="ident">data</span>.<span class="ident">table</span>, <span class="bool-val">true</span>),
+            <span class="self">self</span>.<span class="ident">visit_table</span>(<span class="ident">data</span>.<span class="ident">table</span>, <span class="bool-val">true</span>),
             <span class="self">self</span>.<span class="ident">visit_conditions</span>(<span class="ident">data</span>.<span class="ident">conditions</span>)
         )
     }
@@ -449,7 +452,7 @@
         }
 
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">table</span>) <span class="op">=</span> <span class="ident">select</span>.<span class="ident">table</span> {
-            <span class="ident">result</span>.<span class="ident">push</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;FROM {}&quot;</span>, <span class="self">Self</span>::<span class="ident">visit_table</span>(<span class="ident">table</span>, <span class="bool-val">true</span>)));
+            <span class="ident">result</span>.<span class="ident">push</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;FROM {}&quot;</span>, <span class="self">self</span>.<span class="ident">visit_table</span>(<span class="kw-2">*</span><span class="ident">table</span>, <span class="bool-val">true</span>)));
 
             <span class="kw">if</span> <span class="op">!</span><span class="ident">select</span>.<span class="ident">joins</span>.<span class="ident">is_empty</span>() {
                 <span class="ident">result</span>.<span class="ident">push</span>(<span class="self">self</span>.<span class="ident">visit_joins</span>(<span class="ident">select</span>.<span class="ident">joins</span>));
@@ -517,7 +520,7 @@
                 <span class="self">self</span>.<span class="ident">add_parameter</span>(<span class="ident">val</span>);
                 <span class="self">Self</span>::<span class="ident">C_PARAM</span>.<span class="ident">to_string</span>()
             }
-            <span class="ident">DatabaseValue</span>::<span class="ident">Column</span>(<span class="ident">column</span>) <span class="op">=&gt;</span> <span class="self">Self</span>::<span class="ident">visit_column</span>(<span class="ident">column</span>),
+            <span class="ident">DatabaseValue</span>::<span class="ident">Column</span>(<span class="ident">column</span>) <span class="op">=&gt;</span> <span class="self">self</span>.<span class="ident">visit_column</span>(<span class="ident">column</span>),
             <span class="ident">DatabaseValue</span>::<span class="ident">Row</span>(<span class="ident">row</span>) <span class="op">=&gt;</span> <span class="self">self</span>.<span class="ident">visit_row</span>(<span class="ident">row</span>),
             <span class="ident">DatabaseValue</span>::<span class="ident">Select</span>(<span class="ident">select</span>) <span class="op">=&gt;</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;({})&quot;</span>, <span class="self">self</span>.<span class="ident">visit_select</span>(<span class="ident">select</span>)),
             <span class="ident">DatabaseValue</span>::<span class="ident">Function</span>(<span class="ident">function</span>) <span class="op">=&gt;</span> <span class="self">self</span>.<span class="ident">visit_function</span>(<span class="ident">function</span>),
@@ -525,10 +528,13 @@
     }
 
     <span class="doccomment">/// A database table identifier</span>
-    <span class="kw">fn</span> <span class="ident">visit_table</span>(<span class="ident">table</span>: <span class="ident">Table</span>, <span class="ident">include_alias</span>: <span class="ident">bool</span>) <span class="op">-&gt;</span> <span class="ident">String</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">result</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">table</span>.<span class="ident">database</span> {
-            <span class="prelude-val">Some</span>(<span class="ident">database</span>) <span class="op">=&gt;</span> <span class="self">Self</span>::<span class="ident">delimited_identifiers</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="ident">database</span>, <span class="ident">table</span>.<span class="ident">name</span>]),
-            <span class="prelude-val">None</span> <span class="op">=&gt;</span> <span class="self">Self</span>::<span class="ident">delimited_identifiers</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="ident">table</span>.<span class="ident">name</span>]),
+    <span class="kw">fn</span> <span class="ident">visit_table</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">table</span>: <span class="ident">Table</span>, <span class="ident">include_alias</span>: <span class="ident">bool</span>) <span class="op">-&gt;</span> <span class="ident">String</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">result</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">table</span>.<span class="ident">typ</span> {
+            <span class="ident">TableType</span>::<span class="ident">Table</span>(<span class="ident">table_name</span>) <span class="op">=&gt;</span> <span class="kw">match</span> <span class="ident">table</span>.<span class="ident">database</span> {
+                <span class="prelude-val">Some</span>(<span class="ident">database</span>) <span class="op">=&gt;</span> <span class="self">Self</span>::<span class="ident">delimited_identifiers</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="ident">database</span>, <span class="ident">table_name</span>]),
+                <span class="prelude-val">None</span> <span class="op">=&gt;</span> <span class="self">Self</span>::<span class="ident">delimited_identifiers</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="ident">table_name</span>]),
+            },
+            <span class="ident">TableType</span>::<span class="ident">Query</span>(<span class="ident">select</span>) <span class="op">=&gt;</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;({})&quot;</span>, <span class="self">self</span>.<span class="ident">visit_select</span>(<span class="ident">select</span>)),
         };
 
         <span class="kw">if</span> <span class="ident">include_alias</span> {
@@ -542,11 +548,11 @@
     }
 
     <span class="doccomment">/// A database column identifier</span>
-    <span class="kw">fn</span> <span class="ident">visit_column</span>(<span class="ident">column</span>: <span class="ident">Column</span>) <span class="op">-&gt;</span> <span class="ident">String</span> {
+    <span class="kw">fn</span> <span class="ident">visit_column</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">column</span>: <span class="ident">Column</span>) <span class="op">-&gt;</span> <span class="ident">String</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">column_identifier</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">column</span>.<span class="ident">table</span> {
             <span class="prelude-val">Some</span>(<span class="ident">table</span>) <span class="op">=&gt;</span> <span class="macro">format</span><span class="macro">!</span>(
                 <span class="string">&quot;{}.{}&quot;</span>,
-                <span class="self">Self</span>::<span class="ident">visit_table</span>(<span class="ident">table</span>, <span class="bool-val">false</span>),
+                <span class="self">self</span>.<span class="ident">visit_table</span>(<span class="ident">table</span>, <span class="bool-val">false</span>),
                 <span class="self">Self</span>::<span class="ident">delimited_identifiers</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="ident">column</span>.<span class="ident">name</span>])
             ),
             <span class="kw">_</span> <span class="op">=&gt;</span> <span class="self">Self</span>::<span class="ident">delimited_identifiers</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="ident">column</span>.<span class="ident">name</span>]),

@@ -223,13 +223,25 @@
 <span id="223">223</span>
 <span id="224">224</span>
 <span id="225">225</span>
+<span id="226">226</span>
+<span id="227">227</span>
+<span id="228">228</span>
+<span id="229">229</span>
+<span id="230">230</span>
+<span id="231">231</span>
+<span id="232">232</span>
+<span id="233">233</span>
+<span id="234">234</span>
+<span id="235">235</span>
+<span id="236">236</span>
+<span id="237">237</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">ast</span>::<span class="kw-2">*</span>;
 
 <span class="doccomment">/// A builder for a `SELECT` statement.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Clone</span>, <span class="ident">Default</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Select</span> {
-    <span class="kw">pub</span> <span class="ident">table</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Table</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">table</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="ident">Table</span><span class="op">&gt;&gt;</span>,
     <span class="kw">pub</span> <span class="ident">columns</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">conditions</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ConditionTree</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">ordering</span>: <span class="ident">Ordering</span>,
@@ -270,12 +282,24 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// assert_eq!(&quot;SELECT * FROM `crm`.`users` LIMIT -1&quot;, sql);</span>
     <span class="doccomment">/// ```</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// It is also possible to use a nested `SELECT`.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// ```rust</span>
+    <span class="doccomment">/// # use prisma_query::{ast::*, visitor::{Visitor, Sqlite}};</span>
+    <span class="doccomment">/// let select = Table::from(Select::default().value(1)).alias(&quot;num&quot;);</span>
+    <span class="doccomment">/// let query = Select::from(select.alias(&quot;num&quot;));</span>
+    <span class="doccomment">/// let (sql, params) = Sqlite::build(query);</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// assert_eq!(&quot;SELECT * FROM (SELECT ?) AS `num` LIMIT -1&quot;, sql);</span>
+    <span class="doccomment">/// assert_eq!(vec![ParameterizedValue::Integer(1)], params);</span>
+    <span class="doccomment">/// ```</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">table</span>: <span class="ident">T</span>) <span class="op">-&gt;</span> <span class="self">Self</span>
     <span class="kw">where</span>
         <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Table</span><span class="op">&gt;</span>,
     {
         <span class="ident">Select</span> {
-            <span class="ident">table</span>: <span class="prelude-val">Some</span>(<span class="ident">table</span>.<span class="ident">into</span>()),
+            <span class="ident">table</span>: <span class="prelude-val">Some</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">table</span>.<span class="ident">into</span>())),
             ..<span class="ident">Default</span>::<span class="ident">default</span>()
         }
     }
