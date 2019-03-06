@@ -222,8 +222,16 @@
 <span id="222">222</span>
 <span id="223">223</span>
 <span id="224">224</span>
+<span id="225">225</span>
+<span id="226">226</span>
+<span id="227">227</span>
+<span id="228">228</span>
+<span id="229">229</span>
+<span id="230">230</span>
+<span id="231">231</span>
+<span id="232">232</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">ast</span>::{<span class="ident">Column</span>, <span class="ident">Comparable</span>, <span class="ident">Compare</span>, <span class="ident">Row</span>, <span class="ident">Select</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">ast</span>::<span class="kw-2">*</span>;
 
 <span class="doccomment">/// A value we must parameterize for the prepared statement.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">PartialEq</span>)]</span>
@@ -251,6 +259,8 @@
     <span class="ident">Row</span>(<span class="ident">Row</span>),
     <span class="doccomment">/// A nested `SELECT` statement</span>
     <span class="ident">Select</span>(<span class="ident">Select</span>),
+    <span class="doccomment">/// A database function call</span>
+    <span class="ident">Function</span>(<span class="ident">Function</span>),
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">ParameterizedValue</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span> {
@@ -327,6 +337,12 @@
 <span class="kw">impl</span> <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Row</span> {
     <span class="kw">fn</span> <span class="ident">into</span>(<span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">DatabaseValue</span> {
         <span class="ident">DatabaseValue</span>::<span class="ident">Row</span>(<span class="self">self</span>)
+    }
+}
+
+<span class="kw">impl</span> <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Function</span> {
+    <span class="kw">fn</span> <span class="ident">into</span>(<span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">DatabaseValue</span> {
+        <span class="ident">DatabaseValue</span>::<span class="ident">Function</span>(<span class="self">self</span>)
     }
 }
 

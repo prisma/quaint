@@ -440,10 +440,29 @@
 <span id="440">440</span>
 <span id="441">441</span>
 <span id="442">442</span>
+<span id="443">443</span>
+<span id="444">444</span>
+<span id="445">445</span>
+<span id="446">446</span>
+<span id="447">447</span>
+<span id="448">448</span>
+<span id="449">449</span>
+<span id="450">450</span>
+<span id="451">451</span>
+<span id="452">452</span>
+<span id="453">453</span>
+<span id="454">454</span>
+<span id="455">455</span>
+<span id="456">456</span>
+<span id="457">457</span>
+<span id="458">458</span>
+<span id="459">459</span>
+<span id="460">460</span>
+<span id="461">461</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">ast</span>::<span class="kw-2">*</span>, <span class="ident">visitor</span>::<span class="ident">Visitor</span>};
 
-<span class="kw">use</span> ::<span class="ident">sqlite</span>::<span class="ident">Bindable</span>;
+<span class="kw">use</span> <span class="ident">sqlite</span>::<span class="ident">Bindable</span>;
 
 <span class="doccomment">/// A visitor for generating queries for an SQLite database. Requires that</span>
 <span class="doccomment">/// `rusqlite` feature flag is selected.</span>
@@ -482,6 +501,23 @@
         }
     }
 
+    <span class="kw">fn</span> <span class="ident">visit_function</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">fun</span>: <span class="ident">Function</span>) <span class="op">-&gt;</span> <span class="ident">String</span> {
+        <span class="kw">match</span> <span class="ident">fun</span> {
+            <span class="ident">Function</span>::<span class="ident">RowNumber</span>(<span class="ident">fun_rownum</span>) <span class="op">=&gt;</span> {
+                <span class="kw">let</span> <span class="ident">definition</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">fun_rownum</span>.<span class="ident">ordering</span>.<span class="ident">is_empty</span>() {
+                    <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;ROW_NUMBER() OVER()&quot;</span>)
+                } <span class="kw">else</span> {
+                    <span class="macro">format</span><span class="macro">!</span>(
+                        <span class="string">&quot;ROW_NUMBER() OVER(ORDER BY {})&quot;</span>,
+                        <span class="self">self</span>.<span class="ident">visit_ordering</span>(<span class="ident">fun_rownum</span>.<span class="ident">ordering</span>)
+                    )
+                };
+
+                <span class="ident">definition</span>
+            }
+        }
+    }
+
     <span class="kw">fn</span> <span class="ident">visit_offset</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">offset</span>: <span class="ident">usize</span>) <span class="op">-&gt;</span> <span class="ident">String</span> {
         <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;OFFSET {}&quot;</span>, <span class="ident">offset</span>)
     }
@@ -496,7 +532,7 @@
             <span class="ident">Pv</span>::<span class="ident">Integer</span>(<span class="ident">integer</span>) <span class="op">=&gt;</span> <span class="ident">statement</span>.<span class="ident">bind</span>(<span class="ident">i</span>, <span class="ident">integer</span>),
             <span class="ident">Pv</span>::<span class="ident">Real</span>(<span class="ident">float</span>) <span class="op">=&gt;</span> <span class="ident">statement</span>.<span class="ident">bind</span>(<span class="ident">i</span>, <span class="ident">float</span>),
             <span class="ident">Pv</span>::<span class="ident">Text</span>(<span class="ident">string</span>) <span class="op">=&gt;</span> <span class="ident">statement</span>.<span class="ident">bind</span>(<span class="ident">i</span>, <span class="ident">string</span>.<span class="ident">as_str</span>()),
-            
+
             <span class="comment">// Sqlite3 doesn&#39;t have booleans so we match to ints</span>
             <span class="ident">Pv</span>::<span class="ident">Boolean</span>(<span class="bool-val">true</span>) <span class="op">=&gt;</span> <span class="ident">statement</span>.<span class="ident">bind</span>(<span class="ident">i</span>, <span class="number">1</span>),
             <span class="ident">Pv</span>::<span class="ident">Boolean</span>(<span class="bool-val">false</span>) <span class="op">=&gt;</span> <span class="ident">statement</span>.<span class="ident">bind</span>(<span class="ident">i</span>, <span class="number">0</span>),
@@ -856,7 +892,8 @@
             CREATE TABLE users (id, name TEXT, age REAL, nice INTEGER);
             INSERT INTO users (id, name, age, nice) VALUES (1, &#39;Alice&#39;, 42.69, 1);
             &quot;</span>,
-        ).<span class="ident">unwrap</span>();
+        )
+        .<span class="ident">unwrap</span>();
         <span class="ident">conn</span>
     }
 
@@ -873,7 +910,8 @@
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">s</span> <span class="op">=</span> <span class="ident">conn</span>.<span class="ident">prepare</span>(<span class="ident">sql_str</span>.<span class="ident">clone</span>()).<span class="ident">unwrap</span>();
         <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">1</span>..<span class="ident">params</span>.<span class="ident">len</span>() <span class="op">+</span> <span class="number">1</span> {
-            <span class="ident">s</span>.<span class="ident">bind</span>::<span class="op">&lt;</span><span class="ident">ParameterizedValue</span><span class="op">&gt;</span>(<span class="ident">i</span>, <span class="ident">params</span>[<span class="ident">i</span> <span class="op">-</span> <span class="number">1</span>].<span class="ident">clone</span>().<span class="ident">into</span>()).<span class="ident">unwrap</span>();
+            <span class="ident">s</span>.<span class="ident">bind</span>::<span class="op">&lt;</span><span class="ident">ParameterizedValue</span><span class="op">&gt;</span>(<span class="ident">i</span>, <span class="ident">params</span>[<span class="ident">i</span> <span class="op">-</span> <span class="number">1</span>].<span class="ident">clone</span>().<span class="ident">into</span>())
+                .<span class="ident">unwrap</span>();
         }
 
         <span class="ident">s</span>.<span class="ident">next</span>().<span class="ident">unwrap</span>();

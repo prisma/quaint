@@ -356,6 +356,10 @@
 <span id="356">356</span>
 <span id="357">357</span>
 <span id="358">358</span>
+<span id="359">359</span>
+<span id="360">360</span>
+<span id="361">361</span>
+<span id="362">362</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Visitors for reading an abstract SQL syntax tree, generating the query and</span>
 <span class="doccomment">//! gathering parameters in the right order.</span>
@@ -400,6 +404,9 @@
 
     <span class="doccomment">/// The `OFFSET` statement in the query</span>
     <span class="kw">fn</span> <span class="ident">visit_offset</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">offset</span>: <span class="ident">usize</span>) <span class="op">-&gt;</span> <span class="ident">String</span>;
+
+    <span class="doccomment">/// A database function.</span>
+    <span class="kw">fn</span> <span class="ident">visit_function</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">fun</span>: <span class="ident">Function</span>) <span class="op">-&gt;</span> <span class="ident">String</span>;
 
     <span class="doccomment">/// The join statements in the query</span>
     <span class="kw">fn</span> <span class="ident">visit_joins</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">joins</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Join</span><span class="op">&gt;</span>) <span class="op">-&gt;</span> <span class="ident">String</span> {
@@ -507,6 +514,7 @@
             <span class="ident">DatabaseValue</span>::<span class="ident">Column</span>(<span class="ident">column</span>) <span class="op">=&gt;</span> <span class="self">Self</span>::<span class="ident">visit_column</span>(<span class="ident">column</span>),
             <span class="ident">DatabaseValue</span>::<span class="ident">Row</span>(<span class="ident">row</span>) <span class="op">=&gt;</span> <span class="self">self</span>.<span class="ident">visit_row</span>(<span class="ident">row</span>),
             <span class="ident">DatabaseValue</span>::<span class="ident">Select</span>(<span class="ident">select</span>) <span class="op">=&gt;</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;({})&quot;</span>, <span class="self">self</span>.<span class="ident">visit_select</span>(<span class="ident">select</span>)),
+            <span class="ident">DatabaseValue</span>::<span class="ident">Function</span>(<span class="ident">function</span>) <span class="op">=&gt;</span> <span class="self">self</span>.<span class="ident">visit_function</span>(<span class="ident">function</span>),
         }
     }
 

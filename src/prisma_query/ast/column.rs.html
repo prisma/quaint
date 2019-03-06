@@ -218,8 +218,38 @@
 <span id="218">218</span>
 <span id="219">219</span>
 <span id="220">220</span>
+<span id="221">221</span>
+<span id="222">222</span>
+<span id="223">223</span>
+<span id="224">224</span>
+<span id="225">225</span>
+<span id="226">226</span>
+<span id="227">227</span>
+<span id="228">228</span>
+<span id="229">229</span>
+<span id="230">230</span>
+<span id="231">231</span>
+<span id="232">232</span>
+<span id="233">233</span>
+<span id="234">234</span>
+<span id="235">235</span>
+<span id="236">236</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">ast</span>::{<span class="ident">Comparable</span>, <span class="ident">Compare</span>, <span class="ident">DatabaseValue</span>, <span class="ident">Table</span>};
+
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>)]</span>
+<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">TypeIdentifier</span> {
+    <span class="ident">String</span>,
+    <span class="ident">Float</span>,
+    <span class="ident">Boolean</span>,
+    <span class="ident">Enum</span>,
+    <span class="ident">Json</span>,
+    <span class="ident">DateTime</span>,
+    <span class="ident">GraphQLID</span>,
+    <span class="ident">UUID</span>,
+    <span class="ident">Int</span>,
+    <span class="ident">Relation</span>,
+}
 
 <span class="doccomment">/// A column definition.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">Default</span>, <span class="ident">PartialEq</span>)]</span>
@@ -227,6 +257,7 @@
     <span class="kw">pub</span> <span class="ident">name</span>: <span class="ident">String</span>,
     <span class="kw">pub</span> <span class="ident">table</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Table</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">alias</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">type_identifier</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">TypeIdentifier</span><span class="op">&gt;</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Column</span> {
@@ -253,6 +284,7 @@
         <span class="self">self</span>
     }
 
+    <span class="doccomment">/// Give the column an alias in the query.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">alias</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">alias</span>: <span class="ident">S</span>) <span class="op">-&gt;</span> <span class="self">Self</span>
     <span class="kw">where</span>
         <span class="ident">S</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
