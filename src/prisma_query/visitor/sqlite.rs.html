@@ -405,13 +405,45 @@
 <span id="405">405</span>
 <span id="406">406</span>
 <span id="407">407</span>
+<span id="408">408</span>
+<span id="409">409</span>
+<span id="410">410</span>
+<span id="411">411</span>
+<span id="412">412</span>
+<span id="413">413</span>
+<span id="414">414</span>
+<span id="415">415</span>
+<span id="416">416</span>
+<span id="417">417</span>
+<span id="418">418</span>
+<span id="419">419</span>
+<span id="420">420</span>
+<span id="421">421</span>
+<span id="422">422</span>
+<span id="423">423</span>
+<span id="424">424</span>
+<span id="425">425</span>
+<span id="426">426</span>
+<span id="427">427</span>
+<span id="428">428</span>
+<span id="429">429</span>
+<span id="430">430</span>
+<span id="431">431</span>
+<span id="432">432</span>
+<span id="433">433</span>
+<span id="434">434</span>
+<span id="435">435</span>
+<span id="436">436</span>
+<span id="437">437</span>
+<span id="438">438</span>
+<span id="439">439</span>
+<span id="440">440</span>
+<span id="441">441</span>
+<span id="442">442</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">ast</span>::<span class="kw-2">*</span>, <span class="ident">visitor</span>::<span class="ident">Visitor</span>};
 
-<span class="kw">use</span> <span class="ident">rusqlite</span>::{
-    <span class="ident">types</span>::{<span class="ident">Null</span>, <span class="ident">ToSql</span>, <span class="ident">ToSqlOutput</span>},
-    <span class="ident">Error</span> <span class="kw">as</span> <span class="ident">RusqlError</span>,
-};
+<span class="kw">use</span> ::<span class="ident">sqlite</span>::<span class="ident">Bindable</span>;
 
 <span class="doccomment">/// A visitor for generating queries for an SQLite database. Requires that</span>
 <span class="doccomment">/// `rusqlite` feature flag is selected.</span>
@@ -455,17 +487,20 @@
     }
 }
 
-<span class="kw">impl</span> <span class="ident">ToSql</span> <span class="kw">for</span> <span class="ident">ParameterizedValue</span> {
-    <span class="kw">fn</span> <span class="ident">to_sql</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ToSqlOutput</span>, <span class="ident">RusqlError</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">value</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">ParameterizedValue</span>::<span class="ident">Null</span> <span class="op">=&gt;</span> <span class="ident">ToSqlOutput</span>::<span class="ident">from</span>(<span class="ident">Null</span>),
-            <span class="ident">ParameterizedValue</span>::<span class="ident">Integer</span>(<span class="ident">integer</span>) <span class="op">=&gt;</span> <span class="ident">ToSqlOutput</span>::<span class="ident">from</span>(<span class="kw-2">*</span><span class="ident">integer</span>),
-            <span class="ident">ParameterizedValue</span>::<span class="ident">Real</span>(<span class="ident">float</span>) <span class="op">=&gt;</span> <span class="ident">ToSqlOutput</span>::<span class="ident">from</span>(<span class="kw-2">*</span><span class="ident">float</span>),
-            <span class="ident">ParameterizedValue</span>::<span class="ident">Text</span>(<span class="ident">string</span>) <span class="op">=&gt;</span> <span class="ident">ToSqlOutput</span>::<span class="ident">from</span>(<span class="ident">string</span>.<span class="ident">clone</span>()),
-            <span class="ident">ParameterizedValue</span>::<span class="ident">Boolean</span>(<span class="ident">boo</span>) <span class="op">=&gt;</span> <span class="ident">ToSqlOutput</span>::<span class="ident">from</span>(<span class="kw-2">*</span><span class="ident">boo</span>),
-        };
-
-        <span class="prelude-val">Ok</span>(<span class="ident">value</span>)
+<span class="kw">impl</span> <span class="ident">Bindable</span> <span class="kw">for</span> <span class="ident">ParameterizedValue</span> {
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">bind</span>(<span class="self">self</span>, <span class="ident">statement</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">sqlite</span>::<span class="ident">Statement</span>, <span class="ident">i</span>: <span class="ident">usize</span>) <span class="op">-&gt;</span> <span class="ident">sqlite</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+        <span class="kw">use</span> <span class="ident">ParameterizedValue</span> <span class="kw">as</span> <span class="ident">Pv</span>;
+        <span class="kw">match</span> <span class="self">self</span> {
+            <span class="ident">Pv</span>::<span class="ident">Null</span> <span class="op">=&gt;</span> <span class="ident">statement</span>.<span class="ident">bind</span>(<span class="ident">i</span>, ()),
+            <span class="ident">Pv</span>::<span class="ident">Integer</span>(<span class="ident">integer</span>) <span class="op">=&gt;</span> <span class="ident">statement</span>.<span class="ident">bind</span>(<span class="ident">i</span>, <span class="ident">integer</span>),
+            <span class="ident">Pv</span>::<span class="ident">Real</span>(<span class="ident">float</span>) <span class="op">=&gt;</span> <span class="ident">statement</span>.<span class="ident">bind</span>(<span class="ident">i</span>, <span class="ident">float</span>),
+            <span class="ident">Pv</span>::<span class="ident">Text</span>(<span class="ident">string</span>) <span class="op">=&gt;</span> <span class="ident">statement</span>.<span class="ident">bind</span>(<span class="ident">i</span>, <span class="ident">string</span>.<span class="ident">as_str</span>()),
+            
+            <span class="comment">// Sqlite3 doesn&#39;t have booleans so we match to ints</span>
+            <span class="ident">Pv</span>::<span class="ident">Boolean</span>(<span class="bool-val">true</span>) <span class="op">=&gt;</span> <span class="ident">statement</span>.<span class="ident">bind</span>(<span class="ident">i</span>, <span class="number">1</span>),
+            <span class="ident">Pv</span>::<span class="ident">Boolean</span>(<span class="bool-val">false</span>) <span class="op">=&gt;</span> <span class="ident">statement</span>.<span class="ident">bind</span>(<span class="ident">i</span>, <span class="number">0</span>),
+        }
     }
 }
 
@@ -811,6 +846,41 @@
         <span class="kw">let</span> (<span class="ident">sql</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="ident">Sqlite</span>::<span class="ident">build</span>(<span class="ident">query</span>);
 
         <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">expected_sql</span>, <span class="ident">sql</span>);
+    }
+
+    <span class="doccomment">/// Creates a simple sqlite database with a user table and a nice user</span>
+    <span class="kw">fn</span> <span class="ident">sqlite_harness</span>() <span class="op">-&gt;</span> ::<span class="ident">sqlite</span>::<span class="ident">Connection</span> {
+        <span class="kw">let</span> <span class="ident">conn</span> <span class="op">=</span> ::<span class="ident">sqlite</span>::<span class="ident">open</span>(<span class="string">&quot;:memory:&quot;</span>).<span class="ident">unwrap</span>();
+        <span class="ident">conn</span>.<span class="ident">execute</span>(
+            <span class="string">&quot;
+            CREATE TABLE users (id, name TEXT, age REAL, nice INTEGER);
+            INSERT INTO users (id, name, age, nice) VALUES (1, &#39;Alice&#39;, 42.69, 1);
+            &quot;</span>,
+        ).<span class="ident">unwrap</span>();
+        <span class="ident">conn</span>
+    }
+
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="kw">fn</span> <span class="ident">bind_test_1</span>() {
+        <span class="kw">let</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">sqlite_harness</span>();
+
+        <span class="kw">let</span> <span class="ident">conditions</span> <span class="op">=</span> <span class="string">&quot;name&quot;</span>
+            .<span class="ident">equals</span>(<span class="string">&quot;Alice&quot;</span>)
+            .<span class="ident">and</span>(<span class="string">&quot;age&quot;</span>.<span class="ident">less_than</span>(<span class="number">100.0</span>))
+            .<span class="ident">and</span>(<span class="string">&quot;nice&quot;</span>.<span class="ident">equals</span>(<span class="bool-val">true</span>));
+        <span class="kw">let</span> <span class="ident">query</span> <span class="op">=</span> <span class="ident">Select</span>::<span class="ident">from</span>(<span class="string">&quot;users&quot;</span>).<span class="ident">so_that</span>(<span class="ident">conditions</span>);
+        <span class="kw">let</span> (<span class="ident">sql_str</span>, <span class="ident">params</span>) <span class="op">=</span> <span class="ident">Sqlite</span>::<span class="ident">build</span>(<span class="ident">query</span>);
+
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">s</span> <span class="op">=</span> <span class="ident">conn</span>.<span class="ident">prepare</span>(<span class="ident">sql_str</span>.<span class="ident">clone</span>()).<span class="ident">unwrap</span>();
+        <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">1</span>..<span class="ident">params</span>.<span class="ident">len</span>() <span class="op">+</span> <span class="number">1</span> {
+            <span class="ident">s</span>.<span class="ident">bind</span>::<span class="op">&lt;</span><span class="ident">ParameterizedValue</span><span class="op">&gt;</span>(<span class="ident">i</span>, <span class="ident">params</span>[<span class="ident">i</span> <span class="op">-</span> <span class="number">1</span>].<span class="ident">clone</span>().<span class="ident">into</span>()).<span class="ident">unwrap</span>();
+        }
+
+        <span class="ident">s</span>.<span class="ident">next</span>().<span class="ident">unwrap</span>();
+
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="string">&quot;Alice&quot;</span>, <span class="ident">s</span>.<span class="ident">read</span>::<span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>(<span class="number">1</span>).<span class="ident">unwrap</span>());
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="number">42.69</span>, <span class="ident">s</span>.<span class="ident">read</span>::<span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span>(<span class="number">2</span>).<span class="ident">unwrap</span>());
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="number">1</span>, <span class="ident">s</span>.<span class="ident">read</span>::<span class="op">&lt;</span><span class="ident">i64</span><span class="op">&gt;</span>(<span class="number">3</span>).<span class="ident">unwrap</span>());
     }
 }
 </pre></div>
