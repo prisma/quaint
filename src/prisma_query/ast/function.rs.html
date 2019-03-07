@@ -138,7 +138,7 @@
 
 <span class="kw">impl</span> <span class="ident">RowNumber</span> {
     <span class="doccomment">/// Define the order of the row number. Is the row order if not set.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">over</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">value</span>: <span class="ident">T</span>) <span class="op">-&gt;</span> <span class="self">Self</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">order_by</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">value</span>: <span class="ident">T</span>) <span class="op">-&gt;</span> <span class="self">Self</span>
     <span class="kw">where</span>
         <span class="ident">T</span>: <span class="ident">IntoOrderDefinition</span>,
     {
@@ -162,7 +162,7 @@
 <span class="doccomment">///</span>
 <span class="doccomment">/// ```rust</span>
 <span class="doccomment">/// # use prisma_query::{ast::*, visitor::{Visitor, Sqlite}};</span>
-<span class="doccomment">/// let fun = Function::from(row_number().over(&quot;created_at&quot;).partition_by(&quot;name&quot;));</span>
+<span class="doccomment">/// let fun = Function::from(row_number().order_by(&quot;created_at&quot;).partition_by(&quot;name&quot;));</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// let query = Select::from(&quot;users&quot;)</span>
 <span class="doccomment">///     .column(&quot;id&quot;)</span>
