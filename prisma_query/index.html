@@ -36,7 +36,7 @@ different databases.</li>
     <span class="kw">let</span> (<span class="ident">sql_str</span>, <span class="ident">params</span>) <span class="op">=</span> <span class="ident">Sqlite</span>::<span class="ident">build</span>(<span class="ident">query</span>);
 
     <span class="macro">assert_eq</span><span class="macro">!</span>(
-        <span class="string">&quot;SELECT * FROM `naukio` WHERE ((`word` = ? AND `age` &lt; ?) AND `paw` = ?) LIMIT -1&quot;</span>,
+        <span class="string">&quot;SELECT `naukio`.* FROM `naukio` WHERE ((`word` = ? AND `age` &lt; ?) AND `paw` = ?) LIMIT -1&quot;</span>,
         <span class="ident">sql_str</span>,
     );
 
@@ -67,7 +67,7 @@ in this case <a href="https://github.com/jgallagher/rusqlite">rusqlite</a>.</p>
     <span class="kw">let</span> (<span class="ident">sql</span>, <span class="ident">params</span>) <span class="op">=</span> <span class="ident">Sqlite</span>::<span class="ident">build</span>(<span class="ident">query</span>);
 
     <span class="macro">assert_eq</span><span class="macro">!</span>(
-        <span class="string">&quot;SELECT * FROM `naukio` WHERE ((`word` = ? OR `age` &lt; ?) AND `paw` = ?) LIMIT -1&quot;</span>,
+        <span class="string">&quot;SELECT `naukio`.* FROM `naukio` WHERE ((`word` = ? OR `age` &lt; ?) AND `paw` = ?) LIMIT -1&quot;</span>,
         <span class="ident">sql</span>,
     );
 

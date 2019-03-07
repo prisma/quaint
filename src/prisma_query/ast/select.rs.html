@@ -235,6 +235,25 @@
 <span id="235">235</span>
 <span id="236">236</span>
 <span id="237">237</span>
+<span id="238">238</span>
+<span id="239">239</span>
+<span id="240">240</span>
+<span id="241">241</span>
+<span id="242">242</span>
+<span id="243">243</span>
+<span id="244">244</span>
+<span id="245">245</span>
+<span id="246">246</span>
+<span id="247">247</span>
+<span id="248">248</span>
+<span id="249">249</span>
+<span id="250">250</span>
+<span id="251">251</span>
+<span id="252">252</span>
+<span id="253">253</span>
+<span id="254">254</span>
+<span id="255">255</span>
+<span id="256">256</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">ast</span>::<span class="kw-2">*</span>;
 
@@ -270,7 +289,7 @@
     <span class="doccomment">/// let query = Select::from(&quot;users&quot;);</span>
     <span class="doccomment">/// let (sql, _) = Sqlite::build(query);</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// assert_eq!(&quot;SELECT * FROM `users` LIMIT -1&quot;, sql);</span>
+    <span class="doccomment">/// assert_eq!(&quot;SELECT `users`.* FROM `users` LIMIT -1&quot;, sql);</span>
     <span class="doccomment">/// ```</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// The table can be in multiple parts, defining the database.</span>
@@ -280,7 +299,7 @@
     <span class="doccomment">/// let query = Select::from((&quot;crm&quot;, &quot;users&quot;));</span>
     <span class="doccomment">/// let (sql, _) = Sqlite::build(query);</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// assert_eq!(&quot;SELECT * FROM `crm`.`users` LIMIT -1&quot;, sql);</span>
+    <span class="doccomment">/// assert_eq!(&quot;SELECT `crm`.`users`.* FROM `crm`.`users` LIMIT -1&quot;, sql);</span>
     <span class="doccomment">/// ```</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// It is also possible to use a nested `SELECT`.</span>
@@ -291,7 +310,7 @@
     <span class="doccomment">/// let query = Select::from(select.alias(&quot;num&quot;));</span>
     <span class="doccomment">/// let (sql, params) = Sqlite::build(query);</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// assert_eq!(&quot;SELECT * FROM (SELECT ?) AS `num` LIMIT -1&quot;, sql);</span>
+    <span class="doccomment">/// assert_eq!(&quot;SELECT `num`.* FROM (SELECT ?) AS `num` LIMIT -1&quot;, sql);</span>
     <span class="doccomment">/// assert_eq!(vec![ParameterizedValue::Integer(1)], params);</span>
     <span class="doccomment">/// ```</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">table</span>: <span class="ident">T</span>) <span class="op">-&gt;</span> <span class="self">Self</span>
@@ -313,6 +332,25 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// assert_eq!(&quot;SELECT ?&quot;, sql);</span>
     <span class="doccomment">/// assert_eq!(vec![ParameterizedValue::Integer(1)], params);</span>
+    <span class="doccomment">/// ```</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Creating a qualified asterisk to a joined table:</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// ```rust</span>
+    <span class="doccomment">/// # use prisma_query::{ast::*, visitor::{Visitor, Sqlite}};</span>
+    <span class="doccomment">/// let join = &quot;dogs&quot;.on((&quot;dogs&quot;, &quot;slave_id&quot;).equals(Column::from((&quot;cats&quot;, &quot;master_id&quot;))));</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// let query = Select::from(&quot;cats&quot;)</span>
+    <span class="doccomment">///     .value(Table::from(&quot;cats&quot;).asterisk())</span>
+    <span class="doccomment">///     .value(Table::from(&quot;dogs&quot;).asterisk())</span>
+    <span class="doccomment">///     .inner_join(join);</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// let (sql, _) = Sqlite::build(query);</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// assert_eq!(</span>
+    <span class="doccomment">///     &quot;SELECT `cats`.*, `dogs`.* FROM `cats` INNER JOIN `dogs` ON `dogs`.`slave_id` = `cats`.`master_id` LIMIT -1&quot;,</span>
+    <span class="doccomment">///     sql</span>
+    <span class="doccomment">/// );</span>
     <span class="doccomment">/// ```</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">value</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">value</span>: <span class="ident">T</span>) <span class="op">-&gt;</span> <span class="self">Self</span>
     <span class="kw">where</span>
@@ -372,7 +410,7 @@
     <span class="doccomment">/// let query = Select::from(&quot;users&quot;).so_that(&quot;foo&quot;.equals(&quot;bar&quot;));</span>
     <span class="doccomment">/// let (sql, params) = Sqlite::build(query);</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// assert_eq!(&quot;SELECT * FROM `users` WHERE `foo` = ? LIMIT -1&quot;, sql);</span>
+    <span class="doccomment">/// assert_eq!(&quot;SELECT `users`.* FROM `users` WHERE `foo` = ? LIMIT -1&quot;, sql);</span>
     <span class="doccomment">/// assert_eq!(vec![ParameterizedValue::Text(&quot;bar&quot;.to_string())], params);</span>
     <span class="doccomment">/// ```</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">so_that</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">conditions</span>: <span class="ident">T</span>) <span class="op">-&gt;</span> <span class="self">Self</span>
@@ -392,7 +430,7 @@
     <span class="doccomment">/// let (sql, _) = Sqlite::build(query);</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// assert_eq!(</span>
-    <span class="doccomment">///     &quot;SELECT * FROM `users` INNER JOIN `posts` AS `p` ON `p`.`user_id` = `users`.`id` LIMIT -1&quot;,</span>
+    <span class="doccomment">///     &quot;SELECT `users`.* FROM `users` INNER JOIN `posts` AS `p` ON `p`.`user_id` = `users`.`id` LIMIT -1&quot;,</span>
     <span class="doccomment">///     sql</span>
     <span class="doccomment">/// );</span>
     <span class="doccomment">/// ```</span>
@@ -413,7 +451,7 @@
     <span class="doccomment">/// let (sql, params) = Sqlite::build(query);</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// assert_eq!(</span>
-    <span class="doccomment">///     &quot;SELECT * FROM `users` LEFT OUTER JOIN `posts` AS `p` ON `p`.`visible` = ? LIMIT -1&quot;,</span>
+    <span class="doccomment">///     &quot;SELECT `users`.* FROM `users` LEFT OUTER JOIN `posts` AS `p` ON `p`.`visible` = ? LIMIT -1&quot;,</span>
     <span class="doccomment">///     sql</span>
     <span class="doccomment">/// );</span>
     <span class="doccomment">///</span>
@@ -438,7 +476,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// let (sql, _) = Sqlite::build(query);</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// assert_eq!(&quot;SELECT * FROM `users` ORDER BY `foo`, `baz` ASC, `bar` DESC LIMIT -1&quot;, sql);</span>
+    <span class="doccomment">/// assert_eq!(&quot;SELECT `users`.* FROM `users` ORDER BY `foo`, `baz` ASC, `bar` DESC LIMIT -1&quot;, sql);</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">order_by</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">value</span>: <span class="ident">T</span>) <span class="op">-&gt;</span> <span class="self">Self</span>
     <span class="kw">where</span>
         <span class="ident">T</span>: <span class="ident">IntoOrderDefinition</span>,
@@ -454,7 +492,7 @@
     <span class="doccomment">/// let query = Select::from(&quot;users&quot;).limit(10);</span>
     <span class="doccomment">/// let (sql, _) = Sqlite::build(query);</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// assert_eq!(&quot;SELECT * FROM `users` LIMIT 10&quot;, sql);</span>
+    <span class="doccomment">/// assert_eq!(&quot;SELECT `users`.* FROM `users` LIMIT 10&quot;, sql);</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">limit</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">limit</span>: <span class="ident">usize</span>) <span class="op">-&gt;</span> <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">limit</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">limit</span>);
         <span class="self">self</span>
@@ -467,7 +505,7 @@
     <span class="doccomment">/// let query = Select::from(&quot;users&quot;).offset(10);</span>
     <span class="doccomment">/// let (sql, _) = Sqlite::build(query);</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// assert_eq!(&quot;SELECT * FROM `users` LIMIT -1 OFFSET 10&quot;, sql);</span>
+    <span class="doccomment">/// assert_eq!(&quot;SELECT `users`.* FROM `users` LIMIT -1 OFFSET 10&quot;, sql);</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">offset</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">offset</span>: <span class="ident">usize</span>) <span class="op">-&gt;</span> <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">offset</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">offset</span>);
         <span class="self">self</span>

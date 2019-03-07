@@ -117,8 +117,13 @@
 <span id="117">117</span>
 <span id="118">118</span>
 <span id="119">119</span>
+<span id="120">120</span>
+<span id="121">121</span>
+<span id="122">122</span>
+<span id="123">123</span>
+<span id="124">124</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">ast</span>::{<span class="ident">ConditionTree</span>, <span class="ident">JoinData</span>, <span class="ident">Joinable</span>, <span class="ident">Select</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">ast</span>::{<span class="ident">ConditionTree</span>, <span class="ident">DatabaseValue</span>, <span class="ident">JoinData</span>, <span class="ident">Joinable</span>, <span class="ident">Select</span>};
 
 <span class="doccomment">/// An object that can be aliased.</span>
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Aliasable</span> {
@@ -151,39 +156,44 @@
         <span class="self">self</span>.<span class="ident">database</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">database</span>.<span class="ident">into</span>());
         <span class="self">self</span>
     }
+
+    <span class="doccomment">/// A qualified asterisk to this table</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">asterisk</span>(<span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">DatabaseValue</span> {
+        <span class="ident">DatabaseValue</span>::<span class="ident">Asterisk</span>(<span class="self">self</span>)
+    }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Table</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span> {
-    <span class="kw">fn</span> <span class="ident">into</span>(<span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">Table</span> {
+<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Table</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">s</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>) <span class="op">-&gt;</span> <span class="ident">Table</span> {
         <span class="ident">Table</span> {
-            <span class="ident">typ</span>: <span class="ident">TableType</span>::<span class="ident">Table</span>(<span class="self">self</span>.<span class="ident">to_string</span>()),
+            <span class="ident">typ</span>: <span class="ident">TableType</span>::<span class="ident">Table</span>(<span class="ident">s</span>.<span class="ident">to_string</span>()),
             <span class="ident">alias</span>: <span class="prelude-val">None</span>,
             <span class="ident">database</span>: <span class="prelude-val">None</span>,
         }
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span><span class="op">&gt;</span> <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Table</span><span class="op">&gt;</span> <span class="kw">for</span> (<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>, <span class="kw-2">&amp;</span><span class="lifetime">&#39;b</span> <span class="ident">str</span>) {
-    <span class="kw">fn</span> <span class="ident">into</span>(<span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">Table</span> {
-        <span class="kw">let</span> <span class="ident">table</span>: <span class="ident">Table</span> <span class="op">=</span> <span class="self">self</span>.<span class="number">1</span>.<span class="ident">into</span>();
-        <span class="ident">table</span>.<span class="ident">database</span>(<span class="self">self</span>.<span class="number">0</span>)
+<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>, <span class="kw-2">&amp;</span><span class="lifetime">&#39;b</span> <span class="ident">str</span>)<span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Table</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">s</span>: (<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>, <span class="kw-2">&amp;</span><span class="lifetime">&#39;b</span> <span class="ident">str</span>)) <span class="op">-&gt;</span> <span class="ident">Table</span> {
+        <span class="kw">let</span> <span class="ident">table</span>: <span class="ident">Table</span> <span class="op">=</span> <span class="ident">s</span>.<span class="number">1</span>.<span class="ident">into</span>();
+        <span class="ident">table</span>.<span class="ident">database</span>(<span class="ident">s</span>.<span class="number">0</span>)
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Table</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">String</span> {
-    <span class="kw">fn</span> <span class="ident">into</span>(<span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">Table</span> {
+<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Table</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">s</span>: <span class="ident">String</span>) <span class="op">-&gt;</span> <span class="ident">Table</span> {
         <span class="ident">Table</span> {
-            <span class="ident">typ</span>: <span class="ident">TableType</span>::<span class="ident">Table</span>(<span class="self">self</span>),
+            <span class="ident">typ</span>: <span class="ident">TableType</span>::<span class="ident">Table</span>(<span class="ident">s</span>),
             <span class="ident">alias</span>: <span class="prelude-val">None</span>,
             <span class="ident">database</span>: <span class="prelude-val">None</span>,
         }
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Table</span><span class="op">&gt;</span> <span class="kw">for</span> (<span class="ident">String</span>, <span class="ident">String</span>) {
-    <span class="kw">fn</span> <span class="ident">into</span>(<span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">Table</span> {
-        <span class="kw">let</span> <span class="ident">table</span>: <span class="ident">Table</span> <span class="op">=</span> <span class="self">self</span>.<span class="number">1</span>.<span class="ident">into</span>();
-        <span class="ident">table</span>.<span class="ident">database</span>(<span class="self">self</span>.<span class="number">0</span>)
+<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span>(<span class="ident">String</span>, <span class="ident">String</span>)<span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Table</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">s</span>: (<span class="ident">String</span>, <span class="ident">String</span>)) <span class="op">-&gt;</span> <span class="ident">Table</span> {
+        <span class="kw">let</span> <span class="ident">table</span>: <span class="ident">Table</span> <span class="op">=</span> <span class="ident">s</span>.<span class="number">1</span>.<span class="ident">into</span>();
+        <span class="ident">table</span>.<span class="ident">database</span>(<span class="ident">s</span>.<span class="number">0</span>)
     }
 }
 
