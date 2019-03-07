@@ -484,10 +484,98 @@
 <span id="484">484</span>
 <span id="485">485</span>
 <span id="486">486</span>
+<span id="487">487</span>
+<span id="488">488</span>
+<span id="489">489</span>
+<span id="490">490</span>
+<span id="491">491</span>
+<span id="492">492</span>
+<span id="493">493</span>
+<span id="494">494</span>
+<span id="495">495</span>
+<span id="496">496</span>
+<span id="497">497</span>
+<span id="498">498</span>
+<span id="499">499</span>
+<span id="500">500</span>
+<span id="501">501</span>
+<span id="502">502</span>
+<span id="503">503</span>
+<span id="504">504</span>
+<span id="505">505</span>
+<span id="506">506</span>
+<span id="507">507</span>
+<span id="508">508</span>
+<span id="509">509</span>
+<span id="510">510</span>
+<span id="511">511</span>
+<span id="512">512</span>
+<span id="513">513</span>
+<span id="514">514</span>
+<span id="515">515</span>
+<span id="516">516</span>
+<span id="517">517</span>
+<span id="518">518</span>
+<span id="519">519</span>
+<span id="520">520</span>
+<span id="521">521</span>
+<span id="522">522</span>
+<span id="523">523</span>
+<span id="524">524</span>
+<span id="525">525</span>
+<span id="526">526</span>
+<span id="527">527</span>
+<span id="528">528</span>
+<span id="529">529</span>
+<span id="530">530</span>
+<span id="531">531</span>
+<span id="532">532</span>
+<span id="533">533</span>
+<span id="534">534</span>
+<span id="535">535</span>
+<span id="536">536</span>
+<span id="537">537</span>
+<span id="538">538</span>
+<span id="539">539</span>
+<span id="540">540</span>
+<span id="541">541</span>
+<span id="542">542</span>
+<span id="543">543</span>
+<span id="544">544</span>
+<span id="545">545</span>
+<span id="546">546</span>
+<span id="547">547</span>
+<span id="548">548</span>
+<span id="549">549</span>
+<span id="550">550</span>
+<span id="551">551</span>
+<span id="552">552</span>
+<span id="553">553</span>
+<span id="554">554</span>
+<span id="555">555</span>
+<span id="556">556</span>
+<span id="557">557</span>
+<span id="558">558</span>
+<span id="559">559</span>
+<span id="560">560</span>
+<span id="561">561</span>
+<span id="562">562</span>
+<span id="563">563</span>
+<span id="564">564</span>
+<span id="565">565</span>
+<span id="566">566</span>
+<span id="567">567</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">ast</span>::<span class="kw-2">*</span>, <span class="ident">visitor</span>::<span class="ident">Visitor</span>};
 
-<span class="kw">use</span> <span class="ident">sqlite</span>::{<span class="ident">Bindable</span>, <span class="prelude-ty">Result</span> <span class="kw">as</span> <span class="ident">SqliteResult</span>, <span class="ident">Statement</span>};
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sqlite&quot;</span>)]</span>
+<span class="kw">use</span> <span class="ident">sqlite</span>::{<span class="ident">Bindable</span>, <span class="ident">Statement</span>, <span class="prelude-ty">Result</span> <span class="kw">as</span> <span class="ident">SqliteResult</span>};
+
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rusqlite&quot;</span>)]</span>
+<span class="kw">use</span> <span class="ident">rusqlite</span>::{
+    <span class="ident">types</span>::{<span class="ident">Null</span>, <span class="ident">ToSql</span>, <span class="ident">ToSqlOutput</span>},
+    <span class="ident">Error</span> <span class="kw">as</span> <span class="ident">RusqlError</span>,
+};
 
 <span class="doccomment">/// A visitor for generating queries for an SQLite database. Requires that</span>
 <span class="doccomment">/// `rusqlite` feature flag is selected.</span>
@@ -573,6 +661,7 @@
     }
 }
 
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sqlite&quot;</span>)]</span>
 <span class="kw">impl</span> <span class="ident">Bindable</span> <span class="kw">for</span> <span class="ident">ParameterizedValue</span> {
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">bind</span>(<span class="self">self</span>, <span class="ident">statement</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Statement</span>, <span class="ident">i</span>: <span class="ident">usize</span>) <span class="op">-&gt;</span> <span class="ident">SqliteResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
@@ -587,6 +676,21 @@
             <span class="ident">Pv</span>::<span class="ident">Boolean</span>(<span class="bool-val">true</span>) <span class="op">=&gt;</span> <span class="ident">statement</span>.<span class="ident">bind</span>(<span class="ident">i</span>, <span class="number">1</span>),
             <span class="ident">Pv</span>::<span class="ident">Boolean</span>(<span class="bool-val">false</span>) <span class="op">=&gt;</span> <span class="ident">statement</span>.<span class="ident">bind</span>(<span class="ident">i</span>, <span class="number">0</span>),
         }
+    }
+}
+
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rusqlite&quot;</span>)]</span>
+<span class="kw">impl</span> <span class="ident">ToSql</span> <span class="kw">for</span> <span class="ident">ParameterizedValue</span> {
+    <span class="kw">fn</span> <span class="ident">to_sql</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ToSqlOutput</span>, <span class="ident">RusqlError</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">value</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span> {
+            <span class="ident">ParameterizedValue</span>::<span class="ident">Null</span> <span class="op">=&gt;</span> <span class="ident">ToSqlOutput</span>::<span class="ident">from</span>(<span class="ident">Null</span>),
+            <span class="ident">ParameterizedValue</span>::<span class="ident">Integer</span>(<span class="ident">integer</span>) <span class="op">=&gt;</span> <span class="ident">ToSqlOutput</span>::<span class="ident">from</span>(<span class="kw-2">*</span><span class="ident">integer</span>),
+            <span class="ident">ParameterizedValue</span>::<span class="ident">Real</span>(<span class="ident">float</span>) <span class="op">=&gt;</span> <span class="ident">ToSqlOutput</span>::<span class="ident">from</span>(<span class="kw-2">*</span><span class="ident">float</span>),
+            <span class="ident">ParameterizedValue</span>::<span class="ident">Text</span>(<span class="ident">string</span>) <span class="op">=&gt;</span> <span class="ident">ToSqlOutput</span>::<span class="ident">from</span>(<span class="ident">string</span>.<span class="ident">clone</span>()),
+            <span class="ident">ParameterizedValue</span>::<span class="ident">Boolean</span>(<span class="ident">boo</span>) <span class="op">=&gt;</span> <span class="ident">ToSqlOutput</span>::<span class="ident">from</span>(<span class="kw-2">*</span><span class="ident">boo</span>),
+        };
+
+        <span class="prelude-val">Ok</span>(<span class="ident">value</span>)
     }
 }
 
@@ -935,6 +1039,7 @@
     }
 
     <span class="doccomment">/// Creates a simple sqlite database with a user table and a nice user</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sqlite&quot;</span>)]</span>
     <span class="kw">fn</span> <span class="ident">sqlite_harness</span>() <span class="op">-&gt;</span> ::<span class="ident">sqlite</span>::<span class="ident">Connection</span> {
         <span class="kw">let</span> <span class="ident">conn</span> <span class="op">=</span> ::<span class="ident">sqlite</span>::<span class="ident">open</span>(<span class="string">&quot;:memory:&quot;</span>).<span class="ident">unwrap</span>();
         <span class="ident">conn</span>.<span class="ident">execute</span>(
@@ -948,6 +1053,7 @@
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sqlite&quot;</span>)]</span>
     <span class="kw">fn</span> <span class="ident">bind_test_1</span>() {
         <span class="kw">let</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">sqlite_harness</span>();
 
@@ -970,6 +1076,62 @@
         <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="number">42.69</span>, <span class="ident">s</span>.<span class="ident">read</span>::<span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span>(<span class="number">2</span>).<span class="ident">unwrap</span>());
         <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="number">1</span>, <span class="ident">s</span>.<span class="ident">read</span>::<span class="op">&lt;</span><span class="ident">i64</span><span class="op">&gt;</span>(<span class="number">3</span>).<span class="ident">unwrap</span>());
     }
+
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rusqlite&quot;</span>)]</span>
+    <span class="kw">fn</span> <span class="ident">sqlite_harness</span>() <span class="op">-&gt;</span> ::<span class="ident">rusqlite</span>::<span class="ident">Connection</span> {
+        <span class="kw">let</span> <span class="ident">conn</span> <span class="op">=</span> ::<span class="ident">rusqlite</span>::<span class="ident">Connection</span>::<span class="ident">open_in_memory</span>().<span class="ident">unwrap</span>();
+        <span class="ident">conn</span>.<span class="ident">execute</span>(
+            <span class="string">&quot;
+            CREATE TABLE users (id, name TEXT, age REAL, nice INTEGER);
+            &quot;</span>,
+            ::<span class="ident">rusqlite</span>::<span class="ident">NO_PARAMS</span>,
+        )
+        .<span class="ident">unwrap</span>();
+        <span class="ident">conn</span>.<span class="ident">execute</span>(
+            <span class="string">&quot;
+            INSERT INTO users (id, name, age, nice) VALUES (1, &#39;Alice&#39;, 42.69, 1);
+            &quot;</span>,
+            ::<span class="ident">rusqlite</span>::<span class="ident">NO_PARAMS</span>,
+        )
+        .<span class="ident">unwrap</span>();
+        <span class="ident">conn</span>
+    }
+
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rusqlite&quot;</span>)]</span>
+    <span class="kw">fn</span> <span class="ident">bind_test_1</span>() {
+        <span class="kw">let</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">sqlite_harness</span>();
+
+        <span class="kw">let</span> <span class="ident">conditions</span> <span class="op">=</span> <span class="string">&quot;name&quot;</span>
+            .<span class="ident">equals</span>(<span class="string">&quot;Alice&quot;</span>)
+            .<span class="ident">and</span>(<span class="string">&quot;age&quot;</span>.<span class="ident">less_than</span>(<span class="number">100.0</span>))
+            .<span class="ident">and</span>(<span class="string">&quot;nice&quot;</span>.<span class="ident">equals</span>(<span class="number">1</span>));
+        <span class="kw">let</span> <span class="ident">query</span> <span class="op">=</span> <span class="ident">Select</span>::<span class="ident">from</span>(<span class="string">&quot;users&quot;</span>).<span class="ident">so_that</span>(<span class="ident">conditions</span>);
+        <span class="kw">let</span> (<span class="ident">sql_str</span>, <span class="ident">params</span>) <span class="op">=</span> <span class="ident">Sqlite</span>::<span class="ident">build</span>(<span class="ident">query</span>);
+
+        <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
+        <span class="kw">struct</span> <span class="ident">Person</span> {
+            <span class="ident">name</span>: <span class="ident">String</span>,
+            <span class="ident">age</span>: <span class="ident">f64</span>,
+            <span class="ident">nice</span>: <span class="ident">i32</span>,
+        }
+
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">stmt</span> <span class="op">=</span> <span class="ident">conn</span>.<span class="ident">prepare</span>(<span class="kw-2">&amp;</span><span class="ident">sql_str</span>).<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">person_iter</span> <span class="op">=</span> <span class="ident">stmt</span>
+            .<span class="ident">query_map</span>(<span class="kw-2">&amp;</span><span class="ident">params</span>, <span class="op">|</span><span class="ident">row</span><span class="op">|</span> <span class="ident">Person</span> {
+                <span class="ident">name</span>: <span class="ident">row</span>.<span class="ident">get</span>(<span class="number">1</span>),
+                <span class="ident">age</span>: <span class="ident">row</span>.<span class="ident">get</span>(<span class="number">2</span>),
+                <span class="ident">nice</span>: <span class="ident">row</span>.<span class="ident">get</span>(<span class="number">3</span>),
+            })
+            .<span class="ident">unwrap</span>();
+
+        <span class="kw">let</span> <span class="ident">person</span>: <span class="ident">Person</span> <span class="op">=</span> <span class="ident">person_iter</span>.<span class="ident">nth</span>(<span class="number">0</span>).<span class="ident">unwrap</span>().<span class="ident">unwrap</span>();
+
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="string">&quot;Alice&quot;</span>, <span class="ident">person</span>.<span class="ident">name</span>);
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="number">42.69</span>, <span class="ident">person</span>.<span class="ident">age</span>);
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="number">1</span>, <span class="ident">person</span>.<span class="ident">nice</span>);
+    }
+
 }
 </pre></div>
 </section><section id="search" class="content hidden"></section><section class="footer"></section><aside id="help" class="hidden"><div><h1 class="hidden">Help</h1><div class="shortcuts"><h2>Keyboard Shortcuts</h2><dl><dt><kbd>?</kbd></dt><dd>Show this help dialog</dd><dt><kbd>S</kbd></dt><dd>Focus the search field</dd><dt><kbd>↑</kbd></dt><dd>Move up in search results</dd><dt><kbd>↓</kbd></dt><dd>Move down in search results</dd><dt><kbd>↹</kbd></dt><dd>Switch tab</dd><dt><kbd>&#9166;</kbd></dt><dd>Go to active search result</dd><dt><kbd>+</kbd></dt><dd>Expand all sections</dd><dt><kbd>-</kbd></dt><dd>Collapse all sections</dd></dl></div><div class="infos"><h2>Search Tricks</h2><p>Prefix searches with a type followed by a colon (e.g. <code>fn:</code>) to restrict the search to a given type.</p><p>Accepted types are: <code>fn</code>, <code>mod</code>, <code>struct</code>, <code>enum</code>, <code>trait</code>, <code>type</code>, <code>macro</code>, and <code>const</code>.</p><p>Search functions by type signature (e.g. <code>vec -> usize</code> or <code>* -> vec</code>)</p><p>Search multiple things at once by splitting your query with comma (e.g. <code>str,u8</code> or <code>String,struct:Vec,test</code>)</p></div></div></aside><script>window.rootPath = "../../../";window.currentCrate = "prisma_query";</script><script src="../../../aliases.js"></script><script src="../../../main.js"></script><script src="../../../source-files.js"></script><script src="../../../source-script.js"></script><script defer src="../../../search-index.js"></script></body></html>
