@@ -58,7 +58,6 @@
 <span id="58">58</span>
 <span id="59">59</span>
 <span id="60">60</span>
-<span id="61">61</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">ast</span>::{<span class="ident">Column</span>, <span class="ident">IntoOrderDefinition</span>, <span class="ident">Ordering</span>};
 
@@ -86,7 +85,6 @@
         <span class="ident">T</span>: <span class="ident">IntoOrderDefinition</span>,
     {
         <span class="self">self</span>.<span class="ident">over</span>.<span class="ident">ordering</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">over</span>.<span class="ident">ordering</span>.<span class="ident">append</span>(<span class="ident">value</span>.<span class="ident">into_order_definition</span>());
-
         <span class="self">self</span>
     }
 
@@ -96,7 +94,6 @@
         <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Column</span><span class="op">&gt;</span>,
     {
         <span class="self">self</span>.<span class="ident">over</span>.<span class="ident">partitioning</span>.<span class="ident">push</span>(<span class="ident">partition</span>.<span class="ident">into</span>());
-
         <span class="self">self</span>
     }
 }
@@ -118,6 +115,7 @@
 <span class="doccomment">///     sql</span>
 <span class="doccomment">/// );</span>
 <span class="doccomment">/// ```</span>
+<span class="attribute">#[<span class="ident">inline</span>]</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">row_number</span>() <span class="op">-&gt;</span> <span class="ident">RowNumber</span> {
     <span class="ident">RowNumber</span>::<span class="ident">default</span>()
 }

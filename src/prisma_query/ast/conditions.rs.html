@@ -79,6 +79,14 @@
 <span id="79">79</span>
 <span id="80">80</span>
 <span id="81">81</span>
+<span id="82">82</span>
+<span id="83">83</span>
+<span id="84">84</span>
+<span id="85">85</span>
+<span id="86">86</span>
+<span id="87">87</span>
+<span id="88">88</span>
+<span id="89">89</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">ast</span>::<span class="kw-2">*</span>;
 
@@ -101,6 +109,7 @@
 
 <span class="kw">impl</span> <span class="ident">ConditionTree</span> {
     <span class="doccomment">/// An `AND` statement, is true when both sides are true.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">and</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">J</span><span class="op">&gt;</span>(<span class="ident">left</span>: <span class="ident">E</span>, <span class="ident">right</span>: <span class="ident">J</span>) <span class="op">-&gt;</span> <span class="ident">ConditionTree</span>
     <span class="kw">where</span>
         <span class="ident">E</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&gt;</span>,
@@ -110,6 +119,7 @@
     }
 
     <span class="doccomment">/// An `OR` statement, is true when one side is true.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">or</span><span class="op">&lt;</span><span class="ident">E</span>, <span class="ident">J</span><span class="op">&gt;</span>(<span class="ident">left</span>: <span class="ident">E</span>, <span class="ident">right</span>: <span class="ident">J</span>) <span class="op">-&gt;</span> <span class="ident">ConditionTree</span>
     <span class="kw">where</span>
         <span class="ident">E</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&gt;</span>,
@@ -119,6 +129,7 @@
     }
 
     <span class="doccomment">/// A `NOT` statement, is true when the expression is false.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">not</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>(<span class="ident">left</span>: <span class="ident">E</span>) <span class="op">-&gt;</span> <span class="ident">ConditionTree</span>
     <span class="kw">where</span>
         <span class="ident">E</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&gt;</span>,
@@ -127,6 +138,7 @@
     }
 
     <span class="doccomment">/// A single leaf, is true when the expression is true.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">single</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>(<span class="ident">left</span>: <span class="ident">E</span>) <span class="op">-&gt;</span> <span class="ident">ConditionTree</span>
     <span class="kw">where</span>
         <span class="ident">E</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&gt;</span>,
@@ -135,6 +147,7 @@
     }
 
     <span class="doccomment">/// Inverts the entire condition tree if condition is met.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">invert_if</span>(<span class="self">self</span>, <span class="ident">invert</span>: <span class="ident">bool</span>) <span class="op">-&gt;</span> <span class="ident">ConditionTree</span> {
         <span class="kw">if</span> <span class="ident">invert</span> {
             <span class="self">self</span>.<span class="ident">not</span>()
@@ -145,18 +158,21 @@
 }
 
 <span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">ConditionTree</span> {
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">default</span>() <span class="op">-&gt;</span> <span class="self">Self</span> {
         <span class="ident">ConditionTree</span>::<span class="ident">NoCondition</span>
     }
 }
 
 <span class="kw">impl</span> <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ConditionTree</span> {
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">into</span>(<span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">Expression</span> {
         <span class="ident">Expression</span>::<span class="ident">ConditionTree</span>(<span class="self">self</span>)
     }
 }
 
 <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">Select</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ConditionTree</span> {
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">sel</span>: <span class="ident">Select</span>) <span class="op">-&gt;</span> <span class="ident">ConditionTree</span> {
         <span class="ident">ConditionTree</span>::<span class="ident">single</span>(<span class="ident">Expression</span>::<span class="ident">Value</span>(<span class="ident">sel</span>.<span class="ident">into</span>()))
     }
