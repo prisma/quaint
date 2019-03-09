@@ -147,7 +147,7 @@
 <span class="kw">impl</span> <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Column</span> {
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">into</span>(<span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">DatabaseValue</span> {
-        <span class="ident">DatabaseValue</span>::<span class="ident">Column</span>(<span class="self">self</span>)
+        <span class="ident">DatabaseValue</span>::<span class="ident">Column</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="self">self</span>))
     }
 }
 

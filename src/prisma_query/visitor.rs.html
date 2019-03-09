@@ -400,8 +400,6 @@
 <span id="400">400</span>
 <span id="401">401</span>
 <span id="402">402</span>
-<span id="403">403</span>
-<span id="404">404</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Visitors for reading an abstract SQL syntax tree, generating the query and</span>
 <span class="doccomment">//! gathering parameters in the right order.</span>
@@ -502,7 +500,7 @@
                     },
                 }
             } <span class="kw">else</span> {
-                <span class="ident">result</span>.<span class="ident">push</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}&quot;</span>, <span class="self">self</span>.<span class="ident">visit_columns</span>(<span class="ident">select</span>.<span class="ident">columns</span>)));
+                <span class="ident">result</span>.<span class="ident">push</span>(<span class="self">self</span>.<span class="ident">visit_columns</span>(<span class="ident">select</span>.<span class="ident">columns</span>));
             }
 
             <span class="ident">result</span>.<span class="ident">push</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;FROM {}&quot;</span>, <span class="self">self</span>.<span class="ident">visit_table</span>(<span class="kw-2">*</span><span class="ident">table</span>, <span class="bool-val">true</span>)));
@@ -523,12 +521,10 @@
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">offset</span>) <span class="op">=</span> <span class="ident">select</span>.<span class="ident">offset</span> {
                 <span class="ident">result</span>.<span class="ident">push</span>(<span class="self">self</span>.<span class="ident">visit_offset</span>(<span class="ident">offset</span>));
             }
+        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">select</span>.<span class="ident">columns</span>.<span class="ident">is_empty</span>() {
+            <span class="ident">result</span>.<span class="ident">push</span>(<span class="ident">String</span>::<span class="ident">from</span>(<span class="string">&quot;*&quot;</span>));
         } <span class="kw">else</span> {
-            <span class="kw">if</span> <span class="ident">select</span>.<span class="ident">columns</span>.<span class="ident">is_empty</span>() {
-                <span class="ident">result</span>.<span class="ident">push</span>(<span class="ident">String</span>::<span class="ident">from</span>(<span class="string">&quot;*&quot;</span>));
-            } <span class="kw">else</span> {
-                <span class="ident">result</span>.<span class="ident">push</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}&quot;</span>, <span class="self">self</span>.<span class="ident">visit_columns</span>(<span class="ident">select</span>.<span class="ident">columns</span>)));
-            }
+            <span class="ident">result</span>.<span class="ident">push</span>(<span class="self">self</span>.<span class="ident">visit_columns</span>(<span class="ident">select</span>.<span class="ident">columns</span>));
         }
 
         <span class="ident">result</span>.<span class="ident">join</span>(<span class="string">&quot; &quot;</span>)
@@ -579,7 +575,7 @@
                 <span class="self">self</span>.<span class="ident">add_parameter</span>(<span class="ident">val</span>);
                 <span class="self">Self</span>::<span class="ident">C_PARAM</span>.<span class="ident">to_string</span>()
             }
-            <span class="ident">DatabaseValue</span>::<span class="ident">Column</span>(<span class="ident">column</span>) <span class="op">=&gt;</span> <span class="self">self</span>.<span class="ident">visit_column</span>(<span class="ident">column</span>),
+            <span class="ident">DatabaseValue</span>::<span class="ident">Column</span>(<span class="ident">column</span>) <span class="op">=&gt;</span> <span class="self">self</span>.<span class="ident">visit_column</span>(<span class="kw-2">*</span><span class="ident">column</span>),
             <span class="ident">DatabaseValue</span>::<span class="ident">Row</span>(<span class="ident">row</span>) <span class="op">=&gt;</span> <span class="self">self</span>.<span class="ident">visit_row</span>(<span class="ident">row</span>),
             <span class="ident">DatabaseValue</span>::<span class="ident">Select</span>(<span class="ident">select</span>) <span class="op">=&gt;</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;({})&quot;</span>, <span class="self">self</span>.<span class="ident">visit_select</span>(<span class="ident">select</span>)),
             <span class="ident">DatabaseValue</span>::<span class="ident">Function</span>(<span class="ident">function</span>) <span class="op">=&gt;</span> <span class="self">self</span>.<span class="ident">visit_function</span>(<span class="ident">function</span>),
@@ -663,7 +659,7 @@
     <span class="doccomment">/// a comparison call</span>
     <span class="kw">fn</span> <span class="ident">visit_expression</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">expression</span>: <span class="ident">Expression</span>) <span class="op">-&gt;</span> <span class="ident">String</span> {
         <span class="kw">match</span> <span class="ident">expression</span> {
-            <span class="ident">Expression</span>::<span class="ident">Value</span>(<span class="ident">value</span>) <span class="op">=&gt;</span> <span class="self">self</span>.<span class="ident">visit_database_value</span>(<span class="ident">value</span>),
+            <span class="ident">Expression</span>::<span class="ident">Value</span>(<span class="ident">value</span>) <span class="op">=&gt;</span> <span class="self">self</span>.<span class="ident">visit_database_value</span>(<span class="kw-2">*</span><span class="ident">value</span>),
             <span class="ident">Expression</span>::<span class="ident">ConditionTree</span>(<span class="ident">tree</span>) <span class="op">=&gt;</span> <span class="self">self</span>.<span class="ident">visit_conditions</span>(<span class="ident">tree</span>),
             <span class="ident">Expression</span>::<span class="ident">Compare</span>(<span class="ident">compare</span>) <span class="op">=&gt;</span> <span class="self">self</span>.<span class="ident">visit_compare</span>(<span class="ident">compare</span>),
         }
