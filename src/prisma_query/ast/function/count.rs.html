@@ -39,6 +39,9 @@
 <span id="39">39</span>
 <span id="40">40</span>
 <span id="41">41</span>
+<span id="42">42</span>
+<span id="43">43</span>
+<span id="44">44</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">ast</span>::<span class="ident">DatabaseValue</span>;
 
@@ -52,7 +55,10 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// ```rust</span>
     <span class="doccomment">/// # use prisma_query::{ast::*, visitor::{Visitor, Sqlite}};</span>
-    <span class="doccomment">/// let query = Select::from(&quot;users&quot;).value(count(Column::from((&quot;users&quot;, &quot;id&quot;))).count(Column::from((&quot;users&quot;, &quot;name&quot;))));</span>
+    <span class="doccomment">/// let fun = count(Column::from((&quot;users&quot;, &quot;id&quot;)))</span>
+    <span class="doccomment">///     .count(Column::from((&quot;users&quot;, &quot;name&quot;)));</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// let query = Select::from(&quot;users&quot;).value(fun);</span>
     <span class="doccomment">/// let (sql, _) = Sqlite::build(query);</span>
     <span class="doccomment">/// assert_eq!(&quot;SELECT COUNT(`users`.`id`, `users`.`name`) FROM `users` LIMIT -1&quot;, sql);</span>
     <span class="doccomment">/// ```</span>
