@@ -573,6 +573,13 @@
 <span id="573">573</span>
 <span id="574">574</span>
 <span id="575">575</span>
+<span id="576">576</span>
+<span id="577">577</span>
+<span id="578">578</span>
+<span id="579">579</span>
+<span id="580">580</span>
+<span id="581">581</span>
+<span id="582">582</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">ast</span>::<span class="kw-2">*</span>, <span class="ident">visitor</span>::<span class="ident">Visitor</span>};
 
@@ -639,6 +646,13 @@
                     <span class="ident">String</span>::<span class="ident">from</span>(<span class="string">&quot;COUNT()&quot;</span>)
                 } <span class="kw">else</span> {
                     <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;COUNT({})&quot;</span>, <span class="self">self</span>.<span class="ident">visit_columns</span>(<span class="ident">fun_count</span>.<span class="ident">exprs</span>))
+                }
+            }
+            <span class="ident">FunctionType</span>::<span class="ident">Distinct</span>(<span class="ident">fun_distinct</span>) <span class="op">=&gt;</span> {
+                <span class="kw">if</span> <span class="ident">fun_distinct</span>.<span class="ident">exprs</span>.<span class="ident">is_empty</span>() {
+                    <span class="ident">String</span>::<span class="ident">from</span>(<span class="string">&quot;DISTINCT()&quot;</span>)
+                } <span class="kw">else</span> {
+                    <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;DISTINCT({})&quot;</span>, <span class="self">self</span>.<span class="ident">visit_columns</span>(<span class="ident">fun_distinct</span>.<span class="ident">exprs</span>))
                 }
             }
         };
