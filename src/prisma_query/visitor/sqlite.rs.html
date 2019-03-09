@@ -566,6 +566,13 @@
 <span id="566">566</span>
 <span id="567">567</span>
 <span id="568">568</span>
+<span id="569">569</span>
+<span id="570">570</span>
+<span id="571">571</span>
+<span id="572">572</span>
+<span id="573">573</span>
+<span id="574">574</span>
+<span id="575">575</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">ast</span>::<span class="kw-2">*</span>, <span class="ident">visitor</span>::<span class="ident">Visitor</span>};
 
@@ -625,6 +632,13 @@
                         <span class="string">&quot;ROW_NUMBER() OVER({})&quot;</span>,
                         <span class="self">self</span>.<span class="ident">visit_partitioning</span>(<span class="ident">fun_rownum</span>.<span class="ident">over</span>)
                     )
+                }
+            }
+            <span class="ident">FunctionType</span>::<span class="ident">Count</span>(<span class="ident">fun_count</span>) <span class="op">=&gt;</span> {
+                <span class="kw">if</span> <span class="ident">fun_count</span>.<span class="ident">exprs</span>.<span class="ident">is_empty</span>() {
+                    <span class="ident">String</span>::<span class="ident">from</span>(<span class="string">&quot;COUNT()&quot;</span>)
+                } <span class="kw">else</span> {
+                    <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;COUNT({})&quot;</span>, <span class="self">self</span>.<span class="ident">visit_columns</span>(<span class="ident">fun_count</span>.<span class="ident">exprs</span>))
                 }
             }
         };
