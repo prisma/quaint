@@ -155,7 +155,7 @@
     <span class="doccomment">/// A qualified asterisk to this table</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">asterisk</span>(<span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">DatabaseValue</span> {
-        <span class="ident">DatabaseValue</span>::<span class="ident">Asterisk</span>(<span class="self">self</span>)
+        <span class="ident">DatabaseValue</span>::<span class="ident">Asterisk</span>(<span class="prelude-val">Some</span>(<span class="self">self</span>))
     }
 }
 
