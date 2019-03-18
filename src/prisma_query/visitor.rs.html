@@ -441,6 +441,38 @@
 <span id="441">441</span>
 <span id="442">442</span>
 <span id="443">443</span>
+<span id="444">444</span>
+<span id="445">445</span>
+<span id="446">446</span>
+<span id="447">447</span>
+<span id="448">448</span>
+<span id="449">449</span>
+<span id="450">450</span>
+<span id="451">451</span>
+<span id="452">452</span>
+<span id="453">453</span>
+<span id="454">454</span>
+<span id="455">455</span>
+<span id="456">456</span>
+<span id="457">457</span>
+<span id="458">458</span>
+<span id="459">459</span>
+<span id="460">460</span>
+<span id="461">461</span>
+<span id="462">462</span>
+<span id="463">463</span>
+<span id="464">464</span>
+<span id="465">465</span>
+<span id="466">466</span>
+<span id="467">467</span>
+<span id="468">468</span>
+<span id="469">469</span>
+<span id="470">470</span>
+<span id="471">471</span>
+<span id="472">472</span>
+<span id="473">473</span>
+<span id="474">474</span>
+<span id="475">475</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Visitors for reading an abstract SQL syntax tree, generating the query and</span>
 <span class="doccomment">//! gathering parameters in the right order.</span>
@@ -571,6 +603,7 @@
         <span class="ident">result</span>.<span class="ident">join</span>(<span class="string">&quot; &quot;</span>)
     }
 
+    <span class="doccomment">/// A walk through an `INSERT` statement</span>
     <span class="kw">fn</span> <span class="ident">visit_insert</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">insert</span>: <span class="ident">Insert</span>) <span class="op">-&gt;</span> <span class="ident">String</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">result</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="macro">format</span><span class="macro">!</span>(
             <span class="string">&quot;INSERT INTO {}&quot;</span>,
@@ -605,6 +638,36 @@
         <span class="ident">result</span>.<span class="ident">join</span>(<span class="string">&quot; &quot;</span>)
     }
 
+    <span class="doccomment">/// A walk through an `UPDATE` statement</span>
+    <span class="kw">fn</span> <span class="ident">visit_update</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">update</span>: <span class="ident">Update</span>) <span class="op">-&gt;</span> <span class="ident">String</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">result</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="macro">format</span><span class="macro">!</span>(
+            <span class="string">&quot;UPDATE {} SET&quot;</span>,
+            <span class="self">self</span>.<span class="ident">visit_table</span>(<span class="ident">update</span>.<span class="ident">table</span>, <span class="bool-val">true</span>)
+        )];
+
+        {
+            <span class="kw">let</span> <span class="ident">pairs</span> <span class="op">=</span> <span class="ident">update</span>.<span class="ident">columns</span>.<span class="ident">into_iter</span>().<span class="ident">zip</span>(<span class="ident">update</span>.<span class="ident">values</span>.<span class="ident">into_iter</span>());
+
+            <span class="kw">let</span> <span class="ident">assignments</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">pairs</span>
+                .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">key</span>, <span class="ident">value</span>)<span class="op">|</span> {
+                    <span class="macro">format</span><span class="macro">!</span>(
+                        <span class="string">&quot;{} = {}&quot;</span>,
+                        <span class="self">self</span>.<span class="ident">visit_column</span>(<span class="ident">key</span>),
+                        <span class="self">self</span>.<span class="ident">visit_database_value</span>(<span class="ident">value</span>)
+                    )
+                })
+                .<span class="ident">collect</span>();
+
+            <span class="ident">result</span>.<span class="ident">push</span>(<span class="ident">assignments</span>.<span class="ident">join</span>(<span class="string">&quot;, &quot;</span>));
+        }
+
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">conditions</span>) <span class="op">=</span> <span class="ident">update</span>.<span class="ident">conditions</span> {
+            <span class="ident">result</span>.<span class="ident">push</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;WHERE {}&quot;</span>, <span class="self">self</span>.<span class="ident">visit_conditions</span>(<span class="ident">conditions</span>)));
+        }
+
+        <span class="ident">result</span>.<span class="ident">join</span>(<span class="string">&quot; &quot;</span>)
+    }
+
     <span class="doccomment">/// A helper for delimiting an identifier, surrounding every part with `C_BACKTICK`</span>
     <span class="doccomment">/// and delimiting the values with a `.`</span>
     <span class="doccomment">///</span>
@@ -630,6 +693,7 @@
         <span class="kw">match</span> <span class="ident">query</span> {
             <span class="ident">Query</span>::<span class="ident">Select</span>(<span class="ident">select</span>) <span class="op">=&gt;</span> <span class="self">self</span>.<span class="ident">visit_select</span>(<span class="ident">select</span>),
             <span class="ident">Query</span>::<span class="ident">Insert</span>(<span class="ident">insert</span>) <span class="op">=&gt;</span> <span class="self">self</span>.<span class="ident">visit_insert</span>(<span class="ident">insert</span>),
+            <span class="ident">Query</span>::<span class="ident">Update</span>(<span class="ident">update</span>) <span class="op">=&gt;</span> <span class="self">self</span>.<span class="ident">visit_update</span>(<span class="ident">update</span>),
         }
     }
 
