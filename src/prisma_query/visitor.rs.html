@@ -473,6 +473,21 @@
 <span id="473">473</span>
 <span id="474">474</span>
 <span id="475">475</span>
+<span id="476">476</span>
+<span id="477">477</span>
+<span id="478">478</span>
+<span id="479">479</span>
+<span id="480">480</span>
+<span id="481">481</span>
+<span id="482">482</span>
+<span id="483">483</span>
+<span id="484">484</span>
+<span id="485">485</span>
+<span id="486">486</span>
+<span id="487">487</span>
+<span id="488">488</span>
+<span id="489">489</span>
+<span id="490">490</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Visitors for reading an abstract SQL syntax tree, generating the query and</span>
 <span class="doccomment">//! gathering parameters in the right order.</span>
@@ -668,6 +683,20 @@
         <span class="ident">result</span>.<span class="ident">join</span>(<span class="string">&quot; &quot;</span>)
     }
 
+    <span class="doccomment">/// A walk through an `DELETE` statement</span>
+    <span class="kw">fn</span> <span class="ident">visit_delete</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">delete</span>: <span class="ident">Delete</span>) <span class="op">-&gt;</span> <span class="ident">String</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">result</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="macro">format</span><span class="macro">!</span>(
+            <span class="string">&quot;DELETE FROM {}&quot;</span>,
+            <span class="self">self</span>.<span class="ident">visit_table</span>(<span class="ident">delete</span>.<span class="ident">table</span>, <span class="bool-val">true</span>)
+        )];
+
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">conditions</span>) <span class="op">=</span> <span class="ident">delete</span>.<span class="ident">conditions</span> {
+            <span class="ident">result</span>.<span class="ident">push</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;WHERE {}&quot;</span>, <span class="self">self</span>.<span class="ident">visit_conditions</span>(<span class="ident">conditions</span>)));
+        }
+
+        <span class="ident">result</span>.<span class="ident">join</span>(<span class="string">&quot; &quot;</span>)
+    }
+
     <span class="doccomment">/// A helper for delimiting an identifier, surrounding every part with `C_BACKTICK`</span>
     <span class="doccomment">/// and delimiting the values with a `.`</span>
     <span class="doccomment">///</span>
@@ -694,6 +723,7 @@
             <span class="ident">Query</span>::<span class="ident">Select</span>(<span class="ident">select</span>) <span class="op">=&gt;</span> <span class="self">self</span>.<span class="ident">visit_select</span>(<span class="ident">select</span>),
             <span class="ident">Query</span>::<span class="ident">Insert</span>(<span class="ident">insert</span>) <span class="op">=&gt;</span> <span class="self">self</span>.<span class="ident">visit_insert</span>(<span class="ident">insert</span>),
             <span class="ident">Query</span>::<span class="ident">Update</span>(<span class="ident">update</span>) <span class="op">=&gt;</span> <span class="self">self</span>.<span class="ident">visit_update</span>(<span class="ident">update</span>),
+            <span class="ident">Query</span>::<span class="ident">Delete</span>(<span class="ident">delete</span>) <span class="op">=&gt;</span> <span class="self">self</span>.<span class="ident">visit_delete</span>(<span class="ident">delete</span>),
         }
     }
 
