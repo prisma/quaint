@@ -279,15 +279,15 @@
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Query</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Select</span> {
+<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">Select</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Query</span> {
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">into</span>(<span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">Query</span> {
-        <span class="ident">Query</span>::<span class="ident">Select</span>(<span class="self">self</span>)
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">sel</span>: <span class="ident">Select</span>) <span class="op">-&gt;</span> <span class="ident">Query</span> {
+        <span class="ident">Query</span>::<span class="ident">Select</span>(<span class="ident">sel</span>)
     }
 }
 
 <span class="kw">impl</span> <span class="ident">Select</span> {
-    <span class="doccomment">/// Creates a new `SELECT` statement from the given table.</span>
+    <span class="doccomment">/// Creates a new `SELECT` statement for the given table.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// ```rust</span>
     <span class="doccomment">/// # use prisma_query::{ast::*, visitor::{Visitor, Sqlite}};</span>

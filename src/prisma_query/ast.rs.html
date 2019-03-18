@@ -32,6 +32,8 @@
 <span id="32">32</span>
 <span id="33">33</span>
 <span id="34">34</span>
+<span id="35">35</span>
+<span id="36">36</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! An abstract syntax tree for SQL queries.</span>
 <span class="doccomment">//!</span>
@@ -46,6 +48,7 @@
 <span class="kw">mod</span> <span class="ident">conjuctive</span>;
 <span class="kw">mod</span> <span class="ident">expression</span>;
 <span class="kw">mod</span> <span class="ident">function</span>;
+<span class="kw">mod</span> <span class="ident">insert</span>;
 <span class="kw">mod</span> <span class="ident">join</span>;
 <span class="kw">mod</span> <span class="ident">ordering</span>;
 <span class="kw">mod</span> <span class="ident">query</span>;
@@ -60,6 +63,7 @@
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">conjuctive</span>::<span class="ident">Conjuctive</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">expression</span>::<span class="ident">Expression</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">function</span>::<span class="kw-2">*</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">insert</span>::<span class="ident">Insert</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">join</span>::{<span class="ident">Join</span>, <span class="ident">JoinData</span>, <span class="ident">Joinable</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">ordering</span>::{<span class="ident">IntoOrderDefinition</span>, <span class="ident">Order</span>, <span class="ident">OrderDefinition</span>, <span class="ident">Orderable</span>, <span class="ident">Ordering</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">query</span>::<span class="ident">Query</span>;
