@@ -73,6 +73,7 @@
 <span id="73">73</span>
 <span id="74">74</span>
 <span id="75">75</span>
+<span id="76">76</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">ast</span>::<span class="kw-2">*</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeMap</span>;
@@ -82,7 +83,7 @@
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Insert</span> {
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">table</span>: <span class="ident">Table</span>,
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">values</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">ParameterizedValue</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">returning</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Column</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">returning</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&gt;</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">Insert</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Query</span> {
@@ -134,16 +135,17 @@
     }
 
     <span class="doccomment">/// Define the column to be returned from the newly inserted row.</span>
+    <span class="doccomment">///</span>
     <span class="doccomment">/// ```rust</span>
     <span class="doccomment">/// # use prisma_query::{ast::*, visitor::{Visitor, Sqlite}};</span>
-    <span class="doccomment">/// let query = Insert::into(&quot;users&quot;).returning(&quot;id&quot;);</span>
+    <span class="doccomment">/// let query = Insert::into(&quot;users&quot;).returning(Column::from(&quot;id&quot;));</span>
     <span class="doccomment">/// let (sql, _) = Sqlite::build(query);</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// assert_eq!(&quot;INSERT INTO `users` DEFAULT VALUES RETURNING `id`&quot;, sql);</span>
     <span class="doccomment">/// ```</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">returning</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">column</span>: <span class="ident">T</span>) <span class="op">-&gt;</span> <span class="self">Self</span>
     <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Column</span><span class="op">&gt;</span>,
+        <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&gt;</span>,
     {
         <span class="self">self</span>.<span class="ident">returning</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">column</span>.<span class="ident">into</span>());
         <span class="self">self</span>
