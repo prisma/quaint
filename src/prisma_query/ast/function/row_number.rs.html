@@ -63,8 +63,8 @@
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Default</span>, <span class="ident">Clone</span>, <span class="ident">PartialEq</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Over</span> {
-    <span class="kw">pub</span> <span class="ident">ordering</span>: <span class="ident">Ordering</span>,
-    <span class="kw">pub</span> <span class="ident">partitioning</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Column</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">ordering</span>: <span class="ident">Ordering</span>,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">partitioning</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Column</span><span class="op">&gt;</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">Over</span> {
@@ -75,7 +75,7 @@
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Default</span>, <span class="ident">Clone</span>, <span class="ident">PartialEq</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">RowNumber</span> {
-    <span class="kw">pub</span> <span class="ident">over</span>: <span class="ident">Over</span>,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">over</span>: <span class="ident">Over</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">RowNumber</span> {

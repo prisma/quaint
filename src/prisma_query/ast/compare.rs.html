@@ -498,6 +498,9 @@
 <span id="498">498</span>
 <span id="499">499</span>
 <span id="500">500</span>
+<span id="501">501</span>
+<span id="502">502</span>
+<span id="503">503</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">ast</span>::{<span class="ident">Column</span>, <span class="ident">ConditionTree</span>, <span class="ident">DatabaseValue</span>, <span class="ident">Expression</span>};
 
@@ -822,7 +825,10 @@
         <span class="ident">V</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&gt;</span>;
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">U</span><span class="op">&gt;</span> <span class="ident">Comparable</span> <span class="kw">for</span> <span class="ident">U</span> <span class="kw">where</span> <span class="ident">U</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Column</span><span class="op">&gt;</span> {
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">U</span><span class="op">&gt;</span> <span class="ident">Comparable</span> <span class="kw">for</span> <span class="ident">U</span>
+<span class="kw">where</span>
+    <span class="ident">U</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Column</span><span class="op">&gt;</span>,
+{
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">equals</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">comparison</span>: <span class="ident">T</span>) <span class="op">-&gt;</span> <span class="ident">Compare</span>
     <span class="kw">where</span>
@@ -906,7 +912,7 @@
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">like</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">pattern</span>: <span class="ident">T</span>) <span class="op">-&gt;</span> <span class="ident">Compare</span>
     <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>
+        <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
     {
         <span class="kw">let</span> <span class="ident">col</span>: <span class="ident">Column</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">into</span>();
         <span class="kw">let</span> <span class="ident">val</span>: <span class="ident">DatabaseValue</span> <span class="op">=</span> <span class="ident">col</span>.<span class="ident">into</span>();
@@ -916,7 +922,7 @@
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">not_like</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">pattern</span>: <span class="ident">T</span>) <span class="op">-&gt;</span> <span class="ident">Compare</span>
     <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>
+        <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
     {
         <span class="kw">let</span> <span class="ident">col</span>: <span class="ident">Column</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">into</span>();
         <span class="kw">let</span> <span class="ident">val</span>: <span class="ident">DatabaseValue</span> <span class="op">=</span> <span class="ident">col</span>.<span class="ident">into</span>();
@@ -926,7 +932,7 @@
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">begins_with</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">pattern</span>: <span class="ident">T</span>) <span class="op">-&gt;</span> <span class="ident">Compare</span>
     <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>
+        <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
     {
         <span class="kw">let</span> <span class="ident">col</span>: <span class="ident">Column</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">into</span>();
         <span class="kw">let</span> <span class="ident">val</span>: <span class="ident">DatabaseValue</span> <span class="op">=</span> <span class="ident">col</span>.<span class="ident">into</span>();
@@ -936,7 +942,7 @@
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">not_begins_with</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">pattern</span>: <span class="ident">T</span>) <span class="op">-&gt;</span> <span class="ident">Compare</span>
     <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>
+        <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
     {
         <span class="kw">let</span> <span class="ident">col</span>: <span class="ident">Column</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">into</span>();
         <span class="kw">let</span> <span class="ident">val</span>: <span class="ident">DatabaseValue</span> <span class="op">=</span> <span class="ident">col</span>.<span class="ident">into</span>();
@@ -946,7 +952,7 @@
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">ends_into</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">pattern</span>: <span class="ident">T</span>) <span class="op">-&gt;</span> <span class="ident">Compare</span>
     <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>
+        <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
     {
         <span class="kw">let</span> <span class="ident">col</span>: <span class="ident">Column</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">into</span>();
         <span class="kw">let</span> <span class="ident">val</span>: <span class="ident">DatabaseValue</span> <span class="op">=</span> <span class="ident">col</span>.<span class="ident">into</span>();
@@ -956,7 +962,7 @@
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">not_ends_into</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">pattern</span>: <span class="ident">T</span>) <span class="op">-&gt;</span> <span class="ident">Compare</span>
     <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>
+        <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
     {
         <span class="kw">let</span> <span class="ident">col</span>: <span class="ident">Column</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">into</span>();
         <span class="kw">let</span> <span class="ident">val</span>: <span class="ident">DatabaseValue</span> <span class="op">=</span> <span class="ident">col</span>.<span class="ident">into</span>();
@@ -981,7 +987,7 @@
     <span class="kw">fn</span> <span class="ident">between</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">V</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">left</span>: <span class="ident">T</span>, <span class="ident">right</span>: <span class="ident">V</span>) <span class="op">-&gt;</span> <span class="ident">Compare</span>
     <span class="kw">where</span>
         <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&gt;</span>,
-        <span class="ident">V</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&gt;</span>
+        <span class="ident">V</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&gt;</span>,
     {
         <span class="kw">let</span> <span class="ident">col</span>: <span class="ident">Column</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">into</span>();
         <span class="kw">let</span> <span class="ident">val</span>: <span class="ident">DatabaseValue</span> <span class="op">=</span> <span class="ident">col</span>.<span class="ident">into</span>();
@@ -992,7 +998,7 @@
     <span class="kw">fn</span> <span class="ident">not_between</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">V</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">left</span>: <span class="ident">T</span>, <span class="ident">right</span>: <span class="ident">V</span>) <span class="op">-&gt;</span> <span class="ident">Compare</span>
     <span class="kw">where</span>
         <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&gt;</span>,
-        <span class="ident">V</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&gt;</span>
+        <span class="ident">V</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&gt;</span>,
     {
         <span class="kw">let</span> <span class="ident">col</span>: <span class="ident">Column</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">into</span>();
         <span class="kw">let</span> <span class="ident">val</span>: <span class="ident">DatabaseValue</span> <span class="op">=</span> <span class="ident">col</span>.<span class="ident">into</span>();
