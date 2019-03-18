@@ -67,7 +67,7 @@
 <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">Delete</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Query</span> {
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">delete</span>: <span class="ident">Delete</span>) <span class="op">-&gt;</span> <span class="ident">Query</span> {
-        <span class="ident">Query</span>::<span class="ident">Delete</span>(<span class="ident">delete</span>)
+        <span class="ident">Query</span>::<span class="ident">Delete</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">delete</span>))
     }
 }
 
