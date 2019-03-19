@@ -580,11 +580,14 @@
 <span id="580">580</span>
 <span id="581">581</span>
 <span id="582">582</span>
+<span id="583">583</span>
+<span id="584">584</span>
+<span id="585">585</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">ast</span>::<span class="kw-2">*</span>, <span class="ident">visitor</span>::<span class="ident">Visitor</span>};
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sqlite&quot;</span>)]</span>
-<span class="kw">use</span> <span class="ident">sqlite</span>::{<span class="ident">Bindable</span>, <span class="ident">Statement</span>, <span class="prelude-ty">Result</span> <span class="kw">as</span> <span class="ident">SqliteResult</span>};
+<span class="kw">use</span> <span class="ident">sqlite</span>::{<span class="ident">Bindable</span>, <span class="prelude-ty">Result</span> <span class="kw">as</span> <span class="ident">SqliteResult</span>, <span class="ident">Statement</span>};
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rusqlite&quot;</span>)]</span>
 <span class="kw">use</span> <span class="ident">rusqlite</span>::{
@@ -1072,6 +1075,7 @@
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sqlite&quot;</span>)]</span>
     <span class="kw">fn</span> <span class="ident">sqlite_harness</span>() <span class="op">-&gt;</span> ::<span class="ident">sqlite</span>::<span class="ident">Connection</span> {
         <span class="kw">let</span> <span class="ident">conn</span> <span class="op">=</span> ::<span class="ident">sqlite</span>::<span class="ident">open</span>(<span class="string">&quot;:memory:&quot;</span>).<span class="ident">unwrap</span>();
+
         <span class="ident">conn</span>.<span class="ident">execute</span>(
             <span class="string">&quot;
             CREATE TABLE users (id, name TEXT, age REAL, nice INTEGER);
@@ -1079,6 +1083,7 @@
             &quot;</span>,
         )
         .<span class="ident">unwrap</span>();
+
         <span class="ident">conn</span>
     }
 
@@ -1110,20 +1115,22 @@
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rusqlite&quot;</span>)]</span>
     <span class="kw">fn</span> <span class="ident">sqlite_harness</span>() <span class="op">-&gt;</span> ::<span class="ident">rusqlite</span>::<span class="ident">Connection</span> {
         <span class="kw">let</span> <span class="ident">conn</span> <span class="op">=</span> ::<span class="ident">rusqlite</span>::<span class="ident">Connection</span>::<span class="ident">open_in_memory</span>().<span class="ident">unwrap</span>();
+
         <span class="ident">conn</span>.<span class="ident">execute</span>(
-            <span class="string">&quot;
-            CREATE TABLE users (id, name TEXT, age REAL, nice INTEGER);
-            &quot;</span>,
+            <span class="string">&quot;CREATE TABLE users (id, name TEXT, age REAL, nice INTEGER)&quot;</span>,
             ::<span class="ident">rusqlite</span>::<span class="ident">NO_PARAMS</span>,
         )
         .<span class="ident">unwrap</span>();
-        <span class="ident">conn</span>.<span class="ident">execute</span>(
-            <span class="string">&quot;
-            INSERT INTO users (id, name, age, nice) VALUES (1, &#39;Alice&#39;, 42.69, 1);
-            &quot;</span>,
-            ::<span class="ident">rusqlite</span>::<span class="ident">NO_PARAMS</span>,
-        )
-        .<span class="ident">unwrap</span>();
+
+        <span class="kw">let</span> <span class="ident">insert</span> <span class="op">=</span> <span class="ident">Insert</span>::<span class="ident">into</span>(<span class="string">&quot;users&quot;</span>)
+            .<span class="ident">value</span>(<span class="string">&quot;id&quot;</span>, <span class="number">1</span>)
+            .<span class="ident">value</span>(<span class="string">&quot;name&quot;</span>, <span class="string">&quot;Alice&quot;</span>)
+            .<span class="ident">value</span>(<span class="string">&quot;age&quot;</span>, <span class="number">42.69</span>)
+            .<span class="ident">value</span>(<span class="string">&quot;nice&quot;</span>, <span class="bool-val">true</span>);
+
+        <span class="kw">let</span> (<span class="ident">sql</span>, <span class="ident">params</span>) <span class="op">=</span> <span class="ident">Sqlite</span>::<span class="ident">build</span>(<span class="ident">insert</span>);
+
+        <span class="ident">conn</span>.<span class="ident">execute</span>(<span class="kw-2">&amp;</span><span class="ident">sql</span>, <span class="ident">params</span>.<span class="ident">as_slice</span>()).<span class="ident">unwrap</span>();
         <span class="ident">conn</span>
     }
 
@@ -1161,7 +1168,6 @@
         <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="number">42.69</span>, <span class="ident">person</span>.<span class="ident">age</span>);
         <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="number">1</span>, <span class="ident">person</span>.<span class="ident">nice</span>);
     }
-
 }
 </pre></div>
 </section><section id="search" class="content hidden"></section><section class="footer"></section><aside id="help" class="hidden"><div><h1 class="hidden">Help</h1><div class="shortcuts"><h2>Keyboard Shortcuts</h2><dl><dt><kbd>?</kbd></dt><dd>Show this help dialog</dd><dt><kbd>S</kbd></dt><dd>Focus the search field</dd><dt><kbd>↑</kbd></dt><dd>Move up in search results</dd><dt><kbd>↓</kbd></dt><dd>Move down in search results</dd><dt><kbd>↹</kbd></dt><dd>Switch tab</dd><dt><kbd>&#9166;</kbd></dt><dd>Go to active search result</dd><dt><kbd>+</kbd></dt><dd>Expand all sections</dd><dt><kbd>-</kbd></dt><dd>Collapse all sections</dd></dl></div><div class="infos"><h2>Search Tricks</h2><p>Prefix searches with a type followed by a colon (e.g. <code>fn:</code>) to restrict the search to a given type.</p><p>Accepted types are: <code>fn</code>, <code>mod</code>, <code>struct</code>, <code>enum</code>, <code>trait</code>, <code>type</code>, <code>macro</code>, and <code>const</code>.</p><p>Search functions by type signature (e.g. <code>vec -> usize</code> or <code>* -> vec</code>)</p><p>Search multiple things at once by splitting your query with comma (e.g. <code>str,u8</code> or <code>String,struct:Vec,test</code>)</p></div></div></aside><script>window.rootPath = "../../../";window.currentCrate = "prisma_query";</script><script src="../../../aliases.js"></script><script src="../../../main.js"></script><script src="../../../source-files.js"></script><script src="../../../source-script.js"></script><script defer src="../../../search-index.js"></script></body></html>
