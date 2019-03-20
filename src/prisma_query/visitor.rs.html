@@ -624,16 +624,16 @@
         <span class="kw">if</span> <span class="ident">insert</span>.<span class="ident">values</span>.<span class="ident">is_empty</span>() {
             <span class="ident">result</span>.<span class="ident">push</span>(<span class="string">&quot;DEFAULT VALUES&quot;</span>.<span class="ident">to_string</span>());
         } <span class="kw">else</span> {
-            <span class="kw">let</span> (<span class="ident">keys</span>, <span class="ident">values</span>) <span class="op">=</span>
-                <span class="ident">insert</span>
-                    .<span class="ident">values</span>
-                    .<span class="ident">into_iter</span>()
-                    .<span class="ident">fold</span>((<span class="ident">Vec</span>::<span class="ident">new</span>(), <span class="ident">Vec</span>::<span class="ident">new</span>()), <span class="op">|</span><span class="kw-2">mut</span> <span class="ident">acc</span>, <span class="ident">kv</span><span class="op">|</span> {
-                        <span class="ident">acc</span>.<span class="number">0</span>.<span class="ident">push</span>(<span class="self">self</span>.<span class="ident">visit_column</span>(<span class="ident">Column</span>::<span class="ident">from</span>(<span class="ident">kv</span>.<span class="number">0</span>)));
-                        <span class="ident">acc</span>.<span class="number">1</span>.<span class="ident">push</span>(<span class="self">self</span>.<span class="ident">visit_parameterized</span>(<span class="ident">kv</span>.<span class="number">1</span>));
+            <span class="kw">let</span> (<span class="ident">keys</span>, <span class="ident">values</span>) <span class="op">=</span> <span class="ident">insert</span>
+                .<span class="ident">columns</span>
+                .<span class="ident">into_iter</span>()
+                .<span class="ident">zip</span>(<span class="ident">insert</span>.<span class="ident">values</span>.<span class="ident">into_iter</span>())
+                .<span class="ident">fold</span>((<span class="ident">Vec</span>::<span class="ident">new</span>(), <span class="ident">Vec</span>::<span class="ident">new</span>()), <span class="op">|</span><span class="kw-2">mut</span> <span class="ident">acc</span>, <span class="ident">kv</span><span class="op">|</span> {
+                    <span class="ident">acc</span>.<span class="number">0</span>.<span class="ident">push</span>(<span class="self">self</span>.<span class="ident">visit_column</span>(<span class="ident">Column</span>::<span class="ident">from</span>(<span class="ident">kv</span>.<span class="number">0</span>)));
+                    <span class="ident">acc</span>.<span class="number">1</span>.<span class="ident">push</span>(<span class="self">self</span>.<span class="ident">visit_database_value</span>(<span class="ident">kv</span>.<span class="number">1</span>));
 
-                        <span class="ident">acc</span>
-                    });
+                    <span class="ident">acc</span>
+                });
 
             <span class="ident">result</span>.<span class="ident">push</span>(<span class="macro">format</span><span class="macro">!</span>(
                 <span class="string">&quot;({}) VALUES ({})&quot;</span>,
