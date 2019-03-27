@@ -555,34 +555,6 @@
 <span id="555">555</span>
 <span id="556">556</span>
 <span id="557">557</span>
-<span id="558">558</span>
-<span id="559">559</span>
-<span id="560">560</span>
-<span id="561">561</span>
-<span id="562">562</span>
-<span id="563">563</span>
-<span id="564">564</span>
-<span id="565">565</span>
-<span id="566">566</span>
-<span id="567">567</span>
-<span id="568">568</span>
-<span id="569">569</span>
-<span id="570">570</span>
-<span id="571">571</span>
-<span id="572">572</span>
-<span id="573">573</span>
-<span id="574">574</span>
-<span id="575">575</span>
-<span id="576">576</span>
-<span id="577">577</span>
-<span id="578">578</span>
-<span id="579">579</span>
-<span id="580">580</span>
-<span id="581">581</span>
-<span id="582">582</span>
-<span id="583">583</span>
-<span id="584">584</span>
-<span id="585">585</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">ast</span>::<span class="kw-2">*</span>, <span class="ident">visitor</span>::<span class="ident">Visitor</span>};
 
@@ -610,14 +582,9 @@
     <span class="kw">where</span>
         <span class="ident">Q</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Query</span><span class="op">&gt;</span>,
     {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">sqlite</span> <span class="op">=</span> <span class="ident">Sqlite</span> {
-            <span class="ident">parameters</span>: <span class="ident">Vec</span>::<span class="ident">new</span>(),
-        };
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">sqlite</span> <span class="op">=</span> <span class="ident">Sqlite</span> { <span class="ident">parameters</span>: <span class="ident">Vec</span>::<span class="ident">new</span>() };
 
-        (
-            <span class="ident">Sqlite</span>::<span class="ident">visit_query</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">sqlite</span>, <span class="ident">query</span>.<span class="ident">into</span>()),
-            <span class="ident">sqlite</span>.<span class="ident">parameters</span>,
-        )
+        (<span class="ident">Sqlite</span>::<span class="ident">visit_query</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">sqlite</span>, <span class="ident">query</span>.<span class="ident">into</span>()), <span class="ident">sqlite</span>.<span class="ident">parameters</span>)
     }
 
     <span class="kw">fn</span> <span class="ident">add_parameter</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">value</span>: <span class="ident">ParameterizedValue</span>) {
@@ -638,10 +605,7 @@
                 <span class="kw">if</span> <span class="ident">fun_rownum</span>.<span class="ident">over</span>.<span class="ident">is_empty</span>() {
                     <span class="ident">String</span>::<span class="ident">from</span>(<span class="string">&quot;ROW_NUMBER() OVER()&quot;</span>)
                 } <span class="kw">else</span> {
-                    <span class="macro">format</span><span class="macro">!</span>(
-                        <span class="string">&quot;ROW_NUMBER() OVER({})&quot;</span>,
-                        <span class="self">self</span>.<span class="ident">visit_partitioning</span>(<span class="ident">fun_rownum</span>.<span class="ident">over</span>)
-                    )
+                    <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;ROW_NUMBER() OVER({})&quot;</span>, <span class="self">self</span>.<span class="ident">visit_partitioning</span>(<span class="ident">fun_rownum</span>.<span class="ident">over</span>))
                 }
             }
             <span class="ident">FunctionType</span>::<span class="ident">Count</span>(<span class="ident">fun_count</span>) <span class="op">=&gt;</span> {
@@ -734,10 +698,7 @@
     <span class="kw">where</span>
         <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">ParameterizedValue</span><span class="op">&gt;</span>,
     {
-        (
-            <span class="ident">String</span>::<span class="ident">from</span>(<span class="ident">sql</span>),
-            <span class="ident">params</span>.<span class="ident">into_iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">p</span><span class="op">|</span> <span class="ident">p</span>.<span class="ident">into</span>()).<span class="ident">collect</span>(),
-        )
+        (<span class="ident">String</span>::<span class="ident">from</span>(<span class="ident">sql</span>), <span class="ident">params</span>.<span class="ident">into_iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">p</span><span class="op">|</span> <span class="ident">p</span>.<span class="ident">into</span>()).<span class="ident">collect</span>())
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
@@ -763,8 +724,7 @@
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_select_order_by</span>() {
-        <span class="kw">let</span> <span class="ident">expected_sql</span> <span class="op">=</span>
-            <span class="string">&quot;SELECT `musti`.* FROM `musti` ORDER BY `foo`, `baz` ASC, `bar` DESC LIMIT -1&quot;</span>;
+        <span class="kw">let</span> <span class="ident">expected_sql</span> <span class="op">=</span> <span class="string">&quot;SELECT `musti`.* FROM `musti` ORDER BY `foo`, `baz` ASC, `bar` DESC LIMIT -1&quot;</span>;
         <span class="kw">let</span> <span class="ident">query</span> <span class="op">=</span> <span class="ident">Select</span>::<span class="ident">from</span>(<span class="string">&quot;musti&quot;</span>)
             .<span class="ident">order_by</span>(<span class="string">&quot;foo&quot;</span>)
             .<span class="ident">order_by</span>(<span class="string">&quot;baz&quot;</span>.<span class="ident">ascend</span>())
@@ -885,8 +845,7 @@
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_select_and</span>() {
-        <span class="kw">let</span> <span class="ident">expected_sql</span> <span class="op">=</span>
-            <span class="string">&quot;SELECT `naukio`.* FROM `naukio` WHERE ((`word` = ? AND `age` &lt; ?) AND `paw` = ?) LIMIT -1&quot;</span>;
+        <span class="kw">let</span> <span class="ident">expected_sql</span> <span class="op">=</span> <span class="string">&quot;SELECT `naukio`.* FROM `naukio` WHERE ((`word` = ? AND `age` &lt; ?) AND `paw` = ?) LIMIT -1&quot;</span>;
 
         <span class="kw">let</span> <span class="ident">expected_params</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[
             <span class="ident">ParameterizedValue</span>::<span class="ident">Text</span>(<span class="ident">String</span>::<span class="ident">from</span>(<span class="string">&quot;meow&quot;</span>)),
@@ -894,10 +853,7 @@
             <span class="ident">ParameterizedValue</span>::<span class="ident">Text</span>(<span class="ident">String</span>::<span class="ident">from</span>(<span class="string">&quot;warm&quot;</span>)),
         ];
 
-        <span class="kw">let</span> <span class="ident">conditions</span> <span class="op">=</span> <span class="string">&quot;word&quot;</span>
-            .<span class="ident">equals</span>(<span class="string">&quot;meow&quot;</span>)
-            .<span class="ident">and</span>(<span class="string">&quot;age&quot;</span>.<span class="ident">less_than</span>(<span class="number">10</span>))
-            .<span class="ident">and</span>(<span class="string">&quot;paw&quot;</span>.<span class="ident">equals</span>(<span class="string">&quot;warm&quot;</span>));
+        <span class="kw">let</span> <span class="ident">conditions</span> <span class="op">=</span> <span class="string">&quot;word&quot;</span>.<span class="ident">equals</span>(<span class="string">&quot;meow&quot;</span>).<span class="ident">and</span>(<span class="string">&quot;age&quot;</span>.<span class="ident">less_than</span>(<span class="number">10</span>)).<span class="ident">and</span>(<span class="string">&quot;paw&quot;</span>.<span class="ident">equals</span>(<span class="string">&quot;warm&quot;</span>));
 
         <span class="kw">let</span> <span class="ident">query</span> <span class="op">=</span> <span class="ident">Select</span>::<span class="ident">from</span>(<span class="string">&quot;naukio&quot;</span>).<span class="ident">so_that</span>(<span class="ident">conditions</span>);
 
@@ -909,8 +865,7 @@
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_select_and_different_execution_order</span>() {
-        <span class="kw">let</span> <span class="ident">expected_sql</span> <span class="op">=</span>
-            <span class="string">&quot;SELECT `naukio`.* FROM `naukio` WHERE (`word` = ? AND (`age` &lt; ? AND `paw` = ?)) LIMIT -1&quot;</span>;
+        <span class="kw">let</span> <span class="ident">expected_sql</span> <span class="op">=</span> <span class="string">&quot;SELECT `naukio`.* FROM `naukio` WHERE (`word` = ? AND (`age` &lt; ? AND `paw` = ?)) LIMIT -1&quot;</span>;
 
         <span class="kw">let</span> <span class="ident">expected_params</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[
             <span class="ident">ParameterizedValue</span>::<span class="ident">Text</span>(<span class="ident">String</span>::<span class="ident">from</span>(<span class="string">&quot;meow&quot;</span>)),
@@ -918,9 +873,7 @@
             <span class="ident">ParameterizedValue</span>::<span class="ident">Text</span>(<span class="ident">String</span>::<span class="ident">from</span>(<span class="string">&quot;warm&quot;</span>)),
         ];
 
-        <span class="kw">let</span> <span class="ident">conditions</span> <span class="op">=</span> <span class="string">&quot;word&quot;</span>
-            .<span class="ident">equals</span>(<span class="string">&quot;meow&quot;</span>)
-            .<span class="ident">and</span>(<span class="string">&quot;age&quot;</span>.<span class="ident">less_than</span>(<span class="number">10</span>).<span class="ident">and</span>(<span class="string">&quot;paw&quot;</span>.<span class="ident">equals</span>(<span class="string">&quot;warm&quot;</span>)));
+        <span class="kw">let</span> <span class="ident">conditions</span> <span class="op">=</span> <span class="string">&quot;word&quot;</span>.<span class="ident">equals</span>(<span class="string">&quot;meow&quot;</span>).<span class="ident">and</span>(<span class="string">&quot;age&quot;</span>.<span class="ident">less_than</span>(<span class="number">10</span>).<span class="ident">and</span>(<span class="string">&quot;paw&quot;</span>.<span class="ident">equals</span>(<span class="string">&quot;warm&quot;</span>)));
 
         <span class="kw">let</span> <span class="ident">query</span> <span class="op">=</span> <span class="ident">Select</span>::<span class="ident">from</span>(<span class="string">&quot;naukio&quot;</span>).<span class="ident">so_that</span>(<span class="ident">conditions</span>);
 
@@ -932,8 +885,7 @@
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_select_or</span>() {
-        <span class="kw">let</span> <span class="ident">expected_sql</span> <span class="op">=</span>
-            <span class="string">&quot;SELECT `naukio`.* FROM `naukio` WHERE ((`word` = ? OR `age` &lt; ?) AND `paw` = ?) LIMIT -1&quot;</span>;
+        <span class="kw">let</span> <span class="ident">expected_sql</span> <span class="op">=</span> <span class="string">&quot;SELECT `naukio`.* FROM `naukio` WHERE ((`word` = ? OR `age` &lt; ?) AND `paw` = ?) LIMIT -1&quot;</span>;
 
         <span class="kw">let</span> <span class="ident">expected_params</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[
             <span class="ident">ParameterizedValue</span>::<span class="ident">Text</span>(<span class="ident">String</span>::<span class="ident">from</span>(<span class="string">&quot;meow&quot;</span>)),
@@ -941,10 +893,7 @@
             <span class="ident">ParameterizedValue</span>::<span class="ident">Text</span>(<span class="ident">String</span>::<span class="ident">from</span>(<span class="string">&quot;warm&quot;</span>)),
         ];
 
-        <span class="kw">let</span> <span class="ident">conditions</span> <span class="op">=</span> <span class="string">&quot;word&quot;</span>
-            .<span class="ident">equals</span>(<span class="string">&quot;meow&quot;</span>)
-            .<span class="ident">or</span>(<span class="string">&quot;age&quot;</span>.<span class="ident">less_than</span>(<span class="number">10</span>))
-            .<span class="ident">and</span>(<span class="string">&quot;paw&quot;</span>.<span class="ident">equals</span>(<span class="string">&quot;warm&quot;</span>));
+        <span class="kw">let</span> <span class="ident">conditions</span> <span class="op">=</span> <span class="string">&quot;word&quot;</span>.<span class="ident">equals</span>(<span class="string">&quot;meow&quot;</span>).<span class="ident">or</span>(<span class="string">&quot;age&quot;</span>.<span class="ident">less_than</span>(<span class="number">10</span>)).<span class="ident">and</span>(<span class="string">&quot;paw&quot;</span>.<span class="ident">equals</span>(<span class="string">&quot;warm&quot;</span>));
 
         <span class="kw">let</span> <span class="ident">query</span> <span class="op">=</span> <span class="ident">Select</span>::<span class="ident">from</span>(<span class="string">&quot;naukio&quot;</span>).<span class="ident">so_that</span>(<span class="ident">conditions</span>);
 
@@ -1008,8 +957,8 @@
         <span class="kw">let</span> <span class="ident">expected_sql</span> <span class="op">=</span>
             <span class="string">&quot;SELECT `users`.* FROM `users` INNER JOIN `posts` ON `users`.`id` = `posts`.`user_id` LIMIT -1&quot;</span>;
 
-        <span class="kw">let</span> <span class="ident">query</span> <span class="op">=</span> <span class="ident">Select</span>::<span class="ident">from</span>(<span class="string">&quot;users&quot;</span>)
-            .<span class="ident">inner_join</span>(<span class="string">&quot;posts&quot;</span>.<span class="ident">on</span>((<span class="string">&quot;users&quot;</span>, <span class="string">&quot;id&quot;</span>).<span class="ident">equals</span>(<span class="ident">Column</span>::<span class="ident">from</span>((<span class="string">&quot;posts&quot;</span>, <span class="string">&quot;user_id&quot;</span>)))));
+        <span class="kw">let</span> <span class="ident">query</span> <span class="op">=</span>
+            <span class="ident">Select</span>::<span class="ident">from</span>(<span class="string">&quot;users&quot;</span>).<span class="ident">inner_join</span>(<span class="string">&quot;posts&quot;</span>.<span class="ident">on</span>((<span class="string">&quot;users&quot;</span>, <span class="string">&quot;id&quot;</span>).<span class="ident">equals</span>(<span class="ident">Column</span>::<span class="ident">from</span>((<span class="string">&quot;posts&quot;</span>, <span class="string">&quot;user_id&quot;</span>)))));
         <span class="kw">let</span> (<span class="ident">sql</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="ident">Sqlite</span>::<span class="ident">build</span>(<span class="ident">query</span>);
 
         <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">expected_sql</span>, <span class="ident">sql</span>);
@@ -1037,9 +986,8 @@
         <span class="kw">let</span> <span class="ident">expected_sql</span> <span class="op">=</span>
             <span class="string">&quot;SELECT `users`.* FROM `users` LEFT OUTER JOIN `posts` ON `users`.`id` = `posts`.`user_id` LIMIT -1&quot;</span>;
 
-        <span class="kw">let</span> <span class="ident">query</span> <span class="op">=</span> <span class="ident">Select</span>::<span class="ident">from</span>(<span class="string">&quot;users&quot;</span>).<span class="ident">left_outer_join</span>(
-            <span class="string">&quot;posts&quot;</span>.<span class="ident">on</span>((<span class="string">&quot;users&quot;</span>, <span class="string">&quot;id&quot;</span>).<span class="ident">equals</span>(<span class="ident">Column</span>::<span class="ident">from</span>((<span class="string">&quot;posts&quot;</span>, <span class="string">&quot;user_id&quot;</span>)))),
-        );
+        <span class="kw">let</span> <span class="ident">query</span> <span class="op">=</span> <span class="ident">Select</span>::<span class="ident">from</span>(<span class="string">&quot;users&quot;</span>)
+            .<span class="ident">left_outer_join</span>(<span class="string">&quot;posts&quot;</span>.<span class="ident">on</span>((<span class="string">&quot;users&quot;</span>, <span class="string">&quot;id&quot;</span>).<span class="ident">equals</span>(<span class="ident">Column</span>::<span class="ident">from</span>((<span class="string">&quot;posts&quot;</span>, <span class="string">&quot;user_id&quot;</span>)))));
         <span class="kw">let</span> (<span class="ident">sql</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="ident">Sqlite</span>::<span class="ident">build</span>(<span class="ident">query</span>);
 
         <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">expected_sql</span>, <span class="ident">sql</span>);
@@ -1101,8 +1049,7 @@
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">s</span> <span class="op">=</span> <span class="ident">conn</span>.<span class="ident">prepare</span>(<span class="ident">sql_str</span>.<span class="ident">clone</span>()).<span class="ident">unwrap</span>();
         <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">1</span>..<span class="ident">params</span>.<span class="ident">len</span>() <span class="op">+</span> <span class="number">1</span> {
-            <span class="ident">s</span>.<span class="ident">bind</span>::<span class="op">&lt;</span><span class="ident">ParameterizedValue</span><span class="op">&gt;</span>(<span class="ident">i</span>, <span class="ident">params</span>[<span class="ident">i</span> <span class="op">-</span> <span class="number">1</span>].<span class="ident">clone</span>().<span class="ident">into</span>())
-                .<span class="ident">unwrap</span>();
+            <span class="ident">s</span>.<span class="ident">bind</span>::<span class="op">&lt;</span><span class="ident">ParameterizedValue</span><span class="op">&gt;</span>(<span class="ident">i</span>, <span class="ident">params</span>[<span class="ident">i</span> <span class="op">-</span> <span class="number">1</span>].<span class="ident">clone</span>().<span class="ident">into</span>()).<span class="ident">unwrap</span>();
         }
 
         <span class="ident">s</span>.<span class="ident">next</span>().<span class="ident">unwrap</span>();
@@ -1122,7 +1069,7 @@
         )
         .<span class="ident">unwrap</span>();
 
-        <span class="kw">let</span> <span class="ident">insert</span> <span class="op">=</span> <span class="ident">Insert</span>::<span class="ident">into</span>(<span class="string">&quot;users&quot;</span>)
+        <span class="kw">let</span> <span class="ident">insert</span> <span class="op">=</span> <span class="ident">Insert</span>::<span class="ident">single_into</span>(<span class="string">&quot;users&quot;</span>)
             .<span class="ident">value</span>(<span class="string">&quot;id&quot;</span>, <span class="number">1</span>)
             .<span class="ident">value</span>(<span class="string">&quot;name&quot;</span>, <span class="string">&quot;Alice&quot;</span>)
             .<span class="ident">value</span>(<span class="string">&quot;age&quot;</span>, <span class="number">42.69</span>)
@@ -1139,10 +1086,7 @@
     <span class="kw">fn</span> <span class="ident">bind_test_1</span>() {
         <span class="kw">let</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">sqlite_harness</span>();
 
-        <span class="kw">let</span> <span class="ident">conditions</span> <span class="op">=</span> <span class="string">&quot;name&quot;</span>
-            .<span class="ident">equals</span>(<span class="string">&quot;Alice&quot;</span>)
-            .<span class="ident">and</span>(<span class="string">&quot;age&quot;</span>.<span class="ident">less_than</span>(<span class="number">100.0</span>))
-            .<span class="ident">and</span>(<span class="string">&quot;nice&quot;</span>.<span class="ident">equals</span>(<span class="number">1</span>));
+        <span class="kw">let</span> <span class="ident">conditions</span> <span class="op">=</span> <span class="string">&quot;name&quot;</span>.<span class="ident">equals</span>(<span class="string">&quot;Alice&quot;</span>).<span class="ident">and</span>(<span class="string">&quot;age&quot;</span>.<span class="ident">less_than</span>(<span class="number">100.0</span>)).<span class="ident">and</span>(<span class="string">&quot;nice&quot;</span>.<span class="ident">equals</span>(<span class="number">1</span>));
         <span class="kw">let</span> <span class="ident">query</span> <span class="op">=</span> <span class="ident">Select</span>::<span class="ident">from</span>(<span class="string">&quot;users&quot;</span>).<span class="ident">so_that</span>(<span class="ident">conditions</span>);
         <span class="kw">let</span> (<span class="ident">sql_str</span>, <span class="ident">params</span>) <span class="op">=</span> <span class="ident">Sqlite</span>::<span class="ident">build</span>(<span class="ident">query</span>);
 

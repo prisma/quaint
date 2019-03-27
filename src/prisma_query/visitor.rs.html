@@ -436,54 +436,6 @@
 <span id="436">436</span>
 <span id="437">437</span>
 <span id="438">438</span>
-<span id="439">439</span>
-<span id="440">440</span>
-<span id="441">441</span>
-<span id="442">442</span>
-<span id="443">443</span>
-<span id="444">444</span>
-<span id="445">445</span>
-<span id="446">446</span>
-<span id="447">447</span>
-<span id="448">448</span>
-<span id="449">449</span>
-<span id="450">450</span>
-<span id="451">451</span>
-<span id="452">452</span>
-<span id="453">453</span>
-<span id="454">454</span>
-<span id="455">455</span>
-<span id="456">456</span>
-<span id="457">457</span>
-<span id="458">458</span>
-<span id="459">459</span>
-<span id="460">460</span>
-<span id="461">461</span>
-<span id="462">462</span>
-<span id="463">463</span>
-<span id="464">464</span>
-<span id="465">465</span>
-<span id="466">466</span>
-<span id="467">467</span>
-<span id="468">468</span>
-<span id="469">469</span>
-<span id="470">470</span>
-<span id="471">471</span>
-<span id="472">472</span>
-<span id="473">473</span>
-<span id="474">474</span>
-<span id="475">475</span>
-<span id="476">476</span>
-<span id="477">477</span>
-<span id="478">478</span>
-<span id="479">479</span>
-<span id="480">480</span>
-<span id="481">481</span>
-<span id="482">482</span>
-<span id="483">483</span>
-<span id="484">484</span>
-<span id="485">485</span>
-<span id="486">486</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Visitors for reading an abstract SQL syntax tree, generating the query and</span>
 <span class="doccomment">//! gathering parameters in the right order.</span>
@@ -540,9 +492,7 @@
         <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">joins</span>.<span class="ident">into_iter</span>().<span class="ident">fold</span>(<span class="ident">Vec</span>::<span class="ident">new</span>(), <span class="op">|</span><span class="kw-2">mut</span> <span class="ident">acc</span>, <span class="ident">j</span><span class="op">|</span> {
             <span class="kw">match</span> <span class="ident">j</span> {
                 <span class="ident">Join</span>::<span class="ident">Inner</span>(<span class="ident">data</span>) <span class="op">=&gt;</span> <span class="ident">acc</span>.<span class="ident">push</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;INNER JOIN {}&quot;</span>, <span class="self">self</span>.<span class="ident">visit_join_data</span>(<span class="ident">data</span>))),
-                <span class="ident">Join</span>::<span class="ident">LeftOuter</span>(<span class="ident">data</span>) <span class="op">=&gt;</span> {
-                    <span class="ident">acc</span>.<span class="ident">push</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;LEFT OUTER JOIN {}&quot;</span>, <span class="self">self</span>.<span class="ident">visit_join_data</span>(<span class="ident">data</span>)))
-                }
+                <span class="ident">Join</span>::<span class="ident">LeftOuter</span>(<span class="ident">data</span>) <span class="op">=&gt;</span> <span class="ident">acc</span>.<span class="ident">push</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;LEFT OUTER JOIN {}&quot;</span>, <span class="self">self</span>.<span class="ident">visit_join_data</span>(<span class="ident">data</span>))),
             }
 
             <span class="ident">acc</span>
@@ -567,20 +517,16 @@
             <span class="kw">if</span> <span class="ident">select</span>.<span class="ident">columns</span>.<span class="ident">is_empty</span>() {
                 <span class="kw">match</span> <span class="ident">table</span>.<span class="ident">typ</span> {
                     <span class="ident">TableType</span>::<span class="ident">Query</span>(<span class="kw">_</span>) <span class="op">=&gt;</span> <span class="kw">match</span> <span class="ident">table</span>.<span class="ident">alias</span> {
-                        <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">alias</span>) <span class="op">=&gt;</span> <span class="ident">result</span>.<span class="ident">push</span>(<span class="macro">format</span><span class="macro">!</span>(
-                            <span class="string">&quot;{}.*&quot;</span>,
-                            <span class="self">Self</span>::<span class="ident">delimited_identifiers</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="ident">alias</span>.<span class="ident">clone</span>()])
-                        )),
+                        <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">alias</span>) <span class="op">=&gt;</span> {
+                            <span class="ident">result</span>.<span class="ident">push</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}.*&quot;</span>, <span class="self">Self</span>::<span class="ident">delimited_identifiers</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="ident">alias</span>.<span class="ident">clone</span>()])))
+                        }
                         <span class="prelude-val">None</span> <span class="op">=&gt;</span> <span class="ident">result</span>.<span class="ident">push</span>(<span class="ident">String</span>::<span class="ident">from</span>(<span class="string">&quot;*&quot;</span>)),
                     },
                     <span class="ident">TableType</span>::<span class="ident">Table</span>(<span class="kw">_</span>) <span class="op">=&gt;</span> <span class="kw">match</span> <span class="ident">table</span>.<span class="ident">alias</span>.<span class="ident">clone</span>() {
-                        <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">alias</span>) <span class="op">=&gt;</span> <span class="ident">result</span>.<span class="ident">push</span>(<span class="macro">format</span><span class="macro">!</span>(
-                            <span class="string">&quot;{}.*&quot;</span>,
-                            <span class="self">Self</span>::<span class="ident">delimited_identifiers</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="ident">alias</span>.<span class="ident">clone</span>()])
-                        )),
-                        <span class="prelude-val">None</span> <span class="op">=&gt;</span> {
-                            <span class="ident">result</span>.<span class="ident">push</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}.*&quot;</span>, <span class="self">self</span>.<span class="ident">visit_table</span>(<span class="kw-2">*</span><span class="ident">table</span>.<span class="ident">clone</span>(), <span class="bool-val">false</span>)))
+                        <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">alias</span>) <span class="op">=&gt;</span> {
+                            <span class="ident">result</span>.<span class="ident">push</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}.*&quot;</span>, <span class="self">Self</span>::<span class="ident">delimited_identifiers</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="ident">alias</span>.<span class="ident">clone</span>()])))
                         }
+                        <span class="prelude-val">None</span> <span class="op">=&gt;</span> <span class="ident">result</span>.<span class="ident">push</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}.*&quot;</span>, <span class="self">self</span>.<span class="ident">visit_table</span>(<span class="kw-2">*</span><span class="ident">table</span>.<span class="ident">clone</span>(), <span class="bool-val">false</span>))),
                     },
                 }
             } <span class="kw">else</span> {
@@ -616,30 +562,20 @@
 
     <span class="doccomment">/// A walk through an `INSERT` statement</span>
     <span class="kw">fn</span> <span class="ident">visit_insert</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">insert</span>: <span class="ident">Insert</span>) <span class="op">-&gt;</span> <span class="ident">String</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">result</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="macro">format</span><span class="macro">!</span>(
-            <span class="string">&quot;INSERT INTO {}&quot;</span>,
-            <span class="self">self</span>.<span class="ident">visit_table</span>(<span class="ident">insert</span>.<span class="ident">table</span>, <span class="bool-val">true</span>)
-        )];
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">result</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;INSERT INTO {}&quot;</span>, <span class="self">self</span>.<span class="ident">visit_table</span>(<span class="ident">insert</span>.<span class="ident">table</span>, <span class="bool-val">true</span>))];
 
         <span class="kw">if</span> <span class="ident">insert</span>.<span class="ident">values</span>.<span class="ident">is_empty</span>() {
             <span class="ident">result</span>.<span class="ident">push</span>(<span class="string">&quot;DEFAULT VALUES&quot;</span>.<span class="ident">to_string</span>());
         } <span class="kw">else</span> {
-            <span class="kw">let</span> (<span class="ident">keys</span>, <span class="ident">values</span>) <span class="op">=</span> <span class="ident">insert</span>
+            <span class="kw">let</span> <span class="ident">columns</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">insert</span>
                 .<span class="ident">columns</span>
                 .<span class="ident">into_iter</span>()
-                .<span class="ident">zip</span>(<span class="ident">insert</span>.<span class="ident">values</span>.<span class="ident">into_iter</span>())
-                .<span class="ident">fold</span>((<span class="ident">Vec</span>::<span class="ident">new</span>(), <span class="ident">Vec</span>::<span class="ident">new</span>()), <span class="op">|</span><span class="kw-2">mut</span> <span class="ident">acc</span>, <span class="ident">kv</span><span class="op">|</span> {
-                    <span class="ident">acc</span>.<span class="number">0</span>.<span class="ident">push</span>(<span class="self">self</span>.<span class="ident">visit_column</span>(<span class="ident">Column</span>::<span class="ident">from</span>(<span class="ident">kv</span>.<span class="number">0</span>)));
-                    <span class="ident">acc</span>.<span class="number">1</span>.<span class="ident">push</span>(<span class="self">self</span>.<span class="ident">visit_database_value</span>(<span class="ident">kv</span>.<span class="number">1</span>));
+                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">c</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">visit_column</span>(<span class="ident">Column</span>::<span class="ident">from</span>(<span class="ident">c</span>)))
+                .<span class="ident">collect</span>();
 
-                    <span class="ident">acc</span>
-                });
+            <span class="kw">let</span> <span class="ident">values</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">insert</span>.<span class="ident">values</span>.<span class="ident">into_iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">row</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">visit_row</span>(<span class="ident">row</span>)).<span class="ident">collect</span>();
 
-            <span class="ident">result</span>.<span class="ident">push</span>(<span class="macro">format</span><span class="macro">!</span>(
-                <span class="string">&quot;({}) VALUES ({})&quot;</span>,
-                <span class="ident">keys</span>.<span class="ident">join</span>(<span class="string">&quot;,&quot;</span>),
-                <span class="ident">values</span>.<span class="ident">join</span>(<span class="string">&quot;,&quot;</span>)
-            ))
+            <span class="ident">result</span>.<span class="ident">push</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;({}) VALUES {}&quot;</span>, <span class="ident">columns</span>.<span class="ident">join</span>(<span class="string">&quot;, &quot;</span>), <span class="ident">values</span>.<span class="ident">join</span>(<span class="string">&quot;, &quot;</span>),))
         }
 
         <span class="ident">result</span>.<span class="ident">join</span>(<span class="string">&quot; &quot;</span>)
@@ -647,22 +583,13 @@
 
     <span class="doccomment">/// A walk through an `UPDATE` statement</span>
     <span class="kw">fn</span> <span class="ident">visit_update</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">update</span>: <span class="ident">Update</span>) <span class="op">-&gt;</span> <span class="ident">String</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">result</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="macro">format</span><span class="macro">!</span>(
-            <span class="string">&quot;UPDATE {} SET&quot;</span>,
-            <span class="self">self</span>.<span class="ident">visit_table</span>(<span class="ident">update</span>.<span class="ident">table</span>, <span class="bool-val">true</span>)
-        )];
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">result</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;UPDATE {} SET&quot;</span>, <span class="self">self</span>.<span class="ident">visit_table</span>(<span class="ident">update</span>.<span class="ident">table</span>, <span class="bool-val">true</span>))];
 
         {
             <span class="kw">let</span> <span class="ident">pairs</span> <span class="op">=</span> <span class="ident">update</span>.<span class="ident">columns</span>.<span class="ident">into_iter</span>().<span class="ident">zip</span>(<span class="ident">update</span>.<span class="ident">values</span>.<span class="ident">into_iter</span>());
 
             <span class="kw">let</span> <span class="ident">assignments</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">pairs</span>
-                .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">key</span>, <span class="ident">value</span>)<span class="op">|</span> {
-                    <span class="macro">format</span><span class="macro">!</span>(
-                        <span class="string">&quot;{} = {}&quot;</span>,
-                        <span class="self">self</span>.<span class="ident">visit_column</span>(<span class="ident">key</span>),
-                        <span class="self">self</span>.<span class="ident">visit_database_value</span>(<span class="ident">value</span>)
-                    )
-                })
+                .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">key</span>, <span class="ident">value</span>)<span class="op">|</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{} = {}&quot;</span>, <span class="self">self</span>.<span class="ident">visit_column</span>(<span class="ident">key</span>), <span class="self">self</span>.<span class="ident">visit_database_value</span>(<span class="ident">value</span>)))
                 .<span class="ident">collect</span>();
 
             <span class="ident">result</span>.<span class="ident">push</span>(<span class="ident">assignments</span>.<span class="ident">join</span>(<span class="string">&quot;, &quot;</span>));
@@ -677,10 +604,7 @@
 
     <span class="doccomment">/// A walk through an `DELETE` statement</span>
     <span class="kw">fn</span> <span class="ident">visit_delete</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">delete</span>: <span class="ident">Delete</span>) <span class="op">-&gt;</span> <span class="ident">String</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">result</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="macro">format</span><span class="macro">!</span>(
-            <span class="string">&quot;DELETE FROM {}&quot;</span>,
-            <span class="self">self</span>.<span class="ident">visit_table</span>(<span class="ident">delete</span>.<span class="ident">table</span>, <span class="bool-val">true</span>)
-        )];
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">result</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;DELETE FROM {}&quot;</span>, <span class="self">self</span>.<span class="ident">visit_table</span>(<span class="ident">delete</span>.<span class="ident">table</span>, <span class="bool-val">true</span>))];
 
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">conditions</span>) <span class="op">=</span> <span class="ident">delete</span>.<span class="ident">conditions</span> {
             <span class="ident">result</span>.<span class="ident">push</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;WHERE {}&quot;</span>, <span class="self">self</span>.<span class="ident">visit_conditions</span>(<span class="ident">conditions</span>)));
@@ -814,9 +738,7 @@
                 <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="kw-2">*</span><span class="ident">left</span>),
                 <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="kw-2">*</span><span class="ident">right</span>),
             ),
-            <span class="ident">ConditionTree</span>::<span class="ident">Not</span>(<span class="ident">expression</span>) <span class="op">=&gt;</span> {
-                <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;(NOT {})&quot;</span>, <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="kw-2">*</span><span class="ident">expression</span>))
-            }
+            <span class="ident">ConditionTree</span>::<span class="ident">Not</span>(<span class="ident">expression</span>) <span class="op">=&gt;</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;(NOT {})&quot;</span>, <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="kw-2">*</span><span class="ident">expression</span>)),
             <span class="ident">ConditionTree</span>::<span class="ident">Single</span>(<span class="ident">expression</span>) <span class="op">=&gt;</span> <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="kw-2">*</span><span class="ident">expression</span>),
             <span class="ident">ConditionTree</span>::<span class="ident">NoCondition</span> <span class="op">=&gt;</span> <span class="ident">String</span>::<span class="ident">from</span>(<span class="string">&quot;1=1&quot;</span>),
             <span class="ident">ConditionTree</span>::<span class="ident">NegativeCondition</span> <span class="op">=&gt;</span> <span class="ident">String</span>::<span class="ident">from</span>(<span class="string">&quot;1=0&quot;</span>),
@@ -898,44 +820,26 @@
             }
             <span class="ident">Compare</span>::<span class="ident">BeginsWith</span>(<span class="ident">left</span>, <span class="ident">right</span>) <span class="op">=&gt;</span> {
                 <span class="kw">let</span> <span class="ident">expression</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">visit_database_value</span>(<span class="kw-2">*</span><span class="ident">left</span>);
-                <span class="self">self</span>.<span class="ident">add_parameter</span>(<span class="ident">ParameterizedValue</span>::<span class="ident">Text</span>(<span class="macro">format</span><span class="macro">!</span>(
-                    <span class="string">&quot;{}{}&quot;</span>,
-                    <span class="ident">right</span>,
-                    <span class="self">Self</span>::<span class="ident">C_WILDCARD</span>
-                )));
+                <span class="self">self</span>.<span class="ident">add_parameter</span>(<span class="ident">ParameterizedValue</span>::<span class="ident">Text</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}{}&quot;</span>, <span class="ident">right</span>, <span class="self">Self</span>::<span class="ident">C_WILDCARD</span>)));
                 <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{} LIKE ?&quot;</span>, <span class="ident">expression</span>)
             }
             <span class="ident">Compare</span>::<span class="ident">NotBeginsWith</span>(<span class="ident">left</span>, <span class="ident">right</span>) <span class="op">=&gt;</span> {
                 <span class="kw">let</span> <span class="ident">expression</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">visit_database_value</span>(<span class="kw-2">*</span><span class="ident">left</span>);
-                <span class="self">self</span>.<span class="ident">add_parameter</span>(<span class="ident">ParameterizedValue</span>::<span class="ident">Text</span>(<span class="macro">format</span><span class="macro">!</span>(
-                    <span class="string">&quot;{}{}&quot;</span>,
-                    <span class="ident">right</span>,
-                    <span class="self">Self</span>::<span class="ident">C_WILDCARD</span>
-                )));
+                <span class="self">self</span>.<span class="ident">add_parameter</span>(<span class="ident">ParameterizedValue</span>::<span class="ident">Text</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}{}&quot;</span>, <span class="ident">right</span>, <span class="self">Self</span>::<span class="ident">C_WILDCARD</span>)));
                 <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{} NOT LIKE ?&quot;</span>, <span class="ident">expression</span>)
             }
             <span class="ident">Compare</span>::<span class="ident">EndsInto</span>(<span class="ident">left</span>, <span class="ident">right</span>) <span class="op">=&gt;</span> {
                 <span class="kw">let</span> <span class="ident">expression</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">visit_database_value</span>(<span class="kw-2">*</span><span class="ident">left</span>);
-                <span class="self">self</span>.<span class="ident">add_parameter</span>(<span class="ident">ParameterizedValue</span>::<span class="ident">Text</span>(<span class="macro">format</span><span class="macro">!</span>(
-                    <span class="string">&quot;{}{}&quot;</span>,
-                    <span class="self">Self</span>::<span class="ident">C_WILDCARD</span>,
-                    <span class="ident">right</span>
-                )));
+                <span class="self">self</span>.<span class="ident">add_parameter</span>(<span class="ident">ParameterizedValue</span>::<span class="ident">Text</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}{}&quot;</span>, <span class="self">Self</span>::<span class="ident">C_WILDCARD</span>, <span class="ident">right</span>)));
                 <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{} LIKE ?&quot;</span>, <span class="ident">expression</span>)
             }
             <span class="ident">Compare</span>::<span class="ident">NotEndsInto</span>(<span class="ident">left</span>, <span class="ident">right</span>) <span class="op">=&gt;</span> {
                 <span class="kw">let</span> <span class="ident">expression</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">visit_database_value</span>(<span class="kw-2">*</span><span class="ident">left</span>);
-                <span class="self">self</span>.<span class="ident">add_parameter</span>(<span class="ident">ParameterizedValue</span>::<span class="ident">Text</span>(<span class="macro">format</span><span class="macro">!</span>(
-                    <span class="string">&quot;{}{}&quot;</span>,
-                    <span class="self">Self</span>::<span class="ident">C_WILDCARD</span>,
-                    <span class="ident">right</span>
-                )));
+                <span class="self">self</span>.<span class="ident">add_parameter</span>(<span class="ident">ParameterizedValue</span>::<span class="ident">Text</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}{}&quot;</span>, <span class="self">Self</span>::<span class="ident">C_WILDCARD</span>, <span class="ident">right</span>)));
                 <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{} NOT LIKE ?&quot;</span>, <span class="ident">expression</span>)
             }
             <span class="ident">Compare</span>::<span class="ident">Null</span>(<span class="ident">column</span>) <span class="op">=&gt;</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{} IS NULL&quot;</span>, <span class="self">self</span>.<span class="ident">visit_database_value</span>(<span class="kw-2">*</span><span class="ident">column</span>)),
-            <span class="ident">Compare</span>::<span class="ident">NotNull</span>(<span class="ident">column</span>) <span class="op">=&gt;</span> {
-                <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{} IS NOT NULL&quot;</span>, <span class="self">self</span>.<span class="ident">visit_database_value</span>(<span class="kw-2">*</span><span class="ident">column</span>))
-            }
+            <span class="ident">Compare</span>::<span class="ident">NotNull</span>(<span class="ident">column</span>) <span class="op">=&gt;</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{} IS NOT NULL&quot;</span>, <span class="self">self</span>.<span class="ident">visit_database_value</span>(<span class="kw-2">*</span><span class="ident">column</span>)),
             <span class="ident">Compare</span>::<span class="ident">Between</span>(<span class="ident">val</span>, <span class="ident">left</span>, <span class="ident">right</span>) <span class="op">=&gt;</span> <span class="macro">format</span><span class="macro">!</span>(
                 <span class="string">&quot;{} BETWEEN {} AND {}&quot;</span>,
                 <span class="self">self</span>.<span class="ident">visit_database_value</span>(<span class="kw-2">*</span><span class="ident">val</span>),
