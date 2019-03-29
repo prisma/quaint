@@ -436,6 +436,11 @@
 <span id="436">436</span>
 <span id="437">437</span>
 <span id="438">438</span>
+<span id="439">439</span>
+<span id="440">440</span>
+<span id="441">441</span>
+<span id="442">442</span>
+<span id="443">443</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Visitors for reading an abstract SQL syntax tree, generating the query and</span>
 <span class="doccomment">//! gathering parameters in the right order.</span>
@@ -562,7 +567,12 @@
 
     <span class="doccomment">/// A walk through an `INSERT` statement</span>
     <span class="kw">fn</span> <span class="ident">visit_insert</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">insert</span>: <span class="ident">Insert</span>) <span class="op">-&gt;</span> <span class="ident">String</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">result</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;INSERT INTO {}&quot;</span>, <span class="self">self</span>.<span class="ident">visit_table</span>(<span class="ident">insert</span>.<span class="ident">table</span>, <span class="bool-val">true</span>))];
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">result</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">insert</span>.<span class="ident">on_conflict</span> {
+            <span class="prelude-val">Some</span>(<span class="ident">OnConflict</span>::<span class="ident">DoNothing</span>) <span class="op">=&gt;</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">String</span>::<span class="ident">from</span>(<span class="string">&quot;INSERT OR IGNORE&quot;</span>)],
+            <span class="prelude-val">None</span> <span class="op">=&gt;</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">String</span>::<span class="ident">from</span>(<span class="string">&quot;INSERT&quot;</span>)],
+        };
+
+        <span class="ident">result</span>.<span class="ident">push</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;INTO {}&quot;</span>, <span class="self">self</span>.<span class="ident">visit_table</span>(<span class="ident">insert</span>.<span class="ident">table</span>, <span class="bool-val">true</span>)));
 
         <span class="kw">if</span> <span class="ident">insert</span>.<span class="ident">values</span>.<span class="ident">is_empty</span>() {
             <span class="ident">result</span>.<span class="ident">push</span>(<span class="string">&quot;DEFAULT VALUES&quot;</span>.<span class="ident">to_string</span>());
