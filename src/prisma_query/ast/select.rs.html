@@ -291,7 +291,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// ```rust</span>
     <span class="doccomment">/// # use prisma_query::{ast::*, visitor::{Visitor, Sqlite}};</span>
-    <span class="doccomment">/// let query = Select::from(&quot;users&quot;);</span>
+    <span class="doccomment">/// let query = Select::from_table(&quot;users&quot;);</span>
     <span class="doccomment">/// let (sql, _) = Sqlite::build(query);</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// assert_eq!(&quot;SELECT `users`.* FROM `users` LIMIT -1&quot;, sql);</span>
@@ -301,7 +301,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// ```rust</span>
     <span class="doccomment">/// # use prisma_query::{ast::*, visitor::{Visitor, Sqlite}};</span>
-    <span class="doccomment">/// let query = Select::from((&quot;crm&quot;, &quot;users&quot;));</span>
+    <span class="doccomment">/// let query = Select::from_table((&quot;crm&quot;, &quot;users&quot;));</span>
     <span class="doccomment">/// let (sql, _) = Sqlite::build(query);</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// assert_eq!(&quot;SELECT `crm`.`users`.* FROM `crm`.`users` LIMIT -1&quot;, sql);</span>
@@ -312,14 +312,14 @@
     <span class="doccomment">/// ```rust</span>
     <span class="doccomment">/// # use prisma_query::{ast::*, visitor::{Visitor, Sqlite}};</span>
     <span class="doccomment">/// let select = Table::from(Select::default().value(1)).alias(&quot;num&quot;);</span>
-    <span class="doccomment">/// let query = Select::from(select.alias(&quot;num&quot;));</span>
+    <span class="doccomment">/// let query = Select::from_table(select.alias(&quot;num&quot;));</span>
     <span class="doccomment">/// let (sql, params) = Sqlite::build(query);</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// assert_eq!(&quot;SELECT `num`.* FROM (SELECT ?) AS `num` LIMIT -1&quot;, sql);</span>
     <span class="doccomment">/// assert_eq!(vec![ParameterizedValue::Integer(1)], params);</span>
     <span class="doccomment">/// ```</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">table</span>: <span class="ident">T</span>) <span class="op">-&gt;</span> <span class="self">Self</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_table</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">table</span>: <span class="ident">T</span>) <span class="op">-&gt;</span> <span class="self">Self</span>
     <span class="kw">where</span>
         <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Table</span><span class="op">&gt;</span>,
     {
@@ -346,7 +346,7 @@
     <span class="doccomment">/// # use prisma_query::{ast::*, visitor::{Visitor, Sqlite}};</span>
     <span class="doccomment">/// let join = &quot;dogs&quot;.on((&quot;dogs&quot;, &quot;slave_id&quot;).equals(Column::from((&quot;cats&quot;, &quot;master_id&quot;))));</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// let query = Select::from(&quot;cats&quot;)</span>
+    <span class="doccomment">/// let query = Select::from_table(&quot;cats&quot;)</span>
     <span class="doccomment">///     .value(Table::from(&quot;cats&quot;).asterisk())</span>
     <span class="doccomment">///     .value(Table::from(&quot;dogs&quot;).asterisk())</span>
     <span class="doccomment">///     .inner_join(join);</span>
@@ -370,7 +370,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// ```rust</span>
     <span class="doccomment">/// # use prisma_query::{ast::*, visitor::{Visitor, Sqlite}};</span>
-    <span class="doccomment">/// let query = Select::from(&quot;users&quot;)</span>
+    <span class="doccomment">/// let query = Select::from_table(&quot;users&quot;)</span>
     <span class="doccomment">///     .column(&quot;name&quot;)</span>
     <span class="doccomment">///     .column((&quot;users&quot;, &quot;id&quot;))</span>
     <span class="doccomment">///     .column((&quot;crm&quot;, &quot;users&quot;, &quot;foo&quot;));</span>
@@ -391,7 +391,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// ```rust</span>
     <span class="doccomment">/// # use prisma_query::{ast::*, visitor::{Visitor, Sqlite}};</span>
-    <span class="doccomment">/// let query = Select::from(&quot;users&quot;).columns(vec![&quot;foo&quot;, &quot;bar&quot;]);</span>
+    <span class="doccomment">/// let query = Select::from_table(&quot;users&quot;).columns(vec![&quot;foo&quot;, &quot;bar&quot;]);</span>
     <span class="doccomment">/// let (sql, params) = Sqlite::build(query);</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// assert_eq!(&quot;SELECT ?, ? FROM `users` LIMIT -1&quot;, sql);</span>
@@ -413,7 +413,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// ```rust</span>
     <span class="doccomment">/// # use prisma_query::{ast::*, visitor::{Visitor, Sqlite}};</span>
-    <span class="doccomment">/// let query = Select::from(&quot;users&quot;).so_that(&quot;foo&quot;.equals(&quot;bar&quot;));</span>
+    <span class="doccomment">/// let query = Select::from_table(&quot;users&quot;).so_that(&quot;foo&quot;.equals(&quot;bar&quot;));</span>
     <span class="doccomment">/// let (sql, params) = Sqlite::build(query);</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// assert_eq!(&quot;SELECT `users`.* FROM `users` WHERE `foo` = ? LIMIT -1&quot;, sql);</span>
@@ -432,7 +432,7 @@
     <span class="doccomment">/// ```rust</span>
     <span class="doccomment">/// # use prisma_query::{ast::*, visitor::{Visitor, Sqlite}};</span>
     <span class="doccomment">/// let join = &quot;posts&quot;.alias(&quot;p&quot;).on((&quot;p&quot;, &quot;user_id&quot;).equals(Column::from((&quot;users&quot;, &quot;id&quot;))));</span>
-    <span class="doccomment">/// let query = Select::from(&quot;users&quot;).inner_join(join);</span>
+    <span class="doccomment">/// let query = Select::from_table(&quot;users&quot;).inner_join(join);</span>
     <span class="doccomment">/// let (sql, _) = Sqlite::build(query);</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// assert_eq!(</span>
@@ -453,7 +453,7 @@
     <span class="doccomment">/// ```rust</span>
     <span class="doccomment">/// # use prisma_query::{ast::*, visitor::{Visitor, Sqlite}};</span>
     <span class="doccomment">/// let join = &quot;posts&quot;.alias(&quot;p&quot;).on((&quot;p&quot;, &quot;visible&quot;).equals(true));</span>
-    <span class="doccomment">/// let query = Select::from(&quot;users&quot;).left_outer_join(join);</span>
+    <span class="doccomment">/// let query = Select::from_table(&quot;users&quot;).left_outer_join(join);</span>
     <span class="doccomment">/// let (sql, params) = Sqlite::build(query);</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// assert_eq!(</span>
@@ -475,7 +475,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// ```rust</span>
     <span class="doccomment">/// # use prisma_query::{ast::*, visitor::{Visitor, Sqlite}};</span>
-    <span class="doccomment">/// let query = Select::from(&quot;users&quot;)</span>
+    <span class="doccomment">/// let query = Select::from_table(&quot;users&quot;)</span>
     <span class="doccomment">///     .order_by(&quot;foo&quot;)</span>
     <span class="doccomment">///     .order_by(&quot;baz&quot;.ascend())</span>
     <span class="doccomment">///     .order_by(&quot;bar&quot;.descend());</span>
@@ -495,7 +495,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// ```rust</span>
     <span class="doccomment">/// # use prisma_query::{ast::*, visitor::{Visitor, Sqlite}};</span>
-    <span class="doccomment">/// let query = Select::from(&quot;users&quot;).limit(10);</span>
+    <span class="doccomment">/// let query = Select::from_table(&quot;users&quot;).limit(10);</span>
     <span class="doccomment">/// let (sql, _) = Sqlite::build(query);</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// assert_eq!(&quot;SELECT `users`.* FROM `users` LIMIT 10&quot;, sql);</span>
@@ -508,7 +508,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// ```rust</span>
     <span class="doccomment">/// # use prisma_query::{ast::*, visitor::{Visitor, Sqlite}};</span>
-    <span class="doccomment">/// let query = Select::from(&quot;users&quot;).offset(10);</span>
+    <span class="doccomment">/// let query = Select::from_table(&quot;users&quot;).offset(10);</span>
     <span class="doccomment">/// let (sql, _) = Sqlite::build(query);</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// assert_eq!(&quot;SELECT `users`.* FROM `users` LIMIT -1 OFFSET 10&quot;, sql);</span>

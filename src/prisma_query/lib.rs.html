@@ -140,7 +140,7 @@
 <span class="doccomment">//!         .and(&quot;age&quot;.less_than(10))</span>
 <span class="doccomment">//!         .and(&quot;paw&quot;.equals(&quot;warm&quot;));</span>
 <span class="doccomment">//!</span>
-<span class="doccomment">//!     let query = Select::from(&quot;naukio&quot;).so_that(conditions);</span>
+<span class="doccomment">//!     let query = Select::from_table(&quot;naukio&quot;).so_that(conditions);</span>
 <span class="doccomment">//!     let (sql_str, params) = Sqlite::build(query);</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//!     assert_eq!(</span>
@@ -175,7 +175,7 @@
 <span class="doccomment">//!         &quot;paw&quot;.equals(&quot;warm&quot;),</span>
 <span class="doccomment">//!     );</span>
 <span class="doccomment">//!</span>
-<span class="doccomment">//!     let query = Select::from(&quot;naukio&quot;).so_that(conditions);</span>
+<span class="doccomment">//!     let query = Select::from_table(&quot;naukio&quot;).so_that(conditions);</span>
 <span class="doccomment">//!     let (sql, params) = Sqlite::build(query);</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//!     assert_eq!(</span>

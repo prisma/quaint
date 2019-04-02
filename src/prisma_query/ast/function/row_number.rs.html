@@ -104,7 +104,7 @@
 <span class="doccomment">/// # use prisma_query::{ast::*, visitor::{Visitor, Sqlite}};</span>
 <span class="doccomment">/// let fun = Function::from(row_number().order_by(&quot;created_at&quot;).partition_by(&quot;name&quot;));</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// let query = Select::from(&quot;users&quot;)</span>
+<span class="doccomment">/// let query = Select::from_table(&quot;users&quot;)</span>
 <span class="doccomment">///     .column(&quot;id&quot;)</span>
 <span class="doccomment">///     .value(fun.alias(&quot;num&quot;));</span>
 <span class="doccomment">///</span>

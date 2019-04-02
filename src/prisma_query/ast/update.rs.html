@@ -192,7 +192,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// ```rust</span>
     <span class="doccomment">/// # use prisma_query::{ast::*, visitor::{Visitor, Sqlite}};</span>
-    <span class="doccomment">/// let select = Select::from(&quot;bars&quot;).column(&quot;id&quot;).so_that(&quot;uniq_val&quot;.equals(3));</span>
+    <span class="doccomment">/// let select = Select::from_table(&quot;bars&quot;).column(&quot;id&quot;).so_that(&quot;uniq_val&quot;.equals(3));</span>
     <span class="doccomment">/// let query = Update::table(&quot;users&quot;).set(&quot;foo&quot;, 1).so_that(&quot;bar&quot;.equals(select));</span>
     <span class="doccomment">/// let (sql, params) = Sqlite::build(query);</span>
     <span class="doccomment">///</span>

@@ -77,7 +77,7 @@
     <span class="doccomment">/// ```rust</span>
     <span class="doccomment">/// # use prisma_query::{ast::*, visitor::{Visitor, Sqlite}};</span>
     <span class="doccomment">/// let join_data = &quot;b&quot;.on((&quot;b&quot;, &quot;id&quot;).equals(Column::from((&quot;a&quot;, &quot;id&quot;))));</span>
-    <span class="doccomment">/// let query = Select::from(&quot;a&quot;).inner_join(join_data);</span>
+    <span class="doccomment">/// let query = Select::from_table(&quot;a&quot;).inner_join(join_data);</span>
     <span class="doccomment">/// let (sql, _) = Sqlite::build(query);</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// assert_eq!(</span>
