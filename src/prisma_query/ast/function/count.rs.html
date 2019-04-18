@@ -36,7 +36,7 @@
 <span class="doccomment">/// # use prisma_query::{ast::*, visitor::{Visitor, Sqlite}};</span>
 <span class="doccomment">/// let query = Select::from_table(&quot;users&quot;).value(count(asterisk()));</span>
 <span class="doccomment">/// let (sql, _) = Sqlite::build(query);</span>
-<span class="doccomment">/// assert_eq!(&quot;SELECT COUNT(*) FROM `users` LIMIT -1&quot;, sql);</span>
+<span class="doccomment">/// assert_eq!(&quot;SELECT COUNT(*) FROM `users` LIMIT ?&quot;, sql);</span>
 <span class="doccomment">/// ```</span>
 <span class="attribute">#[<span class="ident">inline</span>]</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">count</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">expr</span>: <span class="ident">T</span>) <span class="op">-&gt;</span> <span class="ident">Count</span>

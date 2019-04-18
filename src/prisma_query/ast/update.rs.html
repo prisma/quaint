@@ -107,6 +107,7 @@
 <span id="107">107</span>
 <span id="108">108</span>
 <span id="109">109</span>
+<span id="110">110</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">ast</span>::<span class="kw-2">*</span>;
 
@@ -153,7 +154,7 @@
     <span class="doccomment">/// assert_eq!(</span>
     <span class="doccomment">///     vec![</span>
     <span class="doccomment">///         ParameterizedValue::Integer(10),</span>
-    <span class="doccomment">///         ParameterizedValue::Boolean(false)</span>
+    <span class="doccomment">///         ParameterizedValue::Boolean(false),</span>
     <span class="doccomment">///     ],</span>
     <span class="doccomment">///     params,</span>
     <span class="doccomment">/// );</span>
@@ -182,7 +183,7 @@
     <span class="doccomment">/// assert_eq!(</span>
     <span class="doccomment">///     vec![</span>
     <span class="doccomment">///         ParameterizedValue::Integer(1),</span>
-    <span class="doccomment">///         ParameterizedValue::Boolean(false)</span>
+    <span class="doccomment">///         ParameterizedValue::Boolean(false),</span>
     <span class="doccomment">///     ],</span>
     <span class="doccomment">///     params,</span>
     <span class="doccomment">/// );</span>
@@ -197,14 +198,15 @@
     <span class="doccomment">/// let (sql, params) = Sqlite::build(query);</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// assert_eq!(</span>
-    <span class="doccomment">///     &quot;UPDATE `users` SET `foo` = ? WHERE `bar` = (SELECT `id` FROM `bars` WHERE `uniq_val` = ? LIMIT -1)&quot;,</span>
+    <span class="doccomment">///     &quot;UPDATE `users` SET `foo` = ? WHERE `bar` = (SELECT `id` FROM `bars` WHERE `uniq_val` = ? LIMIT ?)&quot;,</span>
     <span class="doccomment">///     sql</span>
     <span class="doccomment">/// );</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// assert_eq!(</span>
     <span class="doccomment">///     vec![</span>
     <span class="doccomment">///         ParameterizedValue::Integer(1),</span>
-    <span class="doccomment">///         ParameterizedValue::Integer(3)</span>
+    <span class="doccomment">///         ParameterizedValue::Integer(3),</span>
+    <span class="doccomment">///         ParameterizedValue::Integer(-1),</span>
     <span class="doccomment">///     ],</span>
     <span class="doccomment">///     params,</span>
     <span class="doccomment">/// );</span>

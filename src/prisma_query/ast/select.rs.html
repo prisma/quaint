@@ -257,6 +257,20 @@
 <span id="257">257</span>
 <span id="258">258</span>
 <span id="259">259</span>
+<span id="260">260</span>
+<span id="261">261</span>
+<span id="262">262</span>
+<span id="263">263</span>
+<span id="264">264</span>
+<span id="265">265</span>
+<span id="266">266</span>
+<span id="267">267</span>
+<span id="268">268</span>
+<span id="269">269</span>
+<span id="270">270</span>
+<span id="271">271</span>
+<span id="272">272</span>
+<span id="273">273</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">ast</span>::<span class="kw-2">*</span>;
 
@@ -267,8 +281,8 @@
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">columns</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&gt;</span>,
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">conditions</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ConditionTree</span><span class="op">&gt;</span>,
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">ordering</span>: <span class="ident">Ordering</span>,
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">limit</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">offset</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">limit</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ParameterizedValue</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">offset</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ParameterizedValue</span><span class="op">&gt;</span>,
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">joins</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Join</span><span class="op">&gt;</span>,
 }
 
@@ -294,7 +308,7 @@
     <span class="doccomment">/// let query = Select::from_table(&quot;users&quot;);</span>
     <span class="doccomment">/// let (sql, _) = Sqlite::build(query);</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// assert_eq!(&quot;SELECT `users`.* FROM `users` LIMIT -1&quot;, sql);</span>
+    <span class="doccomment">/// assert_eq!(&quot;SELECT `users`.* FROM `users` LIMIT ?&quot;, sql);</span>
     <span class="doccomment">/// ```</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// The table can be in multiple parts, defining the database.</span>
@@ -304,7 +318,7 @@
     <span class="doccomment">/// let query = Select::from_table((&quot;crm&quot;, &quot;users&quot;));</span>
     <span class="doccomment">/// let (sql, _) = Sqlite::build(query);</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// assert_eq!(&quot;SELECT `crm`.`users`.* FROM `crm`.`users` LIMIT -1&quot;, sql);</span>
+    <span class="doccomment">/// assert_eq!(&quot;SELECT `crm`.`users`.* FROM `crm`.`users` LIMIT ?&quot;, sql);</span>
     <span class="doccomment">/// ```</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// It is also possible to use a nested `SELECT`.</span>
@@ -315,8 +329,8 @@
     <span class="doccomment">/// let query = Select::from_table(select.alias(&quot;num&quot;));</span>
     <span class="doccomment">/// let (sql, params) = Sqlite::build(query);</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// assert_eq!(&quot;SELECT `num`.* FROM (SELECT ?) AS `num` LIMIT -1&quot;, sql);</span>
-    <span class="doccomment">/// assert_eq!(vec![ParameterizedValue::Integer(1)], params);</span>
+    <span class="doccomment">/// assert_eq!(&quot;SELECT `num`.* FROM (SELECT ?) AS `num` LIMIT ?&quot;, sql);</span>
+    <span class="doccomment">/// assert_eq!(vec![ParameterizedValue::from(1), ParameterizedValue::from(-1)], params);</span>
     <span class="doccomment">/// ```</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_table</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">table</span>: <span class="ident">T</span>) <span class="op">-&gt;</span> <span class="self">Self</span>
@@ -337,7 +351,7 @@
     <span class="doccomment">/// let (sql, params) = Sqlite::build(query);</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// assert_eq!(&quot;SELECT ?&quot;, sql);</span>
-    <span class="doccomment">/// assert_eq!(vec![ParameterizedValue::Integer(1)], params);</span>
+    <span class="doccomment">/// assert_eq!(vec![ParameterizedValue::from(1)], params);</span>
     <span class="doccomment">/// ```</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// Creating a qualified asterisk to a joined table:</span>
@@ -354,7 +368,7 @@
     <span class="doccomment">/// let (sql, _) = Sqlite::build(query);</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// assert_eq!(</span>
-    <span class="doccomment">///     &quot;SELECT `cats`.*, `dogs`.* FROM `cats` INNER JOIN `dogs` ON `dogs`.`slave_id` = `cats`.`master_id` LIMIT -1&quot;,</span>
+    <span class="doccomment">///     &quot;SELECT `cats`.*, `dogs`.* FROM `cats` INNER JOIN `dogs` ON `dogs`.`slave_id` = `cats`.`master_id` LIMIT ?&quot;,</span>
     <span class="doccomment">///     sql</span>
     <span class="doccomment">/// );</span>
     <span class="doccomment">/// ```</span>
@@ -377,7 +391,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// let (sql, _) = Sqlite::build(query);</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// assert_eq!(&quot;SELECT `name`, `users`.`id`, `crm`.`users`.`foo` FROM `users` LIMIT -1&quot;, sql);</span>
+    <span class="doccomment">/// assert_eq!(&quot;SELECT `name`, `users`.`id`, `crm`.`users`.`foo` FROM `users` LIMIT ?&quot;, sql);</span>
     <span class="doccomment">/// ```</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">column</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">column</span>: <span class="ident">T</span>) <span class="op">-&gt;</span> <span class="self">Self</span>
     <span class="kw">where</span>
@@ -394,10 +408,12 @@
     <span class="doccomment">/// let query = Select::from_table(&quot;users&quot;).columns(vec![&quot;foo&quot;, &quot;bar&quot;]);</span>
     <span class="doccomment">/// let (sql, params) = Sqlite::build(query);</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// assert_eq!(&quot;SELECT ?, ? FROM `users` LIMIT -1&quot;, sql);</span>
+    <span class="doccomment">/// assert_eq!(&quot;SELECT ?, ? FROM `users` LIMIT ?&quot;, sql);</span>
+    <span class="doccomment">///</span>
     <span class="doccomment">/// assert_eq!(vec![</span>
-    <span class="doccomment">///    ParameterizedValue::Text(&quot;foo&quot;.to_string()),</span>
-    <span class="doccomment">///    ParameterizedValue::Text(&quot;bar&quot;.to_string())</span>
+    <span class="doccomment">///    ParameterizedValue::from(&quot;foo&quot;),</span>
+    <span class="doccomment">///    ParameterizedValue::from(&quot;bar&quot;),</span>
+    <span class="doccomment">///    ParameterizedValue::from(-1),</span>
     <span class="doccomment">/// ], params);</span>
     <span class="doccomment">/// ```</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">columns</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">columns</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>) <span class="op">-&gt;</span> <span class="self">Self</span>
@@ -416,8 +432,12 @@
     <span class="doccomment">/// let query = Select::from_table(&quot;users&quot;).so_that(&quot;foo&quot;.equals(&quot;bar&quot;));</span>
     <span class="doccomment">/// let (sql, params) = Sqlite::build(query);</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// assert_eq!(&quot;SELECT `users`.* FROM `users` WHERE `foo` = ? LIMIT -1&quot;, sql);</span>
-    <span class="doccomment">/// assert_eq!(vec![ParameterizedValue::Text(&quot;bar&quot;.to_string())], params);</span>
+    <span class="doccomment">/// assert_eq!(&quot;SELECT `users`.* FROM `users` WHERE `foo` = ? LIMIT ?&quot;, sql);</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// assert_eq!(vec![</span>
+    <span class="doccomment">///    ParameterizedValue::from(&quot;bar&quot;),</span>
+    <span class="doccomment">///    ParameterizedValue::from(-1),</span>
+    <span class="doccomment">/// ], params);</span>
     <span class="doccomment">/// ```</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">so_that</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">conditions</span>: <span class="ident">T</span>) <span class="op">-&gt;</span> <span class="self">Self</span>
     <span class="kw">where</span>
@@ -436,7 +456,7 @@
     <span class="doccomment">/// let (sql, _) = Sqlite::build(query);</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// assert_eq!(</span>
-    <span class="doccomment">///     &quot;SELECT `users`.* FROM `users` INNER JOIN `posts` AS `p` ON `p`.`user_id` = `users`.`id` LIMIT -1&quot;,</span>
+    <span class="doccomment">///     &quot;SELECT `users`.* FROM `users` INNER JOIN `posts` AS `p` ON `p`.`user_id` = `users`.`id` LIMIT ?&quot;,</span>
     <span class="doccomment">///     sql</span>
     <span class="doccomment">/// );</span>
     <span class="doccomment">/// ```</span>
@@ -457,11 +477,17 @@
     <span class="doccomment">/// let (sql, params) = Sqlite::build(query);</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// assert_eq!(</span>
-    <span class="doccomment">///     &quot;SELECT `users`.* FROM `users` LEFT OUTER JOIN `posts` AS `p` ON `p`.`visible` = ? LIMIT -1&quot;,</span>
+    <span class="doccomment">///     &quot;SELECT `users`.* FROM `users` LEFT OUTER JOIN `posts` AS `p` ON `p`.`visible` = ? LIMIT ?&quot;,</span>
     <span class="doccomment">///     sql</span>
     <span class="doccomment">/// );</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// assert_eq!(vec![ParameterizedValue::Boolean(true)], params);</span>
+    <span class="doccomment">/// assert_eq!(</span>
+    <span class="doccomment">///     vec![</span>
+    <span class="doccomment">///         ParameterizedValue::from(true),</span>
+    <span class="doccomment">///         ParameterizedValue::from(-1)</span>
+    <span class="doccomment">///     ],</span>
+    <span class="doccomment">///     params</span>
+    <span class="doccomment">/// );</span>
     <span class="doccomment">/// ```</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">left_outer_join</span><span class="op">&lt;</span><span class="ident">J</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">join</span>: <span class="ident">J</span>) <span class="op">-&gt;</span> <span class="self">Self</span>
     <span class="kw">where</span>
@@ -482,7 +508,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// let (sql, _) = Sqlite::build(query);</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// assert_eq!(&quot;SELECT `users`.* FROM `users` ORDER BY `foo`, `baz` ASC, `bar` DESC LIMIT -1&quot;, sql);</span>
+    <span class="doccomment">/// assert_eq!(&quot;SELECT `users`.* FROM `users` ORDER BY `foo`, `baz` ASC, `bar` DESC LIMIT ?&quot;, sql);</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">order_by</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">value</span>: <span class="ident">T</span>) <span class="op">-&gt;</span> <span class="self">Self</span>
     <span class="kw">where</span>
         <span class="ident">T</span>: <span class="ident">IntoOrderDefinition</span>,
@@ -496,11 +522,12 @@
     <span class="doccomment">/// ```rust</span>
     <span class="doccomment">/// # use prisma_query::{ast::*, visitor::{Visitor, Sqlite}};</span>
     <span class="doccomment">/// let query = Select::from_table(&quot;users&quot;).limit(10);</span>
-    <span class="doccomment">/// let (sql, _) = Sqlite::build(query);</span>
+    <span class="doccomment">/// let (sql, params) = Sqlite::build(query);</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// assert_eq!(&quot;SELECT `users`.* FROM `users` LIMIT 10&quot;, sql);</span>
+    <span class="doccomment">/// assert_eq!(&quot;SELECT `users`.* FROM `users` LIMIT ?&quot;, sql);</span>
+    <span class="doccomment">/// assert_eq!(vec![ParameterizedValue::from(10)], params);</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">limit</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">limit</span>: <span class="ident">usize</span>) <span class="op">-&gt;</span> <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">limit</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">limit</span>);
+        <span class="self">self</span>.<span class="ident">limit</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">ParameterizedValue</span>::<span class="ident">from</span>(<span class="ident">limit</span>));
         <span class="self">self</span>
     }
 
@@ -509,11 +536,12 @@
     <span class="doccomment">/// ```rust</span>
     <span class="doccomment">/// # use prisma_query::{ast::*, visitor::{Visitor, Sqlite}};</span>
     <span class="doccomment">/// let query = Select::from_table(&quot;users&quot;).offset(10);</span>
-    <span class="doccomment">/// let (sql, _) = Sqlite::build(query);</span>
+    <span class="doccomment">/// let (sql, params) = Sqlite::build(query);</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// assert_eq!(&quot;SELECT `users`.* FROM `users` LIMIT -1 OFFSET 10&quot;, sql);</span>
+    <span class="doccomment">/// assert_eq!(&quot;SELECT `users`.* FROM `users` LIMIT ? OFFSET ?&quot;, sql);</span>
+    <span class="doccomment">/// assert_eq!(vec![ParameterizedValue::from(-1), ParameterizedValue::from(10)], params);</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">offset</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">offset</span>: <span class="ident">usize</span>) <span class="op">-&gt;</span> <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">offset</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">offset</span>);
+        <span class="self">self</span>.<span class="ident">offset</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">ParameterizedValue</span>::<span class="ident">from</span>(<span class="ident">offset</span>));
         <span class="self">self</span>
     }
 }
