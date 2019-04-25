@@ -604,11 +604,6 @@
 <span id="604">604</span>
 <span id="605">605</span>
 <span id="606">606</span>
-<span id="607">607</span>
-<span id="608">608</span>
-<span id="609">609</span>
-<span id="610">610</span>
-<span id="611">611</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">ast</span>::<span class="kw-2">*</span>, <span class="ident">visitor</span>::<span class="ident">Visitor</span>};
 
@@ -636,14 +631,9 @@
     <span class="kw">where</span>
         <span class="ident">Q</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Query</span><span class="op">&gt;</span>,
     {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">sqlite</span> <span class="op">=</span> <span class="ident">Sqlite</span> {
-            <span class="ident">parameters</span>: <span class="ident">Vec</span>::<span class="ident">new</span>(),
-        };
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">sqlite</span> <span class="op">=</span> <span class="ident">Sqlite</span> { <span class="ident">parameters</span>: <span class="ident">Vec</span>::<span class="ident">new</span>() };
 
-        (
-            <span class="ident">Sqlite</span>::<span class="ident">visit_query</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">sqlite</span>, <span class="ident">query</span>.<span class="ident">into</span>()),
-            <span class="ident">sqlite</span>.<span class="ident">parameters</span>,
-        )
+        (<span class="ident">Sqlite</span>::<span class="ident">visit_query</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">sqlite</span>, <span class="ident">query</span>.<span class="ident">into</span>()), <span class="ident">sqlite</span>.<span class="ident">parameters</span>)
     }
 
     <span class="kw">fn</span> <span class="ident">add_parameter</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">value</span>: <span class="ident">ParameterizedValue</span>) {
