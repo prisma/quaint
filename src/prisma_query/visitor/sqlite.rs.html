@@ -598,12 +598,6 @@
 <span id="598">598</span>
 <span id="599">599</span>
 <span id="600">600</span>
-<span id="601">601</span>
-<span id="602">602</span>
-<span id="603">603</span>
-<span id="604">604</span>
-<span id="605">605</span>
-<span id="606">606</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">ast</span>::<span class="kw-2">*</span>, <span class="ident">visitor</span>::<span class="ident">Visitor</span>};
 
@@ -623,7 +617,6 @@
 }
 
 <span class="kw">impl</span> <span class="ident">Visitor</span> <span class="kw">for</span> <span class="ident">Sqlite</span> {
-    <span class="kw">const</span> <span class="ident">C_PARAM</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span> <span class="op">=</span> <span class="string">&quot;?&quot;</span>;
     <span class="kw">const</span> <span class="ident">C_BACKTICK</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span> <span class="op">=</span> <span class="string">&quot;`&quot;</span>;
     <span class="kw">const</span> <span class="ident">C_WILDCARD</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span> <span class="op">=</span> <span class="string">&quot;%&quot;</span>;
 
@@ -634,6 +627,35 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">sqlite</span> <span class="op">=</span> <span class="ident">Sqlite</span> { <span class="ident">parameters</span>: <span class="ident">Vec</span>::<span class="ident">new</span>() };
 
         (<span class="ident">Sqlite</span>::<span class="ident">visit_query</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">sqlite</span>, <span class="ident">query</span>.<span class="ident">into</span>()), <span class="ident">sqlite</span>.<span class="ident">parameters</span>)
+    }
+
+    <span class="kw">fn</span> <span class="ident">visit_insert</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">insert</span>: <span class="ident">Insert</span>) <span class="op">-&gt;</span> <span class="ident">String</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">result</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">insert</span>.<span class="ident">on_conflict</span> {
+            <span class="prelude-val">Some</span>(<span class="ident">OnConflict</span>::<span class="ident">DoNothing</span>) <span class="op">=&gt;</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">String</span>::<span class="ident">from</span>(<span class="string">&quot;INSERT OR IGNORE&quot;</span>)],
+            <span class="prelude-val">None</span> <span class="op">=&gt;</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">String</span>::<span class="ident">from</span>(<span class="string">&quot;INSERT&quot;</span>)],
+        };
+
+        <span class="ident">result</span>.<span class="ident">push</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;INTO {}&quot;</span>, <span class="self">self</span>.<span class="ident">visit_table</span>(<span class="ident">insert</span>.<span class="ident">table</span>, <span class="bool-val">true</span>)));
+
+        <span class="kw">if</span> <span class="ident">insert</span>.<span class="ident">values</span>.<span class="ident">is_empty</span>() {
+            <span class="ident">result</span>.<span class="ident">push</span>(<span class="string">&quot;DEFAULT VALUES&quot;</span>.<span class="ident">to_string</span>());
+        } <span class="kw">else</span> {
+            <span class="kw">let</span> <span class="ident">columns</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">insert</span>
+                .<span class="ident">columns</span>
+                .<span class="ident">into_iter</span>()
+                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">c</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">visit_column</span>(<span class="ident">Column</span>::<span class="ident">from</span>(<span class="ident">c</span>)))
+                .<span class="ident">collect</span>();
+
+            <span class="kw">let</span> <span class="ident">values</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">insert</span>.<span class="ident">values</span>.<span class="ident">into_iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">row</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">visit_row</span>(<span class="ident">row</span>)).<span class="ident">collect</span>();
+
+            <span class="ident">result</span>.<span class="ident">push</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;({}) VALUES {}&quot;</span>, <span class="ident">columns</span>.<span class="ident">join</span>(<span class="string">&quot;, &quot;</span>), <span class="ident">values</span>.<span class="ident">join</span>(<span class="string">&quot;, &quot;</span>),))
+        }
+
+        <span class="ident">result</span>.<span class="ident">join</span>(<span class="string">&quot; &quot;</span>)
+    }
+
+    <span class="kw">fn</span> <span class="ident">parameter_substitution</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">String</span> {
+        <span class="ident">String</span>::<span class="ident">from</span>(<span class="string">&quot;?&quot;</span>)
     }
 
     <span class="kw">fn</span> <span class="ident">add_parameter</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">value</span>: <span class="ident">ParameterizedValue</span>) {
@@ -657,10 +679,7 @@
                 <span class="kw">if</span> <span class="ident">fun_rownum</span>.<span class="ident">over</span>.<span class="ident">is_empty</span>() {
                     <span class="ident">String</span>::<span class="ident">from</span>(<span class="string">&quot;ROW_NUMBER() OVER()&quot;</span>)
                 } <span class="kw">else</span> {
-                    <span class="macro">format</span><span class="macro">!</span>(
-                        <span class="string">&quot;ROW_NUMBER() OVER({})&quot;</span>,
-                        <span class="self">self</span>.<span class="ident">visit_partitioning</span>(<span class="ident">fun_rownum</span>.<span class="ident">over</span>)
-                    )
+                    <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;ROW_NUMBER() OVER({})&quot;</span>, <span class="self">self</span>.<span class="ident">visit_partitioning</span>(<span class="ident">fun_rownum</span>.<span class="ident">over</span>))
                 }
             }
             <span class="ident">FunctionType</span>::<span class="ident">Count</span>(<span class="ident">fun_count</span>) <span class="op">=&gt;</span> {
@@ -668,13 +687,6 @@
                     <span class="ident">String</span>::<span class="ident">from</span>(<span class="string">&quot;COUNT()&quot;</span>)
                 } <span class="kw">else</span> {
                     <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;COUNT({})&quot;</span>, <span class="self">self</span>.<span class="ident">visit_columns</span>(<span class="ident">fun_count</span>.<span class="ident">exprs</span>))
-                }
-            }
-            <span class="ident">FunctionType</span>::<span class="ident">Distinct</span>(<span class="ident">fun_distinct</span>) <span class="op">=&gt;</span> {
-                <span class="kw">if</span> <span class="ident">fun_distinct</span>.<span class="ident">exprs</span>.<span class="ident">is_empty</span>() {
-                    <span class="ident">String</span>::<span class="ident">from</span>(<span class="string">&quot;DISTINCT()&quot;</span>)
-                } <span class="kw">else</span> {
-                    <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;DISTINCT({})&quot;</span>, <span class="self">self</span>.<span class="ident">visit_columns</span>(<span class="ident">fun_distinct</span>.<span class="ident">exprs</span>))
                 }
             }
         };
@@ -739,12 +751,16 @@
             <span class="ident">ParameterizedValue</span>::<span class="ident">Real</span>(<span class="ident">float</span>) <span class="op">=&gt;</span> <span class="ident">ToSqlOutput</span>::<span class="ident">from</span>(<span class="kw-2">*</span><span class="ident">float</span>),
             <span class="ident">ParameterizedValue</span>::<span class="ident">Text</span>(<span class="ident">string</span>) <span class="op">=&gt;</span> <span class="ident">ToSqlOutput</span>::<span class="ident">from</span>(<span class="ident">string</span>.<span class="ident">clone</span>()),
             <span class="ident">ParameterizedValue</span>::<span class="ident">Boolean</span>(<span class="ident">boo</span>) <span class="op">=&gt;</span> <span class="ident">ToSqlOutput</span>::<span class="ident">from</span>(<span class="kw-2">*</span><span class="ident">boo</span>),
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;json&quot;</span>)]</span>
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;json-1&quot;</span>)]</span>
             <span class="ident">ParameterizedValue</span>::<span class="ident">Json</span>(<span class="ident">value</span>) <span class="op">=&gt;</span> {
-                <span class="kw">let</span> <span class="ident">stringified</span> <span class="op">=</span> <span class="ident">serde_json</span>::<span class="ident">to_string</span>(<span class="ident">value</span>)
-                    .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> <span class="ident">RusqlError</span>::<span class="ident">ToSqlConversionFailure</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">err</span>)))<span class="question-mark">?</span>;
+                <span class="kw">let</span> <span class="ident">stringified</span> <span class="op">=</span>
+                    <span class="ident">serde_json</span>::<span class="ident">to_string</span>(<span class="ident">value</span>).<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> <span class="ident">RusqlError</span>::<span class="ident">ToSqlConversionFailure</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">err</span>)))<span class="question-mark">?</span>;
                 <span class="ident">ToSqlOutput</span>::<span class="ident">from</span>(<span class="ident">stringified</span>)
             }
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;uuid-0_7&quot;</span>)]</span>
+            <span class="ident">ParameterizedValue</span>::<span class="ident">Uuid</span>(<span class="ident">value</span>) <span class="op">=&gt;</span> <span class="ident">ToSqlOutput</span>::<span class="ident">from</span>(<span class="ident">value</span>.<span class="ident">to_hyphenated</span>().<span class="ident">to_string</span>()),
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;chrono-0_4&quot;</span>)]</span>
+            <span class="ident">ParameterizedValue</span>::<span class="ident">DateTime</span>(<span class="ident">value</span>) <span class="op">=&gt;</span> <span class="ident">ToSqlOutput</span>::<span class="ident">from</span>(<span class="ident">value</span>.<span class="ident">timestamp_millis</span>()),
         };
 
         <span class="prelude-val">Ok</span>(<span class="ident">value</span>)
@@ -759,10 +775,7 @@
     <span class="kw">where</span>
         <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">ParameterizedValue</span><span class="op">&gt;</span>,
     {
-        (
-            <span class="ident">String</span>::<span class="ident">from</span>(<span class="ident">sql</span>),
-            <span class="ident">params</span>.<span class="ident">into_iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">p</span><span class="op">|</span> <span class="ident">p</span>.<span class="ident">into</span>()).<span class="ident">collect</span>(),
-        )
+        (<span class="ident">String</span>::<span class="ident">from</span>(<span class="ident">sql</span>), <span class="ident">params</span>.<span class="ident">into_iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">p</span><span class="op">|</span> <span class="ident">p</span>.<span class="ident">into</span>()).<span class="ident">collect</span>())
     }
 
     <span class="kw">fn</span> <span class="ident">default_params</span>(<span class="kw-2">mut</span> <span class="ident">additional</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ParameterizedValue</span><span class="op">&gt;</span>) <span class="op">-&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ParameterizedValue</span><span class="op">&gt;</span> {
@@ -800,8 +813,7 @@
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_select_order_by</span>() {
-        <span class="kw">let</span> <span class="ident">expected_sql</span> <span class="op">=</span>
-            <span class="string">&quot;SELECT `musti`.* FROM `musti` ORDER BY `foo`, `baz` ASC, `bar` DESC LIMIT ?&quot;</span>;
+        <span class="kw">let</span> <span class="ident">expected_sql</span> <span class="op">=</span> <span class="string">&quot;SELECT `musti`.* FROM `musti` ORDER BY `foo`, `baz` ASC, `bar` DESC LIMIT ?&quot;</span>;
         <span class="kw">let</span> <span class="ident">query</span> <span class="op">=</span> <span class="ident">Select</span>::<span class="ident">from_table</span>(<span class="string">&quot;musti&quot;</span>)
             .<span class="ident">order_by</span>(<span class="string">&quot;foo&quot;</span>)
             .<span class="ident">order_by</span>(<span class="string">&quot;baz&quot;</span>.<span class="ident">ascend</span>())
@@ -815,9 +827,7 @@
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_select_fields_from</span>() {
         <span class="kw">let</span> <span class="ident">expected_sql</span> <span class="op">=</span> <span class="string">&quot;SELECT `paw`, `nose` FROM `cat`.`musti` LIMIT ?&quot;</span>;
-        <span class="kw">let</span> <span class="ident">query</span> <span class="op">=</span> <span class="ident">Select</span>::<span class="ident">from_table</span>((<span class="string">&quot;cat&quot;</span>, <span class="string">&quot;musti&quot;</span>))
-            .<span class="ident">column</span>(<span class="string">&quot;paw&quot;</span>)
-            .<span class="ident">column</span>(<span class="string">&quot;nose&quot;</span>);
+        <span class="kw">let</span> <span class="ident">query</span> <span class="op">=</span> <span class="ident">Select</span>::<span class="ident">from_table</span>((<span class="string">&quot;cat&quot;</span>, <span class="string">&quot;musti&quot;</span>)).<span class="ident">column</span>(<span class="string">&quot;paw&quot;</span>).<span class="ident">column</span>(<span class="string">&quot;nose&quot;</span>);
         <span class="kw">let</span> (<span class="ident">sql</span>, <span class="ident">params</span>) <span class="op">=</span> <span class="ident">Sqlite</span>::<span class="ident">build</span>(<span class="ident">query</span>);
 
         <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">expected_sql</span>, <span class="ident">sql</span>);
@@ -826,10 +836,7 @@
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_select_where_equals</span>() {
-        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="ident">expected_values</span>(
-            <span class="string">&quot;SELECT `naukio`.* FROM `naukio` WHERE `word` = ? LIMIT ?&quot;</span>,
-            <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;meow&quot;</span>],
-        );
+        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="ident">expected_values</span>(<span class="string">&quot;SELECT `naukio`.* FROM `naukio` WHERE `word` = ? LIMIT ?&quot;</span>, <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;meow&quot;</span>]);
 
         <span class="kw">let</span> <span class="ident">query</span> <span class="op">=</span> <span class="ident">Select</span>::<span class="ident">from_table</span>(<span class="string">&quot;naukio&quot;</span>).<span class="ident">so_that</span>(<span class="string">&quot;word&quot;</span>.<span class="ident">equals</span>(<span class="string">&quot;meow&quot;</span>));
         <span class="kw">let</span> (<span class="ident">sql</span>, <span class="ident">params</span>) <span class="op">=</span> <span class="ident">Sqlite</span>::<span class="ident">build</span>(<span class="ident">query</span>);
@@ -932,10 +939,7 @@
             <span class="ident">ParameterizedValue</span>::<span class="ident">Text</span>(<span class="ident">String</span>::<span class="ident">from</span>(<span class="string">&quot;warm&quot;</span>)),
         ];
 
-        <span class="kw">let</span> <span class="ident">conditions</span> <span class="op">=</span> <span class="string">&quot;word&quot;</span>
-            .<span class="ident">equals</span>(<span class="string">&quot;meow&quot;</span>)
-            .<span class="ident">and</span>(<span class="string">&quot;age&quot;</span>.<span class="ident">less_than</span>(<span class="number">10</span>))
-            .<span class="ident">and</span>(<span class="string">&quot;paw&quot;</span>.<span class="ident">equals</span>(<span class="string">&quot;warm&quot;</span>));
+        <span class="kw">let</span> <span class="ident">conditions</span> <span class="op">=</span> <span class="string">&quot;word&quot;</span>.<span class="ident">equals</span>(<span class="string">&quot;meow&quot;</span>).<span class="ident">and</span>(<span class="string">&quot;age&quot;</span>.<span class="ident">less_than</span>(<span class="number">10</span>)).<span class="ident">and</span>(<span class="string">&quot;paw&quot;</span>.<span class="ident">equals</span>(<span class="string">&quot;warm&quot;</span>));
 
         <span class="kw">let</span> <span class="ident">query</span> <span class="op">=</span> <span class="ident">Select</span>::<span class="ident">from_table</span>(<span class="string">&quot;naukio&quot;</span>).<span class="ident">so_that</span>(<span class="ident">conditions</span>);
 
@@ -955,9 +959,7 @@
             <span class="ident">ParameterizedValue</span>::<span class="ident">Text</span>(<span class="ident">String</span>::<span class="ident">from</span>(<span class="string">&quot;warm&quot;</span>)),
         ];
 
-        <span class="kw">let</span> <span class="ident">conditions</span> <span class="op">=</span> <span class="string">&quot;word&quot;</span>
-            .<span class="ident">equals</span>(<span class="string">&quot;meow&quot;</span>)
-            .<span class="ident">and</span>(<span class="string">&quot;age&quot;</span>.<span class="ident">less_than</span>(<span class="number">10</span>).<span class="ident">and</span>(<span class="string">&quot;paw&quot;</span>.<span class="ident">equals</span>(<span class="string">&quot;warm&quot;</span>)));
+        <span class="kw">let</span> <span class="ident">conditions</span> <span class="op">=</span> <span class="string">&quot;word&quot;</span>.<span class="ident">equals</span>(<span class="string">&quot;meow&quot;</span>).<span class="ident">and</span>(<span class="string">&quot;age&quot;</span>.<span class="ident">less_than</span>(<span class="number">10</span>).<span class="ident">and</span>(<span class="string">&quot;paw&quot;</span>.<span class="ident">equals</span>(<span class="string">&quot;warm&quot;</span>)));
 
         <span class="kw">let</span> <span class="ident">query</span> <span class="op">=</span> <span class="ident">Select</span>::<span class="ident">from_table</span>(<span class="string">&quot;naukio&quot;</span>).<span class="ident">so_that</span>(<span class="ident">conditions</span>);
 
@@ -977,10 +979,7 @@
             <span class="ident">ParameterizedValue</span>::<span class="ident">Text</span>(<span class="ident">String</span>::<span class="ident">from</span>(<span class="string">&quot;warm&quot;</span>)),
         ];
 
-        <span class="kw">let</span> <span class="ident">conditions</span> <span class="op">=</span> <span class="string">&quot;word&quot;</span>
-            .<span class="ident">equals</span>(<span class="string">&quot;meow&quot;</span>)
-            .<span class="ident">or</span>(<span class="string">&quot;age&quot;</span>.<span class="ident">less_than</span>(<span class="number">10</span>))
-            .<span class="ident">and</span>(<span class="string">&quot;paw&quot;</span>.<span class="ident">equals</span>(<span class="string">&quot;warm&quot;</span>));
+        <span class="kw">let</span> <span class="ident">conditions</span> <span class="op">=</span> <span class="string">&quot;word&quot;</span>.<span class="ident">equals</span>(<span class="string">&quot;meow&quot;</span>).<span class="ident">or</span>(<span class="string">&quot;age&quot;</span>.<span class="ident">less_than</span>(<span class="number">10</span>)).<span class="ident">and</span>(<span class="string">&quot;paw&quot;</span>.<span class="ident">equals</span>(<span class="string">&quot;warm&quot;</span>));
 
         <span class="kw">let</span> <span class="ident">query</span> <span class="op">=</span> <span class="ident">Select</span>::<span class="ident">from_table</span>(<span class="string">&quot;naukio&quot;</span>).<span class="ident">so_that</span>(<span class="ident">conditions</span>);
 
@@ -1065,10 +1064,7 @@
         <span class="kw">let</span> (<span class="ident">sql</span>, <span class="ident">params</span>) <span class="op">=</span> <span class="ident">Sqlite</span>::<span class="ident">build</span>(<span class="ident">query</span>);
 
         <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">expected_sql</span>, <span class="ident">sql</span>);
-        <span class="macro">assert_eq</span><span class="macro">!</span>(
-            <span class="ident">default_params</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="ident">ParameterizedValue</span>::<span class="ident">Boolean</span>(<span class="bool-val">true</span>),]),
-            <span class="ident">params</span>
-        );
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">default_params</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="ident">ParameterizedValue</span>::<span class="ident">Boolean</span>(<span class="bool-val">true</span>),]), <span class="ident">params</span>);
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
@@ -1076,9 +1072,8 @@
         <span class="kw">let</span> <span class="ident">expected_sql</span> <span class="op">=</span>
             <span class="string">&quot;SELECT `users`.* FROM `users` LEFT OUTER JOIN `posts` ON `users`.`id` = `posts`.`user_id` LIMIT ?&quot;</span>;
 
-        <span class="kw">let</span> <span class="ident">query</span> <span class="op">=</span> <span class="ident">Select</span>::<span class="ident">from_table</span>(<span class="string">&quot;users&quot;</span>).<span class="ident">left_outer_join</span>(
-            <span class="string">&quot;posts&quot;</span>.<span class="ident">on</span>((<span class="string">&quot;users&quot;</span>, <span class="string">&quot;id&quot;</span>).<span class="ident">equals</span>(<span class="ident">Column</span>::<span class="ident">from</span>((<span class="string">&quot;posts&quot;</span>, <span class="string">&quot;user_id&quot;</span>)))),
-        );
+        <span class="kw">let</span> <span class="ident">query</span> <span class="op">=</span> <span class="ident">Select</span>::<span class="ident">from_table</span>(<span class="string">&quot;users&quot;</span>)
+            .<span class="ident">left_outer_join</span>(<span class="string">&quot;posts&quot;</span>.<span class="ident">on</span>((<span class="string">&quot;users&quot;</span>, <span class="string">&quot;id&quot;</span>).<span class="ident">equals</span>(<span class="ident">Column</span>::<span class="ident">from</span>((<span class="string">&quot;posts&quot;</span>, <span class="string">&quot;user_id&quot;</span>)))));
         <span class="kw">let</span> (<span class="ident">sql</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="ident">Sqlite</span>::<span class="ident">build</span>(<span class="ident">query</span>);
 
         <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">expected_sql</span>, <span class="ident">sql</span>);
@@ -1098,10 +1093,7 @@
         <span class="kw">let</span> (<span class="ident">sql</span>, <span class="ident">params</span>) <span class="op">=</span> <span class="ident">Sqlite</span>::<span class="ident">build</span>(<span class="ident">query</span>);
 
         <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">expected_sql</span>, <span class="ident">sql</span>);
-        <span class="macro">assert_eq</span><span class="macro">!</span>(
-            <span class="ident">default_params</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="ident">ParameterizedValue</span>::<span class="ident">Boolean</span>(<span class="bool-val">true</span>),]),
-            <span class="ident">params</span>
-        );
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">default_params</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="ident">ParameterizedValue</span>::<span class="ident">Boolean</span>(<span class="bool-val">true</span>),]), <span class="ident">params</span>);
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
@@ -1143,8 +1135,7 @@
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">s</span> <span class="op">=</span> <span class="ident">conn</span>.<span class="ident">prepare</span>(<span class="ident">sql_str</span>.<span class="ident">clone</span>()).<span class="ident">unwrap</span>();
         <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">1</span>..<span class="ident">params</span>.<span class="ident">len</span>() <span class="op">+</span> <span class="number">1</span> {
-            <span class="ident">s</span>.<span class="ident">bind</span>::<span class="op">&lt;</span><span class="ident">ParameterizedValue</span><span class="op">&gt;</span>(<span class="ident">i</span>, <span class="ident">params</span>[<span class="ident">i</span> <span class="op">-</span> <span class="number">1</span>].<span class="ident">clone</span>().<span class="ident">into</span>())
-                .<span class="ident">unwrap</span>();
+            <span class="ident">s</span>.<span class="ident">bind</span>::<span class="op">&lt;</span><span class="ident">ParameterizedValue</span><span class="op">&gt;</span>(<span class="ident">i</span>, <span class="ident">params</span>[<span class="ident">i</span> <span class="op">-</span> <span class="number">1</span>].<span class="ident">clone</span>().<span class="ident">into</span>()).<span class="ident">unwrap</span>();
         }
 
         <span class="ident">s</span>.<span class="ident">next</span>().<span class="ident">unwrap</span>();
@@ -1181,10 +1172,7 @@
     <span class="kw">fn</span> <span class="ident">bind_test_1</span>() {
         <span class="kw">let</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">sqlite_harness</span>();
 
-        <span class="kw">let</span> <span class="ident">conditions</span> <span class="op">=</span> <span class="string">&quot;name&quot;</span>
-            .<span class="ident">equals</span>(<span class="string">&quot;Alice&quot;</span>)
-            .<span class="ident">and</span>(<span class="string">&quot;age&quot;</span>.<span class="ident">less_than</span>(<span class="number">100.0</span>))
-            .<span class="ident">and</span>(<span class="string">&quot;nice&quot;</span>.<span class="ident">equals</span>(<span class="number">1</span>));
+        <span class="kw">let</span> <span class="ident">conditions</span> <span class="op">=</span> <span class="string">&quot;name&quot;</span>.<span class="ident">equals</span>(<span class="string">&quot;Alice&quot;</span>).<span class="ident">and</span>(<span class="string">&quot;age&quot;</span>.<span class="ident">less_than</span>(<span class="number">100.0</span>)).<span class="ident">and</span>(<span class="string">&quot;nice&quot;</span>.<span class="ident">equals</span>(<span class="number">1</span>));
         <span class="kw">let</span> <span class="ident">query</span> <span class="op">=</span> <span class="ident">Select</span>::<span class="ident">from_table</span>(<span class="string">&quot;users&quot;</span>).<span class="ident">so_that</span>(<span class="ident">conditions</span>);
         <span class="kw">let</span> (<span class="ident">sql_str</span>, <span class="ident">params</span>) <span class="op">=</span> <span class="ident">Sqlite</span>::<span class="ident">build</span>(<span class="ident">query</span>);
 
