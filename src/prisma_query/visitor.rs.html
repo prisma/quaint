@@ -528,7 +528,6 @@
 <span id="528">528</span>
 <span id="529">529</span>
 <span id="530">530</span>
-<span id="531">531</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Visitors for reading an abstract SQL syntax tree, generating the query and</span>
 <span class="doccomment">//! gathering parameters in the right order.</span>
@@ -577,11 +576,12 @@
     <span class="doccomment">/// replacing it with the `C_PARAM`, calling `add_parameter` with the replaced value.</span>
     <span class="kw">fn</span> <span class="ident">add_parameter</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">value</span>: <span class="ident">ParameterizedValue</span>);
 
-    <span class="doccomment">/// The `LIMIT` statement in the query</span>
-    <span class="kw">fn</span> <span class="ident">visit_limit</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">limit</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ParameterizedValue</span><span class="op">&gt;</span>) <span class="op">-&gt;</span> <span class="ident">String</span>;
-
-    <span class="doccomment">/// The `OFFSET` statement in the query</span>
-    <span class="kw">fn</span> <span class="ident">visit_offset</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">offset</span>: <span class="ident">ParameterizedValue</span>) <span class="op">-&gt;</span> <span class="ident">String</span>;
+    <span class="doccomment">/// The `LIMIT` and `OFFSET` statement in the query</span>
+    <span class="kw">fn</span> <span class="ident">visit_limit_and_offset</span>(
+        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
+        <span class="ident">limit</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ParameterizedValue</span><span class="op">&gt;</span>,
+        <span class="ident">offset</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ParameterizedValue</span><span class="op">&gt;</span>,
+    ) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>;
 
     <span class="doccomment">/// A walk through an `INSERT` statement</span>
     <span class="kw">fn</span> <span class="ident">visit_insert</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">insert</span>: <span class="ident">Insert</span>) <span class="op">-&gt;</span> <span class="ident">String</span>;
@@ -660,10 +660,8 @@
                 <span class="ident">result</span>.<span class="ident">push</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;ORDER BY {}&quot;</span>, <span class="self">self</span>.<span class="ident">visit_ordering</span>(<span class="ident">select</span>.<span class="ident">ordering</span>)));
             }
 
-            <span class="ident">result</span>.<span class="ident">push</span>(<span class="self">self</span>.<span class="ident">visit_limit</span>(<span class="ident">select</span>.<span class="ident">limit</span>));
-
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">offset</span>) <span class="op">=</span> <span class="ident">select</span>.<span class="ident">offset</span> {
-                <span class="ident">result</span>.<span class="ident">push</span>(<span class="self">self</span>.<span class="ident">visit_offset</span>(<span class="ident">offset</span>));
+            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">window</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">visit_limit_and_offset</span>(<span class="ident">select</span>.<span class="ident">limit</span>, <span class="ident">select</span>.<span class="ident">offset</span>) {
+                <span class="ident">result</span>.<span class="ident">push</span>(<span class="ident">window</span>);
             }
         } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">select</span>.<span class="ident">columns</span>.<span class="ident">is_empty</span>() {
             <span class="ident">result</span>.<span class="ident">push</span>(<span class="ident">String</span>::<span class="ident">from</span>(<span class="string">&quot;*&quot;</span>));

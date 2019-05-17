@@ -111,6 +111,15 @@
 <span id="111">111</span>
 <span id="112">112</span>
 <span id="113">113</span>
+<span id="114">114</span>
+<span id="115">115</span>
+<span id="116">116</span>
+<span id="117">117</span>
+<span id="118">118</span>
+<span id="119">119</span>
+<span id="120">120</span>
+<span id="121">121</span>
+<span id="122">122</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">ast</span>::<span class="kw-2">*</span>, <span class="ident">visitor</span>::<span class="ident">Visitor</span>};
 <span class="kw">use</span> <span class="ident">mysql</span>::<span class="ident">Value</span> <span class="kw">as</span> <span class="ident">MyValue</span>;
@@ -181,16 +190,25 @@
         <span class="self">self</span>.<span class="ident">parameters</span>.<span class="ident">push</span>(<span class="ident">value</span>);
     }
 
-    <span class="kw">fn</span> <span class="ident">visit_limit</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">limit</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ParameterizedValue</span><span class="op">&gt;</span>) <span class="op">-&gt;</span> <span class="ident">String</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">limit</span>) <span class="op">=</span> <span class="ident">limit</span> {
-            <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;LIMIT {}&quot;</span>, <span class="self">self</span>.<span class="ident">visit_parameterized</span>(<span class="ident">limit</span>))
-        } <span class="kw">else</span> {
-            <span class="ident">String</span>::<span class="ident">from</span>(<span class="string">&quot;LIMIT 18446744073709551615&quot;</span>)
+    <span class="kw">fn</span> <span class="ident">visit_limit_and_offset</span>(
+        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
+        <span class="ident">limit</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ParameterizedValue</span><span class="op">&gt;</span>,
+        <span class="ident">offset</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ParameterizedValue</span><span class="op">&gt;</span>,
+    ) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
+        <span class="kw">match</span> (<span class="ident">limit</span>, <span class="ident">offset</span>) {
+            (<span class="prelude-val">Some</span>(<span class="ident">limit</span>), <span class="prelude-val">Some</span>(<span class="ident">offset</span>)) <span class="op">=&gt;</span> <span class="prelude-val">Some</span>(<span class="macro">format</span><span class="macro">!</span>(
+                <span class="string">&quot;LIMIT {} OFFSET {}&quot;</span>,
+                <span class="self">self</span>.<span class="ident">visit_parameterized</span>(<span class="ident">limit</span>),
+                <span class="self">self</span>.<span class="ident">visit_parameterized</span>(<span class="ident">offset</span>)
+            )),
+            (<span class="prelude-val">None</span>, <span class="prelude-val">Some</span>(<span class="ident">offset</span>)) <span class="op">=&gt;</span> <span class="prelude-val">Some</span>(<span class="macro">format</span><span class="macro">!</span>(
+                <span class="string">&quot;LIMIT {} OFFSET {}&quot;</span>,
+                <span class="self">self</span>.<span class="ident">visit_parameterized</span>(<span class="ident">ParameterizedValue</span>::<span class="ident">from</span>(<span class="number">9223372036854775807i64</span>)),
+                <span class="self">self</span>.<span class="ident">visit_parameterized</span>(<span class="ident">offset</span>)
+            )),
+            (<span class="prelude-val">Some</span>(<span class="ident">limit</span>), <span class="prelude-val">None</span>) <span class="op">=&gt;</span> <span class="prelude-val">Some</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;LIMIT {}&quot;</span>, <span class="self">self</span>.<span class="ident">visit_parameterized</span>(<span class="ident">limit</span>))),
+            (<span class="prelude-val">None</span>, <span class="prelude-val">None</span>) <span class="op">=&gt;</span> <span class="prelude-val">None</span>,
         }
-    }
-
-    <span class="kw">fn</span> <span class="ident">visit_offset</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">offset</span>: <span class="ident">ParameterizedValue</span>) <span class="op">-&gt;</span> <span class="ident">String</span> {
-        <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;OFFSET {}&quot;</span>, <span class="self">self</span>.<span class="ident">visit_parameterized</span>(<span class="ident">offset</span>))
     }
 }
 

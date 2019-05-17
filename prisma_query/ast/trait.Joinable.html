@@ -10,7 +10,7 @@
 <span class="kw">let</span> (<span class="ident">sql</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="ident">Sqlite</span>::<span class="ident">build</span>(<span class="ident">query</span>);
 
 <span class="macro">assert_eq</span><span class="macro">!</span>(
-    <span class="string">&quot;SELECT `a`.* FROM `a` INNER JOIN `b` ON `b`.`id` = `a`.`id` LIMIT ?&quot;</span>,
+    <span class="string">&quot;SELECT `a`.* FROM `a` INNER JOIN `b` ON `b`.`id` = `a`.`id`&quot;</span>,
     <span class="ident">sql</span>,
 );</pre></div>
 </div></div><span class='loading-content'>Loading content...</span>

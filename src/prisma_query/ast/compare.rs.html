@@ -574,22 +574,6 @@
 <span id="574">574</span>
 <span id="575">575</span>
 <span id="576">576</span>
-<span id="577">577</span>
-<span id="578">578</span>
-<span id="579">579</span>
-<span id="580">580</span>
-<span id="581">581</span>
-<span id="582">582</span>
-<span id="583">583</span>
-<span id="584">584</span>
-<span id="585">585</span>
-<span id="586">586</span>
-<span id="587">587</span>
-<span id="588">588</span>
-<span id="589">589</span>
-<span id="590">590</span>
-<span id="591">591</span>
-<span id="592">592</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">ast</span>::{<span class="ident">Column</span>, <span class="ident">ConditionTree</span>, <span class="ident">DatabaseValue</span>, <span class="ident">Expression</span>};
 
@@ -658,12 +642,11 @@
     <span class="doccomment">/// let query = Select::from_table(&quot;users&quot;).so_that(&quot;foo&quot;.equals(&quot;bar&quot;));</span>
     <span class="doccomment">/// let (sql, params) = Sqlite::build(query);</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// assert_eq!(&quot;SELECT `users`.* FROM `users` WHERE `foo` = ? LIMIT ?&quot;, sql);</span>
+    <span class="doccomment">/// assert_eq!(&quot;SELECT `users`.* FROM `users` WHERE `foo` = ?&quot;, sql);</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// assert_eq!(</span>
     <span class="doccomment">///     vec![</span>
     <span class="doccomment">///         ParameterizedValue::from(&quot;bar&quot;),</span>
-    <span class="doccomment">///         ParameterizedValue::from(-1),</span>
     <span class="doccomment">///     ],</span>
     <span class="doccomment">///     params</span>
     <span class="doccomment">/// );</span>
@@ -679,12 +662,11 @@
     <span class="doccomment">/// let query = Select::from_table(&quot;users&quot;).so_that(&quot;foo&quot;.not_equals(&quot;bar&quot;));</span>
     <span class="doccomment">/// let (sql, params) = Sqlite::build(query);</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// assert_eq!(&quot;SELECT `users`.* FROM `users` WHERE `foo` &lt;&gt; ? LIMIT ?&quot;, sql);</span>
+    <span class="doccomment">/// assert_eq!(&quot;SELECT `users`.* FROM `users` WHERE `foo` &lt;&gt; ?&quot;, sql);</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// assert_eq!(</span>
     <span class="doccomment">///     vec![</span>
     <span class="doccomment">///         ParameterizedValue::from(&quot;bar&quot;),</span>
-    <span class="doccomment">///         ParameterizedValue::from(-1),</span>
     <span class="doccomment">///     ],</span>
     <span class="doccomment">///     params</span>
     <span class="doccomment">/// );</span>
@@ -700,12 +682,11 @@
     <span class="doccomment">/// let query = Select::from_table(&quot;users&quot;).so_that(&quot;foo&quot;.less_than(10));</span>
     <span class="doccomment">/// let (sql, params) = Sqlite::build(query);</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// assert_eq!(&quot;SELECT `users`.* FROM `users` WHERE `foo` &lt; ? LIMIT ?&quot;, sql);</span>
+    <span class="doccomment">/// assert_eq!(&quot;SELECT `users`.* FROM `users` WHERE `foo` &lt; ?&quot;, sql);</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// assert_eq!(</span>
     <span class="doccomment">///     vec![</span>
     <span class="doccomment">///         ParameterizedValue::from(10),</span>
-    <span class="doccomment">///         ParameterizedValue::from(-1),</span>
     <span class="doccomment">///     ],</span>
     <span class="doccomment">///     params</span>
     <span class="doccomment">/// );</span>
@@ -721,12 +702,11 @@
     <span class="doccomment">/// let query = Select::from_table(&quot;users&quot;).so_that(&quot;foo&quot;.less_than_or_equals(10));</span>
     <span class="doccomment">/// let (sql, params) = Sqlite::build(query);</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// assert_eq!(&quot;SELECT `users`.* FROM `users` WHERE `foo` &lt;= ? LIMIT ?&quot;, sql);</span>
+    <span class="doccomment">/// assert_eq!(&quot;SELECT `users`.* FROM `users` WHERE `foo` &lt;= ?&quot;, sql);</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// assert_eq!(</span>
     <span class="doccomment">///     vec![</span>
     <span class="doccomment">///         ParameterizedValue::from(10),</span>
-    <span class="doccomment">///         ParameterizedValue::from(-1),</span>
     <span class="doccomment">///     ],</span>
     <span class="doccomment">///     params</span>
     <span class="doccomment">/// );</span>
@@ -742,12 +722,11 @@
     <span class="doccomment">/// let query = Select::from_table(&quot;users&quot;).so_that(&quot;foo&quot;.greater_than(10));</span>
     <span class="doccomment">/// let (sql, params) = Sqlite::build(query);</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// assert_eq!(&quot;SELECT `users`.* FROM `users` WHERE `foo` &gt; ? LIMIT ?&quot;, sql);</span>
+    <span class="doccomment">/// assert_eq!(&quot;SELECT `users`.* FROM `users` WHERE `foo` &gt; ?&quot;, sql);</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// assert_eq!(</span>
     <span class="doccomment">///     vec![</span>
     <span class="doccomment">///         ParameterizedValue::from(10),</span>
-    <span class="doccomment">///         ParameterizedValue::from(-1),</span>
     <span class="doccomment">///     ],</span>
     <span class="doccomment">///     params</span>
     <span class="doccomment">/// );</span>
@@ -763,12 +742,11 @@
     <span class="doccomment">/// let query = Select::from_table(&quot;users&quot;).so_that(&quot;foo&quot;.greater_than_or_equals(10));</span>
     <span class="doccomment">/// let (sql, params) = Sqlite::build(query);</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// assert_eq!(&quot;SELECT `users`.* FROM `users` WHERE `foo` &gt;= ? LIMIT ?&quot;, sql);</span>
+    <span class="doccomment">/// assert_eq!(&quot;SELECT `users`.* FROM `users` WHERE `foo` &gt;= ?&quot;, sql);</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// assert_eq!(</span>
     <span class="doccomment">///     vec![</span>
     <span class="doccomment">///         ParameterizedValue::from(10),</span>
-    <span class="doccomment">///         ParameterizedValue::from(-1),</span>
     <span class="doccomment">///     ],</span>
     <span class="doccomment">///     params</span>
     <span class="doccomment">/// );</span>
@@ -784,11 +762,10 @@
     <span class="doccomment">/// let query = Select::from_table(&quot;users&quot;).so_that(&quot;foo&quot;.in_selection(vec![1, 2]));</span>
     <span class="doccomment">/// let (sql, params) = Sqlite::build(query);</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// assert_eq!(&quot;SELECT `users`.* FROM `users` WHERE `foo` IN (?, ?) LIMIT ?&quot;, sql);</span>
+    <span class="doccomment">/// assert_eq!(&quot;SELECT `users`.* FROM `users` WHERE `foo` IN (?, ?)&quot;, sql);</span>
     <span class="doccomment">/// assert_eq!(vec![</span>
     <span class="doccomment">///     ParameterizedValue::Integer(1),</span>
     <span class="doccomment">///     ParameterizedValue::Integer(2),</span>
-    <span class="doccomment">///     ParameterizedValue::Integer(-1),</span>
     <span class="doccomment">/// ], params);</span>
     <span class="doccomment">/// ```</span>
     <span class="kw">fn</span> <span class="ident">in_selection</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">selection</span>: <span class="ident">T</span>) <span class="op">-&gt;</span> <span class="ident">Compare</span>
@@ -802,12 +779,11 @@
     <span class="doccomment">/// let query = Select::from_table(&quot;users&quot;).so_that(&quot;foo&quot;.not_in_selection(vec![1, 2]));</span>
     <span class="doccomment">/// let (sql, params) = Sqlite::build(query);</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// assert_eq!(&quot;SELECT `users`.* FROM `users` WHERE `foo` NOT IN (?, ?) LIMIT ?&quot;, sql);</span>
+    <span class="doccomment">/// assert_eq!(&quot;SELECT `users`.* FROM `users` WHERE `foo` NOT IN (?, ?)&quot;, sql);</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// assert_eq!(vec![</span>
     <span class="doccomment">///     ParameterizedValue::Integer(1),</span>
     <span class="doccomment">///     ParameterizedValue::Integer(2),</span>
-    <span class="doccomment">///     ParameterizedValue::Integer(-1),</span>
     <span class="doccomment">/// ], params);</span>
     <span class="doccomment">/// ```</span>
     <span class="kw">fn</span> <span class="ident">not_in_selection</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">selection</span>: <span class="ident">T</span>) <span class="op">-&gt;</span> <span class="ident">Compare</span>
@@ -821,12 +797,11 @@
     <span class="doccomment">/// let query = Select::from_table(&quot;users&quot;).so_that(&quot;foo&quot;.like(&quot;bar&quot;));</span>
     <span class="doccomment">/// let (sql, params) = Sqlite::build(query);</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// assert_eq!(&quot;SELECT `users`.* FROM `users` WHERE `foo` LIKE ? LIMIT ?&quot;, sql);</span>
+    <span class="doccomment">/// assert_eq!(&quot;SELECT `users`.* FROM `users` WHERE `foo` LIKE ?&quot;, sql);</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// assert_eq!(</span>
     <span class="doccomment">///     vec![</span>
     <span class="doccomment">///         ParameterizedValue::from(&quot;%bar%&quot;),</span>
-    <span class="doccomment">///         ParameterizedValue::from(-1),</span>
     <span class="doccomment">///     ],</span>
     <span class="doccomment">///     params</span>
     <span class="doccomment">/// );</span>
@@ -842,12 +817,11 @@
     <span class="doccomment">/// let query = Select::from_table(&quot;users&quot;).so_that(&quot;foo&quot;.not_like(&quot;bar&quot;));</span>
     <span class="doccomment">/// let (sql, params) = Sqlite::build(query);</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// assert_eq!(&quot;SELECT `users`.* FROM `users` WHERE `foo` NOT LIKE ? LIMIT ?&quot;, sql);</span>
+    <span class="doccomment">/// assert_eq!(&quot;SELECT `users`.* FROM `users` WHERE `foo` NOT LIKE ?&quot;, sql);</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// assert_eq!(</span>
     <span class="doccomment">///     vec![</span>
     <span class="doccomment">///         ParameterizedValue::from(&quot;%bar%&quot;),</span>
-    <span class="doccomment">///         ParameterizedValue::from(-1),</span>
     <span class="doccomment">///     ],</span>
     <span class="doccomment">///     params</span>
     <span class="doccomment">/// );</span>
@@ -863,12 +837,11 @@
     <span class="doccomment">/// let query = Select::from_table(&quot;users&quot;).so_that(&quot;foo&quot;.begins_with(&quot;bar&quot;));</span>
     <span class="doccomment">/// let (sql, params) = Sqlite::build(query);</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// assert_eq!(&quot;SELECT `users`.* FROM `users` WHERE `foo` LIKE ? LIMIT ?&quot;, sql);</span>
+    <span class="doccomment">/// assert_eq!(&quot;SELECT `users`.* FROM `users` WHERE `foo` LIKE ?&quot;, sql);</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// assert_eq!(</span>
     <span class="doccomment">///     vec![</span>
     <span class="doccomment">///         ParameterizedValue::from(&quot;bar%&quot;),</span>
-    <span class="doccomment">///         ParameterizedValue::from(-1),</span>
     <span class="doccomment">///     ],</span>
     <span class="doccomment">///     params</span>
     <span class="doccomment">/// );</span>
@@ -884,12 +857,11 @@
     <span class="doccomment">/// let query = Select::from_table(&quot;users&quot;).so_that(&quot;foo&quot;.not_begins_with(&quot;bar&quot;));</span>
     <span class="doccomment">/// let (sql, params) = Sqlite::build(query);</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// assert_eq!(&quot;SELECT `users`.* FROM `users` WHERE `foo` NOT LIKE ? LIMIT ?&quot;, sql);</span>
+    <span class="doccomment">/// assert_eq!(&quot;SELECT `users`.* FROM `users` WHERE `foo` NOT LIKE ?&quot;, sql);</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// assert_eq!(</span>
     <span class="doccomment">///     vec![</span>
     <span class="doccomment">///         ParameterizedValue::from(&quot;bar%&quot;),</span>
-    <span class="doccomment">///         ParameterizedValue::from(-1),</span>
     <span class="doccomment">///     ],</span>
     <span class="doccomment">///     params</span>
     <span class="doccomment">/// );</span>
@@ -905,12 +877,11 @@
     <span class="doccomment">/// let query = Select::from_table(&quot;users&quot;).so_that(&quot;foo&quot;.ends_into(&quot;bar&quot;));</span>
     <span class="doccomment">/// let (sql, params) = Sqlite::build(query);</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// assert_eq!(&quot;SELECT `users`.* FROM `users` WHERE `foo` LIKE ? LIMIT ?&quot;, sql);</span>
+    <span class="doccomment">/// assert_eq!(&quot;SELECT `users`.* FROM `users` WHERE `foo` LIKE ?&quot;, sql);</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// assert_eq!(</span>
     <span class="doccomment">///     vec![</span>
     <span class="doccomment">///         ParameterizedValue::from(&quot;%bar&quot;),</span>
-    <span class="doccomment">///         ParameterizedValue::from(-1),</span>
     <span class="doccomment">///     ],</span>
     <span class="doccomment">///     params</span>
     <span class="doccomment">/// );</span>
@@ -926,12 +897,11 @@
     <span class="doccomment">/// let query = Select::from_table(&quot;users&quot;).so_that(&quot;foo&quot;.not_ends_into(&quot;bar&quot;));</span>
     <span class="doccomment">/// let (sql, params) = Sqlite::build(query);</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// assert_eq!(&quot;SELECT `users`.* FROM `users` WHERE `foo` NOT LIKE ? LIMIT ?&quot;, sql);</span>
+    <span class="doccomment">/// assert_eq!(&quot;SELECT `users`.* FROM `users` WHERE `foo` NOT LIKE ?&quot;, sql);</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// assert_eq!(</span>
     <span class="doccomment">///     vec![</span>
     <span class="doccomment">///         ParameterizedValue::from(&quot;%bar&quot;),</span>
-    <span class="doccomment">///         ParameterizedValue::from(-1),</span>
     <span class="doccomment">///     ],</span>
     <span class="doccomment">///     params</span>
     <span class="doccomment">/// );</span>
@@ -947,7 +917,7 @@
     <span class="doccomment">/// let query = Select::from_table(&quot;users&quot;).so_that(&quot;foo&quot;.is_null());</span>
     <span class="doccomment">/// let (sql, _) = Sqlite::build(query);</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// assert_eq!(&quot;SELECT `users`.* FROM `users` WHERE `foo` IS NULL LIMIT ?&quot;, sql);</span>
+    <span class="doccomment">/// assert_eq!(&quot;SELECT `users`.* FROM `users` WHERE `foo` IS NULL&quot;, sql);</span>
     <span class="doccomment">/// ```</span>
     <span class="kw">fn</span> <span class="ident">is_null</span>(<span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">Compare</span>;
 
@@ -958,7 +928,7 @@
     <span class="doccomment">/// let query = Select::from_table(&quot;users&quot;).so_that(&quot;foo&quot;.is_not_null());</span>
     <span class="doccomment">/// let (sql, _) = Sqlite::build(query);</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// assert_eq!(&quot;SELECT `users`.* FROM `users` WHERE `foo` IS NOT NULL LIMIT ?&quot;, sql);</span>
+    <span class="doccomment">/// assert_eq!(&quot;SELECT `users`.* FROM `users` WHERE `foo` IS NOT NULL&quot;, sql);</span>
     <span class="doccomment">/// ```</span>
     <span class="kw">fn</span> <span class="ident">is_not_null</span>(<span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">Compare</span>;
 
@@ -969,12 +939,11 @@
     <span class="doccomment">/// let query = Select::from_table(&quot;users&quot;).so_that(&quot;foo&quot;.between(420, 666));</span>
     <span class="doccomment">/// let (sql, params) = Sqlite::build(query);</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// assert_eq!(&quot;SELECT `users`.* FROM `users` WHERE `foo` BETWEEN ? AND ? LIMIT ?&quot;, sql);</span>
+    <span class="doccomment">/// assert_eq!(&quot;SELECT `users`.* FROM `users` WHERE `foo` BETWEEN ? AND ?&quot;, sql);</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// assert_eq!(vec![</span>
     <span class="doccomment">///     ParameterizedValue::Integer(420),</span>
     <span class="doccomment">///     ParameterizedValue::Integer(666),</span>
-    <span class="doccomment">///     ParameterizedValue::Integer(-1),</span>
     <span class="doccomment">/// ], params);</span>
     <span class="doccomment">/// ```</span>
     <span class="kw">fn</span> <span class="ident">between</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">V</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">left</span>: <span class="ident">T</span>, <span class="ident">right</span>: <span class="ident">V</span>) <span class="op">-&gt;</span> <span class="ident">Compare</span>
@@ -989,12 +958,11 @@
     <span class="doccomment">/// let query = Select::from_table(&quot;users&quot;).so_that(&quot;foo&quot;.not_between(420, 666));</span>
     <span class="doccomment">/// let (sql, params) = Sqlite::build(query);</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// assert_eq!(&quot;SELECT `users`.* FROM `users` WHERE `foo` NOT BETWEEN ? AND ? LIMIT ?&quot;, sql);</span>
+    <span class="doccomment">/// assert_eq!(&quot;SELECT `users`.* FROM `users` WHERE `foo` NOT BETWEEN ? AND ?&quot;, sql);</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// assert_eq!(vec![</span>
     <span class="doccomment">///     ParameterizedValue::Integer(420),</span>
     <span class="doccomment">///     ParameterizedValue::Integer(666),</span>
-    <span class="doccomment">///     ParameterizedValue::Integer(-1),</span>
     <span class="doccomment">/// ], params);</span>
     <span class="doccomment">/// ```</span>
     <span class="kw">fn</span> <span class="ident">not_between</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">V</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">left</span>: <span class="ident">T</span>, <span class="ident">right</span>: <span class="ident">V</span>) <span class="op">-&gt;</span> <span class="ident">Compare</span>

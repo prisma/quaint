@@ -98,8 +98,6 @@
 <span id="98"> 98</span>
 <span id="99"> 99</span>
 <span id="100">100</span>
-<span id="101">101</span>
-<span id="102">102</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! # prisma-query</span>
 <span class="doccomment">//!</span>
@@ -146,7 +144,7 @@
 <span class="doccomment">//!     let (sql_str, params) = Sqlite::build(query);</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//!     assert_eq!(</span>
-<span class="doccomment">//!         &quot;SELECT `naukio`.* FROM `naukio` WHERE ((`word` = ? AND `age` &lt; ?) AND `paw` = ?) LIMIT ?&quot;,</span>
+<span class="doccomment">//!         &quot;SELECT `naukio`.* FROM `naukio` WHERE ((`word` = ? AND `age` &lt; ?) AND `paw` = ?)&quot;,</span>
 <span class="doccomment">//!         sql_str,</span>
 <span class="doccomment">//!     );</span>
 <span class="doccomment">//!</span>
@@ -155,7 +153,6 @@
 <span class="doccomment">//!             ParameterizedValue::from(&quot;meow&quot;),</span>
 <span class="doccomment">//!             ParameterizedValue::from(10),</span>
 <span class="doccomment">//!             ParameterizedValue::from(&quot;warm&quot;),</span>
-<span class="doccomment">//!             ParameterizedValue::from(-1),</span>
 <span class="doccomment">//!         ],</span>
 <span class="doccomment">//!         params</span>
 <span class="doccomment">//!     );</span>
@@ -182,7 +179,7 @@
 <span class="doccomment">//!     let (sql, params) = Sqlite::build(query);</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//!     assert_eq!(</span>
-<span class="doccomment">//!         &quot;SELECT `naukio`.* FROM `naukio` WHERE ((`word` = ? OR `age` &lt; ?) AND `paw` = ?) LIMIT ?&quot;,</span>
+<span class="doccomment">//!         &quot;SELECT `naukio`.* FROM `naukio` WHERE ((`word` = ? OR `age` &lt; ?) AND `paw` = ?)&quot;,</span>
 <span class="doccomment">//!         sql,</span>
 <span class="doccomment">//!     );</span>
 <span class="doccomment">//!</span>
@@ -191,7 +188,6 @@
 <span class="doccomment">//!             ParameterizedValue::from(&quot;meow&quot;),</span>
 <span class="doccomment">//!             ParameterizedValue::from(10),</span>
 <span class="doccomment">//!             ParameterizedValue::from(&quot;warm&quot;),</span>
-<span class="doccomment">//!             ParameterizedValue::from(-1),</span>
 <span class="doccomment">//!         ],</span>
 <span class="doccomment">//!         params</span>
 <span class="doccomment">//!     );</span>
