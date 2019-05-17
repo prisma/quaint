@@ -518,6 +518,17 @@
 <span id="518">518</span>
 <span id="519">519</span>
 <span id="520">520</span>
+<span id="521">521</span>
+<span id="522">522</span>
+<span id="523">523</span>
+<span id="524">524</span>
+<span id="525">525</span>
+<span id="526">526</span>
+<span id="527">527</span>
+<span id="528">528</span>
+<span id="529">529</span>
+<span id="530">530</span>
+<span id="531">531</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Visitors for reading an abstract SQL syntax tree, generating the query and</span>
 <span class="doccomment">//! gathering parameters in the right order.</span>
@@ -734,8 +745,19 @@
             <span class="ident">Query</span>::<span class="ident">Insert</span>(<span class="ident">insert</span>) <span class="op">=&gt;</span> <span class="self">self</span>.<span class="ident">visit_insert</span>(<span class="kw-2">*</span><span class="ident">insert</span>),
             <span class="ident">Query</span>::<span class="ident">Update</span>(<span class="ident">update</span>) <span class="op">=&gt;</span> <span class="self">self</span>.<span class="ident">visit_update</span>(<span class="kw-2">*</span><span class="ident">update</span>),
             <span class="ident">Query</span>::<span class="ident">Delete</span>(<span class="ident">delete</span>) <span class="op">=&gt;</span> <span class="self">self</span>.<span class="ident">visit_delete</span>(<span class="kw-2">*</span><span class="ident">delete</span>),
+            <span class="ident">Query</span>::<span class="ident">UnionAll</span>(<span class="ident">union</span>) <span class="op">=&gt;</span> <span class="self">self</span>.<span class="ident">visit_union_all</span>(<span class="ident">union</span>),
             <span class="ident">Query</span>::<span class="ident">Raw</span>(<span class="ident">string</span>) <span class="op">=&gt;</span> <span class="ident">string</span>,
         }
+    }
+
+    <span class="doccomment">/// A walk through a union of `SELECT` statements</span>
+    <span class="kw">fn</span> <span class="ident">visit_union_all</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ua</span>: <span class="ident">UnionAll</span>) <span class="op">-&gt;</span> <span class="ident">String</span> {
+        <span class="kw">let</span> <span class="ident">selects</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> <span class="op">=</span>
+            <span class="ident">ua</span>.<span class="number">0</span>.<span class="ident">into_iter</span>()
+                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;({})&quot;</span>, <span class="self">self</span>.<span class="ident">visit_select</span>(<span class="ident">s</span>)))
+                .<span class="ident">collect</span>();
+
+        <span class="ident">selects</span>.<span class="ident">join</span>(<span class="string">&quot; UNION ALL &quot;</span>)
     }
 
     <span class="doccomment">/// The selected columns</span>

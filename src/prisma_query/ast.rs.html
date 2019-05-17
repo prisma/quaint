@@ -38,6 +38,8 @@
 <span id="38">38</span>
 <span id="39">39</span>
 <span id="40">40</span>
+<span id="41">41</span>
+<span id="42">42</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! An abstract syntax tree for SQL queries.</span>
 <span class="doccomment">//!</span>
@@ -60,6 +62,7 @@
 <span class="kw">mod</span> <span class="ident">row</span>;
 <span class="kw">mod</span> <span class="ident">select</span>;
 <span class="kw">mod</span> <span class="ident">table</span>;
+<span class="kw">mod</span> <span class="ident">union_all</span>;
 <span class="kw">mod</span> <span class="ident">update</span>;
 <span class="kw">mod</span> <span class="ident">values</span>;
 
@@ -77,6 +80,7 @@
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">row</span>::<span class="ident">Row</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">select</span>::<span class="ident">Select</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">table</span>::<span class="kw-2">*</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">union_all</span>::<span class="ident">UnionAll</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">update</span>::<span class="kw-2">*</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">values</span>::{<span class="ident">asterisk</span>, <span class="ident">DatabaseValue</span>, <span class="ident">ParameterizedValue</span>};
 </pre></div>
