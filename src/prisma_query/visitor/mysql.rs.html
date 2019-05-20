@@ -120,6 +120,7 @@
 <span id="120">120</span>
 <span id="121">121</span>
 <span id="122">122</span>
+<span id="123">123</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">ast</span>::<span class="kw-2">*</span>, <span class="ident">visitor</span>::<span class="ident">Visitor</span>};
 <span class="kw">use</span> <span class="ident">mysql</span>::<span class="ident">Value</span> <span class="kw">as</span> <span class="ident">MyValue</span>;
@@ -201,10 +202,11 @@
                 <span class="self">self</span>.<span class="ident">visit_parameterized</span>(<span class="ident">limit</span>),
                 <span class="self">self</span>.<span class="ident">visit_parameterized</span>(<span class="ident">offset</span>)
             )),
+            (<span class="prelude-val">None</span>, <span class="prelude-val">Some</span>(<span class="ident">ParameterizedValue</span>::<span class="ident">Integer</span>(<span class="ident">offset</span>))) <span class="kw">if</span> <span class="ident">offset</span> <span class="op">&lt;</span> <span class="number">1</span> <span class="op">=&gt;</span> <span class="prelude-val">None</span>,
             (<span class="prelude-val">None</span>, <span class="prelude-val">Some</span>(<span class="ident">offset</span>)) <span class="op">=&gt;</span> <span class="prelude-val">Some</span>(<span class="macro">format</span><span class="macro">!</span>(
                 <span class="string">&quot;LIMIT {} OFFSET {}&quot;</span>,
                 <span class="self">self</span>.<span class="ident">visit_parameterized</span>(<span class="ident">ParameterizedValue</span>::<span class="ident">from</span>(<span class="number">9223372036854775807i64</span>)),
-                <span class="self">self</span>.<span class="ident">visit_parameterized</span>(<span class="ident">offset</span>)
+                <span class="self">self</span>.<span class="ident">visit_parameterized</span>(<span class="ident">offset</span>),
             )),
             (<span class="prelude-val">Some</span>(<span class="ident">limit</span>), <span class="prelude-val">None</span>) <span class="op">=&gt;</span> <span class="prelude-val">Some</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;LIMIT {}&quot;</span>, <span class="self">self</span>.<span class="ident">visit_parameterized</span>(<span class="ident">limit</span>))),
             (<span class="prelude-val">None</span>, <span class="prelude-val">None</span>) <span class="op">=&gt;</span> <span class="prelude-val">None</span>,
