@@ -528,6 +528,26 @@
 <span id="528">528</span>
 <span id="529">529</span>
 <span id="530">530</span>
+<span id="531">531</span>
+<span id="532">532</span>
+<span id="533">533</span>
+<span id="534">534</span>
+<span id="535">535</span>
+<span id="536">536</span>
+<span id="537">537</span>
+<span id="538">538</span>
+<span id="539">539</span>
+<span id="540">540</span>
+<span id="541">541</span>
+<span id="542">542</span>
+<span id="543">543</span>
+<span id="544">544</span>
+<span id="545">545</span>
+<span id="546">546</span>
+<span id="547">547</span>
+<span id="548">548</span>
+<span id="549">549</span>
+<span id="550">550</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Visitors for reading an abstract SQL syntax tree, generating the query and</span>
 <span class="doccomment">//! gathering parameters in the right order.</span>
@@ -588,6 +608,9 @@
 
     <span class="doccomment">/// What to use to substitute a parameter in the query.</span>
     <span class="kw">fn</span> <span class="ident">parameter_substitution</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">String</span>;
+
+    <span class="doccomment">/// What to use to substitute a parameter in the query.</span>
+    <span class="kw">fn</span> <span class="ident">visit_aggregate_to_string</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">value</span>: <span class="ident">DatabaseValue</span>) <span class="op">-&gt;</span> <span class="ident">String</span>;
 
     <span class="doccomment">/// A visit to a value we parameterize</span>
     <span class="kw">fn</span> <span class="ident">visit_parameterized</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">value</span>: <span class="ident">ParameterizedValue</span>) <span class="op">-&gt;</span> <span class="ident">String</span> {
@@ -658,6 +681,9 @@
             }
             <span class="kw">if</span> <span class="op">!</span><span class="ident">select</span>.<span class="ident">ordering</span>.<span class="ident">is_empty</span>() {
                 <span class="ident">result</span>.<span class="ident">push</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;ORDER BY {}&quot;</span>, <span class="self">self</span>.<span class="ident">visit_ordering</span>(<span class="ident">select</span>.<span class="ident">ordering</span>)));
+            }
+            <span class="kw">if</span> <span class="op">!</span><span class="ident">select</span>.<span class="ident">grouping</span>.<span class="ident">is_empty</span>() {
+                <span class="ident">result</span>.<span class="ident">push</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;GROUP BY {}&quot;</span>, <span class="self">self</span>.<span class="ident">visit_grouping</span>(<span class="ident">select</span>.<span class="ident">grouping</span>)));
             }
 
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">window</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">visit_limit_and_offset</span>(<span class="ident">select</span>.<span class="ident">limit</span>, <span class="ident">select</span>.<span class="ident">offset</span>) {
@@ -1010,6 +1036,17 @@
         <span class="ident">result</span>.<span class="ident">join</span>(<span class="string">&quot;, &quot;</span>)
     }
 
+    <span class="doccomment">/// A visit in the `GROUP BY` section of the query</span>
+    <span class="kw">fn</span> <span class="ident">visit_grouping</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">grouping</span>: <span class="ident">Grouping</span>) <span class="op">-&gt;</span> <span class="ident">String</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+
+        <span class="kw">for</span> <span class="ident">value</span> <span class="kw">in</span> <span class="ident">grouping</span>.<span class="number">0</span>.<span class="ident">into_iter</span>() {
+            <span class="ident">result</span>.<span class="ident">push</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}&quot;</span>, <span class="self">self</span>.<span class="ident">visit_database_value</span>(<span class="ident">value</span>)));
+        }
+
+        <span class="ident">result</span>.<span class="ident">join</span>(<span class="string">&quot;, &quot;</span>)
+    }
+
     <span class="kw">fn</span> <span class="ident">visit_function</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">fun</span>: <span class="ident">Function</span>) <span class="op">-&gt;</span> <span class="ident">String</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">result</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">fun</span>.<span class="ident">typ_</span> {
             <span class="ident">FunctionType</span>::<span class="ident">RowNumber</span>(<span class="ident">fun_rownum</span>) <span class="op">=&gt;</span> {
@@ -1028,6 +1065,9 @@
                 } <span class="kw">else</span> {
                     <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;COUNT({})&quot;</span>, <span class="self">self</span>.<span class="ident">visit_columns</span>(<span class="ident">fun_count</span>.<span class="ident">exprs</span>))
                 }
+            }
+            <span class="ident">FunctionType</span>::<span class="ident">AggregateToString</span>(<span class="ident">agg</span>) <span class="op">=&gt;</span> {
+                <span class="self">self</span>.<span class="ident">visit_aggregate_to_string</span>(<span class="ident">agg</span>.<span class="ident">value</span>.<span class="ident">as_ref</span>().<span class="ident">clone</span>())
             }
         };
 

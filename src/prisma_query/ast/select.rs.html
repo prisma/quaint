@@ -268,6 +268,28 @@
 <span id="268">268</span>
 <span id="269">269</span>
 <span id="270">270</span>
+<span id="271">271</span>
+<span id="272">272</span>
+<span id="273">273</span>
+<span id="274">274</span>
+<span id="275">275</span>
+<span id="276">276</span>
+<span id="277">277</span>
+<span id="278">278</span>
+<span id="279">279</span>
+<span id="280">280</span>
+<span id="281">281</span>
+<span id="282">282</span>
+<span id="283">283</span>
+<span id="284">284</span>
+<span id="285">285</span>
+<span id="286">286</span>
+<span id="287">287</span>
+<span id="288">288</span>
+<span id="289">289</span>
+<span id="290">290</span>
+<span id="291">291</span>
+<span id="292">292</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">ast</span>::<span class="kw-2">*</span>;
 
@@ -278,6 +300,7 @@
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">columns</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&gt;</span>,
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">conditions</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ConditionTree</span><span class="op">&gt;</span>,
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">ordering</span>: <span class="ident">Ordering</span>,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">grouping</span>: <span class="ident">Grouping</span>,
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">limit</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ParameterizedValue</span><span class="op">&gt;</span>,
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">offset</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ParameterizedValue</span><span class="op">&gt;</span>,
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">joins</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Join</span><span class="op">&gt;</span>,
@@ -508,6 +531,27 @@
         <span class="ident">T</span>: <span class="ident">IntoOrderDefinition</span>,
     {
         <span class="self">self</span>.<span class="ident">ordering</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">ordering</span>.<span class="ident">append</span>(<span class="ident">value</span>.<span class="ident">into_order_definition</span>());
+        <span class="self">self</span>
+    }
+
+    <span class="doccomment">/// Adds a grouping to the `GROUP BY` section.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This does not check if the grouping is actually valid in respect to aggregated columns.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// ```rust</span>
+    <span class="doccomment">/// # use prisma_query::{ast::*, visitor::{Visitor, Sqlite}};</span>
+    <span class="doccomment">/// let query = Select::from_table(&quot;users&quot;).column(&quot;foo&quot;).column(&quot;bar&quot;)</span>
+    <span class="doccomment">///     .group_by(&quot;foo&quot;)</span>
+    <span class="doccomment">///     .group_by(&quot;bar&quot;);</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// let (sql, _) = Sqlite::build(query);</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// assert_eq!(&quot;SELECT `foo`, `bar` FROM `users` GROUP BY `foo`, `bar`&quot;, sql);</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">group_by</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">value</span>: <span class="ident">T</span>) <span class="op">-&gt;</span> <span class="self">Self</span>
+    <span class="kw">where</span>
+        <span class="ident">T</span>: <span class="ident">IntoGroupByDefinition</span>,
+    {
+        <span class="self">self</span>.<span class="ident">grouping</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">grouping</span>.<span class="ident">append</span>(<span class="ident">value</span>.<span class="ident">into_group_by_definition</span>());
         <span class="self">self</span>
     }
 
