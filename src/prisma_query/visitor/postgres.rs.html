@@ -165,11 +165,17 @@
 <span id="165">165</span>
 <span id="166">166</span>
 <span id="167">167</span>
+<span id="168">168</span>
+<span id="169">169</span>
+<span id="170">170</span>
+<span id="171">171</span>
+<span id="172">172</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">ast</span>::<span class="kw-2">*</span>, <span class="ident">visitor</span>::<span class="ident">Visitor</span>};
-<span class="kw">use</span> <span class="ident">postgres</span>::<span class="ident">types</span>::{<span class="ident">IsNull</span>, <span class="ident">ToSql</span>, <span class="ident">Type</span>};
+<span class="kw">use</span> <span class="ident">postgres</span>::<span class="ident">types</span>::{<span class="ident">IsNull</span>, <span class="ident">Type</span>};
 <span class="kw">use</span> <span class="ident">rust_decimal</span>::<span class="ident">Decimal</span>;
 <span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">error</span>::<span class="ident">Error</span>, <span class="ident">str</span>::<span class="ident">FromStr</span>};
+<span class="kw">use</span> <span class="ident">tokio_postgres</span>::<span class="ident">types</span>::<span class="ident">ToSql</span>;
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Postgres</span> {
     <span class="ident">parameters</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ParameterizedValue</span><span class="op">&gt;</span>,
@@ -290,6 +296,8 @@
             },
             <span class="ident">ParameterizedValue</span>::<span class="ident">Text</span>(<span class="ident">string</span>) <span class="op">=&gt;</span> <span class="ident">string</span>.<span class="ident">to_sql</span>(<span class="ident">ty</span>, <span class="ident">out</span>),
             <span class="ident">ParameterizedValue</span>::<span class="ident">Boolean</span>(<span class="ident">boo</span>) <span class="op">=&gt;</span> <span class="ident">boo</span>.<span class="ident">to_sql</span>(<span class="ident">ty</span>, <span class="ident">out</span>),
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;array&quot;</span>)]</span>
+            <span class="ident">ParameterizedValue</span>::<span class="ident">Array</span>(<span class="ident">vec</span>) <span class="op">=&gt;</span> <span class="ident">vec</span>.<span class="ident">to_sql</span>(<span class="ident">ty</span>, <span class="ident">out</span>),
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;json-1&quot;</span>)]</span>
             <span class="ident">ParameterizedValue</span>::<span class="ident">Json</span>(<span class="ident">value</span>) <span class="op">=&gt;</span> <span class="ident">value</span>.<span class="ident">to_sql</span>(<span class="ident">ty</span>, <span class="ident">out</span>),
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;uuid-0_7&quot;</span>)]</span>
@@ -324,6 +332,8 @@
             },
             <span class="ident">ParameterizedValue</span>::<span class="ident">Text</span>(<span class="ident">string</span>) <span class="op">=&gt;</span> <span class="ident">string</span>.<span class="ident">to_sql_checked</span>(<span class="ident">ty</span>, <span class="ident">out</span>),
             <span class="ident">ParameterizedValue</span>::<span class="ident">Boolean</span>(<span class="ident">boo</span>) <span class="op">=&gt;</span> <span class="ident">boo</span>.<span class="ident">to_sql_checked</span>(<span class="ident">ty</span>, <span class="ident">out</span>),
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;array&quot;</span>)]</span>
+            <span class="ident">ParameterizedValue</span>::<span class="ident">Array</span>(<span class="ident">vec</span>) <span class="op">=&gt;</span> <span class="ident">vec</span>.<span class="ident">to_sql_checked</span>(<span class="ident">ty</span>, <span class="ident">out</span>),
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;json-1&quot;</span>)]</span>
             <span class="ident">ParameterizedValue</span>::<span class="ident">Json</span>(<span class="ident">value</span>) <span class="op">=&gt;</span> <span class="ident">value</span>.<span class="ident">to_sql_checked</span>(<span class="ident">ty</span>, <span class="ident">out</span>),
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;uuid-0_7&quot;</span>)]</span>

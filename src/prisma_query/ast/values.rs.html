@@ -303,6 +303,9 @@
 <span id="303">303</span>
 <span id="304">304</span>
 <span id="305">305</span>
+<span id="306">306</span>
+<span id="307">307</span>
+<span id="308">308</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">ast</span>::<span class="kw-2">*</span>;
 
@@ -328,6 +331,9 @@
     <span class="ident">Text</span>(<span class="ident">String</span>),
     <span class="doccomment">/// A boolean value</span>
     <span class="ident">Boolean</span>(<span class="ident">bool</span>),
+    <span class="comment">// An array of things.</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;array&quot;</span>)]</span>
+    <span class="ident">Array</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ParameterizedValue</span><span class="op">&gt;</span>),
     <span class="doccomment">/// A JSON value</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;json-1&quot;</span>)]</span>
     <span class="ident">Json</span>(<span class="ident">Value</span>),

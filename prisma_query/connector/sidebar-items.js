@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["Sqlite",""]]});
+initSidebarItems({"struct":[["PostgreSql","The World's Most Advanced Open Source Relational Database"],["Sqlite",""]]});
