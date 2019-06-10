@@ -660,7 +660,7 @@
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
 <span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">connector</span>::<span class="ident">Sqlite</span>, <span class="ident">Connectional</span>, <span class="ident">Transactional</span>};
+    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">should_provide_a_database_connection</span>() {

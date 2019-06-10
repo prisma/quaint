@@ -518,7 +518,6 @@
 <span id="518">518</span>
 <span id="519">519</span>
 <span id="520">520</span>
-<span id="521">521</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">ast</span>::{<span class="ident">Id</span>, <span class="ident">ParameterizedValue</span>, <span class="ident">Query</span>},
@@ -939,8 +938,7 @@
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
 <span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">connector</span>::<span class="ident">PostgreSql</span>, <span class="ident">Connectional</span>, <span class="ident">Transactional</span>};
-    <span class="kw">use</span> <span class="ident">postgres</span>::<span class="ident">Config</span>;
+    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
     <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">env</span>;
 
     <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">unused</span>)]</span>
