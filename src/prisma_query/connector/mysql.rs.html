@@ -353,7 +353,6 @@
 <span id="353">353</span>
 <span id="354">354</span>
 <span id="355">355</span>
-<span id="356">356</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">ast</span>::{<span class="ident">Id</span>, <span class="ident">ParameterizedValue</span>, <span class="ident">Query</span>},
@@ -508,8 +507,7 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">stmt</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">prepare</span>(<span class="kw-2">&amp;</span><span class="ident">sql</span>)<span class="question-mark">?</span>;
         <span class="kw">let</span> <span class="ident">_rows</span> <span class="op">=</span> <span class="ident">stmt</span>.<span class="ident">execute</span>(<span class="ident">conv_params</span>(<span class="kw-2">&amp;</span><span class="ident">params</span>))<span class="question-mark">?</span>;
 
-        <span class="comment">// TODO: Return last inserted ID is not implemented for mysql.</span>
-        <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>)
+        <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="ident">Id</span>::<span class="ident">Int</span>(<span class="ident">_rows</span>.<span class="ident">last_insert_id</span>() <span class="kw">as</span> <span class="ident">usize</span>)))
     }
 
     <span class="kw">fn</span> <span class="ident">query</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">q</span>: <span class="ident">Query</span>) <span class="op">-&gt;</span> <span class="ident">QueryResult</span><span class="op">&lt;</span><span class="ident">ResultSet</span><span class="op">&gt;</span> {
