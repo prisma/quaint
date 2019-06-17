@@ -346,6 +346,14 @@
 <span id="346">346</span>
 <span id="347">347</span>
 <span id="348">348</span>
+<span id="349">349</span>
+<span id="350">350</span>
+<span id="351">351</span>
+<span id="352">352</span>
+<span id="353">353</span>
+<span id="354">354</span>
+<span id="355">355</span>
+<span id="356">356</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">ast</span>::{<span class="ident">Id</span>, <span class="ident">ParameterizedValue</span>, <span class="ident">Query</span>},
@@ -369,14 +377,17 @@
 <span class="doccomment">/// The World&#39;s Most Advanced Open Source Relational Database</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Mysql</span> {
     <span class="ident">pool</span>: <span class="ident">Pool</span>,
+    <span class="kw">pub</span> <span class="ident">db_name</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">Mysql</span> {
+    <span class="comment">// TODO: we should not use this constructor since it does set the db_name field</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">conf</span>: <span class="ident">mysql</span>::<span class="ident">OptsBuilder</span>) <span class="op">-&gt;</span> <span class="ident">QueryResult</span><span class="op">&lt;</span><span class="ident">Mysql</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">manager</span> <span class="op">=</span> <span class="ident">MysqlConnectionManager</span>::<span class="ident">new</span>(<span class="ident">conf</span>);
 
         <span class="prelude-val">Ok</span>(<span class="ident">Mysql</span> {
             <span class="ident">pool</span>: <span class="ident">r2d2</span>::<span class="ident">Pool</span>::<span class="ident">builder</span>().<span class="ident">build</span>(<span class="ident">manager</span>)<span class="question-mark">?</span>,
+            <span class="ident">db_name</span>: <span class="prelude-val">None</span>,
         })
     }
 
@@ -394,7 +405,12 @@
         <span class="ident">builder</span>.<span class="ident">verify_peer</span>(<span class="bool-val">false</span>);
         <span class="ident">builder</span>.<span class="ident">stmt_cache_size</span>(<span class="prelude-val">Some</span>(<span class="number">1000</span>));
 
-        <span class="self">Self</span>::<span class="ident">new</span>(<span class="ident">builder</span>)
+        <span class="kw">let</span> <span class="ident">manager</span> <span class="op">=</span> <span class="ident">MysqlConnectionManager</span>::<span class="ident">new</span>(<span class="ident">builder</span>);
+
+        <span class="prelude-val">Ok</span>(<span class="ident">Mysql</span> {
+            <span class="ident">pool</span>: <span class="ident">r2d2</span>::<span class="ident">Pool</span>::<span class="ident">builder</span>().<span class="ident">build</span>(<span class="ident">manager</span>)<span class="question-mark">?</span>,
+            <span class="ident">db_name</span>: <span class="ident">db_name</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">to_string</span>()),
+        })
     }
 }
 
