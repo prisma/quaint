@@ -69,7 +69,7 @@
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">ast</span>::{<span class="ident">ConditionTree</span>, <span class="ident">Expression</span>};
 
 <span class="doccomment">/// `AND`, `OR` and `NOT` conjuctive implementations.</span>
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Conjuctive</span> {
+<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Conjuctive</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="doccomment">/// Builds an `AND` condition having `self` as the left leaf and `other` as the right.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// ```rust</span>
@@ -79,9 +79,9 @@
     <span class="doccomment">///     ConditionTree::and(&quot;foo&quot;.equals(&quot;bar&quot;), &quot;wtf&quot;.less_than(3))</span>
     <span class="doccomment">/// )</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">fn</span> <span class="ident">and</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">other</span>: <span class="ident">E</span>) <span class="op">-&gt;</span> <span class="ident">ConditionTree</span>
+    <span class="kw">fn</span> <span class="ident">and</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">other</span>: <span class="ident">E</span>) <span class="op">-&gt;</span> <span class="ident">ConditionTree</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">E</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&gt;</span>;
+        <span class="ident">E</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;&gt;</span>;
 
     <span class="doccomment">/// Builds an `OR` condition having `self` as the left leaf and `other` as the right.</span>
     <span class="doccomment">///</span>
@@ -92,9 +92,9 @@
     <span class="doccomment">///     ConditionTree::or(&quot;foo&quot;.equals(&quot;bar&quot;), &quot;wtf&quot;.less_than(3))</span>
     <span class="doccomment">/// )</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">fn</span> <span class="ident">or</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">other</span>: <span class="ident">E</span>) <span class="op">-&gt;</span> <span class="ident">ConditionTree</span>
+    <span class="kw">fn</span> <span class="ident">or</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">other</span>: <span class="ident">E</span>) <span class="op">-&gt;</span> <span class="ident">ConditionTree</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">E</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&gt;</span>;
+        <span class="ident">E</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;&gt;</span>;
 
     <span class="doccomment">/// Builds a `NOT` condition having `self` as the condition.</span>
     <span class="doccomment">///</span>
@@ -105,31 +105,31 @@
     <span class="doccomment">///     ConditionTree::not(&quot;foo&quot;.equals(&quot;bar&quot;))</span>
     <span class="doccomment">/// )</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">fn</span> <span class="ident">not</span>(<span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">ConditionTree</span>;
+    <span class="kw">fn</span> <span class="ident">not</span>(<span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">ConditionTree</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>;
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">Conjuctive</span> <span class="kw">for</span> <span class="ident">T</span>
+<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span> <span class="ident">Conjuctive</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">T</span>
 <span class="kw">where</span>
-    <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&gt;</span>,
+    <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;&gt;</span>,
 {
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">and</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">other</span>: <span class="ident">E</span>) <span class="op">-&gt;</span> <span class="ident">ConditionTree</span>
+    <span class="kw">fn</span> <span class="ident">and</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">other</span>: <span class="ident">E</span>) <span class="op">-&gt;</span> <span class="ident">ConditionTree</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">E</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&gt;</span>,
+        <span class="ident">E</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;&gt;</span>,
     {
         <span class="ident">ConditionTree</span>::<span class="ident">and</span>(<span class="self">self</span>.<span class="ident">into</span>(), <span class="ident">other</span>.<span class="ident">into</span>())
     }
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">or</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">other</span>: <span class="ident">E</span>) <span class="op">-&gt;</span> <span class="ident">ConditionTree</span>
+    <span class="kw">fn</span> <span class="ident">or</span><span class="op">&lt;</span><span class="ident">E</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">other</span>: <span class="ident">E</span>) <span class="op">-&gt;</span> <span class="ident">ConditionTree</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">E</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&gt;</span>,
+        <span class="ident">E</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;&gt;</span>,
     {
         <span class="ident">ConditionTree</span>::<span class="ident">or</span>(<span class="self">self</span>.<span class="ident">into</span>(), <span class="ident">other</span>.<span class="ident">into</span>())
     }
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">not</span>(<span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">ConditionTree</span> {
+    <span class="kw">fn</span> <span class="ident">not</span>(<span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">ConditionTree</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
         <span class="ident">ConditionTree</span>::<span class="ident">not</span>(<span class="self">self</span>.<span class="ident">into</span>())
     }
 }

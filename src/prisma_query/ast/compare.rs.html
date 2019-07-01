@@ -574,67 +574,84 @@
 <span id="574">574</span>
 <span id="575">575</span>
 <span id="576">576</span>
+<span id="577">577</span>
+<span id="578">578</span>
+<span id="579">579</span>
+<span id="580">580</span>
+<span id="581">581</span>
+<span id="582">582</span>
+<span id="583">583</span>
+<span id="584">584</span>
+<span id="585">585</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">ast</span>::{<span class="ident">Column</span>, <span class="ident">ConditionTree</span>, <span class="ident">DatabaseValue</span>, <span class="ident">Expression</span>};
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">borrow</span>::<span class="ident">Cow</span>;
 
 <span class="doccomment">/// For modeling comparison expression</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">PartialEq</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Compare</span> {
+<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Compare</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="doccomment">/// `left = right`</span>
-    <span class="ident">Equals</span>(<span class="ident">Box</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&gt;</span>, <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&gt;</span>),
+    <span class="ident">Equals</span>(<span class="ident">Box</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;&gt;</span>, <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;&gt;</span>),
     <span class="doccomment">/// `left &lt;&gt; right`</span>
-    <span class="ident">NotEquals</span>(<span class="ident">Box</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&gt;</span>, <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&gt;</span>),
+    <span class="ident">NotEquals</span>(<span class="ident">Box</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;&gt;</span>, <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;&gt;</span>),
     <span class="doccomment">/// `left &lt; right`</span>
-    <span class="ident">LessThan</span>(<span class="ident">Box</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&gt;</span>, <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&gt;</span>),
+    <span class="ident">LessThan</span>(<span class="ident">Box</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;&gt;</span>, <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;&gt;</span>),
     <span class="doccomment">/// `left &lt;= right`</span>
-    <span class="ident">LessThanOrEquals</span>(<span class="ident">Box</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&gt;</span>, <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&gt;</span>),
+    <span class="ident">LessThanOrEquals</span>(<span class="ident">Box</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;&gt;</span>, <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;&gt;</span>),
     <span class="doccomment">/// `left &gt; right`</span>
-    <span class="ident">GreaterThan</span>(<span class="ident">Box</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&gt;</span>, <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&gt;</span>),
+    <span class="ident">GreaterThan</span>(<span class="ident">Box</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;&gt;</span>, <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;&gt;</span>),
     <span class="doccomment">/// `left &gt;= right`</span>
-    <span class="ident">GreaterThanOrEquals</span>(<span class="ident">Box</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&gt;</span>, <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&gt;</span>),
+    <span class="ident">GreaterThanOrEquals</span>(<span class="ident">Box</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;&gt;</span>, <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;&gt;</span>),
     <span class="doccomment">/// `left IN (..)`</span>
-    <span class="ident">In</span>(<span class="ident">Box</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&gt;</span>, <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&gt;</span>),
+    <span class="ident">In</span>(<span class="ident">Box</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;&gt;</span>, <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;&gt;</span>),
     <span class="doccomment">/// `left NOT IN (..)`</span>
-    <span class="ident">NotIn</span>(<span class="ident">Box</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&gt;</span>, <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&gt;</span>),
+    <span class="ident">NotIn</span>(<span class="ident">Box</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;&gt;</span>, <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;&gt;</span>),
     <span class="doccomment">/// `left LIKE %..%`</span>
-    <span class="ident">Like</span>(<span class="ident">Box</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&gt;</span>, <span class="ident">String</span>),
+    <span class="ident">Like</span>(<span class="ident">Box</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;&gt;</span>, <span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">str</span><span class="op">&gt;</span>),
     <span class="doccomment">/// `left NOT LIKE %..%`</span>
-    <span class="ident">NotLike</span>(<span class="ident">Box</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&gt;</span>, <span class="ident">String</span>),
+    <span class="ident">NotLike</span>(<span class="ident">Box</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;&gt;</span>, <span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">str</span><span class="op">&gt;</span>),
     <span class="doccomment">/// `left LIKE ..%`</span>
-    <span class="ident">BeginsWith</span>(<span class="ident">Box</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&gt;</span>, <span class="ident">String</span>),
+    <span class="ident">BeginsWith</span>(<span class="ident">Box</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;&gt;</span>, <span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">str</span><span class="op">&gt;</span>),
     <span class="doccomment">/// `left NOT LIKE ..%`</span>
-    <span class="ident">NotBeginsWith</span>(<span class="ident">Box</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&gt;</span>, <span class="ident">String</span>),
+    <span class="ident">NotBeginsWith</span>(<span class="ident">Box</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;&gt;</span>, <span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">str</span><span class="op">&gt;</span>),
     <span class="doccomment">/// `left LIKE %..`</span>
-    <span class="ident">EndsInto</span>(<span class="ident">Box</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&gt;</span>, <span class="ident">String</span>),
+    <span class="ident">EndsInto</span>(<span class="ident">Box</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;&gt;</span>, <span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">str</span><span class="op">&gt;</span>),
     <span class="doccomment">/// `left NOT LIKE %..`</span>
-    <span class="ident">NotEndsInto</span>(<span class="ident">Box</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&gt;</span>, <span class="ident">String</span>),
+    <span class="ident">NotEndsInto</span>(<span class="ident">Box</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;&gt;</span>, <span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">str</span><span class="op">&gt;</span>),
     <span class="doccomment">/// `value IS NULL`</span>
-    <span class="ident">Null</span>(<span class="ident">Box</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&gt;</span>),
+    <span class="ident">Null</span>(<span class="ident">Box</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;&gt;</span>),
     <span class="doccomment">/// `value IS NOT NULL`</span>
-    <span class="ident">NotNull</span>(<span class="ident">Box</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&gt;</span>),
+    <span class="ident">NotNull</span>(<span class="ident">Box</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;&gt;</span>),
     <span class="doccomment">/// `value` BETWEEN `left` AND `right`</span>
-    <span class="ident">Between</span>(<span class="ident">Box</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&gt;</span>, <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&gt;</span>, <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&gt;</span>),
+    <span class="ident">Between</span>(
+        <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;&gt;</span>,
+        <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;&gt;</span>,
+        <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;&gt;</span>,
+    ),
     <span class="doccomment">/// `value` NOT BETWEEN `left` AND `right`</span>
-    <span class="ident">NotBetween</span>(<span class="ident">Box</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&gt;</span>, <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&gt;</span>, <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&gt;</span>),
+    <span class="ident">NotBetween</span>(
+        <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;&gt;</span>,
+        <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;&gt;</span>,
+        <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;&gt;</span>,
+    ),
 }
 
-<span class="kw">impl</span> <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">ConditionTree</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Compare</span> {
+<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">Compare</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;&gt;</span> <span class="kw">for</span> <span class="ident">ConditionTree</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">into</span>(<span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">ConditionTree</span> {
-        <span class="kw">let</span> <span class="ident">expression</span>: <span class="ident">Expression</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">into</span>();
-        <span class="ident">ConditionTree</span>::<span class="ident">single</span>(<span class="ident">expression</span>)
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">cmp</span>: <span class="ident">Compare</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-&gt;</span> <span class="self">Self</span> {
+        <span class="ident">ConditionTree</span>::<span class="ident">single</span>(<span class="ident">Expression</span>::<span class="ident">from</span>(<span class="ident">cmp</span>))
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Compare</span> {
+<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">Compare</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;&gt;</span> <span class="kw">for</span> <span class="ident">Expression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">into</span>(<span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">Expression</span> {
-        <span class="ident">Expression</span>::<span class="ident">Compare</span>(<span class="self">self</span>)
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">cmp</span>: <span class="ident">Compare</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-&gt;</span> <span class="self">Self</span> {
+        <span class="ident">Expression</span>::<span class="ident">Compare</span>(<span class="ident">cmp</span>)
     }
 }
 
 <span class="doccomment">/// An item that can be compared against other values in the database.</span>
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Comparable</span> {
+<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Comparable</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="doccomment">/// Tests if both sides are the same value.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// ```rust</span>
@@ -651,9 +668,9 @@
     <span class="doccomment">///     params</span>
     <span class="doccomment">/// );</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">fn</span> <span class="ident">equals</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">comparison</span>: <span class="ident">T</span>) <span class="op">-&gt;</span> <span class="ident">Compare</span>
+    <span class="kw">fn</span> <span class="ident">equals</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">comparison</span>: <span class="ident">T</span>) <span class="op">-&gt;</span> <span class="ident">Compare</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&gt;</span>;
+        <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;&gt;</span>;
 
     <span class="doccomment">/// Tests if both sides are not the same value.</span>
     <span class="doccomment">///</span>
@@ -671,9 +688,9 @@
     <span class="doccomment">///     params</span>
     <span class="doccomment">/// );</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">fn</span> <span class="ident">not_equals</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">comparison</span>: <span class="ident">T</span>) <span class="op">-&gt;</span> <span class="ident">Compare</span>
+    <span class="kw">fn</span> <span class="ident">not_equals</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">comparison</span>: <span class="ident">T</span>) <span class="op">-&gt;</span> <span class="ident">Compare</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&gt;</span>;
+        <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;&gt;</span>;
 
     <span class="doccomment">/// Tests if the left side is smaller than the right side.</span>
     <span class="doccomment">///</span>
@@ -691,9 +708,9 @@
     <span class="doccomment">///     params</span>
     <span class="doccomment">/// );</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">fn</span> <span class="ident">less_than</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">comparison</span>: <span class="ident">T</span>) <span class="op">-&gt;</span> <span class="ident">Compare</span>
+    <span class="kw">fn</span> <span class="ident">less_than</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">comparison</span>: <span class="ident">T</span>) <span class="op">-&gt;</span> <span class="ident">Compare</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&gt;</span>;
+        <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;&gt;</span>;
 
     <span class="doccomment">/// Tests if the left side is smaller than the right side or the same.</span>
     <span class="doccomment">///</span>
@@ -711,9 +728,9 @@
     <span class="doccomment">///     params</span>
     <span class="doccomment">/// );</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">fn</span> <span class="ident">less_than_or_equals</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">comparison</span>: <span class="ident">T</span>) <span class="op">-&gt;</span> <span class="ident">Compare</span>
+    <span class="kw">fn</span> <span class="ident">less_than_or_equals</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">comparison</span>: <span class="ident">T</span>) <span class="op">-&gt;</span> <span class="ident">Compare</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&gt;</span>;
+        <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;&gt;</span>;
 
     <span class="doccomment">/// Tests if the left side is bigger than the right side.</span>
     <span class="doccomment">///</span>
@@ -731,9 +748,9 @@
     <span class="doccomment">///     params</span>
     <span class="doccomment">/// );</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">fn</span> <span class="ident">greater_than</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">comparison</span>: <span class="ident">T</span>) <span class="op">-&gt;</span> <span class="ident">Compare</span>
+    <span class="kw">fn</span> <span class="ident">greater_than</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">comparison</span>: <span class="ident">T</span>) <span class="op">-&gt;</span> <span class="ident">Compare</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&gt;</span>;
+        <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;&gt;</span>;
 
     <span class="doccomment">/// Tests if the left side is bigger than the right side or the same.</span>
     <span class="doccomment">///</span>
@@ -751,9 +768,9 @@
     <span class="doccomment">///     params</span>
     <span class="doccomment">/// );</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">fn</span> <span class="ident">greater_than_or_equals</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">comparison</span>: <span class="ident">T</span>) <span class="op">-&gt;</span> <span class="ident">Compare</span>
+    <span class="kw">fn</span> <span class="ident">greater_than_or_equals</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">comparison</span>: <span class="ident">T</span>) <span class="op">-&gt;</span> <span class="ident">Compare</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&gt;</span>;
+        <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;&gt;</span>;
 
     <span class="doccomment">/// Tests if the left side is included in the right side collection.</span>
     <span class="doccomment">///</span>
@@ -768,9 +785,9 @@
     <span class="doccomment">///     ParameterizedValue::Integer(2),</span>
     <span class="doccomment">/// ], params);</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">fn</span> <span class="ident">in_selection</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">selection</span>: <span class="ident">T</span>) <span class="op">-&gt;</span> <span class="ident">Compare</span>
+    <span class="kw">fn</span> <span class="ident">in_selection</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">selection</span>: <span class="ident">T</span>) <span class="op">-&gt;</span> <span class="ident">Compare</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&gt;</span>;
+        <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;&gt;</span>;
 
     <span class="doccomment">/// Tests if the left side is not included in the right side collection.</span>
     <span class="doccomment">///</span>
@@ -786,9 +803,9 @@
     <span class="doccomment">///     ParameterizedValue::Integer(2),</span>
     <span class="doccomment">/// ], params);</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">fn</span> <span class="ident">not_in_selection</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">selection</span>: <span class="ident">T</span>) <span class="op">-&gt;</span> <span class="ident">Compare</span>
+    <span class="kw">fn</span> <span class="ident">not_in_selection</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">selection</span>: <span class="ident">T</span>) <span class="op">-&gt;</span> <span class="ident">Compare</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&gt;</span>;
+        <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;&gt;</span>;
 
     <span class="doccomment">/// Tests if the left side includes the right side string.</span>
     <span class="doccomment">///</span>
@@ -806,9 +823,9 @@
     <span class="doccomment">///     params</span>
     <span class="doccomment">/// );</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">fn</span> <span class="ident">like</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">pattern</span>: <span class="ident">T</span>) <span class="op">-&gt;</span> <span class="ident">Compare</span>
+    <span class="kw">fn</span> <span class="ident">like</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">pattern</span>: <span class="ident">T</span>) <span class="op">-&gt;</span> <span class="ident">Compare</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>;
+        <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">str</span><span class="op">&gt;&gt;</span>;
 
     <span class="doccomment">/// Tests if the left side does not include the right side string.</span>
     <span class="doccomment">///</span>
@@ -826,9 +843,9 @@
     <span class="doccomment">///     params</span>
     <span class="doccomment">/// );</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">fn</span> <span class="ident">not_like</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">pattern</span>: <span class="ident">T</span>) <span class="op">-&gt;</span> <span class="ident">Compare</span>
+    <span class="kw">fn</span> <span class="ident">not_like</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">pattern</span>: <span class="ident">T</span>) <span class="op">-&gt;</span> <span class="ident">Compare</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>;
+        <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">str</span><span class="op">&gt;&gt;</span>;
 
     <span class="doccomment">/// Tests if the left side starts with the right side string.</span>
     <span class="doccomment">///</span>
@@ -846,9 +863,9 @@
     <span class="doccomment">///     params</span>
     <span class="doccomment">/// );</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">fn</span> <span class="ident">begins_with</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">pattern</span>: <span class="ident">T</span>) <span class="op">-&gt;</span> <span class="ident">Compare</span>
+    <span class="kw">fn</span> <span class="ident">begins_with</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">pattern</span>: <span class="ident">T</span>) <span class="op">-&gt;</span> <span class="ident">Compare</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>;
+        <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">str</span><span class="op">&gt;&gt;</span>;
 
     <span class="doccomment">/// Tests if the left side doesn&#39;t start with the right side string.</span>
     <span class="doccomment">///</span>
@@ -866,9 +883,9 @@
     <span class="doccomment">///     params</span>
     <span class="doccomment">/// );</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">fn</span> <span class="ident">not_begins_with</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">pattern</span>: <span class="ident">T</span>) <span class="op">-&gt;</span> <span class="ident">Compare</span>
+    <span class="kw">fn</span> <span class="ident">not_begins_with</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">pattern</span>: <span class="ident">T</span>) <span class="op">-&gt;</span> <span class="ident">Compare</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>;
+        <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">str</span><span class="op">&gt;&gt;</span>;
 
     <span class="doccomment">/// Tests if the left side ends into the right side string.</span>
     <span class="doccomment">///</span>
@@ -886,9 +903,9 @@
     <span class="doccomment">///     params</span>
     <span class="doccomment">/// );</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">fn</span> <span class="ident">ends_into</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">pattern</span>: <span class="ident">T</span>) <span class="op">-&gt;</span> <span class="ident">Compare</span>
+    <span class="kw">fn</span> <span class="ident">ends_into</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">pattern</span>: <span class="ident">T</span>) <span class="op">-&gt;</span> <span class="ident">Compare</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>;
+        <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">str</span><span class="op">&gt;&gt;</span>;
 
     <span class="doccomment">/// Tests if the left side does not end into the right side string.</span>
     <span class="doccomment">///</span>
@@ -906,9 +923,9 @@
     <span class="doccomment">///     params</span>
     <span class="doccomment">/// );</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">fn</span> <span class="ident">not_ends_into</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">pattern</span>: <span class="ident">T</span>) <span class="op">-&gt;</span> <span class="ident">Compare</span>
+    <span class="kw">fn</span> <span class="ident">not_ends_into</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">pattern</span>: <span class="ident">T</span>) <span class="op">-&gt;</span> <span class="ident">Compare</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>;
+        <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">str</span><span class="op">&gt;&gt;</span>;
 
     <span class="doccomment">/// Tests if the left side is `NULL`.</span>
     <span class="doccomment">///</span>
@@ -919,7 +936,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// assert_eq!(&quot;SELECT `users`.* FROM `users` WHERE `foo` IS NULL&quot;, sql);</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">fn</span> <span class="ident">is_null</span>(<span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">Compare</span>;
+    <span class="kw">fn</span> <span class="ident">is_null</span>(<span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">Compare</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>;
 
     <span class="doccomment">/// Tests if the left side is not `NULL`.</span>
     <span class="doccomment">///</span>
@@ -930,7 +947,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// assert_eq!(&quot;SELECT `users`.* FROM `users` WHERE `foo` IS NOT NULL&quot;, sql);</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">fn</span> <span class="ident">is_not_null</span>(<span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">Compare</span>;
+    <span class="kw">fn</span> <span class="ident">is_not_null</span>(<span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">Compare</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>;
 
     <span class="doccomment">/// Tests if the value is between two given values.</span>
     <span class="doccomment">///</span>
@@ -946,10 +963,10 @@
     <span class="doccomment">///     ParameterizedValue::Integer(666),</span>
     <span class="doccomment">/// ], params);</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">fn</span> <span class="ident">between</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">V</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">left</span>: <span class="ident">T</span>, <span class="ident">right</span>: <span class="ident">V</span>) <span class="op">-&gt;</span> <span class="ident">Compare</span>
+    <span class="kw">fn</span> <span class="ident">between</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">V</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">left</span>: <span class="ident">T</span>, <span class="ident">right</span>: <span class="ident">V</span>) <span class="op">-&gt;</span> <span class="ident">Compare</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&gt;</span>,
-        <span class="ident">V</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&gt;</span>;
+        <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;&gt;</span>,
+        <span class="ident">V</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;&gt;</span>;
 
     <span class="doccomment">/// Tests if the value is not between two given values.</span>
     <span class="doccomment">///</span>
@@ -965,189 +982,190 @@
     <span class="doccomment">///     ParameterizedValue::Integer(666),</span>
     <span class="doccomment">/// ], params);</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">fn</span> <span class="ident">not_between</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">V</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">left</span>: <span class="ident">T</span>, <span class="ident">right</span>: <span class="ident">V</span>) <span class="op">-&gt;</span> <span class="ident">Compare</span>
+    <span class="kw">fn</span> <span class="ident">not_between</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">V</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">left</span>: <span class="ident">T</span>, <span class="ident">right</span>: <span class="ident">V</span>) <span class="op">-&gt;</span> <span class="ident">Compare</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&gt;</span>,
-        <span class="ident">V</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&gt;</span>;
+        <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;&gt;</span>,
+        <span class="ident">V</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;&gt;</span>;
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">U</span><span class="op">&gt;</span> <span class="ident">Comparable</span> <span class="kw">for</span> <span class="ident">U</span>
+<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">U</span><span class="op">&gt;</span> <span class="ident">Comparable</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">U</span>
 <span class="kw">where</span>
-    <span class="ident">U</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Column</span><span class="op">&gt;</span>,
+    <span class="ident">U</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Column</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;&gt;</span>,
 {
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">equals</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">comparison</span>: <span class="ident">T</span>) <span class="op">-&gt;</span> <span class="ident">Compare</span>
+    <span class="kw">fn</span> <span class="ident">equals</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">comparison</span>: <span class="ident">T</span>) <span class="op">-&gt;</span> <span class="ident">Compare</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&gt;</span>,
+        <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;&gt;</span>,
     {
-        <span class="kw">let</span> <span class="ident">col</span>: <span class="ident">Column</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">into</span>();
-        <span class="kw">let</span> <span class="ident">val</span>: <span class="ident">DatabaseValue</span> <span class="op">=</span> <span class="ident">col</span>.<span class="ident">into</span>();
+        <span class="kw">let</span> <span class="ident">col</span>: <span class="ident">Column</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">into</span>();
+        <span class="kw">let</span> <span class="ident">val</span>: <span class="ident">DatabaseValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">col</span>.<span class="ident">into</span>();
+
         <span class="ident">val</span>.<span class="ident">equals</span>(<span class="ident">comparison</span>)
     }
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">not_equals</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">comparison</span>: <span class="ident">T</span>) <span class="op">-&gt;</span> <span class="ident">Compare</span>
+    <span class="kw">fn</span> <span class="ident">not_equals</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">comparison</span>: <span class="ident">T</span>) <span class="op">-&gt;</span> <span class="ident">Compare</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&gt;</span>,
+        <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;&gt;</span>,
     {
-        <span class="kw">let</span> <span class="ident">col</span>: <span class="ident">Column</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">into</span>();
-        <span class="kw">let</span> <span class="ident">val</span>: <span class="ident">DatabaseValue</span> <span class="op">=</span> <span class="ident">col</span>.<span class="ident">into</span>();
+        <span class="kw">let</span> <span class="ident">col</span>: <span class="ident">Column</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">into</span>();
+        <span class="kw">let</span> <span class="ident">val</span>: <span class="ident">DatabaseValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">col</span>.<span class="ident">into</span>();
         <span class="ident">val</span>.<span class="ident">not_equals</span>(<span class="ident">comparison</span>)
     }
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">less_than</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">comparison</span>: <span class="ident">T</span>) <span class="op">-&gt;</span> <span class="ident">Compare</span>
+    <span class="kw">fn</span> <span class="ident">less_than</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">comparison</span>: <span class="ident">T</span>) <span class="op">-&gt;</span> <span class="ident">Compare</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&gt;</span>,
+        <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;&gt;</span>,
     {
-        <span class="kw">let</span> <span class="ident">col</span>: <span class="ident">Column</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">into</span>();
-        <span class="kw">let</span> <span class="ident">val</span>: <span class="ident">DatabaseValue</span> <span class="op">=</span> <span class="ident">col</span>.<span class="ident">into</span>();
+        <span class="kw">let</span> <span class="ident">col</span>: <span class="ident">Column</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">into</span>();
+        <span class="kw">let</span> <span class="ident">val</span>: <span class="ident">DatabaseValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">col</span>.<span class="ident">into</span>();
         <span class="ident">val</span>.<span class="ident">less_than</span>(<span class="ident">comparison</span>)
     }
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">less_than_or_equals</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">comparison</span>: <span class="ident">T</span>) <span class="op">-&gt;</span> <span class="ident">Compare</span>
+    <span class="kw">fn</span> <span class="ident">less_than_or_equals</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">comparison</span>: <span class="ident">T</span>) <span class="op">-&gt;</span> <span class="ident">Compare</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&gt;</span>,
+        <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;&gt;</span>,
     {
-        <span class="kw">let</span> <span class="ident">col</span>: <span class="ident">Column</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">into</span>();
-        <span class="kw">let</span> <span class="ident">val</span>: <span class="ident">DatabaseValue</span> <span class="op">=</span> <span class="ident">col</span>.<span class="ident">into</span>();
+        <span class="kw">let</span> <span class="ident">col</span>: <span class="ident">Column</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">into</span>();
+        <span class="kw">let</span> <span class="ident">val</span>: <span class="ident">DatabaseValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">col</span>.<span class="ident">into</span>();
         <span class="ident">val</span>.<span class="ident">less_than_or_equals</span>(<span class="ident">comparison</span>)
     }
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">greater_than</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">comparison</span>: <span class="ident">T</span>) <span class="op">-&gt;</span> <span class="ident">Compare</span>
+    <span class="kw">fn</span> <span class="ident">greater_than</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">comparison</span>: <span class="ident">T</span>) <span class="op">-&gt;</span> <span class="ident">Compare</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&gt;</span>,
+        <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;&gt;</span>,
     {
-        <span class="kw">let</span> <span class="ident">col</span>: <span class="ident">Column</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">into</span>();
-        <span class="kw">let</span> <span class="ident">val</span>: <span class="ident">DatabaseValue</span> <span class="op">=</span> <span class="ident">col</span>.<span class="ident">into</span>();
+        <span class="kw">let</span> <span class="ident">col</span>: <span class="ident">Column</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">into</span>();
+        <span class="kw">let</span> <span class="ident">val</span>: <span class="ident">DatabaseValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">col</span>.<span class="ident">into</span>();
         <span class="ident">val</span>.<span class="ident">greater_than</span>(<span class="ident">comparison</span>)
     }
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">greater_than_or_equals</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">comparison</span>: <span class="ident">T</span>) <span class="op">-&gt;</span> <span class="ident">Compare</span>
+    <span class="kw">fn</span> <span class="ident">greater_than_or_equals</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">comparison</span>: <span class="ident">T</span>) <span class="op">-&gt;</span> <span class="ident">Compare</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&gt;</span>,
+        <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;&gt;</span>,
     {
-        <span class="kw">let</span> <span class="ident">col</span>: <span class="ident">Column</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">into</span>();
-        <span class="kw">let</span> <span class="ident">val</span>: <span class="ident">DatabaseValue</span> <span class="op">=</span> <span class="ident">col</span>.<span class="ident">into</span>();
+        <span class="kw">let</span> <span class="ident">col</span>: <span class="ident">Column</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">into</span>();
+        <span class="kw">let</span> <span class="ident">val</span>: <span class="ident">DatabaseValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">col</span>.<span class="ident">into</span>();
         <span class="ident">val</span>.<span class="ident">greater_than_or_equals</span>(<span class="ident">comparison</span>)
     }
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">in_selection</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">selection</span>: <span class="ident">T</span>) <span class="op">-&gt;</span> <span class="ident">Compare</span>
+    <span class="kw">fn</span> <span class="ident">in_selection</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">selection</span>: <span class="ident">T</span>) <span class="op">-&gt;</span> <span class="ident">Compare</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&gt;</span>,
+        <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;&gt;</span>,
     {
-        <span class="kw">let</span> <span class="ident">col</span>: <span class="ident">Column</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">into</span>();
-        <span class="kw">let</span> <span class="ident">val</span>: <span class="ident">DatabaseValue</span> <span class="op">=</span> <span class="ident">col</span>.<span class="ident">into</span>();
+        <span class="kw">let</span> <span class="ident">col</span>: <span class="ident">Column</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">into</span>();
+        <span class="kw">let</span> <span class="ident">val</span>: <span class="ident">DatabaseValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">col</span>.<span class="ident">into</span>();
         <span class="ident">val</span>.<span class="ident">in_selection</span>(<span class="ident">selection</span>)
     }
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">not_in_selection</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">selection</span>: <span class="ident">T</span>) <span class="op">-&gt;</span> <span class="ident">Compare</span>
+    <span class="kw">fn</span> <span class="ident">not_in_selection</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">selection</span>: <span class="ident">T</span>) <span class="op">-&gt;</span> <span class="ident">Compare</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&gt;</span>,
+        <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;&gt;</span>,
     {
-        <span class="kw">let</span> <span class="ident">col</span>: <span class="ident">Column</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">into</span>();
-        <span class="kw">let</span> <span class="ident">val</span>: <span class="ident">DatabaseValue</span> <span class="op">=</span> <span class="ident">col</span>.<span class="ident">into</span>();
+        <span class="kw">let</span> <span class="ident">col</span>: <span class="ident">Column</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">into</span>();
+        <span class="kw">let</span> <span class="ident">val</span>: <span class="ident">DatabaseValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">col</span>.<span class="ident">into</span>();
         <span class="ident">val</span>.<span class="ident">not_in_selection</span>(<span class="ident">selection</span>)
     }
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">like</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">pattern</span>: <span class="ident">T</span>) <span class="op">-&gt;</span> <span class="ident">Compare</span>
+    <span class="kw">fn</span> <span class="ident">like</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">pattern</span>: <span class="ident">T</span>) <span class="op">-&gt;</span> <span class="ident">Compare</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
+        <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">str</span><span class="op">&gt;&gt;</span>,
     {
-        <span class="kw">let</span> <span class="ident">col</span>: <span class="ident">Column</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">into</span>();
-        <span class="kw">let</span> <span class="ident">val</span>: <span class="ident">DatabaseValue</span> <span class="op">=</span> <span class="ident">col</span>.<span class="ident">into</span>();
+        <span class="kw">let</span> <span class="ident">col</span>: <span class="ident">Column</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">into</span>();
+        <span class="kw">let</span> <span class="ident">val</span>: <span class="ident">DatabaseValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">col</span>.<span class="ident">into</span>();
         <span class="ident">val</span>.<span class="ident">like</span>(<span class="ident">pattern</span>)
     }
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">not_like</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">pattern</span>: <span class="ident">T</span>) <span class="op">-&gt;</span> <span class="ident">Compare</span>
+    <span class="kw">fn</span> <span class="ident">not_like</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">pattern</span>: <span class="ident">T</span>) <span class="op">-&gt;</span> <span class="ident">Compare</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
+        <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">str</span><span class="op">&gt;&gt;</span>,
     {
-        <span class="kw">let</span> <span class="ident">col</span>: <span class="ident">Column</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">into</span>();
-        <span class="kw">let</span> <span class="ident">val</span>: <span class="ident">DatabaseValue</span> <span class="op">=</span> <span class="ident">col</span>.<span class="ident">into</span>();
+        <span class="kw">let</span> <span class="ident">col</span>: <span class="ident">Column</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">into</span>();
+        <span class="kw">let</span> <span class="ident">val</span>: <span class="ident">DatabaseValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">col</span>.<span class="ident">into</span>();
         <span class="ident">val</span>.<span class="ident">not_like</span>(<span class="ident">pattern</span>)
     }
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">begins_with</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">pattern</span>: <span class="ident">T</span>) <span class="op">-&gt;</span> <span class="ident">Compare</span>
+    <span class="kw">fn</span> <span class="ident">begins_with</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">pattern</span>: <span class="ident">T</span>) <span class="op">-&gt;</span> <span class="ident">Compare</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
+        <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">str</span><span class="op">&gt;&gt;</span>,
     {
-        <span class="kw">let</span> <span class="ident">col</span>: <span class="ident">Column</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">into</span>();
-        <span class="kw">let</span> <span class="ident">val</span>: <span class="ident">DatabaseValue</span> <span class="op">=</span> <span class="ident">col</span>.<span class="ident">into</span>();
+        <span class="kw">let</span> <span class="ident">col</span>: <span class="ident">Column</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">into</span>();
+        <span class="kw">let</span> <span class="ident">val</span>: <span class="ident">DatabaseValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">col</span>.<span class="ident">into</span>();
         <span class="ident">val</span>.<span class="ident">begins_with</span>(<span class="ident">pattern</span>)
     }
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">not_begins_with</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">pattern</span>: <span class="ident">T</span>) <span class="op">-&gt;</span> <span class="ident">Compare</span>
+    <span class="kw">fn</span> <span class="ident">not_begins_with</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">pattern</span>: <span class="ident">T</span>) <span class="op">-&gt;</span> <span class="ident">Compare</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
+        <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">str</span><span class="op">&gt;&gt;</span>,
     {
-        <span class="kw">let</span> <span class="ident">col</span>: <span class="ident">Column</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">into</span>();
-        <span class="kw">let</span> <span class="ident">val</span>: <span class="ident">DatabaseValue</span> <span class="op">=</span> <span class="ident">col</span>.<span class="ident">into</span>();
+        <span class="kw">let</span> <span class="ident">col</span>: <span class="ident">Column</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">into</span>();
+        <span class="kw">let</span> <span class="ident">val</span>: <span class="ident">DatabaseValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">col</span>.<span class="ident">into</span>();
         <span class="ident">val</span>.<span class="ident">not_begins_with</span>(<span class="ident">pattern</span>)
     }
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">ends_into</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">pattern</span>: <span class="ident">T</span>) <span class="op">-&gt;</span> <span class="ident">Compare</span>
+    <span class="kw">fn</span> <span class="ident">ends_into</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">pattern</span>: <span class="ident">T</span>) <span class="op">-&gt;</span> <span class="ident">Compare</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
+        <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">str</span><span class="op">&gt;&gt;</span>,
     {
-        <span class="kw">let</span> <span class="ident">col</span>: <span class="ident">Column</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">into</span>();
-        <span class="kw">let</span> <span class="ident">val</span>: <span class="ident">DatabaseValue</span> <span class="op">=</span> <span class="ident">col</span>.<span class="ident">into</span>();
+        <span class="kw">let</span> <span class="ident">col</span>: <span class="ident">Column</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">into</span>();
+        <span class="kw">let</span> <span class="ident">val</span>: <span class="ident">DatabaseValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">col</span>.<span class="ident">into</span>();
         <span class="ident">val</span>.<span class="ident">ends_into</span>(<span class="ident">pattern</span>)
     }
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">not_ends_into</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">pattern</span>: <span class="ident">T</span>) <span class="op">-&gt;</span> <span class="ident">Compare</span>
+    <span class="kw">fn</span> <span class="ident">not_ends_into</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">pattern</span>: <span class="ident">T</span>) <span class="op">-&gt;</span> <span class="ident">Compare</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
+        <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">str</span><span class="op">&gt;&gt;</span>,
     {
-        <span class="kw">let</span> <span class="ident">col</span>: <span class="ident">Column</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">into</span>();
-        <span class="kw">let</span> <span class="ident">val</span>: <span class="ident">DatabaseValue</span> <span class="op">=</span> <span class="ident">col</span>.<span class="ident">into</span>();
+        <span class="kw">let</span> <span class="ident">col</span>: <span class="ident">Column</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">into</span>();
+        <span class="kw">let</span> <span class="ident">val</span>: <span class="ident">DatabaseValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">col</span>.<span class="ident">into</span>();
         <span class="ident">val</span>.<span class="ident">not_ends_into</span>(<span class="ident">pattern</span>)
     }
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">is_null</span>(<span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">Compare</span> {
-        <span class="kw">let</span> <span class="ident">col</span>: <span class="ident">Column</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">into</span>();
-        <span class="kw">let</span> <span class="ident">val</span>: <span class="ident">DatabaseValue</span> <span class="op">=</span> <span class="ident">col</span>.<span class="ident">into</span>();
+    <span class="kw">fn</span> <span class="ident">is_null</span>(<span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">Compare</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">col</span>: <span class="ident">Column</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">into</span>();
+        <span class="kw">let</span> <span class="ident">val</span>: <span class="ident">DatabaseValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">col</span>.<span class="ident">into</span>();
         <span class="ident">val</span>.<span class="ident">is_null</span>()
     }
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">is_not_null</span>(<span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">Compare</span> {
-        <span class="kw">let</span> <span class="ident">col</span>: <span class="ident">Column</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">into</span>();
-        <span class="kw">let</span> <span class="ident">val</span>: <span class="ident">DatabaseValue</span> <span class="op">=</span> <span class="ident">col</span>.<span class="ident">into</span>();
+    <span class="kw">fn</span> <span class="ident">is_not_null</span>(<span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">Compare</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">col</span>: <span class="ident">Column</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">into</span>();
+        <span class="kw">let</span> <span class="ident">val</span>: <span class="ident">DatabaseValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">col</span>.<span class="ident">into</span>();
         <span class="ident">val</span>.<span class="ident">is_not_null</span>()
     }
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">between</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">V</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">left</span>: <span class="ident">T</span>, <span class="ident">right</span>: <span class="ident">V</span>) <span class="op">-&gt;</span> <span class="ident">Compare</span>
+    <span class="kw">fn</span> <span class="ident">between</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">V</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">left</span>: <span class="ident">T</span>, <span class="ident">right</span>: <span class="ident">V</span>) <span class="op">-&gt;</span> <span class="ident">Compare</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&gt;</span>,
-        <span class="ident">V</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&gt;</span>,
+        <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;&gt;</span>,
+        <span class="ident">V</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;&gt;</span>,
     {
-        <span class="kw">let</span> <span class="ident">col</span>: <span class="ident">Column</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">into</span>();
-        <span class="kw">let</span> <span class="ident">val</span>: <span class="ident">DatabaseValue</span> <span class="op">=</span> <span class="ident">col</span>.<span class="ident">into</span>();
+        <span class="kw">let</span> <span class="ident">col</span>: <span class="ident">Column</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">into</span>();
+        <span class="kw">let</span> <span class="ident">val</span>: <span class="ident">DatabaseValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">col</span>.<span class="ident">into</span>();
         <span class="ident">val</span>.<span class="ident">between</span>(<span class="ident">left</span>, <span class="ident">right</span>)
     }
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">not_between</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">V</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">left</span>: <span class="ident">T</span>, <span class="ident">right</span>: <span class="ident">V</span>) <span class="op">-&gt;</span> <span class="ident">Compare</span>
+    <span class="kw">fn</span> <span class="ident">not_between</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">V</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">left</span>: <span class="ident">T</span>, <span class="ident">right</span>: <span class="ident">V</span>) <span class="op">-&gt;</span> <span class="ident">Compare</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&gt;</span>,
-        <span class="ident">V</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&gt;</span>,
+        <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;&gt;</span>,
+        <span class="ident">V</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;&gt;</span>,
     {
-        <span class="kw">let</span> <span class="ident">col</span>: <span class="ident">Column</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">into</span>();
-        <span class="kw">let</span> <span class="ident">val</span>: <span class="ident">DatabaseValue</span> <span class="op">=</span> <span class="ident">col</span>.<span class="ident">into</span>();
+        <span class="kw">let</span> <span class="ident">col</span>: <span class="ident">Column</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">into</span>();
+        <span class="kw">let</span> <span class="ident">val</span>: <span class="ident">DatabaseValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">col</span>.<span class="ident">into</span>();
         <span class="ident">val</span>.<span class="ident">not_between</span>(<span class="ident">left</span>, <span class="ident">right</span>)
     }
 }

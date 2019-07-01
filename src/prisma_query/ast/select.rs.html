@@ -295,32 +295,32 @@
 
 <span class="doccomment">/// A builder for a `SELECT` statement.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Clone</span>, <span class="ident">Default</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Select</span> {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">table</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="ident">Table</span><span class="op">&gt;&gt;</span>,
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">columns</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">conditions</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ConditionTree</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">ordering</span>: <span class="ident">Ordering</span>,
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">grouping</span>: <span class="ident">Grouping</span>,
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">limit</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ParameterizedValue</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">offset</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ParameterizedValue</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">joins</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Join</span><span class="op">&gt;</span>,
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Select</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">table</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="ident">Table</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;&gt;</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">columns</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;&gt;</span>,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">conditions</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ConditionTree</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;&gt;</span>,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">ordering</span>: <span class="ident">Ordering</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">grouping</span>: <span class="ident">Grouping</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">limit</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ParameterizedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;&gt;</span>,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">offset</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ParameterizedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;&gt;</span>,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">joins</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Join</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;&gt;</span>,
 }
 
-<span class="kw">impl</span> <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Select</span> {
+<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">Select</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;&gt;</span> <span class="kw">for</span> <span class="ident">DatabaseValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">into</span>(<span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">DatabaseValue</span> {
-        <span class="ident">DatabaseValue</span>::<span class="ident">Select</span>(<span class="self">self</span>)
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">sel</span>: <span class="ident">Select</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-&gt;</span> <span class="ident">DatabaseValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+        <span class="ident">DatabaseValue</span>::<span class="ident">Select</span>(<span class="ident">sel</span>)
     }
 }
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">Select</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Query</span> {
+<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">Select</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;&gt;</span> <span class="kw">for</span> <span class="ident">Query</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">sel</span>: <span class="ident">Select</span>) <span class="op">-&gt;</span> <span class="ident">Query</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">sel</span>: <span class="ident">Select</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-&gt;</span> <span class="ident">Query</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
         <span class="ident">Query</span>::<span class="ident">Select</span>(<span class="ident">sel</span>)
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Select</span> {
+<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">Select</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="doccomment">/// Creates a new `SELECT` statement for the given table.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// ```rust</span>
@@ -355,7 +355,7 @@
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_table</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">table</span>: <span class="ident">T</span>) <span class="op">-&gt;</span> <span class="self">Self</span>
     <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Table</span><span class="op">&gt;</span>,
+        <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Table</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;&gt;</span>,
     {
         <span class="ident">Select</span> {
             <span class="ident">table</span>: <span class="prelude-val">Some</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">table</span>.<span class="ident">into</span>())),
@@ -394,7 +394,7 @@
     <span class="doccomment">/// ```</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">value</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">value</span>: <span class="ident">T</span>) <span class="op">-&gt;</span> <span class="self">Self</span>
     <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&gt;</span>,
+        <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;&gt;</span>,
     {
         <span class="self">self</span>.<span class="ident">columns</span>.<span class="ident">push</span>(<span class="ident">value</span>.<span class="ident">into</span>());
         <span class="self">self</span>
@@ -415,7 +415,7 @@
     <span class="doccomment">/// ```</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">column</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">column</span>: <span class="ident">T</span>) <span class="op">-&gt;</span> <span class="self">Self</span>
     <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Column</span><span class="op">&gt;</span>,
+        <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Column</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;&gt;</span>,
     {
         <span class="self">self</span>.<span class="ident">columns</span>.<span class="ident">push</span>(<span class="ident">column</span>.<span class="ident">into</span>().<span class="ident">into</span>());
         <span class="self">self</span>
@@ -437,7 +437,7 @@
     <span class="doccomment">/// ```</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">columns</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">columns</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>) <span class="op">-&gt;</span> <span class="self">Self</span>
     <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&gt;</span>,
+        <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;&gt;</span>,
     {
         <span class="self">self</span>.<span class="ident">columns</span> <span class="op">=</span> <span class="ident">columns</span>.<span class="ident">into_iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">c</span><span class="op">|</span> <span class="ident">c</span>.<span class="ident">into</span>()).<span class="ident">collect</span>();
         <span class="self">self</span>
@@ -459,7 +459,7 @@
     <span class="doccomment">/// ```</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">so_that</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">conditions</span>: <span class="ident">T</span>) <span class="op">-&gt;</span> <span class="self">Self</span>
     <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">ConditionTree</span><span class="op">&gt;</span>,
+        <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">ConditionTree</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;&gt;</span>,
     {
         <span class="self">self</span>.<span class="ident">conditions</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">conditions</span>.<span class="ident">into</span>());
         <span class="self">self</span>
@@ -480,7 +480,7 @@
     <span class="doccomment">/// ```</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">inner_join</span><span class="op">&lt;</span><span class="ident">J</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">join</span>: <span class="ident">J</span>) <span class="op">-&gt;</span> <span class="self">Self</span>
     <span class="kw">where</span>
-        <span class="ident">J</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">JoinData</span><span class="op">&gt;</span>,
+        <span class="ident">J</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">JoinData</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;&gt;</span>,
     {
         <span class="self">self</span>.<span class="ident">joins</span>.<span class="ident">push</span>(<span class="ident">Join</span>::<span class="ident">Inner</span>(<span class="ident">join</span>.<span class="ident">into</span>()));
         <span class="self">self</span>
@@ -508,7 +508,7 @@
     <span class="doccomment">/// ```</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">left_outer_join</span><span class="op">&lt;</span><span class="ident">J</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">join</span>: <span class="ident">J</span>) <span class="op">-&gt;</span> <span class="self">Self</span>
     <span class="kw">where</span>
-        <span class="ident">J</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">JoinData</span><span class="op">&gt;</span>,
+        <span class="ident">J</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">JoinData</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;&gt;</span>,
     {
         <span class="self">self</span>.<span class="ident">joins</span>.<span class="ident">push</span>(<span class="ident">Join</span>::<span class="ident">LeftOuter</span>(<span class="ident">join</span>.<span class="ident">into</span>()));
         <span class="self">self</span>
@@ -528,7 +528,7 @@
     <span class="doccomment">/// assert_eq!(&quot;SELECT `users`.* FROM `users` ORDER BY `foo`, `baz` ASC, `bar` DESC&quot;, sql);</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">order_by</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">value</span>: <span class="ident">T</span>) <span class="op">-&gt;</span> <span class="self">Self</span>
     <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">IntoOrderDefinition</span>,
+        <span class="ident">T</span>: <span class="ident">IntoOrderDefinition</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
     {
         <span class="self">self</span>.<span class="ident">ordering</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">ordering</span>.<span class="ident">append</span>(<span class="ident">value</span>.<span class="ident">into_order_definition</span>());
         <span class="self">self</span>
@@ -549,7 +549,7 @@
     <span class="doccomment">/// assert_eq!(&quot;SELECT `foo`, `bar` FROM `users` GROUP BY `foo`, `bar`&quot;, sql);</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">group_by</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">value</span>: <span class="ident">T</span>) <span class="op">-&gt;</span> <span class="self">Self</span>
     <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">IntoGroupByDefinition</span>,
+        <span class="ident">T</span>: <span class="ident">IntoGroupByDefinition</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
     {
         <span class="self">self</span>.<span class="ident">grouping</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">grouping</span>.<span class="ident">append</span>(<span class="ident">value</span>.<span class="ident">into_group_by_definition</span>());
         <span class="self">self</span>

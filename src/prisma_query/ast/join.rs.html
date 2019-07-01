@@ -56,22 +56,22 @@
 
 <span class="doccomment">/// The `JOIN` table and conditions.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Clone</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">JoinData</span> {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">table</span>: <span class="ident">Table</span>,
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">conditions</span>: <span class="ident">ConditionTree</span>,
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">JoinData</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">table</span>: <span class="ident">Table</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">conditions</span>: <span class="ident">ConditionTree</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
 }
 
 <span class="doccomment">/// A representation of a `JOIN` statement.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Clone</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Join</span> {
+<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Join</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="doccomment">/// Implements an `INNER JOIN` with given `JoinData`.</span>
-    <span class="ident">Inner</span>(<span class="ident">JoinData</span>),
+    <span class="ident">Inner</span>(<span class="ident">JoinData</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>),
     <span class="doccomment">/// Implements an `LEFT OUTER JOIN` with given `JoinData`.</span>
-    <span class="ident">LeftOuter</span>(<span class="ident">JoinData</span>),
+    <span class="ident">LeftOuter</span>(<span class="ident">JoinData</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>),
 }
 
 <span class="doccomment">/// An item that can be joined.</span>
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Joinable</span> {
+<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Joinable</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="doccomment">/// Add the `JOIN` conditions.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// ```rust</span>
@@ -85,19 +85,19 @@
     <span class="doccomment">///     sql,</span>
     <span class="doccomment">/// );</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">fn</span> <span class="ident">on</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">conditions</span>: <span class="ident">T</span>) <span class="op">-&gt;</span> <span class="ident">JoinData</span>
+    <span class="kw">fn</span> <span class="ident">on</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">conditions</span>: <span class="ident">T</span>) <span class="op">-&gt;</span> <span class="ident">JoinData</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">ConditionTree</span><span class="op">&gt;</span>;
+        <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">ConditionTree</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;&gt;</span>;
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">U</span><span class="op">&gt;</span> <span class="ident">Joinable</span> <span class="kw">for</span> <span class="ident">U</span>
+<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">U</span><span class="op">&gt;</span> <span class="ident">Joinable</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">U</span>
 <span class="kw">where</span>
-    <span class="ident">U</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Table</span><span class="op">&gt;</span>,
+    <span class="ident">U</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Table</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;&gt;</span>,
 {
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">on</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">conditions</span>: <span class="ident">T</span>) <span class="op">-&gt;</span> <span class="ident">JoinData</span>
+    <span class="kw">fn</span> <span class="ident">on</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">conditions</span>: <span class="ident">T</span>) <span class="op">-&gt;</span> <span class="ident">JoinData</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">ConditionTree</span><span class="op">&gt;</span>,
+        <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">ConditionTree</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;&gt;</span>,
     {
         <span class="ident">JoinData</span> {
             <span class="ident">table</span>: <span class="self">self</span>.<span class="ident">into</span>(),

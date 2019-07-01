@@ -177,17 +177,17 @@
 <span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">error</span>::<span class="ident">Error</span>, <span class="ident">str</span>::<span class="ident">FromStr</span>};
 <span class="kw">use</span> <span class="ident">tokio_postgres</span>::<span class="ident">types</span>::<span class="ident">ToSql</span>;
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Postgres</span> {
-    <span class="ident">parameters</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ParameterizedValue</span><span class="op">&gt;</span>,
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Postgres</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+    <span class="ident">parameters</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ParameterizedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;&gt;</span>,
 }
 
-<span class="kw">impl</span> <span class="ident">Visitor</span> <span class="kw">for</span> <span class="ident">Postgres</span> {
+<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">Visitor</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Postgres</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="kw">const</span> <span class="ident">C_BACKTICK</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span> <span class="op">=</span> <span class="string">&quot;\&quot;&quot;</span>;
     <span class="kw">const</span> <span class="ident">C_WILDCARD</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span> <span class="op">=</span> <span class="string">&quot;%&quot;</span>;
 
-    <span class="kw">fn</span> <span class="ident">build</span><span class="op">&lt;</span><span class="ident">Q</span><span class="op">&gt;</span>(<span class="ident">query</span>: <span class="ident">Q</span>) <span class="op">-&gt;</span> (<span class="ident">String</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ParameterizedValue</span><span class="op">&gt;</span>)
+    <span class="kw">fn</span> <span class="ident">build</span><span class="op">&lt;</span><span class="ident">Q</span><span class="op">&gt;</span>(<span class="ident">query</span>: <span class="ident">Q</span>) <span class="op">-&gt;</span> (<span class="ident">String</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ParameterizedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;&gt;</span>)
     <span class="kw">where</span>
-        <span class="ident">Q</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Query</span><span class="op">&gt;</span>,
+        <span class="ident">Q</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Query</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;&gt;</span>,
     {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">postgres</span> <span class="op">=</span> <span class="ident">Postgres</span> {
             <span class="ident">parameters</span>: <span class="ident">Vec</span>::<span class="ident">new</span>(),
@@ -199,7 +199,7 @@
         )
     }
 
-    <span class="kw">fn</span> <span class="ident">add_parameter</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">value</span>: <span class="ident">ParameterizedValue</span>) {
+    <span class="kw">fn</span> <span class="ident">add_parameter</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">value</span>: <span class="ident">ParameterizedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) {
         <span class="self">self</span>.<span class="ident">parameters</span>.<span class="ident">push</span>(<span class="ident">value</span>);
     }
 
@@ -209,8 +209,8 @@
 
     <span class="kw">fn</span> <span class="ident">visit_limit_and_offset</span>(
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
-        <span class="ident">limit</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ParameterizedValue</span><span class="op">&gt;</span>,
-        <span class="ident">offset</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ParameterizedValue</span><span class="op">&gt;</span>,
+        <span class="ident">limit</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ParameterizedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;&gt;</span>,
+        <span class="ident">offset</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ParameterizedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;&gt;</span>,
     ) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
         <span class="kw">match</span> (<span class="ident">limit</span>, <span class="ident">offset</span>) {
             (<span class="prelude-val">Some</span>(<span class="ident">limit</span>), <span class="prelude-val">Some</span>(<span class="ident">offset</span>)) <span class="op">=&gt;</span> <span class="prelude-val">Some</span>(<span class="macro">format</span><span class="macro">!</span>(
@@ -224,7 +224,7 @@
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">visit_insert</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">insert</span>: <span class="ident">Insert</span>) <span class="op">-&gt;</span> <span class="ident">String</span> {
+    <span class="kw">fn</span> <span class="ident">visit_insert</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">insert</span>: <span class="ident">Insert</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-&gt;</span> <span class="ident">String</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">result</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">String</span>::<span class="ident">from</span>(<span class="string">&quot;INSERT&quot;</span>)];
 
         <span class="ident">result</span>.<span class="ident">push</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;INTO {}&quot;</span>, <span class="self">self</span>.<span class="ident">visit_table</span>(<span class="ident">insert</span>.<span class="ident">table</span>, <span class="bool-val">true</span>)));
@@ -266,7 +266,7 @@
         <span class="ident">result</span>.<span class="ident">join</span>(<span class="string">&quot; &quot;</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">visit_aggregate_to_string</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">value</span>: <span class="ident">DatabaseValue</span>) <span class="op">-&gt;</span> <span class="ident">String</span> {
+    <span class="kw">fn</span> <span class="ident">visit_aggregate_to_string</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">value</span>: <span class="ident">DatabaseValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-&gt;</span> <span class="ident">String</span> {
         <span class="macro">format</span><span class="macro">!</span>(
             <span class="string">&quot;array_to_string(array_agg({}), &#39;,&#39;)&quot;</span>,
             <span class="self">self</span>.<span class="ident">visit_database_value</span>(<span class="ident">value</span>)
@@ -274,7 +274,7 @@
     }
 }
 
-<span class="kw">impl</span> <span class="ident">ToSql</span> <span class="kw">for</span> <span class="ident">ParameterizedValue</span> {
+<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">ToSql</span> <span class="kw">for</span> <span class="ident">ParameterizedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="kw">fn</span> <span class="ident">to_sql</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         <span class="ident">ty</span>: <span class="kw-2">&amp;</span><span class="ident">Type</span>,

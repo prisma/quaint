@@ -607,6 +607,11 @@
 <span id="607">607</span>
 <span id="608">608</span>
 <span id="609">609</span>
+<span id="610">610</span>
+<span id="611">611</span>
+<span id="612">612</span>
+<span id="613">613</span>
+<span id="614">614</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">ast</span>::<span class="kw-2">*</span>, <span class="ident">visitor</span>::<span class="ident">Visitor</span>};
 
@@ -621,17 +626,17 @@
 
 <span class="doccomment">/// A visitor for generating queries for an SQLite database. Requires that</span>
 <span class="doccomment">/// `rusqlite` feature flag is selected.</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Sqlite</span> {
-    <span class="ident">parameters</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ParameterizedValue</span><span class="op">&gt;</span>,
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Sqlite</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+    <span class="ident">parameters</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ParameterizedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;&gt;</span>,
 }
 
-<span class="kw">impl</span> <span class="ident">Visitor</span> <span class="kw">for</span> <span class="ident">Sqlite</span> {
+<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">Visitor</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Sqlite</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="kw">const</span> <span class="ident">C_BACKTICK</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span> <span class="op">=</span> <span class="string">&quot;`&quot;</span>;
     <span class="kw">const</span> <span class="ident">C_WILDCARD</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span> <span class="op">=</span> <span class="string">&quot;%&quot;</span>;
 
-    <span class="kw">fn</span> <span class="ident">build</span><span class="op">&lt;</span><span class="ident">Q</span><span class="op">&gt;</span>(<span class="ident">query</span>: <span class="ident">Q</span>) <span class="op">-&gt;</span> (<span class="ident">String</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ParameterizedValue</span><span class="op">&gt;</span>)
+    <span class="kw">fn</span> <span class="ident">build</span><span class="op">&lt;</span><span class="ident">Q</span><span class="op">&gt;</span>(<span class="ident">query</span>: <span class="ident">Q</span>) <span class="op">-&gt;</span> (<span class="ident">String</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ParameterizedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;&gt;</span>)
     <span class="kw">where</span>
-        <span class="ident">Q</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Query</span><span class="op">&gt;</span>,
+        <span class="ident">Q</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Query</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;&gt;</span>,
     {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">sqlite</span> <span class="op">=</span> <span class="ident">Sqlite</span> {
             <span class="ident">parameters</span>: <span class="ident">Vec</span>::<span class="ident">new</span>(),
@@ -643,7 +648,7 @@
         )
     }
 
-    <span class="kw">fn</span> <span class="ident">visit_insert</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">insert</span>: <span class="ident">Insert</span>) <span class="op">-&gt;</span> <span class="ident">String</span> {
+    <span class="kw">fn</span> <span class="ident">visit_insert</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">insert</span>: <span class="ident">Insert</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-&gt;</span> <span class="ident">String</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">result</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">insert</span>.<span class="ident">on_conflict</span> {
             <span class="prelude-val">Some</span>(<span class="ident">OnConflict</span>::<span class="ident">DoNothing</span>) <span class="op">=&gt;</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">String</span>::<span class="ident">from</span>(<span class="string">&quot;INSERT OR IGNORE&quot;</span>)],
             <span class="prelude-val">None</span> <span class="op">=&gt;</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">String</span>::<span class="ident">from</span>(<span class="string">&quot;INSERT&quot;</span>)],
@@ -680,14 +685,14 @@
         <span class="ident">String</span>::<span class="ident">from</span>(<span class="string">&quot;?&quot;</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">add_parameter</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">value</span>: <span class="ident">ParameterizedValue</span>) {
+    <span class="kw">fn</span> <span class="ident">add_parameter</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">value</span>: <span class="ident">ParameterizedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) {
         <span class="self">self</span>.<span class="ident">parameters</span>.<span class="ident">push</span>(<span class="ident">value</span>);
     }
 
     <span class="kw">fn</span> <span class="ident">visit_limit_and_offset</span>(
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
-        <span class="ident">limit</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ParameterizedValue</span><span class="op">&gt;</span>,
-        <span class="ident">offset</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ParameterizedValue</span><span class="op">&gt;</span>,
+        <span class="ident">limit</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ParameterizedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;&gt;</span>,
+        <span class="ident">offset</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ParameterizedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;&gt;</span>,
     ) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
         <span class="kw">match</span> (<span class="ident">limit</span>, <span class="ident">offset</span>) {
             (<span class="prelude-val">Some</span>(<span class="ident">limit</span>), <span class="prelude-val">Some</span>(<span class="ident">offset</span>)) <span class="op">=&gt;</span> <span class="prelude-val">Some</span>(<span class="macro">format</span><span class="macro">!</span>(
@@ -705,13 +710,13 @@
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">visit_aggregate_to_string</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">value</span>: <span class="ident">DatabaseValue</span>) <span class="op">-&gt;</span> <span class="ident">String</span> {
+    <span class="kw">fn</span> <span class="ident">visit_aggregate_to_string</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">value</span>: <span class="ident">DatabaseValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-&gt;</span> <span class="ident">String</span> {
         <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;group_concat({})&quot;</span>, <span class="self">self</span>.<span class="ident">visit_database_value</span>(<span class="ident">value</span>))
     }
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sqlite&quot;</span>)]</span>
-<span class="kw">impl</span> <span class="ident">Bindable</span> <span class="kw">for</span> <span class="ident">ParameterizedValue</span> {
+<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">Bindable</span> <span class="kw">for</span> <span class="ident">ParameterizedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">bind</span>(<span class="self">self</span>, <span class="ident">statement</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Statement</span>, <span class="ident">i</span>: <span class="ident">usize</span>) <span class="op">-&gt;</span> <span class="ident">SqliteResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="kw">use</span> <span class="ident">ParameterizedValue</span> <span class="kw">as</span> <span class="ident">Pv</span>;
@@ -729,13 +734,13 @@
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;rusqlite&quot;</span>)]</span>
-<span class="kw">impl</span> <span class="ident">ToSql</span> <span class="kw">for</span> <span class="ident">ParameterizedValue</span> {
+<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">ToSql</span> <span class="kw">for</span> <span class="ident">ParameterizedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="kw">fn</span> <span class="ident">to_sql</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ToSqlOutput</span>, <span class="ident">RusqlError</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">value</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span> {
             <span class="ident">ParameterizedValue</span>::<span class="ident">Null</span> <span class="op">=&gt;</span> <span class="ident">ToSqlOutput</span>::<span class="ident">from</span>(<span class="ident">Null</span>),
             <span class="ident">ParameterizedValue</span>::<span class="ident">Integer</span>(<span class="ident">integer</span>) <span class="op">=&gt;</span> <span class="ident">ToSqlOutput</span>::<span class="ident">from</span>(<span class="kw-2">*</span><span class="ident">integer</span>),
             <span class="ident">ParameterizedValue</span>::<span class="ident">Real</span>(<span class="ident">float</span>) <span class="op">=&gt;</span> <span class="ident">ToSqlOutput</span>::<span class="ident">from</span>(<span class="kw-2">*</span><span class="ident">float</span>),
-            <span class="ident">ParameterizedValue</span>::<span class="ident">Text</span>(<span class="ident">string</span>) <span class="op">=&gt;</span> <span class="ident">ToSqlOutput</span>::<span class="ident">from</span>(<span class="ident">string</span>.<span class="ident">clone</span>()),
+            <span class="ident">ParameterizedValue</span>::<span class="ident">Text</span>(<span class="ident">cow</span>) <span class="op">=&gt;</span> <span class="ident">ToSqlOutput</span>::<span class="ident">from</span>(<span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="kw-2">*</span><span class="ident">cow</span>),
             <span class="ident">ParameterizedValue</span>::<span class="ident">Boolean</span>(<span class="ident">boo</span>) <span class="op">=&gt;</span> <span class="ident">ToSqlOutput</span>::<span class="ident">from</span>(<span class="kw-2">*</span><span class="ident">boo</span>),
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;array&quot;</span>)]</span>
             <span class="ident">ParameterizedValue</span>::<span class="ident">Array</span>(<span class="kw">_</span>) <span class="op">=&gt;</span> <span class="macro">unimplemented</span><span class="macro">!</span>(<span class="string">&quot;Arrays are not supported for sqlite.&quot;</span>),
@@ -759,9 +764,12 @@
 <span class="kw">mod</span> <span class="ident">tests</span> {
     <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">visitor</span>::<span class="kw-2">*</span>;
 
-    <span class="kw">fn</span> <span class="ident">expected_values</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">sql</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>, <span class="ident">params</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>) <span class="op">-&gt;</span> (<span class="ident">String</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ParameterizedValue</span><span class="op">&gt;</span>)
+    <span class="kw">fn</span> <span class="ident">expected_values</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span>(
+        <span class="ident">sql</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>,
+        <span class="ident">params</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>,
+    ) <span class="op">-&gt;</span> (<span class="ident">String</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ParameterizedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;&gt;</span>)
     <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">ParameterizedValue</span><span class="op">&gt;</span>,
+        <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">ParameterizedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;&gt;</span>,
     {
         (
             <span class="ident">String</span>::<span class="ident">from</span>(<span class="ident">sql</span>),
@@ -769,7 +777,9 @@
         )
     }
 
-    <span class="kw">fn</span> <span class="ident">default_params</span>(<span class="kw-2">mut</span> <span class="ident">additional</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ParameterizedValue</span><span class="op">&gt;</span>) <span class="op">-&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ParameterizedValue</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">default_params</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(
+        <span class="kw-2">mut</span> <span class="ident">additional</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ParameterizedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;&gt;</span>,
+    ) <span class="op">-&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ParameterizedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
 
         <span class="kw">for</span> <span class="ident">param</span> <span class="kw">in</span> <span class="ident">additional</span>.<span class="ident">drain</span>(<span class="number">0</span>..) {
@@ -929,9 +939,9 @@
             <span class="string">&quot;SELECT `naukio`.* FROM `naukio` WHERE ((`word` = ? AND `age` &lt; ?) AND `paw` = ?)&quot;</span>;
 
         <span class="kw">let</span> <span class="ident">expected_params</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[
-            <span class="ident">ParameterizedValue</span>::<span class="ident">Text</span>(<span class="ident">String</span>::<span class="ident">from</span>(<span class="string">&quot;meow&quot;</span>)),
+            <span class="ident">ParameterizedValue</span>::<span class="ident">Text</span>(<span class="ident">Cow</span>::<span class="ident">from</span>(<span class="string">&quot;meow&quot;</span>)),
             <span class="ident">ParameterizedValue</span>::<span class="ident">Integer</span>(<span class="number">10</span>),
-            <span class="ident">ParameterizedValue</span>::<span class="ident">Text</span>(<span class="ident">String</span>::<span class="ident">from</span>(<span class="string">&quot;warm&quot;</span>)),
+            <span class="ident">ParameterizedValue</span>::<span class="ident">Text</span>(<span class="ident">Cow</span>::<span class="ident">from</span>(<span class="string">&quot;warm&quot;</span>)),
         ];
 
         <span class="kw">let</span> <span class="ident">conditions</span> <span class="op">=</span> <span class="string">&quot;word&quot;</span>
@@ -953,9 +963,9 @@
             <span class="string">&quot;SELECT `naukio`.* FROM `naukio` WHERE (`word` = ? AND (`age` &lt; ? AND `paw` = ?))&quot;</span>;
 
         <span class="kw">let</span> <span class="ident">expected_params</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[
-            <span class="ident">ParameterizedValue</span>::<span class="ident">Text</span>(<span class="ident">String</span>::<span class="ident">from</span>(<span class="string">&quot;meow&quot;</span>)),
+            <span class="ident">ParameterizedValue</span>::<span class="ident">Text</span>(<span class="ident">Cow</span>::<span class="ident">from</span>(<span class="string">&quot;meow&quot;</span>)),
             <span class="ident">ParameterizedValue</span>::<span class="ident">Integer</span>(<span class="number">10</span>),
-            <span class="ident">ParameterizedValue</span>::<span class="ident">Text</span>(<span class="ident">String</span>::<span class="ident">from</span>(<span class="string">&quot;warm&quot;</span>)),
+            <span class="ident">ParameterizedValue</span>::<span class="ident">Text</span>(<span class="ident">Cow</span>::<span class="ident">from</span>(<span class="string">&quot;warm&quot;</span>)),
         ];
 
         <span class="kw">let</span> <span class="ident">conditions</span> <span class="op">=</span> <span class="string">&quot;word&quot;</span>
@@ -976,9 +986,9 @@
             <span class="string">&quot;SELECT `naukio`.* FROM `naukio` WHERE ((`word` = ? OR `age` &lt; ?) AND `paw` = ?)&quot;</span>;
 
         <span class="kw">let</span> <span class="ident">expected_params</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[
-            <span class="ident">ParameterizedValue</span>::<span class="ident">Text</span>(<span class="ident">String</span>::<span class="ident">from</span>(<span class="string">&quot;meow&quot;</span>)),
+            <span class="ident">ParameterizedValue</span>::<span class="ident">Text</span>(<span class="ident">Cow</span>::<span class="ident">from</span>(<span class="string">&quot;meow&quot;</span>)),
             <span class="ident">ParameterizedValue</span>::<span class="ident">Integer</span>(<span class="number">10</span>),
-            <span class="ident">ParameterizedValue</span>::<span class="ident">Text</span>(<span class="ident">String</span>::<span class="ident">from</span>(<span class="string">&quot;warm&quot;</span>)),
+            <span class="ident">ParameterizedValue</span>::<span class="ident">Text</span>(<span class="ident">Cow</span>::<span class="ident">from</span>(<span class="string">&quot;warm&quot;</span>)),
         ];
 
         <span class="kw">let</span> <span class="ident">conditions</span> <span class="op">=</span> <span class="string">&quot;word&quot;</span>
@@ -1000,9 +1010,9 @@
             <span class="string">&quot;SELECT `naukio`.* FROM `naukio` WHERE (NOT ((`word` = ? OR `age` &lt; ?) AND `paw` = ?))&quot;</span>;
 
         <span class="kw">let</span> <span class="ident">expected_params</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[
-            <span class="ident">ParameterizedValue</span>::<span class="ident">Text</span>(<span class="ident">String</span>::<span class="ident">from</span>(<span class="string">&quot;meow&quot;</span>)),
+            <span class="ident">ParameterizedValue</span>::<span class="ident">Text</span>(<span class="ident">Cow</span>::<span class="ident">from</span>(<span class="string">&quot;meow&quot;</span>)),
             <span class="ident">ParameterizedValue</span>::<span class="ident">Integer</span>(<span class="number">10</span>),
-            <span class="ident">ParameterizedValue</span>::<span class="ident">Text</span>(<span class="ident">String</span>::<span class="ident">from</span>(<span class="string">&quot;warm&quot;</span>)),
+            <span class="ident">ParameterizedValue</span>::<span class="ident">Text</span>(<span class="ident">Cow</span>::<span class="ident">from</span>(<span class="string">&quot;warm&quot;</span>)),
         ];
 
         <span class="kw">let</span> <span class="ident">conditions</span> <span class="op">=</span> <span class="string">&quot;word&quot;</span>
@@ -1025,9 +1035,9 @@
             <span class="string">&quot;SELECT `naukio`.* FROM `naukio` WHERE (NOT ((`word` = ? OR `age` &lt; ?) AND `paw` = ?))&quot;</span>;
 
         <span class="kw">let</span> <span class="ident">expected_params</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[
-            <span class="ident">ParameterizedValue</span>::<span class="ident">Text</span>(<span class="ident">String</span>::<span class="ident">from</span>(<span class="string">&quot;meow&quot;</span>)),
+            <span class="ident">ParameterizedValue</span>::<span class="ident">Text</span>(<span class="ident">Cow</span>::<span class="ident">from</span>(<span class="string">&quot;meow&quot;</span>)),
             <span class="ident">ParameterizedValue</span>::<span class="ident">Integer</span>(<span class="number">10</span>),
-            <span class="ident">ParameterizedValue</span>::<span class="ident">Text</span>(<span class="ident">String</span>::<span class="ident">from</span>(<span class="string">&quot;warm&quot;</span>)),
+            <span class="ident">ParameterizedValue</span>::<span class="ident">Text</span>(<span class="ident">Cow</span>::<span class="ident">from</span>(<span class="string">&quot;warm&quot;</span>)),
         ];
 
         <span class="kw">let</span> <span class="ident">conditions</span> <span class="op">=</span> <span class="ident">ConditionTree</span>::<span class="ident">not</span>(<span class="ident">ConditionTree</span>::<span class="ident">and</span>(
