@@ -36,6 +36,8 @@
 <span id="36">36</span>
 <span id="37">37</span>
 <span id="38">38</span>
+<span id="39">39</span>
+<span id="40">40</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">failure</span>::{<span class="ident">Error</span> <span class="kw">as</span> <span class="ident">FError</span>, <span class="ident">Fail</span>};
 
@@ -47,6 +49,8 @@
     <span class="ident">NotFound</span>,
     <span class="attribute">#[<span class="ident">fail</span>(<span class="ident">display</span> <span class="op">=</span> <span class="string">&quot;Unique constraint failed: {}&quot;</span>, <span class="ident">field_name</span>)]</span>
     <span class="ident">UniqueConstraintViolation</span> { <span class="ident">field_name</span>: <span class="ident">String</span> },
+    <span class="attribute">#[<span class="ident">fail</span>(<span class="ident">display</span> <span class="op">=</span> <span class="string">&quot;Null constraint failed: {}&quot;</span>, <span class="ident">field_name</span>)]</span>
+    <span class="ident">NullConstraintViolation</span> { <span class="ident">field_name</span>: <span class="ident">String</span> },
     <span class="attribute">#[<span class="ident">fail</span>(<span class="ident">display</span> <span class="op">=</span> <span class="string">&quot;Error creating a database connection.&quot;</span>)]</span>
     <span class="ident">ConnectionError</span>(<span class="ident">FError</span>),
     <span class="attribute">#[<span class="ident">fail</span>(<span class="ident">display</span> <span class="op">=</span> <span class="string">&quot;Error reading the column value: {}&quot;</span>, <span class="ident">_0</span>)]</span>
