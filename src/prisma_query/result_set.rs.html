@@ -292,28 +292,28 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">at_as_str</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">i</span>: <span class="ident">usize</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">at</span>(<span class="ident">i</span>)<span class="question-mark">?</span> {
             <span class="ident">ParameterizedValue</span>::<span class="ident">Text</span>(<span class="ident">s</span>) <span class="op">=&gt;</span> <span class="prelude-val">Ok</span>(<span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">s</span>),
-            <span class="kw">_</span> <span class="op">=&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">ResultTypeMissmatch</span>(<span class="string">&quot;string&quot;</span>)),
+            <span class="kw">_</span> <span class="op">=&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">ResultTypeMismatch</span>(<span class="string">&quot;string&quot;</span>)),
         }
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">at_as_string</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">i</span>: <span class="ident">usize</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">at</span>(<span class="ident">i</span>)<span class="question-mark">?</span> {
             <span class="ident">ParameterizedValue</span>::<span class="ident">Text</span>(<span class="ident">s</span>) <span class="op">=&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">s</span>.<span class="ident">clone</span>().<span class="ident">into_owned</span>()),
-            <span class="kw">_</span> <span class="op">=&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">ResultTypeMissmatch</span>(<span class="string">&quot;string&quot;</span>)),
+            <span class="kw">_</span> <span class="op">=&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">ResultTypeMismatch</span>(<span class="string">&quot;string&quot;</span>)),
         }
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">at_as_integer</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">i</span>: <span class="ident">usize</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">i64</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">at</span>(<span class="ident">i</span>)<span class="question-mark">?</span> {
             <span class="ident">ParameterizedValue</span>::<span class="ident">Integer</span>(<span class="ident">v</span>) <span class="op">=&gt;</span> <span class="prelude-val">Ok</span>(<span class="kw-2">*</span><span class="ident">v</span>),
-            <span class="kw">_</span> <span class="op">=&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">ResultTypeMissmatch</span>(<span class="string">&quot;integer&quot;</span>)),
+            <span class="kw">_</span> <span class="op">=&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">ResultTypeMismatch</span>(<span class="string">&quot;integer&quot;</span>)),
         }
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">at_as_real</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">i</span>: <span class="ident">usize</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">f64</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">at</span>(<span class="ident">i</span>)<span class="question-mark">?</span> {
             <span class="ident">ParameterizedValue</span>::<span class="ident">Real</span>(<span class="ident">v</span>) <span class="op">=&gt;</span> <span class="prelude-val">Ok</span>(<span class="kw-2">*</span><span class="ident">v</span>),
-            <span class="kw">_</span> <span class="op">=&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">ResultTypeMissmatch</span>(<span class="string">&quot;real&quot;</span>)),
+            <span class="kw">_</span> <span class="op">=&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">ResultTypeMismatch</span>(<span class="string">&quot;real&quot;</span>)),
         }
     }
 
@@ -321,7 +321,7 @@
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">at</span>(<span class="ident">i</span>)<span class="question-mark">?</span> {
             <span class="ident">ParameterizedValue</span>::<span class="ident">Boolean</span>(<span class="ident">v</span>) <span class="op">=&gt;</span> <span class="prelude-val">Ok</span>(<span class="kw-2">*</span><span class="ident">v</span>),
             <span class="ident">ParameterizedValue</span>::<span class="ident">Integer</span>(<span class="ident">v</span>) <span class="op">=&gt;</span> <span class="prelude-val">Ok</span>(<span class="kw-2">*</span><span class="ident">v</span> <span class="op">!=</span> <span class="number">0</span>),
-            <span class="kw">_</span> <span class="op">=&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">ResultTypeMissmatch</span>(<span class="string">&quot;boolean&quot;</span>)),
+            <span class="kw">_</span> <span class="op">=&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">ResultTypeMismatch</span>(<span class="string">&quot;boolean&quot;</span>)),
         }
     }
 
@@ -336,28 +336,28 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_as_str</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">get</span>(<span class="ident">name</span>)<span class="question-mark">?</span> {
             <span class="ident">ParameterizedValue</span>::<span class="ident">Text</span>(<span class="ident">s</span>) <span class="op">=&gt;</span> <span class="prelude-val">Ok</span>(<span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">s</span>),
-            <span class="kw">_</span> <span class="op">=&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">ResultTypeMissmatch</span>(<span class="string">&quot;string&quot;</span>)),
+            <span class="kw">_</span> <span class="op">=&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">ResultTypeMismatch</span>(<span class="string">&quot;string&quot;</span>)),
         }
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_as_string</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">get</span>(<span class="ident">name</span>)<span class="question-mark">?</span> {
             <span class="ident">ParameterizedValue</span>::<span class="ident">Text</span>(<span class="ident">s</span>) <span class="op">=&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">s</span>.<span class="ident">clone</span>().<span class="ident">into_owned</span>()),
-            <span class="kw">_</span> <span class="op">=&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">ResultTypeMissmatch</span>(<span class="string">&quot;string&quot;</span>)),
+            <span class="kw">_</span> <span class="op">=&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">ResultTypeMismatch</span>(<span class="string">&quot;string&quot;</span>)),
         }
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_as_integer</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">i64</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">get</span>(<span class="ident">name</span>)<span class="question-mark">?</span> {
             <span class="ident">ParameterizedValue</span>::<span class="ident">Integer</span>(<span class="ident">v</span>) <span class="op">=&gt;</span> <span class="prelude-val">Ok</span>(<span class="kw-2">*</span><span class="ident">v</span>),
-            <span class="kw">_</span> <span class="op">=&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">ResultTypeMissmatch</span>(<span class="string">&quot;integer&quot;</span>)),
+            <span class="kw">_</span> <span class="op">=&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">ResultTypeMismatch</span>(<span class="string">&quot;integer&quot;</span>)),
         }
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_as_real</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">f64</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">get</span>(<span class="ident">name</span>)<span class="question-mark">?</span> {
             <span class="ident">ParameterizedValue</span>::<span class="ident">Real</span>(<span class="ident">v</span>) <span class="op">=&gt;</span> <span class="prelude-val">Ok</span>(<span class="kw-2">*</span><span class="ident">v</span>),
-            <span class="kw">_</span> <span class="op">=&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">ResultTypeMissmatch</span>(<span class="string">&quot;real&quot;</span>)),
+            <span class="kw">_</span> <span class="op">=&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">ResultTypeMismatch</span>(<span class="string">&quot;real&quot;</span>)),
         }
     }
 
@@ -365,7 +365,7 @@
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">get</span>(<span class="ident">name</span>)<span class="question-mark">?</span> {
             <span class="ident">ParameterizedValue</span>::<span class="ident">Boolean</span>(<span class="ident">v</span>) <span class="op">=&gt;</span> <span class="prelude-val">Ok</span>(<span class="kw-2">*</span><span class="ident">v</span>),
             <span class="ident">ParameterizedValue</span>::<span class="ident">Integer</span>(<span class="ident">v</span>) <span class="op">=&gt;</span> <span class="prelude-val">Ok</span>(<span class="kw-2">*</span><span class="ident">v</span> <span class="op">!=</span> <span class="number">0</span>),
-            <span class="kw">_</span> <span class="op">=&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">ResultTypeMissmatch</span>(<span class="string">&quot;boolean&quot;</span>)),
+            <span class="kw">_</span> <span class="op">=&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">ResultTypeMismatch</span>(<span class="string">&quot;boolean&quot;</span>)),
         }
     }
 }
