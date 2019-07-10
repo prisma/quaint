@@ -181,52 +181,117 @@
 <span id="181">181</span>
 <span id="182">182</span>
 <span id="183">183</span>
+<span id="184">184</span>
+<span id="185">185</span>
+<span id="186">186</span>
+<span id="187">187</span>
+<span id="188">188</span>
+<span id="189">189</span>
+<span id="190">190</span>
+<span id="191">191</span>
+<span id="192">192</span>
+<span id="193">193</span>
+<span id="194">194</span>
+<span id="195">195</span>
+<span id="196">196</span>
+<span id="197">197</span>
+<span id="198">198</span>
+<span id="199">199</span>
+<span id="200">200</span>
+<span id="201">201</span>
+<span id="202">202</span>
+<span id="203">203</span>
+<span id="204">204</span>
+<span id="205">205</span>
+<span id="206">206</span>
+<span id="207">207</span>
+<span id="208">208</span>
+<span id="209">209</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">ast</span>::<span class="ident">ParameterizedValue</span>,
-    <span class="ident">error</span>::<span class="ident">Error</span>,
-    <span class="ident">transaction</span>::{<span class="ident">ColumnNames</span>, <span class="ident">ResultRow</span>},
+    <span class="ident">transaction</span>::{<span class="ident">ColumnNames</span>, <span class="ident">Row</span>},
 };
-<span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">collections</span>::<span class="ident">HashMap</span>, <span class="ident">ops</span>, <span class="ident">rc</span>::<span class="ident">Rc</span>};
+<span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">collections</span>::<span class="ident">HashMap</span>, <span class="ident">ops</span>, <span class="ident">sync</span>::<span class="ident">Arc</span>};
 
 <span class="doccomment">/// Encapsulates a set of results and their respective column names.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ResultSet</span> {
-    <span class="doccomment">/// DO NOT expose these fields.</span>
-    <span class="doccomment">/// ResultSet might become lazy-loading one day,</span>
-    <span class="doccomment">/// no longer backed by a vector.</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">rows</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ResultRow</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">name_to_index</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">usize</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">rows</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Row</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">name_to_index</span>: <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">usize</span><span class="op">&gt;&gt;</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">ResultSet</span> {
     <span class="doccomment">/// Creates a new instance, bound to the given column names and result rows.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">names</span>: <span class="kw-2">&amp;</span><span class="ident">ColumnNames</span>, <span class="ident">values</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ResultRow</span><span class="op">&gt;</span>) <span class="op">-&gt;</span> <span class="ident">ResultSet</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">names</span>: <span class="ident">ColumnNames</span>, <span class="ident">rows</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Row</span><span class="op">&gt;</span>) <span class="op">-&gt;</span> <span class="ident">ResultSet</span> {
         <span class="ident">ResultSet</span> {
-            <span class="ident">name_to_index</span>: <span class="self">Self</span>::<span class="ident">build_name_map</span>(<span class="ident">names</span>),
-            <span class="ident">rows</span>: <span class="ident">values</span>,
+            <span class="ident">name_to_index</span>: <span class="ident">Arc</span>::<span class="ident">new</span>(<span class="self">Self</span>::<span class="ident">build_name_map</span>(<span class="ident">names</span>)),
+            <span class="ident">rows</span>,
         }
+    }
+
+    <span class="doccomment">/// Returns the number of rows in the `ResultSet`.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">len</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">usize</span> {
+        <span class="self">self</span>.<span class="ident">rows</span>.<span class="ident">len</span>()
+    }
+
+    <span class="doccomment">/// Returns true if the `ResultSet` contains no rows.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_empty</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">bool</span> {
+        <span class="self">self</span>.<span class="ident">rows</span>.<span class="ident">is_empty</span>()
+    }
+
+    <span class="doccomment">/// Returns the first row of the `ResultSet`, or None if the set is empty.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">first</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="self">self</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ResultRowRef</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;&gt;</span> {
+        <span class="self">self</span>.<span class="ident">get</span>(<span class="number">0</span>)
+    }
+
+    <span class="doccomment">/// Returns a reference to a row in a given position.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="self">self</span>, <span class="ident">index</span>: <span class="ident">usize</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ResultRowRef</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;&gt;</span> {
+        <span class="self">self</span>.<span class="ident">rows</span>.<span class="ident">get</span>(<span class="ident">index</span>).<span class="ident">map</span>(<span class="op">|</span><span class="ident">row</span><span class="op">|</span> <span class="ident">ResultRowRef</span> {
+            <span class="ident">name_to_index</span>: <span class="ident">Arc</span>::<span class="ident">clone</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">name_to_index</span>),
+            <span class="ident">values</span>: <span class="ident">row</span>,
+        })
     }
 
     <span class="doccomment">/// Creates a lookup map for column names.</span>
-    <span class="kw">fn</span> <span class="ident">build_name_map</span>(<span class="ident">names</span>: <span class="kw-2">&amp;</span><span class="ident">ColumnNames</span>) <span class="op">-&gt;</span> <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">usize</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">mapped</span> <span class="op">=</span> <span class="ident">HashMap</span>::<span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">usize</span><span class="op">&gt;</span>::<span class="ident">new</span>();
-
-        <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">names</span>.<span class="ident">names</span>.<span class="ident">len</span>() {
-            <span class="ident">mapped</span>.<span class="ident">insert</span>(<span class="ident">names</span>.<span class="ident">names</span>[<span class="ident">i</span>].<span class="ident">clone</span>(), <span class="ident">i</span>);
-        }
-
-        <span class="ident">mapped</span>
+    <span class="kw">fn</span> <span class="ident">build_name_map</span>(<span class="ident">names</span>: <span class="ident">ColumnNames</span>) <span class="op">-&gt;</span> <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">usize</span><span class="op">&gt;</span> {
+        <span class="ident">names</span>
+            .<span class="ident">names</span>
+            .<span class="ident">into_iter</span>()
+            .<span class="ident">enumerate</span>()
+            .<span class="ident">fold</span>(<span class="ident">HashMap</span>::<span class="ident">new</span>(), <span class="op">|</span><span class="kw-2">mut</span> <span class="ident">acc</span>, (<span class="ident">i</span>, <span class="ident">name</span>)<span class="op">|</span> {
+                <span class="ident">acc</span>.<span class="ident">insert</span>(<span class="ident">name</span>, <span class="ident">i</span>);
+                <span class="ident">acc</span>
+            })
     }
 }
 
+<span class="doccomment">/// A reference to a `Row` in a `ResultSet`. The columns can be accessed either</span>
+<span class="doccomment">/// through their position in the `Row` or using the column name.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// ```</span>
+<span class="doccomment">/// # use prisma_query::*;</span>
+<span class="doccomment">/// let names = ColumnNames::from(vec![&quot;id&quot;, &quot;name&quot;]);</span>
+<span class="doccomment">/// let rows = vec![Row::from(vec![&quot;1234&quot;, &quot;Musti&quot;])];</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// let result_set = ResultSet::new(names, rows);</span>
+<span class="doccomment">/// let row = result_set.first().unwrap();</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// assert_eq!(row[0], row[&quot;id&quot;]);</span>
+<span class="doccomment">/// assert_eq!(row[1], row[&quot;name&quot;]);</span>
+<span class="doccomment">/// ```</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ResultRowRef</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+    <span class="ident">name_to_index</span>: <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">usize</span><span class="op">&gt;&gt;</span>,
+    <span class="ident">values</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Row</span>,
+}
+
 <span class="kw">impl</span> <span class="ident">IntoIterator</span> <span class="kw">for</span> <span class="ident">ResultSet</span> {
-    <span class="kw">type</span> <span class="ident">Item</span> <span class="op">=</span> <span class="ident">ResultRowWithName</span>;
+    <span class="kw">type</span> <span class="ident">Item</span> <span class="op">=</span> <span class="ident">ResultRow</span>;
     <span class="kw">type</span> <span class="ident">IntoIter</span> <span class="op">=</span> <span class="ident">ResultSetIterator</span>;
 
     <span class="kw">fn</span> <span class="ident">into_iter</span>(<span class="self">self</span>) <span class="op">-&gt;</span> <span class="self">Self</span>::<span class="ident">IntoIter</span> {
         <span class="ident">ResultSetIterator</span> {
-            <span class="ident">name_to_index</span>: <span class="ident">Rc</span>::<span class="ident">new</span>(<span class="self">self</span>.<span class="ident">name_to_index</span>),
+            <span class="ident">name_to_index</span>: <span class="self">self</span>.<span class="ident">name_to_index</span>,
             <span class="ident">internal_iterator</span>: <span class="self">self</span>.<span class="ident">rows</span>.<span class="ident">into_iter</span>(),
         }
     }
@@ -235,17 +300,17 @@
 <span class="doccomment">/// Thin iterator for ResultSet rows.</span>
 <span class="doccomment">/// Might become lazy one day.</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ResultSetIterator</span> {
-    <span class="ident">name_to_index</span>: <span class="ident">Rc</span><span class="op">&lt;</span><span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">usize</span><span class="op">&gt;&gt;</span>,
-    <span class="ident">internal_iterator</span>: <span class="ident">std</span>::<span class="ident">vec</span>::<span class="ident">IntoIter</span><span class="op">&lt;</span><span class="ident">ResultRow</span><span class="op">&gt;</span>,
+    <span class="ident">name_to_index</span>: <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">usize</span><span class="op">&gt;&gt;</span>,
+    <span class="ident">internal_iterator</span>: <span class="ident">std</span>::<span class="ident">vec</span>::<span class="ident">IntoIter</span><span class="op">&lt;</span><span class="ident">Row</span><span class="op">&gt;</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">Iterator</span> <span class="kw">for</span> <span class="ident">ResultSetIterator</span> {
-    <span class="kw">type</span> <span class="ident">Item</span> <span class="op">=</span> <span class="ident">ResultRowWithName</span>;
+    <span class="kw">type</span> <span class="ident">Item</span> <span class="op">=</span> <span class="ident">ResultRow</span>;
 
     <span class="kw">fn</span> <span class="ident">next</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span>::<span class="ident">Item</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">internal_iterator</span>.<span class="ident">next</span>() {
-            <span class="prelude-val">Some</span>(<span class="ident">row</span>) <span class="op">=&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">ResultRowWithName</span> {
-                <span class="ident">name_to_index</span>: <span class="ident">Rc</span>::<span class="ident">clone</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">name_to_index</span>),
+            <span class="prelude-val">Some</span>(<span class="ident">row</span>) <span class="op">=&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">ResultRow</span> {
+                <span class="ident">name_to_index</span>: <span class="ident">Arc</span>::<span class="ident">clone</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">name_to_index</span>),
                 <span class="ident">values</span>: <span class="ident">row</span>,
             }),
             <span class="prelude-val">None</span> <span class="op">=&gt;</span> <span class="prelude-val">None</span>,
@@ -253,115 +318,102 @@
     }
 }
 
-<span class="doccomment">/// Wraps a result row, so it&#39;s columns can be accessed</span>
-<span class="doccomment">/// by name.</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ResultRowWithName</span> {
-    <span class="ident">name_to_index</span>: <span class="ident">Rc</span><span class="op">&lt;</span><span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">usize</span><span class="op">&gt;&gt;</span>,
-    <span class="ident">values</span>: <span class="ident">ResultRow</span>,
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ResultRow</span> {
+    <span class="ident">name_to_index</span>: <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">usize</span><span class="op">&gt;&gt;</span>,
+    <span class="ident">values</span>: <span class="ident">Row</span>,
 }
 
-<span class="kw">impl</span> <span class="ident">ops</span>::<span class="ident">Index</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ResultRowWithName</span> {
+<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">ValueIndex</span><span class="op">&lt;</span><span class="ident">RowType</span><span class="op">&gt;</span>: <span class="ident">private</span>::<span class="ident">Sealed</span> {
+    <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
+    <span class="kw">fn</span> <span class="ident">index_into</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">row</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">RowType</span>) <span class="op">-&gt;</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">ParameterizedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span><span class="op">&gt;</span>;
+}
+
+<span class="comment">// Prevent users from implementing the ValueIndex trait.</span>
+<span class="kw">mod</span> <span class="ident">private</span> {
+    <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Sealed</span> {}
+    <span class="kw">impl</span> <span class="ident">Sealed</span> <span class="kw">for</span> <span class="ident">usize</span> {}
+    <span class="kw">impl</span> <span class="ident">Sealed</span> <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="ident">str</span> {}
+}
+
+<span class="kw">impl</span> <span class="ident">ValueIndex</span><span class="op">&lt;</span><span class="ident">ResultRowRef</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;&gt;</span> <span class="kw">for</span> <span class="ident">usize</span> {
+    <span class="kw">fn</span> <span class="ident">index_into</span><span class="op">&lt;</span><span class="lifetime">&#39;v</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">row</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;v</span> <span class="ident">ResultRowRef</span>) <span class="op">-&gt;</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;v</span> <span class="ident">ParameterizedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span><span class="op">&gt;</span> {
+        <span class="ident">row</span>.<span class="ident">at</span>(<span class="self">self</span>).<span class="ident">unwrap</span>()
+    }
+}
+
+<span class="kw">impl</span> <span class="ident">ValueIndex</span><span class="op">&lt;</span><span class="ident">ResultRowRef</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;&gt;</span> <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="ident">str</span> {
+    <span class="kw">fn</span> <span class="ident">index_into</span><span class="op">&lt;</span><span class="lifetime">&#39;v</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">row</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;v</span> <span class="ident">ResultRowRef</span>) <span class="op">-&gt;</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;v</span> <span class="ident">ParameterizedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span><span class="op">&gt;</span> {
+        <span class="ident">row</span>.<span class="ident">get</span>(<span class="self">self</span>).<span class="ident">unwrap</span>()
+    }
+}
+
+<span class="kw">impl</span> <span class="ident">ValueIndex</span><span class="op">&lt;</span><span class="ident">ResultRow</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">usize</span> {
+    <span class="kw">fn</span> <span class="ident">index_into</span><span class="op">&lt;</span><span class="lifetime">&#39;v</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">row</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;v</span> <span class="ident">ResultRow</span>) <span class="op">-&gt;</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;v</span> <span class="ident">ParameterizedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span><span class="op">&gt;</span> {
+        <span class="ident">row</span>.<span class="ident">at</span>(<span class="self">self</span>).<span class="ident">unwrap</span>()
+    }
+}
+
+<span class="kw">impl</span> <span class="ident">ValueIndex</span><span class="op">&lt;</span><span class="ident">ResultRow</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="ident">str</span> {
+    <span class="kw">fn</span> <span class="ident">index_into</span><span class="op">&lt;</span><span class="lifetime">&#39;v</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">row</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;v</span> <span class="ident">ResultRow</span>) <span class="op">-&gt;</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;v</span> <span class="ident">ParameterizedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span><span class="op">&gt;</span> {
+        <span class="ident">row</span>.<span class="ident">get</span>(<span class="self">self</span>).<span class="ident">unwrap</span>()
+    }
+}
+
+<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">I</span>: <span class="ident">ValueIndex</span><span class="op">&lt;</span><span class="ident">ResultRowRef</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;static</span><span class="op">&gt;</span> <span class="ident">ops</span>::<span class="ident">Index</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ResultRowRef</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="ident">ParameterizedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span><span class="op">&gt;</span>;
 
-    <span class="kw">fn</span> <span class="ident">index</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">index</span>: <span class="ident">usize</span>) <span class="op">-&gt;</span> <span class="kw-2">&amp;</span><span class="ident">ParameterizedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span><span class="op">&gt;</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">values</span>.<span class="ident">values</span>[<span class="ident">index</span>]
+    <span class="kw">fn</span> <span class="ident">index</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">index</span>: <span class="ident">I</span>) <span class="op">-&gt;</span> <span class="kw-2">&amp;</span><span class="ident">ParameterizedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span><span class="op">&gt;</span> {
+        <span class="ident">index</span>.<span class="ident">index_into</span>(<span class="self">self</span>)
     }
 }
 
-<span class="kw">impl</span> <span class="ident">ResultRowWithName</span> {
-    <span class="comment">// TODO: If the API is fixed, reduce internal duplication by moving</span>
-    <span class="comment">// getters for specific types to ParameterizedValue</span>
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">I</span>: <span class="ident">ValueIndex</span><span class="op">&lt;</span><span class="ident">ResultRow</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;static</span><span class="op">&gt;</span> <span class="ident">ops</span>::<span class="ident">Index</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ResultRow</span> {
+    <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="ident">ParameterizedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span><span class="op">&gt;</span>;
 
-    <span class="comment">// Index Getters</span>
+    <span class="kw">fn</span> <span class="ident">index</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">index</span>: <span class="ident">I</span>) <span class="op">-&gt;</span> <span class="kw-2">&amp;</span><span class="ident">ParameterizedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span><span class="op">&gt;</span> {
+        <span class="ident">index</span>.<span class="ident">index_into</span>(<span class="self">self</span>)
+    }
+}
 
-    <span class="doccomment">/// Gets a value by index.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">at</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">i</span>: <span class="ident">usize</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">ParameterizedValue</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
+<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">ResultRowRef</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">at</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">i</span>: <span class="ident">usize</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">ParameterizedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span><span class="op">&gt;&gt;</span> {
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">values</span>.<span class="ident">values</span>.<span class="ident">len</span>() <span class="op">&lt;=</span> <span class="ident">i</span> {
-            <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">ResultIndexOutOfBounds</span>(<span class="ident">i</span>))
+            <span class="prelude-val">None</span>
         } <span class="kw">else</span> {
-            <span class="prelude-val">Ok</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">values</span>.<span class="ident">values</span>[<span class="ident">i</span>])
+            <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">values</span>.<span class="ident">values</span>[<span class="ident">i</span>])
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">at_as_str</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">i</span>: <span class="ident">usize</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">at</span>(<span class="ident">i</span>)<span class="question-mark">?</span> {
-            <span class="ident">ParameterizedValue</span>::<span class="ident">Text</span>(<span class="ident">s</span>) <span class="op">=&gt;</span> <span class="prelude-val">Ok</span>(<span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">s</span>),
-            <span class="kw">_</span> <span class="op">=&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">ResultTypeMismatch</span>(<span class="string">&quot;string&quot;</span>)),
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">ParameterizedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span><span class="op">&gt;&gt;</span> {
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">idx</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">name_to_index</span>.<span class="ident">get</span>(<span class="ident">name</span>) {
+            <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">values</span>.<span class="ident">values</span>[<span class="kw-2">*</span><span class="ident">idx</span>])
+        } <span class="kw">else</span> {
+            <span class="prelude-val">None</span>
+        }
+    }
+}
+
+<span class="kw">impl</span> <span class="ident">ResultRow</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">at</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">i</span>: <span class="ident">usize</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">ParameterizedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span><span class="op">&gt;&gt;</span> {
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">values</span>.<span class="ident">values</span>.<span class="ident">len</span>() <span class="op">&lt;=</span> <span class="ident">i</span> {
+            <span class="prelude-val">None</span>
+        } <span class="kw">else</span> {
+            <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">values</span>.<span class="ident">values</span>[<span class="ident">i</span>])
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">at_as_string</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">i</span>: <span class="ident">usize</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">at</span>(<span class="ident">i</span>)<span class="question-mark">?</span> {
-            <span class="ident">ParameterizedValue</span>::<span class="ident">Text</span>(<span class="ident">s</span>) <span class="op">=&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">s</span>.<span class="ident">clone</span>().<span class="ident">into_owned</span>()),
-            <span class="kw">_</span> <span class="op">=&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">ResultTypeMismatch</span>(<span class="string">&quot;string&quot;</span>)),
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">ParameterizedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span><span class="op">&gt;&gt;</span> {
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">idx</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">name_to_index</span>.<span class="ident">get</span>(<span class="ident">name</span>) {
+            <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">values</span>.<span class="ident">values</span>[<span class="kw-2">*</span><span class="ident">idx</span>])
+        } <span class="kw">else</span> {
+            <span class="prelude-val">None</span>
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">at_as_integer</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">i</span>: <span class="ident">usize</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">i64</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">at</span>(<span class="ident">i</span>)<span class="question-mark">?</span> {
-            <span class="ident">ParameterizedValue</span>::<span class="ident">Integer</span>(<span class="ident">v</span>) <span class="op">=&gt;</span> <span class="prelude-val">Ok</span>(<span class="kw-2">*</span><span class="ident">v</span>),
-            <span class="kw">_</span> <span class="op">=&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">ResultTypeMismatch</span>(<span class="string">&quot;integer&quot;</span>)),
-        }
-    }
-
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">at_as_real</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">i</span>: <span class="ident">usize</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">f64</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">at</span>(<span class="ident">i</span>)<span class="question-mark">?</span> {
-            <span class="ident">ParameterizedValue</span>::<span class="ident">Real</span>(<span class="ident">v</span>) <span class="op">=&gt;</span> <span class="prelude-val">Ok</span>(<span class="kw-2">*</span><span class="ident">v</span>),
-            <span class="kw">_</span> <span class="op">=&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">ResultTypeMismatch</span>(<span class="string">&quot;real&quot;</span>)),
-        }
-    }
-
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">at_as_bool</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">i</span>: <span class="ident">usize</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">bool</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">at</span>(<span class="ident">i</span>)<span class="question-mark">?</span> {
-            <span class="ident">ParameterizedValue</span>::<span class="ident">Boolean</span>(<span class="ident">v</span>) <span class="op">=&gt;</span> <span class="prelude-val">Ok</span>(<span class="kw-2">*</span><span class="ident">v</span>),
-            <span class="ident">ParameterizedValue</span>::<span class="ident">Integer</span>(<span class="ident">v</span>) <span class="op">=&gt;</span> <span class="prelude-val">Ok</span>(<span class="kw-2">*</span><span class="ident">v</span> <span class="op">!=</span> <span class="number">0</span>),
-            <span class="kw">_</span> <span class="op">=&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">ResultTypeMismatch</span>(<span class="string">&quot;boolean&quot;</span>)),
-        }
-    }
-
-    <span class="comment">// Name Getters</span>
-
-    <span class="doccomment">/// Gets a value by column name.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">ParameterizedValue</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">name_to_index</span>.<span class="ident">get</span>(<span class="ident">name</span>) {
-            <span class="prelude-val">None</span> <span class="op">=&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">ColumnNotFound</span>(<span class="ident">String</span>::<span class="ident">from</span>(<span class="ident">name</span>))),
-            <span class="prelude-val">Some</span>(<span class="ident">idx</span>) <span class="op">=&gt;</span> <span class="prelude-val">Ok</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">values</span>.<span class="ident">values</span>[<span class="kw-2">*</span><span class="ident">idx</span>]),
-        }
-    }
-
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_as_str</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">get</span>(<span class="ident">name</span>)<span class="question-mark">?</span> {
-            <span class="ident">ParameterizedValue</span>::<span class="ident">Text</span>(<span class="ident">s</span>) <span class="op">=&gt;</span> <span class="prelude-val">Ok</span>(<span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">s</span>),
-            <span class="kw">_</span> <span class="op">=&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">ResultTypeMismatch</span>(<span class="string">&quot;string&quot;</span>)),
-        }
-    }
-
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_as_string</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">get</span>(<span class="ident">name</span>)<span class="question-mark">?</span> {
-            <span class="ident">ParameterizedValue</span>::<span class="ident">Text</span>(<span class="ident">s</span>) <span class="op">=&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">s</span>.<span class="ident">clone</span>().<span class="ident">into_owned</span>()),
-            <span class="kw">_</span> <span class="op">=&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">ResultTypeMismatch</span>(<span class="string">&quot;string&quot;</span>)),
-        }
-    }
-
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_as_integer</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">i64</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">get</span>(<span class="ident">name</span>)<span class="question-mark">?</span> {
-            <span class="ident">ParameterizedValue</span>::<span class="ident">Integer</span>(<span class="ident">v</span>) <span class="op">=&gt;</span> <span class="prelude-val">Ok</span>(<span class="kw-2">*</span><span class="ident">v</span>),
-            <span class="kw">_</span> <span class="op">=&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">ResultTypeMismatch</span>(<span class="string">&quot;integer&quot;</span>)),
-        }
-    }
-
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_as_real</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">f64</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">get</span>(<span class="ident">name</span>)<span class="question-mark">?</span> {
-            <span class="ident">ParameterizedValue</span>::<span class="ident">Real</span>(<span class="ident">v</span>) <span class="op">=&gt;</span> <span class="prelude-val">Ok</span>(<span class="kw-2">*</span><span class="ident">v</span>),
-            <span class="kw">_</span> <span class="op">=&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">ResultTypeMismatch</span>(<span class="string">&quot;real&quot;</span>)),
-        }
-    }
-
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_as_bool</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">bool</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">get</span>(<span class="ident">name</span>)<span class="question-mark">?</span> {
-            <span class="ident">ParameterizedValue</span>::<span class="ident">Boolean</span>(<span class="ident">v</span>) <span class="op">=&gt;</span> <span class="prelude-val">Ok</span>(<span class="kw-2">*</span><span class="ident">v</span>),
-            <span class="ident">ParameterizedValue</span>::<span class="ident">Integer</span>(<span class="ident">v</span>) <span class="op">=&gt;</span> <span class="prelude-val">Ok</span>(<span class="kw-2">*</span><span class="ident">v</span> <span class="op">!=</span> <span class="number">0</span>),
-            <span class="kw">_</span> <span class="op">=&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">ResultTypeMismatch</span>(<span class="string">&quot;boolean&quot;</span>)),
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">as_ref</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">ResultRowRef</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+        <span class="ident">ResultRowRef</span> {
+            <span class="ident">name_to_index</span>: <span class="ident">Arc</span>::<span class="ident">clone</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">name_to_index</span>),
+            <span class="ident">values</span>: <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">values</span>,
         }
     }
 }

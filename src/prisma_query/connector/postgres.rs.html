@@ -571,18 +571,12 @@
 <span id="571">571</span>
 <span id="572">572</span>
 <span id="573">573</span>
-<span id="574">574</span>
-<span id="575">575</span>
-<span id="576">576</span>
-<span id="577">577</span>
-<span id="578">578</span>
-<span id="579">579</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">ast</span>::{<span class="ident">Id</span>, <span class="ident">ParameterizedValue</span>, <span class="ident">Query</span>},
     <span class="ident">error</span>::<span class="ident">Error</span>,
     <span class="ident">transaction</span>::{
-        <span class="ident">ColumnNames</span>, <span class="ident">Connection</span>, <span class="ident">Connectional</span>, <span class="ident">ResultRow</span>, <span class="ident">ToColumnNames</span>, <span class="ident">ToResultRow</span>, <span class="ident">Transaction</span>,
+        <span class="ident">ColumnNames</span>, <span class="ident">Connection</span>, <span class="ident">Connectional</span>, <span class="ident">Row</span>, <span class="ident">ToColumnNames</span>, <span class="ident">ToRow</span>, <span class="ident">Transaction</span>,
         <span class="ident">Transactional</span>,
     },
     <span class="ident">visitor</span>::{<span class="self">self</span>, <span class="ident">Visitor</span>},
@@ -726,7 +720,7 @@
         <span class="kw">let</span> <span class="ident">stmt</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">prepare</span>(<span class="kw-2">&amp;</span><span class="ident">sql</span>)<span class="question-mark">?</span>;
         <span class="kw">let</span> <span class="ident">rows</span> <span class="op">=</span> <span class="ident">PostgresTransaction</span>::<span class="ident">query</span>(<span class="self">self</span>, <span class="kw-2">&amp;</span><span class="ident">stmt</span>, <span class="kw-2">&amp;</span><span class="ident">conv_params</span>(<span class="ident">params</span>))<span class="question-mark">?</span>;
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">ResultSet</span>::<span class="ident">new</span>(<span class="kw-2">&amp;</span><span class="ident">stmt</span>.<span class="ident">to_column_names</span>(), <span class="ident">Vec</span>::<span class="ident">new</span>());
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">ResultSet</span>::<span class="ident">new</span>(<span class="ident">stmt</span>.<span class="ident">to_column_names</span>(), <span class="ident">Vec</span>::<span class="ident">new</span>());
 
         <span class="kw">for</span> <span class="ident">row</span> <span class="kw">in</span> <span class="ident">rows</span> {
             <span class="ident">result</span>.<span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">row</span>.<span class="ident">to_result_row</span>()<span class="question-mark">?</span>);
@@ -770,7 +764,7 @@
         <span class="kw">let</span> <span class="ident">stmt</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">prepare</span>(<span class="kw-2">&amp;</span><span class="ident">sql</span>)<span class="question-mark">?</span>;
         <span class="kw">let</span> <span class="ident">rows</span> <span class="op">=</span> <span class="ident">PostgresConnection</span>::<span class="ident">query</span>(<span class="self">self</span>, <span class="kw-2">&amp;</span><span class="ident">stmt</span>, <span class="kw-2">&amp;</span><span class="ident">conv_params</span>(<span class="ident">params</span>))<span class="question-mark">?</span>;
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">ResultSet</span>::<span class="ident">new</span>(<span class="kw-2">&amp;</span><span class="ident">stmt</span>.<span class="ident">to_column_names</span>(), <span class="ident">Vec</span>::<span class="ident">new</span>());
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">ResultSet</span>::<span class="ident">new</span>(<span class="ident">stmt</span>.<span class="ident">to_column_names</span>(), <span class="ident">Vec</span>::<span class="ident">new</span>());
 
         <span class="kw">for</span> <span class="ident">row</span> <span class="kw">in</span> <span class="ident">rows</span> {
             <span class="ident">result</span>.<span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">row</span>.<span class="ident">to_result_row</span>()<span class="question-mark">?</span>);
@@ -780,8 +774,8 @@
     }
 }
 
-<span class="kw">impl</span> <span class="ident">ToResultRow</span> <span class="kw">for</span> <span class="ident">PostgresRow</span> {
-    <span class="kw">fn</span> <span class="ident">to_result_row</span><span class="op">&lt;</span><span class="lifetime">&#39;b</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;b</span> <span class="self">self</span>) <span class="op">-&gt;</span> <span class="kw">crate</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ResultRow</span><span class="op">&gt;</span> {
+<span class="kw">impl</span> <span class="ident">ToRow</span> <span class="kw">for</span> <span class="ident">PostgresRow</span> {
+    <span class="kw">fn</span> <span class="ident">to_result_row</span><span class="op">&lt;</span><span class="lifetime">&#39;b</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;b</span> <span class="self">self</span>) <span class="op">-&gt;</span> <span class="kw">crate</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Row</span><span class="op">&gt;</span> {
         <span class="kw">fn</span> <span class="ident">convert</span>(<span class="ident">row</span>: <span class="kw-2">&amp;</span><span class="ident">PostgresRow</span>, <span class="ident">i</span>: <span class="ident">usize</span>) <span class="op">-&gt;</span> <span class="kw">crate</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ParameterizedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span><span class="op">&gt;&gt;</span> {
             <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="kw">match</span> <span class="kw-2">*</span><span class="ident">row</span>.<span class="ident">columns</span>()[<span class="ident">i</span>].<span class="ident">type_</span>() {
                 <span class="ident">PostgresType</span>::<span class="ident">BOOL</span> <span class="op">=&gt;</span> <span class="kw">match</span> <span class="ident">row</span>.<span class="ident">try_get</span>(<span class="ident">i</span>)<span class="question-mark">?</span> {
@@ -970,7 +964,7 @@
             <span class="prelude-val">Ok</span>(<span class="ident">result</span>)
         }
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">row</span> <span class="op">=</span> <span class="ident">ResultRow</span>::<span class="ident">default</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">row</span> <span class="op">=</span> <span class="ident">Row</span>::<span class="ident">default</span>();
 
         <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span>..<span class="self">self</span>.<span class="ident">columns</span>().<span class="ident">len</span>() {
             <span class="ident">row</span>.<span class="ident">values</span>.<span class="ident">push</span>(<span class="ident">convert</span>(<span class="self">self</span>, <span class="ident">i</span>)<span class="question-mark">?</span>);
@@ -1082,7 +1076,7 @@
                 )<span class="question-mark">?</span>;
 
                 <span class="comment">// No results expected.</span>
-                <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">res</span>.<span class="ident">into_iter</span>().<span class="ident">next</span>().<span class="ident">is_none</span>(), <span class="bool-val">true</span>);
+                <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">res</span>.<span class="ident">is_empty</span>());
 
                 <span class="prelude-val">Ok</span>(())
             })
@@ -1101,7 +1095,7 @@
                 )<span class="question-mark">?</span>;
 
                 <span class="comment">// No results expected.</span>
-                <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">res</span>.<span class="ident">into_iter</span>().<span class="ident">next</span>().<span class="ident">is_none</span>(), <span class="bool-val">true</span>);
+                <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">res</span>.<span class="ident">is_empty</span>());
 
                 <span class="prelude-val">Ok</span>(())
             })
@@ -1137,20 +1131,14 @@
                 <span class="ident">connection</span>.<span class="ident">query_raw</span>(<span class="ident">TABLE_DEF</span>, <span class="kw-2">&amp;</span>[]).<span class="ident">unwrap</span>();
                 <span class="ident">connection</span>.<span class="ident">query_raw</span>(<span class="ident">CREATE_USER</span>, <span class="kw-2">&amp;</span>[]).<span class="ident">unwrap</span>();
 
-                <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">connection</span>.<span class="ident">query_raw</span>(<span class="string">&quot;SELECT * FROM \&quot;user\&quot;&quot;</span>, <span class="kw-2">&amp;</span>[]).<span class="ident">unwrap</span>();
+                <span class="kw">let</span> <span class="ident">rows</span> <span class="op">=</span> <span class="ident">connection</span>.<span class="ident">query_raw</span>(<span class="string">&quot;SELECT * FROM \&quot;user\&quot;&quot;</span>, <span class="kw-2">&amp;</span>[]).<span class="ident">unwrap</span>();
+                <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">rows</span>.<span class="ident">len</span>(), <span class="number">1</span>);
 
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">result_count</span>: <span class="ident">u32</span> <span class="op">=</span> <span class="number">0</span>;
-
-                <span class="comment">// Exactly one result expected.</span>
-                <span class="kw">for</span> <span class="ident">row</span> <span class="kw">in</span> <span class="ident">res</span> {
-                    <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">row</span>.<span class="ident">get_as_integer</span>(<span class="string">&quot;id&quot;</span>)<span class="question-mark">?</span>, <span class="number">1</span>);
-                    <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">row</span>.<span class="ident">get_as_string</span>(<span class="string">&quot;name&quot;</span>)<span class="question-mark">?</span>, <span class="string">&quot;Joe&quot;</span>);
-                    <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">row</span>.<span class="ident">get_as_integer</span>(<span class="string">&quot;age&quot;</span>)<span class="question-mark">?</span>, <span class="number">27</span>);
-                    <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">row</span>.<span class="ident">get_as_real</span>(<span class="string">&quot;salary&quot;</span>)<span class="question-mark">?</span>, <span class="number">20000.0</span>);
-                    <span class="ident">result_count</span> <span class="op">=</span> <span class="ident">result_count</span> <span class="op">+</span> <span class="number">1</span>;
-                }
-
-                <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">result_count</span>, <span class="number">1</span>);
+                <span class="kw">let</span> <span class="ident">row</span> <span class="op">=</span> <span class="ident">rows</span>.<span class="ident">get</span>(<span class="number">0</span>).<span class="ident">unwrap</span>();
+                <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">row</span>[<span class="string">&quot;id&quot;</span>].<span class="ident">as_i64</span>(), <span class="prelude-val">Some</span>(<span class="number">1</span>));
+                <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">row</span>[<span class="string">&quot;name&quot;</span>].<span class="ident">as_str</span>(), <span class="prelude-val">Some</span>(<span class="string">&quot;Joe&quot;</span>));
+                <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">row</span>[<span class="string">&quot;age&quot;</span>].<span class="ident">as_i64</span>(), <span class="prelude-val">Some</span>(<span class="number">27</span>));
+                <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">row</span>[<span class="string">&quot;salary&quot;</span>].<span class="ident">as_f64</span>(), <span class="prelude-val">Some</span>(<span class="number">20000.0</span>));
 
                 <span class="prelude-val">Ok</span>(())
             })
