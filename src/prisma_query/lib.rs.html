@@ -102,12 +102,6 @@
 <span id="102">102</span>
 <span id="103">103</span>
 <span id="104">104</span>
-<span id="105">105</span>
-<span id="106">106</span>
-<span id="107">107</span>
-<span id="108">108</span>
-<span id="109">109</span>
-<span id="110">110</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! # prisma-query</span>
 <span class="doccomment">//!</span>
@@ -211,12 +205,6 @@
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">connector</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">error</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">visitor</span>;
-
-<span class="kw">mod</span> <span class="ident">result_set</span>;
-<span class="kw">mod</span> <span class="ident">transaction</span>;
-
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">result_set</span>::<span class="kw-2">*</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">transaction</span>::{<span class="ident">ColumnNames</span>, <span class="ident">Connectional</span>, <span class="ident">Row</span>, <span class="ident">ToRow</span>, <span class="ident">Transaction</span>, <span class="ident">Transactional</span>};
 
 <span class="kw">pub</span> <span class="kw">type</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">std</span>::<span class="ident">result</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">error</span>::<span class="ident">Error</span><span class="op">&gt;</span>;
 </pre></div>
