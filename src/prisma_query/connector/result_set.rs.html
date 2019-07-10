@@ -90,7 +90,6 @@
 <span id="90">90</span>
 <span id="91">91</span>
 <span id="92">92</span>
-<span id="93">93</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">mod</span> <span class="ident">index</span>;
 <span class="kw">mod</span> <span class="ident">result_row</span>;
@@ -98,19 +97,19 @@
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">index</span>::<span class="kw-2">*</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">result_row</span>::<span class="kw-2">*</span>;
 
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">connector</span>::<span class="ident">transaction</span>::{<span class="ident">ColumnNames</span>, <span class="ident">Row</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">ast</span>::<span class="ident">ParameterizedValue</span>;
 <span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">collections</span>::<span class="ident">HashMap</span>, <span class="ident">sync</span>::<span class="ident">Arc</span>};
 
 <span class="doccomment">/// Encapsulates a set of results and their respective column names.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ResultSet</span> {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">rows</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Row</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">rows</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ParameterizedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span><span class="op">&gt;&gt;</span><span class="op">&gt;</span>,
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">name_to_index</span>: <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">usize</span><span class="op">&gt;&gt;</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">ResultSet</span> {
     <span class="doccomment">/// Creates a new instance, bound to the given column names and result rows.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">names</span>: <span class="ident">ColumnNames</span>, <span class="ident">rows</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Row</span><span class="op">&gt;</span>) <span class="op">-&gt;</span> <span class="ident">ResultSet</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">names</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>, <span class="ident">rows</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ParameterizedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span><span class="op">&gt;&gt;</span><span class="op">&gt;</span>) <span class="op">-&gt;</span> <span class="ident">ResultSet</span> {
         <span class="ident">ResultSet</span> {
             <span class="ident">name_to_index</span>: <span class="ident">Arc</span>::<span class="ident">new</span>(<span class="self">Self</span>::<span class="ident">build_name_map</span>(<span class="ident">names</span>)),
             <span class="ident">rows</span>,
@@ -141,9 +140,8 @@
     }
 
     <span class="doccomment">/// Creates a lookup map for column names.</span>
-    <span class="kw">fn</span> <span class="ident">build_name_map</span>(<span class="ident">names</span>: <span class="ident">ColumnNames</span>) <span class="op">-&gt;</span> <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">usize</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">build_name_map</span>(<span class="ident">names</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>) <span class="op">-&gt;</span> <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">usize</span><span class="op">&gt;</span> {
         <span class="ident">names</span>
-            .<span class="ident">names</span>
             .<span class="ident">into_iter</span>()
             .<span class="ident">enumerate</span>()
             .<span class="ident">fold</span>(<span class="ident">HashMap</span>::<span class="ident">new</span>(), <span class="op">|</span><span class="kw-2">mut</span> <span class="ident">acc</span>, (<span class="ident">i</span>, <span class="ident">name</span>)<span class="op">|</span> {
@@ -169,7 +167,7 @@
 <span class="doccomment">/// Might become lazy one day.</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ResultSetIterator</span> {
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">name_to_index</span>: <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">usize</span><span class="op">&gt;&gt;</span>,
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">internal_iterator</span>: <span class="ident">std</span>::<span class="ident">vec</span>::<span class="ident">IntoIter</span><span class="op">&lt;</span><span class="ident">Row</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">internal_iterator</span>: <span class="ident">std</span>::<span class="ident">vec</span>::<span class="ident">IntoIter</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ParameterizedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span><span class="op">&gt;&gt;</span><span class="op">&gt;</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">Iterator</span> <span class="kw">for</span> <span class="ident">ResultSetIterator</span> {

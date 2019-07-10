@@ -424,17 +424,11 @@
 <span id="424">424</span>
 <span id="425">425</span>
 <span id="426">426</span>
-<span id="427">427</span>
-<span id="428">428</span>
-<span id="429">429</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">ast</span>::{<span class="ident">Id</span>, <span class="ident">ParameterizedValue</span>, <span class="ident">Query</span>},
     <span class="ident">connector</span>::{
-        <span class="ident">transaction</span>::{
-            <span class="ident">ColumnNames</span>, <span class="ident">Connection</span>, <span class="ident">Connectional</span>, <span class="ident">Row</span>, <span class="ident">ToColumnNames</span>, <span class="ident">ToRow</span>, <span class="ident">Transaction</span>,
-            <span class="ident">Transactional</span>,
-        },
+        <span class="ident">transaction</span>::{<span class="ident">Connection</span>, <span class="ident">Connectional</span>, <span class="ident">ToColumnNames</span>, <span class="ident">ToRow</span>, <span class="ident">Transaction</span>, <span class="ident">Transactional</span>},
         <span class="ident">ResultSet</span>,
     },
     <span class="ident">error</span>::<span class="ident">Error</span>,
@@ -603,8 +597,8 @@
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">ToRow</span> <span class="kw">for</span> <span class="ident">SqliteRow</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">to_result_row</span><span class="op">&lt;</span><span class="lifetime">&#39;b</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;b</span> <span class="self">self</span>) <span class="op">-&gt;</span> <span class="kw">crate</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Row</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">row</span> <span class="op">=</span> <span class="ident">Row</span>::<span class="ident">default</span>();
+    <span class="kw">fn</span> <span class="ident">to_result_row</span><span class="op">&lt;</span><span class="lifetime">&#39;b</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;b</span> <span class="self">self</span>) <span class="op">-&gt;</span> <span class="kw">crate</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ParameterizedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span><span class="op">&gt;&gt;</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">row</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
 
         <span class="kw">for</span> (<span class="ident">i</span>, <span class="ident">column</span>) <span class="kw">in</span> <span class="self">self</span>.<span class="ident">columns</span>().<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
             <span class="kw">let</span> <span class="ident">pv</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">get_raw</span>(<span class="ident">i</span>) {
@@ -624,7 +618,7 @@
                 <span class="ident">ValueRef</span>::<span class="ident">Blob</span>(<span class="kw">_</span>) <span class="op">=&gt;</span> <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;Blobs not supprted, yet&quot;</span>),
             };
 
-            <span class="ident">row</span>.<span class="ident">values</span>.<span class="ident">push</span>(<span class="ident">pv</span>);
+            <span class="ident">row</span>.<span class="ident">push</span>(<span class="ident">pv</span>);
         }
 
         <span class="prelude-val">Ok</span>(<span class="ident">row</span>)
@@ -632,12 +626,12 @@
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">ToColumnNames</span> <span class="kw">for</span> <span class="ident">SqliteRows</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">to_column_names</span><span class="op">&lt;</span><span class="lifetime">&#39;b</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;b</span> <span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">ColumnNames</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">names</span> <span class="op">=</span> <span class="ident">ColumnNames</span>::<span class="ident">default</span>();
+    <span class="kw">fn</span> <span class="ident">to_column_names</span><span class="op">&lt;</span><span class="lifetime">&#39;b</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;b</span> <span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">names</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
 
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">columns</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">column_names</span>() {
             <span class="kw">for</span> <span class="ident">column</span> <span class="kw">in</span> <span class="ident">columns</span> {
-                <span class="ident">names</span>.<span class="ident">names</span>.<span class="ident">push</span>(<span class="ident">String</span>::<span class="ident">from</span>(<span class="ident">column</span>));
+                <span class="ident">names</span>.<span class="ident">push</span>(<span class="ident">String</span>::<span class="ident">from</span>(<span class="ident">column</span>));
             }
         }
 
