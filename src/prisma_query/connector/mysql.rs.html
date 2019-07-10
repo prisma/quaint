@@ -412,7 +412,7 @@
 <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">unused</span>)]</span> <span class="comment">// We implement a trait on the alias, it is used.</span>
 <span class="kw">type</span> <span class="ident">PooledConnection</span> <span class="op">=</span> <span class="ident">r2d2</span>::<span class="ident">PooledConnection</span><span class="op">&lt;</span><span class="ident">MysqlConnectionManager</span><span class="op">&gt;</span>;
 
-<span class="doccomment">/// The World&#39;s Most Advanced Open Source Relational Database</span>
+<span class="doccomment">/// A connector interface for the MySQL database.</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Mysql</span> {
     <span class="ident">pool</span>: <span class="ident">Pool</span>,
     <span class="kw">pub</span> <span class="ident">db_name</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,

@@ -601,7 +601,7 @@
 
 <span class="kw">type</span> <span class="ident">Pool</span> <span class="op">=</span> <span class="ident">r2d2</span>::<span class="ident">Pool</span><span class="op">&lt;</span><span class="ident">PostgresConnectionManager</span><span class="op">&lt;</span><span class="ident">MakeTlsConnector</span><span class="op">&gt;&gt;</span>;
 
-<span class="doccomment">/// The World&#39;s Most Advanced Open Source Relational Database</span>
+<span class="doccomment">/// A connector interface for the PostgreSQL database.</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PostgreSql</span> {
     <span class="ident">pool</span>: <span class="ident">Pool</span>,
 }
