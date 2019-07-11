@@ -72,7 +72,6 @@
 <span id="72">72</span>
 <span id="73">73</span>
 <span id="74">74</span>
-<span id="75">75</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">super</span>::<span class="ident">ResultSet</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">ast</span>::{<span class="ident">Id</span>, <span class="ident">ParameterizedValue</span>, <span class="ident">Query</span>};
@@ -94,8 +93,7 @@
 
 <span class="doccomment">/// Represents a connection.</span>
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Connection</span> {
-    <span class="doccomment">/// Executes the given query and returns the ID of the last</span>
-    <span class="doccomment">/// inserted row.</span>
+    <span class="doccomment">/// Executes the given query and returns the ID of the last inserted row.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// This is typically used for mutating queries.</span>
     <span class="kw">fn</span> <span class="ident">execute</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">q</span>: <span class="ident">Query</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-&gt;</span> <span class="kw">crate</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Id</span><span class="op">&gt;&gt;</span>;
