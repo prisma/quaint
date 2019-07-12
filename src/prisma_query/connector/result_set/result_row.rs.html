@@ -107,12 +107,12 @@
 <span id="107">107</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">ast</span>::<span class="ident">ParameterizedValue</span>;
-<span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">collections</span>::<span class="ident">HashMap</span>, <span class="ident">sync</span>::<span class="ident">Arc</span>};
+<span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">collections</span>::<span class="ident">BTreeMap</span>, <span class="ident">sync</span>::<span class="ident">Arc</span>};
 
 <span class="doccomment">/// An owned version of a `Row` in a `ResultSet`. See</span>
 <span class="doccomment">/// [ResultRowRef](struct.ResultRowRef.html) for documentation on data access.</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ResultRow</span> {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">name_to_index</span>: <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">usize</span><span class="op">&gt;&gt;</span>,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">name_to_index</span>: <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">usize</span><span class="op">&gt;&gt;</span>,
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">values</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ParameterizedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span><span class="op">&gt;&gt;</span>,
 }
 
@@ -140,7 +140,7 @@
 <span class="doccomment">/// assert_eq!(row[1], row[&quot;name&quot;]);</span>
 <span class="doccomment">/// ```</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ResultRowRef</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">name_to_index</span>: <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">usize</span><span class="op">&gt;&gt;</span>,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">name_to_index</span>: <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">usize</span><span class="op">&gt;&gt;</span>,
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">values</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ParameterizedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span><span class="op">&gt;&gt;</span>,
 }
 
