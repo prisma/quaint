@@ -470,6 +470,14 @@
 <span id="470">470</span>
 <span id="471">471</span>
 <span id="472">472</span>
+<span id="473">473</span>
+<span id="474">474</span>
+<span id="475">475</span>
+<span id="476">476</span>
+<span id="477">477</span>
+<span id="478">478</span>
+<span id="479">479</span>
+<span id="480">480</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">ast</span>::<span class="kw-2">*</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">borrow</span>::{<span class="ident">Borrow</span>, <span class="ident">Cow</span>};
@@ -538,10 +546,18 @@
         }
     }
 
-    <span class="doccomment">/// Returns a &amp;str if the value is a text, otherwise `None`.</span>
+    <span class="doccomment">/// Returns a &amp;str if the value is text, otherwise `None`.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">as_str</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="self">self</span> {
             <span class="ident">ParameterizedValue</span>::<span class="ident">Text</span>(<span class="ident">cow</span>) <span class="op">=&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">cow</span>.<span class="ident">borrow</span>()),
+            <span class="kw">_</span> <span class="op">=&gt;</span> <span class="prelude-val">None</span>,
+        }
+    }
+
+    <span class="doccomment">/// Returns a cloned String if the value is text, otherwise `None`.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_string</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
+        <span class="kw">match</span> <span class="self">self</span> {
+            <span class="ident">ParameterizedValue</span>::<span class="ident">Text</span>(<span class="ident">cow</span>) <span class="op">=&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">cow</span>.<span class="ident">to_string</span>()),
             <span class="kw">_</span> <span class="op">=&gt;</span> <span class="prelude-val">None</span>,
         }
     }
