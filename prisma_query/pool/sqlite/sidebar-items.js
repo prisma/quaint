@@ -1,1 +1,1 @@
-initSidebarItems({});
+initSidebarItems({"struct":[["SqliteConnectionManager","An `r2d2::ManageConnection` for `rusqlite::Connection`s."]]});
