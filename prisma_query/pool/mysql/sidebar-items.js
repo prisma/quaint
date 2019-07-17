@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["MysqlConnectionManager",""],["OptsBuilder","Provides a way to build `Opts`."]]});

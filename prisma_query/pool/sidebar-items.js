@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["PrismaConnectionManager","An `r2d2::ManageConnection` for all of the connectors supported by prisma-query."]]});
+initSidebarItems({"mod":[["mysql",""],["postgres",""],["sqlite",""]],"struct":[["PrismaConnectionManager","An `r2d2::ManageConnection` for all of the connectors supported by prisma-query."]]});

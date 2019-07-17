@@ -39,6 +39,7 @@
 <span id="39">39</span>
 <span id="40">40</span>
 <span id="41">41</span>
+<span id="42">42</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">super</span>::<span class="ident">PrismaConnectionManager</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{
@@ -46,9 +47,10 @@
     <span class="ident">error</span>::<span class="ident">Error</span>,
 };
 <span class="kw">use</span> <span class="ident">failure</span>::{<span class="ident">Compat</span>, <span class="ident">Fail</span>};
-<span class="kw">use</span> <span class="ident">mysql</span>::<span class="ident">OptsBuilder</span>;
 <span class="kw">use</span> <span class="ident">r2d2</span>::<span class="ident">ManageConnection</span>;
-<span class="kw">use</span> <span class="ident">r2d2_mysql</span>::<span class="ident">MysqlConnectionManager</span>;
+
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">mysql</span>::<span class="ident">OptsBuilder</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">r2d2_mysql</span>::<span class="ident">MysqlConnectionManager</span>;
 
 <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">OptsBuilder</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">PrismaConnectionManager</span><span class="op">&lt;</span><span class="ident">MysqlConnectionManager</span><span class="op">&gt;</span> {
     <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">opts</span>: <span class="ident">OptsBuilder</span>) <span class="op">-&gt;</span> <span class="self">Self</span> {
