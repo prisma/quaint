@@ -253,11 +253,31 @@
 <span id="253">253</span>
 <span id="254">254</span>
 <span id="255">255</span>
+<span id="256">256</span>
+<span id="257">257</span>
+<span id="258">258</span>
+<span id="259">259</span>
+<span id="260">260</span>
+<span id="261">261</span>
+<span id="262">262</span>
+<span id="263">263</span>
+<span id="264">264</span>
+<span id="265">265</span>
+<span id="266">266</span>
+<span id="267">267</span>
+<span id="268">268</span>
+<span id="269">269</span>
+<span id="270">270</span>
+<span id="271">271</span>
+<span id="272">272</span>
+<span id="273">273</span>
+<span id="274">274</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">ast</span>::{<span class="ident">Id</span>, <span class="ident">ParameterizedValue</span>},
     <span class="ident">connector</span>::<span class="ident">queryable</span>::{<span class="ident">ToColumnNames</span>, <span class="ident">ToRow</span>},
 };
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;chrono-0_4&quot;</span>)]</span>
 <span class="kw">use</span> <span class="ident">chrono</span>::{<span class="ident">DateTime</span>, <span class="ident">NaiveDateTime</span>, <span class="ident">Utc</span>};
 <span class="kw">use</span> <span class="ident">postgres</span>::{
     <span class="ident">types</span>::{<span class="ident">FromSql</span>, <span class="ident">ToSql</span>, <span class="ident">Type</span> <span class="kw">as</span> <span class="ident">PostgresType</span>},
@@ -265,12 +285,31 @@
 };
 <span class="kw">use</span> <span class="ident">rust_decimal</span>::<span class="ident">Decimal</span>;
 <span class="kw">use</span> <span class="ident">tokio_postgres</span>::<span class="ident">Row</span> <span class="kw">as</span> <span class="ident">PostgresRow</span>;
+
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;uuid-0_7&quot;</span>)]</span>
 <span class="kw">use</span> <span class="ident">uuid</span>::<span class="ident">Uuid</span>;
 
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">conv_params</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(
     <span class="ident">params</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">ParameterizedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>],
 ) <span class="op">-&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">tokio_postgres</span>::<span class="ident">types</span>::<span class="ident">ToSql</span><span class="op">&gt;</span> {
     <span class="ident">params</span>.<span class="ident">into_iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span> <span class="kw">as</span> <span class="kw-2">&amp;</span><span class="ident">ToSql</span>).<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;&gt;</span>()
+}
+
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;uuid-0_7&quot;</span>)]</span>
+<span class="kw">fn</span> <span class="ident">accepts</span>(<span class="ident">ty</span>: <span class="kw-2">&amp;</span><span class="ident">PostgresType</span>) <span class="op">-&gt;</span> <span class="ident">bool</span> {
+    <span class="op">&lt;</span><span class="ident">Uuid</span> <span class="kw">as</span> <span class="ident">FromSql</span><span class="op">&gt;</span>::<span class="ident">accepts</span>(<span class="ident">ty</span>)
+        <span class="op">||</span> <span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span> <span class="kw">as</span> <span class="ident">FromSql</span><span class="op">&gt;</span>::<span class="ident">accepts</span>(<span class="ident">ty</span>)
+        <span class="op">||</span> <span class="op">&lt;</span><span class="ident">i16</span> <span class="kw">as</span> <span class="ident">FromSql</span><span class="op">&gt;</span>::<span class="ident">accepts</span>(<span class="ident">ty</span>)
+        <span class="op">||</span> <span class="op">&lt;</span><span class="ident">i32</span> <span class="kw">as</span> <span class="ident">FromSql</span><span class="op">&gt;</span>::<span class="ident">accepts</span>(<span class="ident">ty</span>)
+        <span class="op">||</span> <span class="op">&lt;</span><span class="ident">i64</span> <span class="kw">as</span> <span class="ident">FromSql</span><span class="op">&gt;</span>::<span class="ident">accepts</span>(<span class="ident">ty</span>)
+}
+
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;uuid-0_7&quot;</span>))]</span>
+<span class="kw">fn</span> <span class="ident">accepts</span>(<span class="ident">ty</span>: <span class="kw-2">&amp;</span><span class="ident">PostgresType</span>) <span class="op">-&gt;</span> <span class="ident">bool</span> {
+    <span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span> <span class="kw">as</span> <span class="ident">FromSql</span><span class="op">&gt;</span>::<span class="ident">accepts</span>(<span class="ident">ty</span>)
+        <span class="op">||</span> <span class="op">&lt;</span><span class="ident">i16</span> <span class="kw">as</span> <span class="ident">FromSql</span><span class="op">&gt;</span>::<span class="ident">accepts</span>(<span class="ident">ty</span>)
+        <span class="op">||</span> <span class="op">&lt;</span><span class="ident">i32</span> <span class="kw">as</span> <span class="ident">FromSql</span><span class="op">&gt;</span>::<span class="ident">accepts</span>(<span class="ident">ty</span>)
+        <span class="op">||</span> <span class="op">&lt;</span><span class="ident">i64</span> <span class="kw">as</span> <span class="ident">FromSql</span><span class="op">&gt;</span>::<span class="ident">accepts</span>(<span class="ident">ty</span>)
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">FromSql</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Id</span> {
@@ -282,6 +321,7 @@
             <span class="ident">PostgresType</span>::<span class="ident">INT2</span> <span class="op">=&gt;</span> <span class="ident">Id</span>::<span class="ident">Int</span>(<span class="ident">i16</span>::<span class="ident">from_sql</span>(<span class="ident">ty</span>, <span class="ident">raw</span>)<span class="question-mark">?</span> <span class="kw">as</span> <span class="ident">usize</span>),
             <span class="ident">PostgresType</span>::<span class="ident">INT4</span> <span class="op">=&gt;</span> <span class="ident">Id</span>::<span class="ident">Int</span>(<span class="ident">i32</span>::<span class="ident">from_sql</span>(<span class="ident">ty</span>, <span class="ident">raw</span>)<span class="question-mark">?</span> <span class="kw">as</span> <span class="ident">usize</span>),
             <span class="ident">PostgresType</span>::<span class="ident">INT8</span> <span class="op">=&gt;</span> <span class="ident">Id</span>::<span class="ident">Int</span>(<span class="ident">i64</span>::<span class="ident">from_sql</span>(<span class="ident">ty</span>, <span class="ident">raw</span>)<span class="question-mark">?</span> <span class="kw">as</span> <span class="ident">usize</span>),
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;uuid-0_7&quot;</span>)]</span>
             <span class="ident">PostgresType</span>::<span class="ident">UUID</span> <span class="op">=&gt;</span> <span class="ident">Id</span>::<span class="ident">UUID</span>(<span class="ident">Uuid</span>::<span class="ident">from_sql</span>(<span class="ident">ty</span>, <span class="ident">raw</span>)<span class="question-mark">?</span>),
             <span class="kw">_</span> <span class="op">=&gt;</span> <span class="ident">Id</span>::<span class="ident">String</span>(<span class="ident">String</span>::<span class="ident">from_sql</span>(<span class="ident">ty</span>, <span class="ident">raw</span>)<span class="question-mark">?</span>.<span class="ident">into</span>()),
         };
@@ -290,11 +330,7 @@
     }
 
     <span class="kw">fn</span> <span class="ident">accepts</span>(<span class="ident">ty</span>: <span class="kw-2">&amp;</span><span class="ident">PostgresType</span>) <span class="op">-&gt;</span> <span class="ident">bool</span> {
-        <span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span> <span class="kw">as</span> <span class="ident">FromSql</span><span class="op">&gt;</span>::<span class="ident">accepts</span>(<span class="ident">ty</span>)
-            <span class="op">||</span> <span class="op">&lt;</span><span class="ident">Uuid</span> <span class="kw">as</span> <span class="ident">FromSql</span><span class="op">&gt;</span>::<span class="ident">accepts</span>(<span class="ident">ty</span>)
-            <span class="op">||</span> <span class="op">&lt;</span><span class="ident">i16</span> <span class="kw">as</span> <span class="ident">FromSql</span><span class="op">&gt;</span>::<span class="ident">accepts</span>(<span class="ident">ty</span>)
-            <span class="op">||</span> <span class="op">&lt;</span><span class="ident">i32</span> <span class="kw">as</span> <span class="ident">FromSql</span><span class="op">&gt;</span>::<span class="ident">accepts</span>(<span class="ident">ty</span>)
-            <span class="op">||</span> <span class="op">&lt;</span><span class="ident">i64</span> <span class="kw">as</span> <span class="ident">FromSql</span><span class="op">&gt;</span>::<span class="ident">accepts</span>(<span class="ident">ty</span>)
+        <span class="ident">accepts</span>(<span class="ident">ty</span>)
     }
 }
 
@@ -349,6 +385,7 @@
                     }
                     <span class="prelude-val">None</span> <span class="op">=&gt;</span> <span class="ident">ParameterizedValue</span>::<span class="ident">Null</span>,
                 },
+                <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;chrono-0_4&quot;</span>)]</span>
                 <span class="ident">PostgresType</span>::<span class="ident">TIMESTAMP</span> <span class="op">=&gt;</span> <span class="kw">match</span> <span class="ident">row</span>.<span class="ident">try_get</span>(<span class="ident">i</span>)<span class="question-mark">?</span> {
                     <span class="prelude-val">Some</span>(<span class="ident">val</span>) <span class="op">=&gt;</span> {
                         <span class="kw">let</span> <span class="ident">ts</span>: <span class="ident">NaiveDateTime</span> <span class="op">=</span> <span class="ident">val</span>;
@@ -357,6 +394,7 @@
                     }
                     <span class="prelude-val">None</span> <span class="op">=&gt;</span> <span class="ident">ParameterizedValue</span>::<span class="ident">Null</span>,
                 },
+                <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;uuid-0_7&quot;</span>)]</span>
                 <span class="ident">PostgresType</span>::<span class="ident">UUID</span> <span class="op">=&gt;</span> <span class="kw">match</span> <span class="ident">row</span>.<span class="ident">try_get</span>(<span class="ident">i</span>)<span class="question-mark">?</span> {
                     <span class="prelude-val">Some</span>(<span class="ident">val</span>) <span class="op">=&gt;</span> {
                         <span class="kw">let</span> <span class="ident">val</span>: <span class="ident">Uuid</span> <span class="op">=</span> <span class="ident">val</span>;
@@ -436,7 +474,7 @@
                     }
                     <span class="prelude-val">None</span> <span class="op">=&gt;</span> <span class="ident">ParameterizedValue</span>::<span class="ident">Null</span>,
                 },
-                <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;array&quot;</span>)]</span>
+                <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;array&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;chrono-0_4&quot;</span>))]</span>
                 <span class="ident">PostgresType</span>::<span class="ident">TIMESTAMP_ARRAY</span> <span class="op">=&gt;</span> <span class="kw">match</span> <span class="ident">row</span>.<span class="ident">try_get</span>(<span class="ident">i</span>)<span class="question-mark">?</span> {
                     <span class="prelude-val">Some</span>(<span class="ident">val</span>) <span class="op">=&gt;</span> {
                         <span class="kw">let</span> <span class="ident">val</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">NaiveDateTime</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">val</span>;
