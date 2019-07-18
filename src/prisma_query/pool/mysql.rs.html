@@ -43,7 +43,7 @@
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">super</span>::<span class="ident">PrismaConnectionManager</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">connector</span>::{<span class="ident">mysql</span>::<span class="ident">ConnectionLike</span>, <span class="ident">Mysql</span>, <span class="ident">Queryable</span>},
+    <span class="ident">connector</span>::{<span class="ident">Mysql</span>, <span class="ident">Queryable</span>},
     <span class="ident">error</span>::<span class="ident">Error</span>,
 };
 <span class="kw">use</span> <span class="ident">failure</span>::{<span class="ident">Compat</span>, <span class="ident">Fail</span>};
@@ -62,12 +62,12 @@
 }
 
 <span class="kw">impl</span> <span class="ident">ManageConnection</span> <span class="kw">for</span> <span class="ident">PrismaConnectionManager</span><span class="op">&lt;</span><span class="ident">MysqlConnectionManager</span><span class="op">&gt;</span> {
-    <span class="kw">type</span> <span class="ident">Connection</span> <span class="op">=</span> <span class="ident">ConnectionLike</span><span class="op">&lt;</span><span class="ident">Mysql</span><span class="op">&gt;</span>;
+    <span class="kw">type</span> <span class="ident">Connection</span> <span class="op">=</span> <span class="ident">Mysql</span>;
     <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">Compat</span><span class="op">&lt;</span><span class="ident">Error</span><span class="op">&gt;</span>;
 
     <span class="kw">fn</span> <span class="ident">connect</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>::<span class="ident">Connection</span>, <span class="self">Self</span>::<span class="ident">Error</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">connect</span>() {
-            <span class="prelude-val">Ok</span>(<span class="ident">client</span>) <span class="op">=&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">ConnectionLike</span>::<span class="ident">from</span>(<span class="ident">Mysql</span>::<span class="ident">from</span>(<span class="ident">client</span>))),
+            <span class="prelude-val">Ok</span>(<span class="ident">client</span>) <span class="op">=&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">Mysql</span>::<span class="ident">from</span>(<span class="ident">client</span>)),
             <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">from</span>(<span class="ident">e</span>).<span class="ident">compat</span>()),
         }
     }
