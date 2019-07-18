@@ -78,8 +78,6 @@
 <span id="78">78</span>
 <span id="79">79</span>
 <span id="80">80</span>
-<span id="81">81</span>
-<span id="82">82</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">super</span>::{<span class="ident">ResultSet</span>, <span class="ident">Transaction</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">ast</span>::<span class="kw-2">*</span>;
@@ -94,8 +92,6 @@
 
 <span class="doccomment">/// Represents a connection.</span>
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Queryable</span>
-<span class="kw">where</span>
-    <span class="self">Self</span>: <span class="ident">Sized</span>,
 {
     <span class="doccomment">/// Executes the given query and returns the ID of the last inserted row.</span>
     <span class="doccomment">///</span>
@@ -143,7 +139,7 @@
     }
 
     <span class="doccomment">/// Starts a new transaction</span>
-    <span class="kw">fn</span> <span class="ident">start_transaction</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-&gt;</span> <span class="kw">crate</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Transaction</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="self">Self</span><span class="op">&gt;&gt;</span>;
+    <span class="kw">fn</span> <span class="ident">start_transaction</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-&gt;</span> <span class="kw">crate</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Transaction</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;&gt;</span>;
 
     <span class="doccomment">/// Runs a command in the database, for queries that can&#39;t be run using</span>
     <span class="doccomment">/// prepared statements.</span>
