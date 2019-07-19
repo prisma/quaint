@@ -23,7 +23,25 @@
 <span id="23">23</span>
 <span id="24">24</span>
 <span id="25">25</span>
+<span id="26">26</span>
+<span id="27">27</span>
+<span id="28">28</span>
+<span id="29">29</span>
+<span id="30">30</span>
+<span id="31">31</span>
+<span id="32">32</span>
+<span id="33">33</span>
+<span id="34">34</span>
 </pre><div class="example-wrap"><pre class="rust ">
+<span class="doccomment">//! A set of abstractions for database connections.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! Provides traits for database querying and executing, and for spawning</span>
+<span class="doccomment">//! transactions.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! Connectors for [MySQL](struct.Mysql.html),</span>
+<span class="doccomment">//! [PostgreSQL](struct.PostgreSql.html) and [SQLite](struct.Sqlite.html) connect</span>
+<span class="doccomment">//! to the corresponding databases and implement the</span>
+<span class="doccomment">//! [Queryable](trait.Queryable.html) trait for generalized querying interface.</span>
 <span class="kw">mod</span> <span class="ident">queryable</span>;
 <span class="kw">mod</span> <span class="ident">result_set</span>;
 <span class="kw">mod</span> <span class="ident">transaction</span>;

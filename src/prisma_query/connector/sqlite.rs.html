@@ -179,6 +179,7 @@
 <span id="179">179</span>
 <span id="180">180</span>
 <span id="181">181</span>
+<span id="182">182</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">mod</span> <span class="ident">conversion</span>;
 <span class="kw">mod</span> <span class="ident">error</span>;
@@ -192,6 +193,7 @@
 <span class="kw">use</span> <span class="ident">rusqlite</span>::<span class="ident">NO_PARAMS</span>;
 <span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">collections</span>::<span class="ident">HashSet</span>, <span class="ident">convert</span>::<span class="ident">TryFrom</span>, <span class="ident">path</span>::<span class="ident">PathBuf</span>};
 
+<span class="doccomment">/// A connector interface for the SQLite database</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Sqlite</span> {
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">client</span>: <span class="ident">rusqlite</span>::<span class="ident">Connection</span>,
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">file_path</span>: <span class="ident">PathBuf</span>,

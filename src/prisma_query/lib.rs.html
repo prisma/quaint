@@ -109,15 +109,6 @@
 <span id="109">109</span>
 <span id="110">110</span>
 <span id="111">111</span>
-<span id="112">112</span>
-<span id="113">113</span>
-<span id="114">114</span>
-<span id="115">115</span>
-<span id="116">116</span>
-<span id="117">117</span>
-<span id="118">118</span>
-<span id="119">119</span>
-<span id="120">120</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! # prisma-query</span>
 <span class="doccomment">//!</span>
@@ -139,20 +130,26 @@
 <span class="doccomment">//!</span>
 <span class="doccomment">//! - Database-level type-safety in query building or being an ORM.</span>
 <span class="doccomment">//!</span>
-<span class="doccomment">//! ## Database priorities</span>
+<span class="doccomment">//! ## Databases</span>
 <span class="doccomment">//!</span>
-<span class="doccomment">//! - SQLite will be the first visitor</span>
+<span class="doccomment">//! - SQLite</span>
 <span class="doccomment">//! - PostgreSQL</span>
 <span class="doccomment">//! - MySQL</span>
 <span class="doccomment">//!</span>
-<span class="doccomment">//! More databases will be decided later.</span>
-<span class="doccomment">//!</span>
 <span class="doccomment">//! ## Examples</span>
 <span class="doccomment">//!</span>
-<span class="doccomment">//! ### Chaining conditions</span>
+<span class="doccomment">//! ### Building an SQL query string</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! The crate can be used as an SQL string builder using the [ast](ast/index.html) and</span>
+<span class="doccomment">//! [visitor](visitor/index.html) modules.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! AST is generic for all databases and the visitors generate correct SQL</span>
+<span class="doccomment">//! syntax for the database.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! The visitor returns the query as a string and its parameters as a vector.</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! ```</span>
-<span class="doccomment">//! use prisma_query::{ast::*, visitor::*};</span>
+<span class="doccomment">//! use prisma_query::{ast::*, visitor::{Sqlite, Visitor}};</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! fn main() {</span>
 <span class="doccomment">//!     let conditions = &quot;word&quot;</span>
@@ -179,44 +176,29 @@
 <span class="doccomment">//! }</span>
 <span class="doccomment">//! ```</span>
 <span class="doccomment">//!</span>
-<span class="doccomment">//! We can chain the conditions together by calling the corresponding conjuctive</span>
-<span class="doccomment">//! with the compares. The parameters returned implement the corresponding output</span>
-<span class="doccomment">//! trait from the database adapter for easy passing into a prepared statement,</span>
-<span class="doccomment">//! in this case [rusqlite](https://github.com/jgallagher/rusqlite).</span>
+<span class="doccomment">//! ### Querying a database with an AST object</span>
 <span class="doccomment">//!</span>
-<span class="doccomment">//! ### Building the conditions as a tree</span>
+<span class="doccomment">//! The [connector](connector/index.html) module abstracts a generic query interface over</span>
+<span class="doccomment">//! different databases. It offers querying with the [ast](ast/index.html) module or</span>
+<span class="doccomment">//! directly using raw strings.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! When querying with an ast object the queries are paremeterized</span>
+<span class="doccomment">//! automatically.</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! ```</span>
-<span class="doccomment">//! use prisma_query::{ast::*, visitor::*};</span>
+<span class="doccomment">//! use prisma_query::{ast::*, connector::*};</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! fn main() {</span>
-<span class="doccomment">//!     let conditions = ConditionTree::and(</span>
-<span class="doccomment">//!         ConditionTree::or(&quot;word&quot;.equals(&quot;meow&quot;), &quot;age&quot;.less_than(10)),</span>
-<span class="doccomment">//!         &quot;paw&quot;.equals(&quot;warm&quot;),</span>
-<span class="doccomment">//!     );</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//!     let query = Select::from_table(&quot;naukio&quot;).so_that(conditions);</span>
-<span class="doccomment">//!     let (sql, params) = Sqlite::build(query);</span>
+<span class="doccomment">//!     let mut conn = Sqlite::new(&quot;test.db&quot;).unwrap();</span>
+<span class="doccomment">//!     let query = Select::default().value(1);</span>
+<span class="doccomment">//!     let result = conn.query(query.into()).unwrap();</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//!     assert_eq!(</span>
-<span class="doccomment">//!         &quot;SELECT `naukio`.* FROM `naukio` WHERE ((`word` = ? OR `age` &lt; ?) AND `paw` = ?)&quot;,</span>
-<span class="doccomment">//!         sql,</span>
-<span class="doccomment">//!     );</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//!     assert_eq!(</span>
-<span class="doccomment">//!         vec![</span>
-<span class="doccomment">//!             ParameterizedValue::from(&quot;meow&quot;),</span>
-<span class="doccomment">//!             ParameterizedValue::from(10),</span>
-<span class="doccomment">//!             ParameterizedValue::from(&quot;warm&quot;),</span>
-<span class="doccomment">//!         ],</span>
-<span class="doccomment">//!         params</span>
+<span class="doccomment">//!         Some(1),</span>
+<span class="doccomment">//!         result.into_iter().nth(0).and_then(|row| row[0].as_i64()),</span>
 <span class="doccomment">//!     );</span>
 <span class="doccomment">//! }</span>
 <span class="doccomment">//! ```</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! In cases where more feasible we want to build a `ConditionTree` manually</span>
-<span class="doccomment">//! from the input, e.g. when mapping data using an `Into&lt;ConditionTree&gt;` trait.</span>
-
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">ast</span>;
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(
     <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mysql-16&quot;</span>,

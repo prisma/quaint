@@ -68,7 +68,6 @@
 <span id="68">68</span>
 <span id="69">69</span>
 <span id="70">70</span>
-<span id="71">71</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">super</span>::{<span class="ident">ResultSet</span>, <span class="ident">Transaction</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">ast</span>::<span class="kw-2">*</span>;
@@ -81,16 +80,12 @@
     <span class="kw">fn</span> <span class="ident">to_column_names</span><span class="op">&lt;</span><span class="lifetime">&#39;b</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;b</span> <span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>;
 }
 
-<span class="doccomment">/// Represents a connection.</span>
+<span class="doccomment">/// Represents a connection or a transaction that can be queried.</span>
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Queryable</span> {
     <span class="doccomment">/// Executes the given query and returns the ID of the last inserted row.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This is typically used for mutating queries.</span>
     <span class="kw">fn</span> <span class="ident">execute</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">q</span>: <span class="ident">Query</span>) <span class="op">-&gt;</span> <span class="kw">crate</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Id</span><span class="op">&gt;&gt;</span>;
 
     <span class="doccomment">/// Executes the given query and returns the result set.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This is typically used for select queries.</span>
     <span class="kw">fn</span> <span class="ident">query</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">q</span>: <span class="ident">Query</span>) <span class="op">-&gt;</span> <span class="kw">crate</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ResultSet</span><span class="op">&gt;</span>;
 
     <span class="doccomment">/// Executes a query given as SQL, interpolating the given parameters and</span>
@@ -127,15 +122,18 @@
     <span class="doccomment">/// prepared statements.</span>
     <span class="kw">fn</span> <span class="ident">raw_cmd</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">cmd</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-&gt;</span> <span class="kw">crate</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>;
 
+    <span class="doccomment">/// For inserting data. Returns the ID of the last inserted row.</span>
     <span class="kw">fn</span> <span class="ident">insert</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">q</span>: <span class="ident">Insert</span>) <span class="op">-&gt;</span> <span class="kw">crate</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Id</span><span class="op">&gt;&gt;</span> {
         <span class="self">self</span>.<span class="ident">execute</span>(<span class="ident">q</span>.<span class="ident">into</span>())
     }
 
+    <span class="doccomment">/// For updating data.</span>
     <span class="kw">fn</span> <span class="ident">update</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">q</span>: <span class="ident">Update</span>) <span class="op">-&gt;</span> <span class="kw">crate</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">execute</span>(<span class="ident">q</span>.<span class="ident">into</span>())<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(())
     }
 
+    <span class="doccomment">/// For deleting data.</span>
     <span class="kw">fn</span> <span class="ident">delete</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">q</span>: <span class="ident">Delete</span>) <span class="op">-&gt;</span> <span class="kw">crate</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">execute</span>(<span class="ident">q</span>.<span class="ident">into</span>())<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(())

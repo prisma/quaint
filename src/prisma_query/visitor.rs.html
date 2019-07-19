@@ -547,6 +547,23 @@
 <span id="547">547</span>
 <span id="548">548</span>
 <span id="549">549</span>
+<span id="550">550</span>
+<span id="551">551</span>
+<span id="552">552</span>
+<span id="553">553</span>
+<span id="554">554</span>
+<span id="555">555</span>
+<span id="556">556</span>
+<span id="557">557</span>
+<span id="558">558</span>
+<span id="559">559</span>
+<span id="560">560</span>
+<span id="561">561</span>
+<span id="562">562</span>
+<span id="563">563</span>
+<span id="564">564</span>
+<span id="565">565</span>
+<span id="566">566</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Visitors for reading an abstract SQL syntax tree, generating the query and</span>
 <span class="doccomment">//! gathering parameters in the right order.</span>
@@ -588,6 +605,23 @@
     <span class="doccomment">/// Convert the given `Query` to an SQL string and a vector of parameters.</span>
     <span class="doccomment">/// When certain parameters are replaced with the `C_PARAM` character in the</span>
     <span class="doccomment">/// query, the vector should contain the parameter value in the right position.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// The point of entry for visiting query ASTs.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// ```</span>
+    <span class="doccomment">/// use prisma_query::{ast::*, visitor::*};</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// fn main() {</span>
+    <span class="doccomment">///     let query = Select::from_table(&quot;cats&quot;);</span>
+    <span class="doccomment">///     let (sqlite, _) = Sqlite::build(query.clone());</span>
+    <span class="doccomment">///     let (psql, _) = Postgres::build(query.clone());</span>
+    <span class="doccomment">///     let (mysql, _) = Mysql::build(query.clone());</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">///     assert_eq!(&quot;SELECT `cats`.* FROM `cats`&quot;, sqlite);</span>
+    <span class="doccomment">///     assert_eq!(&quot;SELECT \&quot;cats\&quot;.* FROM \&quot;cats\&quot;&quot;, psql);</span>
+    <span class="doccomment">///     assert_eq!(&quot;SELECT `cats`.* FROM `cats`&quot;, mysql);</span>
+    <span class="doccomment">/// }</span>
+    <span class="doccomment">/// ```</span>
     <span class="kw">fn</span> <span class="ident">build</span><span class="op">&lt;</span><span class="ident">Q</span><span class="op">&gt;</span>(<span class="ident">query</span>: <span class="ident">Q</span>) <span class="op">-&gt;</span> (<span class="ident">String</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ParameterizedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;&gt;</span>)
     <span class="kw">where</span>
         <span class="ident">Q</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Query</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;&gt;</span>;

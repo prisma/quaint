@@ -170,6 +170,10 @@
 <span id="170">170</span>
 <span id="171">171</span>
 <span id="172">172</span>
+<span id="173">173</span>
+<span id="174">174</span>
+<span id="175">175</span>
+<span id="176">176</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">ast</span>::<span class="kw-2">*</span>, <span class="ident">visitor</span>::<span class="ident">Visitor</span>};
 <span class="kw">use</span> <span class="ident">postgres</span>::<span class="ident">types</span>::{<span class="ident">IsNull</span>, <span class="ident">Type</span>};
@@ -177,6 +181,10 @@
 <span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">error</span>::<span class="ident">Error</span>, <span class="ident">str</span>::<span class="ident">FromStr</span>};
 <span class="kw">use</span> <span class="ident">tokio_postgres</span>::<span class="ident">types</span>::<span class="ident">ToSql</span>;
 
+<span class="doccomment">/// A visitor to generate queries for the PostgreSQL database.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// The returned parameter values implement the `ToSql` trait from postgres and</span>
+<span class="doccomment">/// can be used directly with the database.</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Postgres</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="ident">parameters</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ParameterizedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;&gt;</span>,
 }
