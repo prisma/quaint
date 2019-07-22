@@ -187,13 +187,6 @@
 <span id="187">187</span>
 <span id="188">188</span>
 <span id="189">189</span>
-<span id="190">190</span>
-<span id="191">191</span>
-<span id="192">192</span>
-<span id="193">193</span>
-<span id="194">194</span>
-<span id="195">195</span>
-<span id="196">196</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">mod</span> <span class="ident">conversion</span>;
 <span class="kw">mod</span> <span class="ident">error</span>;
@@ -204,7 +197,6 @@
     <span class="ident">visitor</span>::{<span class="self">self</span>, <span class="ident">Visitor</span>},
 };
 <span class="kw">use</span> <span class="ident">native_tls</span>::<span class="ident">TlsConnector</span>;
-<span class="kw">use</span> <span class="ident">postgres</span>::<span class="ident">types</span>::<span class="ident">FromSql</span>;
 <span class="kw">use</span> <span class="ident">tokio_postgres_native_tls</span>::<span class="ident">MakeTlsConnector</span>;
 
 <span class="doccomment">/// A connector interface for the PostgreSQL database.</span>
@@ -239,18 +231,12 @@
             .<span class="ident">client</span>
             .<span class="ident">query</span>(<span class="kw-2">&amp;</span><span class="ident">stmt</span>, <span class="kw-2">&amp;</span><span class="ident">conversion</span>::<span class="ident">conv_params</span>(<span class="kw-2">&amp;</span><span class="ident">params</span>))<span class="question-mark">?</span>;
 
-        <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="ident">rows</span>.<span class="ident">into_iter</span>().<span class="ident">rev</span>().<span class="ident">next</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">row</span><span class="op">|</span> {
-            <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="ident">row</span>.<span class="ident">get</span>(<span class="number">0</span>);
-            <span class="kw">let</span> <span class="ident">tpe</span> <span class="op">=</span> <span class="ident">row</span>.<span class="ident">columns</span>()[<span class="number">0</span>].<span class="ident">type_</span>();
-
-            <span class="ident">Id</span>::<span class="ident">from_sql</span>(<span class="ident">tpe</span>, <span class="ident">id</span>)
+        <span class="kw">let</span> <span class="ident">id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Id</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">rows</span>.<span class="ident">into_iter</span>().<span class="ident">rev</span>().<span class="ident">next</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">row</span><span class="op">|</span> {
+            <span class="kw">let</span> <span class="ident">id</span>: <span class="ident">Id</span> <span class="op">=</span> <span class="ident">row</span>.<span class="ident">get</span>(<span class="number">0</span>);
+            <span class="ident">id</span>
         });
 
-        <span class="kw">match</span> <span class="ident">id</span> {
-            <span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(<span class="ident">id</span>)) <span class="op">=&gt;</span> <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="ident">id</span>)),
-            <span class="prelude-val">Some</span>(<span class="prelude-val">Err</span>(<span class="kw">_</span>)) <span class="op">=&gt;</span> <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;Cannot convert err, todo.&quot;</span>),
-            <span class="prelude-val">None</span> <span class="op">=&gt;</span> <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>),
-        }
+        <span class="prelude-val">Ok</span>(<span class="ident">id</span>)
     }
 
     <span class="kw">fn</span> <span class="ident">query</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">q</span>: <span class="ident">Query</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-&gt;</span> <span class="kw">crate</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ResultSet</span><span class="op">&gt;</span> {
