@@ -52,10 +52,20 @@
 <span id="52">52</span>
 <span id="53">53</span>
 <span id="54">54</span>
+<span id="55">55</span>
+<span id="56">56</span>
+<span id="57">57</span>
+<span id="58">58</span>
+<span id="59">59</span>
+<span id="60">60</span>
+<span id="61">61</span>
+<span id="62">62</span>
+<span id="63">63</span>
+<span id="64">64</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">super</span>::<span class="ident">PrismaConnectionManager</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">connector</span>::{<span class="ident">PostgreSql</span>, <span class="ident">Queryable</span>},
+    <span class="ident">connector</span>::{<span class="ident">PostgreSql</span>, <span class="ident">Queryable</span>, <span class="ident">postgres</span>::<span class="ident">Params</span>},
     <span class="ident">error</span>::<span class="ident">Error</span>,
 };
 <span class="kw">use</span> <span class="ident">failure</span>::{<span class="ident">Compat</span>, <span class="ident">Fail</span>};
@@ -63,6 +73,7 @@
 <span class="kw">use</span> <span class="ident">r2d2</span>::<span class="ident">ManageConnection</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">convert</span>::<span class="ident">TryFrom</span>;
 <span class="kw">use</span> <span class="ident">tokio_postgres_native_tls</span>::<span class="ident">MakeTlsConnector</span>;
+<span class="kw">use</span> <span class="ident">url</span>::<span class="ident">Url</span>;
 
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">postgres</span>::<span class="ident">Config</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">r2d2_postgres</span>::<span class="ident">PostgresConnectionManager</span>;
@@ -82,6 +93,15 @@
             <span class="ident">inner</span>: <span class="ident">PostgresConnectionManager</span>::<span class="ident">new</span>(<span class="ident">opts</span>, <span class="ident">tls</span>),
             <span class="ident">file_path</span>: <span class="prelude-val">None</span>,
         })
+    }
+}
+
+<span class="kw">impl</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="ident">Url</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">PrismaConnectionManager</span><span class="op">&lt;</span><span class="ident">PostgresManager</span><span class="op">&gt;</span> {
+    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">Error</span>;
+
+    <span class="kw">fn</span> <span class="ident">try_from</span>(<span class="ident">url</span>: <span class="ident">Url</span>) <span class="op">-&gt;</span> <span class="kw">crate</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">params</span> <span class="op">=</span> <span class="ident">Params</span>::<span class="ident">try_from</span>(<span class="ident">url</span>)<span class="question-mark">?</span>;
+        <span class="self">Self</span>::<span class="ident">try_from</span>(<span class="ident">params</span>.<span class="ident">config</span>)
     }
 }
 
