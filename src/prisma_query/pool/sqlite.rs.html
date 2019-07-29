@@ -54,6 +54,7 @@
 <span id="54">54</span>
 <span id="55">55</span>
 <span id="56">56</span>
+<span id="57">57</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">super</span>::<span class="ident">PrismaConnectionManager</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{
@@ -77,6 +78,7 @@
             <span class="prelude-val">Ok</span>(<span class="self">Self</span> {
                 <span class="ident">inner</span>: <span class="ident">SqliteConnectionManager</span>::<span class="ident">memory</span>(),
                 <span class="ident">file_path</span>: <span class="prelude-val">Some</span>(<span class="ident">path</span>),
+                <span class="ident">schema</span>: <span class="prelude-val">None</span>,
             })
         }
     }

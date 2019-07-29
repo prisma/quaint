@@ -40,6 +40,7 @@
 <span id="40">40</span>
 <span id="41">41</span>
 <span id="42">42</span>
+<span id="43">43</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">super</span>::<span class="ident">PrismaConnectionManager</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{
@@ -57,6 +58,7 @@
         <span class="self">Self</span> {
             <span class="ident">inner</span>: <span class="ident">MysqlConnectionManager</span>::<span class="ident">new</span>(<span class="ident">opts</span>),
             <span class="ident">file_path</span>: <span class="prelude-val">None</span>,
+            <span class="ident">schema</span>: <span class="prelude-val">None</span>,
         }
     }
 }
