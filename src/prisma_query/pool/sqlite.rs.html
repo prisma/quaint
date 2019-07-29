@@ -68,7 +68,7 @@
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">r2d2_sqlite</span>::<span class="ident">SqliteConnectionManager</span>;
 
 <span class="kw">impl</span> <span class="ident">PrismaConnectionManager</span><span class="op">&lt;</span><span class="ident">SqliteConnectionManager</span><span class="op">&gt;</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">url</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-&gt;</span> <span class="kw">crate</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">sqlite</span>(<span class="ident">url</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-&gt;</span> <span class="kw">crate</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">normalized</span> <span class="op">=</span> <span class="ident">url</span>.<span class="ident">trim_start_matches</span>(<span class="string">&quot;file:&quot;</span>);
         <span class="kw">let</span> <span class="ident">path</span> <span class="op">=</span> <span class="ident">PathBuf</span>::<span class="ident">from</span>(<span class="kw-2">&amp;</span><span class="ident">normalized</span>);
 

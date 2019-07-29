@@ -53,8 +53,8 @@
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">mysql</span>::<span class="ident">OptsBuilder</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">r2d2_mysql</span>::<span class="ident">MysqlConnectionManager</span>;
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">OptsBuilder</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">PrismaConnectionManager</span><span class="op">&lt;</span><span class="ident">MysqlConnectionManager</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">opts</span>: <span class="ident">OptsBuilder</span>) <span class="op">-&gt;</span> <span class="self">Self</span> {
+<span class="kw">impl</span> <span class="ident">PrismaConnectionManager</span><span class="op">&lt;</span><span class="ident">MysqlConnectionManager</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">mysql</span>(<span class="ident">opts</span>: <span class="ident">OptsBuilder</span>) <span class="op">-&gt;</span> <span class="self">Self</span> {
         <span class="self">Self</span> {
             <span class="ident">inner</span>: <span class="ident">MysqlConnectionManager</span>::<span class="ident">new</span>(<span class="ident">opts</span>),
             <span class="ident">file_path</span>: <span class="prelude-val">None</span>,

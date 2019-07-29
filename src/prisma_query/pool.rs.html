@@ -129,7 +129,7 @@
 <span class="doccomment">/// use std::thread;</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// fn main() {</span>
-<span class="doccomment">///     let manager = PrismaConnectionManager::new(&quot;db/test.db&quot;).unwrap();</span>
+<span class="doccomment">///     let manager = PrismaConnectionManager::sqlite(&quot;db/test.db&quot;).unwrap();</span>
 <span class="doccomment">///     let pool = r2d2::Pool::new(manager).unwrap();</span>
 <span class="doccomment">///</span>
 <span class="doccomment">///     for i in 0..10i32 {</span>
@@ -158,7 +158,7 @@
 <span class="doccomment">///     config.host(&quot;localhost&quot;);</span>
 <span class="doccomment">///     config.user(&quot;root&quot;);</span>
 <span class="doccomment">///</span>
-<span class="doccomment">///     let manager = PrismaConnectionManager::try_from(config).unwrap();</span>
+<span class="doccomment">///     let manager = PrismaConnectionManager::postgres(config, None).unwrap();</span>
 <span class="doccomment">///     let pool = r2d2::Pool::new(manager).unwrap();</span>
 <span class="doccomment">///</span>
 <span class="doccomment">///     for i in 0..10i32 {</span>
@@ -187,7 +187,7 @@
 <span class="doccomment">///     opts.ip_or_hostname(Some(&quot;localhost&quot;));</span>
 <span class="doccomment">///     opts.user(Some(&quot;root&quot;));</span>
 <span class="doccomment">///</span>
-<span class="doccomment">///     let manager = PrismaConnectionManager::from(opts);</span>
+<span class="doccomment">///     let manager = PrismaConnectionManager::mysql(opts);</span>
 <span class="doccomment">///     let pool = r2d2::Pool::new(manager).unwrap();</span>
 <span class="doccomment">///</span>
 <span class="doccomment">///     for i in 0..10i32 {</span>
