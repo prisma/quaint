@@ -65,7 +65,7 @@
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">super</span>::<span class="ident">PrismaConnectionManager</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">connector</span>::{<span class="ident">PostgreSql</span>, <span class="ident">Queryable</span>, <span class="ident">postgres</span>::<span class="ident">Params</span>},
+    <span class="ident">connector</span>::{<span class="ident">PostgreSql</span>, <span class="ident">Queryable</span>, <span class="ident">PostgresParams</span>},
     <span class="ident">error</span>::<span class="ident">Error</span>,
 };
 <span class="kw">use</span> <span class="ident">failure</span>::{<span class="ident">Compat</span>, <span class="ident">Fail</span>};
@@ -100,7 +100,7 @@
     <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">Error</span>;
 
     <span class="kw">fn</span> <span class="ident">try_from</span>(<span class="ident">url</span>: <span class="ident">Url</span>) <span class="op">-&gt;</span> <span class="kw">crate</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">params</span> <span class="op">=</span> <span class="ident">Params</span>::<span class="ident">try_from</span>(<span class="ident">url</span>)<span class="question-mark">?</span>;
+        <span class="kw">let</span> <span class="ident">params</span> <span class="op">=</span> <span class="ident">PostgresParams</span>::<span class="ident">try_from</span>(<span class="ident">url</span>)<span class="question-mark">?</span>;
         <span class="self">Self</span>::<span class="ident">try_from</span>(<span class="ident">params</span>.<span class="ident">config</span>)
     }
 }
