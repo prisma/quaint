@@ -329,6 +329,10 @@
 <span id="329">329</span>
 <span id="330">330</span>
 <span id="331">331</span>
+<span id="332">332</span>
+<span id="333">333</span>
+<span id="334">334</span>
+<span id="335">335</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">mod</span> <span class="ident">conversion</span>;
 <span class="kw">mod</span> <span class="ident">error</span>;
@@ -356,6 +360,7 @@
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PostgresParams</span> {
     <span class="kw">pub</span> <span class="ident">connection_limit</span>: <span class="ident">u32</span>,
+    <span class="kw">pub</span> <span class="ident">dbname</span>: <span class="ident">String</span>,
     <span class="kw">pub</span> <span class="ident">schema</span>: <span class="ident">String</span>,
     <span class="kw">pub</span> <span class="ident">config</span>: <span class="ident">postgres</span>::<span class="ident">Config</span>,
 }
@@ -406,14 +411,16 @@
         <span class="ident">config</span>.<span class="ident">host</span>(<span class="ident">url</span>.<span class="ident">host_str</span>().<span class="ident">unwrap_or</span>(<span class="string">&quot;localhost&quot;</span>));
         <span class="ident">config</span>.<span class="ident">port</span>(<span class="ident">url</span>.<span class="ident">port</span>().<span class="ident">unwrap_or</span>(<span class="number">5432</span>));
 
-        <span class="kw">match</span> <span class="ident">url</span>.<span class="ident">path_segments</span>() {
+        <span class="kw">let</span> <span class="ident">dbname</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">url</span>.<span class="ident">path_segments</span>() {
             <span class="prelude-val">Some</span>(<span class="kw-2">mut</span> <span class="ident">segments</span>) <span class="op">=&gt;</span> {
-                <span class="ident">config</span>.<span class="ident">dbname</span>(<span class="ident">segments</span>.<span class="ident">next</span>().<span class="ident">unwrap_or</span>(<span class="string">&quot;postgres&quot;</span>));
+                <span class="ident">segments</span>.<span class="ident">next</span>().<span class="ident">unwrap_or</span>(<span class="string">&quot;postgres&quot;</span>)
             },
             <span class="prelude-val">None</span> <span class="op">=&gt;</span> {
-                <span class="ident">config</span>.<span class="ident">dbname</span>(<span class="string">&quot;postgres&quot;</span>);
+                <span class="string">&quot;postgres&quot;</span>
             },
-        }
+        };
+
+        <span class="ident">config</span>.<span class="ident">dbname</span>(<span class="ident">dbname</span>);
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">connection_limit</span> <span class="op">=</span> <span class="number">1</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">schema</span> <span class="op">=</span> <span class="ident">String</span>::<span class="ident">from</span>(<span class="ident">DEFAULT_SCHEMA</span>);
@@ -446,6 +453,7 @@
             <span class="ident">connection_limit</span>,
             <span class="ident">schema</span>,
             <span class="ident">config</span>,
+            <span class="ident">dbname</span>: <span class="ident">dbname</span>.<span class="ident">to_string</span>(),
         })
     }
 }
