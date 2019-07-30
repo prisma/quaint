@@ -103,8 +103,6 @@
 <span id="103">103</span>
 <span id="104">104</span>
 <span id="105">105</span>
-<span id="106">106</span>
-<span id="107">107</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">super</span>::<span class="ident">PrismaConnectionManager</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{
@@ -114,7 +112,6 @@
 <span class="kw">use</span> <span class="ident">failure</span>::{<span class="ident">Compat</span>, <span class="ident">Fail</span>};
 <span class="kw">use</span> <span class="ident">r2d2</span>::<span class="ident">ManageConnection</span>;
 <span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">convert</span>::<span class="ident">TryFrom</span>, <span class="ident">path</span>::<span class="ident">PathBuf</span>};
-<span class="kw">use</span> <span class="ident">url</span>::<span class="ident">Url</span>;
 
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">r2d2_sqlite</span>::<span class="ident">SqliteConnectionManager</span>;
 
@@ -184,7 +181,6 @@
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
 <span class="kw">mod</span> <span class="ident">tests</span> {
     <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
-    <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">env</span>;
     <span class="kw">use</span> <span class="ident">url</span>::<span class="ident">Url</span>;
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
