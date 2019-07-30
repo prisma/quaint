@@ -333,6 +333,7 @@
 <span id="333">333</span>
 <span id="334">334</span>
 <span id="335">335</span>
+<span id="336">336</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">mod</span> <span class="ident">conversion</span>;
 <span class="kw">mod</span> <span class="ident">error</span>;
@@ -348,7 +349,7 @@
 <span class="kw">use</span> <span class="ident">url</span>::<span class="ident">Url</span>;
 <span class="kw">use</span> <span class="ident">tokio_postgres</span>::<span class="ident">config</span>::<span class="ident">SslMode</span>;
 <span class="kw">use</span> <span class="ident">percent_encoding</span>::<span class="ident">percent_decode</span>;
-<span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">borrow</span>::<span class="ident">Borrow</span>, <span class="ident">convert</span>::<span class="ident">TryFrom</span>};
+<span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">borrow</span>::<span class="ident">Borrow</span>, <span class="ident">convert</span>::<span class="ident">TryFrom</span>, <span class="ident">time</span>::<span class="ident">Duration</span>};
 
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const</span> <span class="ident">DEFAULT_SCHEMA</span>: <span class="kw-2">&amp;</span><span class="ident">str</span> <span class="op">=</span> <span class="string">&quot;public&quot;</span>;
 
@@ -421,6 +422,7 @@
         };
 
         <span class="ident">config</span>.<span class="ident">dbname</span>(<span class="ident">dbname</span>);
+        <span class="ident">config</span>.<span class="ident">connect_timeout</span>(<span class="ident">Duration</span>::<span class="ident">from_millis</span>(<span class="number">5000</span>));
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">connection_limit</span> <span class="op">=</span> <span class="number">1</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">schema</span> <span class="op">=</span> <span class="ident">String</span>::<span class="ident">from</span>(<span class="ident">DEFAULT_SCHEMA</span>);
