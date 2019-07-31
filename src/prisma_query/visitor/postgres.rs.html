@@ -174,6 +174,10 @@
 <span id="174">174</span>
 <span id="175">175</span>
 <span id="176">176</span>
+<span id="177">177</span>
+<span id="178">178</span>
+<span id="179">179</span>
+<span id="180">180</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">ast</span>::<span class="kw-2">*</span>, <span class="ident">visitor</span>::<span class="ident">Visitor</span>};
 <span class="kw">use</span> <span class="ident">postgres</span>::<span class="ident">types</span>::{<span class="ident">IsNull</span>, <span class="ident">Type</span>};
@@ -201,10 +205,14 @@
             <span class="ident">parameters</span>: <span class="ident">Vec</span>::<span class="ident">new</span>(),
         };
 
-        (
+        <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> (
             <span class="ident">Postgres</span>::<span class="ident">visit_query</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">postgres</span>, <span class="ident">query</span>.<span class="ident">into</span>()),
             <span class="ident">postgres</span>.<span class="ident">parameters</span>,
-        )
+        );
+
+        <span class="macro">debug</span><span class="macro">!</span>(<span class="string">&quot;query: \&quot;{}\&quot;, params: [{}]&quot;</span>, <span class="ident">result</span>.<span class="number">0</span>, <span class="ident">Params</span>(<span class="ident">result</span>.<span class="number">1</span>.<span class="ident">as_slice</span>()));
+
+        <span class="ident">result</span>
     }
 
     <span class="kw">fn</span> <span class="ident">add_parameter</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">value</span>: <span class="ident">ParameterizedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) {
