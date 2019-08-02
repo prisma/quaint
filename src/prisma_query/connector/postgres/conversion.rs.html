@@ -272,6 +272,13 @@
 <span id="272">272</span>
 <span id="273">273</span>
 <span id="274">274</span>
+<span id="275">275</span>
+<span id="276">276</span>
+<span id="277">277</span>
+<span id="278">278</span>
+<span id="279">279</span>
+<span id="280">280</span>
+<span id="281">281</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">ast</span>::{<span class="ident">Id</span>, <span class="ident">ParameterizedValue</span>},
@@ -511,6 +518,13 @@
                                 .<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">ParameterizedValue</span>::<span class="ident">Text</span>(<span class="ident">String</span>::<span class="ident">from</span>(<span class="ident">x</span>).<span class="ident">into</span>()))
                                 .<span class="ident">collect</span>(),
                         )
+                    }
+                    <span class="prelude-val">None</span> <span class="op">=&gt;</span> <span class="ident">ParameterizedValue</span>::<span class="ident">Null</span>,
+                },
+                <span class="ident">PostgresType</span>::<span class="ident">OID</span> <span class="op">=&gt;</span> <span class="kw">match</span> <span class="ident">row</span>.<span class="ident">try_get</span>(<span class="ident">i</span>)<span class="question-mark">?</span> {
+                    <span class="prelude-val">Some</span>(<span class="ident">val</span>) <span class="op">=&gt;</span> {
+                        <span class="kw">let</span> <span class="ident">val</span>: <span class="ident">u32</span> <span class="op">=</span> <span class="ident">val</span>;
+                        <span class="ident">ParameterizedValue</span>::<span class="ident">Integer</span>(<span class="ident">val</span> <span class="kw">as</span> <span class="ident">i64</span>)
                     }
                     <span class="prelude-val">None</span> <span class="op">=&gt;</span> <span class="ident">ParameterizedValue</span>::<span class="ident">Null</span>,
                 },
