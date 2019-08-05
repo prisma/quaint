@@ -177,7 +177,6 @@
 <span id="177">177</span>
 <span id="178">178</span>
 <span id="179">179</span>
-<span id="180">180</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">ast</span>::<span class="kw-2">*</span>, <span class="ident">visitor</span>::<span class="ident">Visitor</span>};
 <span class="kw">use</span> <span class="ident">postgres</span>::<span class="ident">types</span>::{<span class="ident">IsNull</span>, <span class="ident">Type</span>};
@@ -251,7 +250,7 @@
             <span class="kw">let</span> <span class="ident">columns</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">insert</span>
                 .<span class="ident">columns</span>
                 .<span class="ident">into_iter</span>()
-                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">c</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">visit_column</span>(<span class="ident">Column</span>::<span class="ident">from</span>(<span class="ident">c</span>)))
+                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">c</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">visit_column</span>(<span class="ident">c</span>))
                 .<span class="ident">collect</span>();
 
             <span class="kw">let</span> <span class="ident">values</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">insert</span>
@@ -267,9 +266,8 @@
             ))
         }
 
-        <span class="kw">match</span> <span class="ident">insert</span>.<span class="ident">on_conflict</span> {
-            <span class="prelude-val">Some</span>(<span class="ident">OnConflict</span>::<span class="ident">DoNothing</span>) <span class="op">=&gt;</span> <span class="ident">result</span>.<span class="ident">push</span>(<span class="ident">String</span>::<span class="ident">from</span>(<span class="string">&quot;ON CONFLICT DO NOTHING&quot;</span>)),
-            <span class="prelude-val">None</span> <span class="op">=&gt;</span> (),
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">OnConflict</span>::<span class="ident">DoNothing</span>) <span class="op">=</span> <span class="ident">insert</span>.<span class="ident">on_conflict</span> {
+            <span class="ident">result</span>.<span class="ident">push</span>(<span class="ident">String</span>::<span class="ident">from</span>(<span class="string">&quot;ON CONFLICT DO NOTHING&quot;</span>));
         };
 
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">returning</span>) <span class="op">=</span> <span class="ident">insert</span>.<span class="ident">returning</span> {

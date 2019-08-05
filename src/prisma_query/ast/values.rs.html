@@ -912,7 +912,7 @@
     {
         <span class="kw">match</span> <span class="self">self</span> {
             <span class="ident">ParameterizedValue</span>::<span class="ident">Array</span>(<span class="ident">vec</span>) <span class="op">=&gt;</span> {
-                <span class="kw">let</span> <span class="ident">rslt</span>: <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span>, <span class="kw">_</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">vec</span>.<span class="ident">into_iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">pv</span><span class="op">|</span> <span class="ident">T</span>::<span class="ident">try_from</span>(<span class="ident">pv</span>)).<span class="ident">collect</span>();
+                <span class="kw">let</span> <span class="ident">rslt</span>: <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span>, <span class="kw">_</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">vec</span>.<span class="ident">into_iter</span>().<span class="ident">map</span>(<span class="ident">T</span>::<span class="ident">try_from</span>).<span class="ident">collect</span>();
                 <span class="kw">match</span> <span class="ident">rslt</span> {
                     <span class="prelude-val">Err</span>(<span class="kw">_</span>) <span class="op">=&gt;</span> <span class="prelude-val">None</span>,
                     <span class="prelude-val">Ok</span>(<span class="ident">values</span>) <span class="op">=&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">values</span>),
@@ -937,7 +937,7 @@
     <span class="doccomment">/// A database function call</span>
     <span class="ident">Function</span>(<span class="ident">Function</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>),
     <span class="doccomment">/// A qualified asterisk to a table</span>
-    <span class="ident">Asterisk</span>(<span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Table</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;&gt;</span>),
+    <span class="ident">Asterisk</span>(<span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="ident">Table</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;&gt;</span><span class="op">&gt;</span>),
 }
 
 <span class="doccomment">/// A quick alias to create an asterisk to a table.</span>
@@ -973,14 +973,14 @@
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ParameterizedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">that</span>: <span class="ident">usize</span>) <span class="op">-&gt;</span> <span class="self">Self</span> {
-        <span class="ident">ParameterizedValue</span>::<span class="ident">Integer</span>(<span class="ident">that</span> <span class="kw">as</span> <span class="ident">i64</span>)
+        <span class="ident">ParameterizedValue</span>::<span class="ident">Integer</span>(<span class="ident">i64</span>::<span class="ident">try_from</span>(<span class="ident">that</span>).<span class="ident">unwrap</span>())
     }
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ParameterizedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">that</span>: <span class="ident">i32</span>) <span class="op">-&gt;</span> <span class="self">Self</span> {
-        <span class="ident">ParameterizedValue</span>::<span class="ident">Integer</span>(<span class="ident">that</span> <span class="kw">as</span> <span class="ident">i64</span>)
+        <span class="ident">ParameterizedValue</span>::<span class="ident">Integer</span>(<span class="ident">i64</span>::<span class="ident">try_from</span>(<span class="ident">that</span>).<span class="ident">unwrap</span>())
     }
 }
 

@@ -65,7 +65,7 @@
     <span class="doccomment">/// # use prisma_query::{ast::*, visitor::{Visitor, Sqlite}};</span>
     <span class="doccomment">/// let s1 = Select::default().value(1);</span>
     <span class="doccomment">/// let s2 = Select::default().value(2);</span>
-    <span class="doccomment">/// let (sql, params) = Sqlite::build(UnionAll::from(s1).add(s2));</span>
+    <span class="doccomment">/// let (sql, params) = Sqlite::build(UnionAll::from(s1).union_all(s2));</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// assert_eq!(&quot;(SELECT ?) UNION ALL (SELECT ?)&quot;, sql);</span>
     <span class="doccomment">///</span>
@@ -74,7 +74,7 @@
     <span class="doccomment">///     ParameterizedValue::from(2)</span>
     <span class="doccomment">/// ], params);</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">add</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">q</span>: <span class="ident">Select</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">union_all</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">q</span>: <span class="ident">Select</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-&gt;</span> <span class="self">Self</span> {
         <span class="self">self</span>.<span class="number">0</span>.<span class="ident">push</span>(<span class="ident">q</span>);
         <span class="self">self</span>
     }
