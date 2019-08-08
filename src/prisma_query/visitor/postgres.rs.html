@@ -177,6 +177,8 @@
 <span id="177">177</span>
 <span id="178">178</span>
 <span id="179">179</span>
+<span id="180">180</span>
+<span id="181">181</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">ast</span>::<span class="kw-2">*</span>, <span class="ident">visitor</span>::<span class="ident">Visitor</span>};
 <span class="kw">use</span> <span class="ident">postgres</span>::<span class="ident">types</span>::{<span class="ident">IsNull</span>, <span class="ident">Type</span>};
@@ -310,6 +312,7 @@
             },
             <span class="ident">ParameterizedValue</span>::<span class="ident">Text</span>(<span class="ident">string</span>) <span class="op">=&gt;</span> <span class="ident">string</span>.<span class="ident">to_sql</span>(<span class="ident">ty</span>, <span class="ident">out</span>),
             <span class="ident">ParameterizedValue</span>::<span class="ident">Boolean</span>(<span class="ident">boo</span>) <span class="op">=&gt;</span> <span class="ident">boo</span>.<span class="ident">to_sql</span>(<span class="ident">ty</span>, <span class="ident">out</span>),
+            <span class="ident">ParameterizedValue</span>::<span class="ident">Char</span>(<span class="ident">c</span>) <span class="op">=&gt;</span> (<span class="kw-2">*</span><span class="ident">c</span> <span class="kw">as</span> <span class="ident">i8</span>).<span class="ident">to_sql</span>(<span class="ident">ty</span>, <span class="ident">out</span>),
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;array&quot;</span>)]</span>
             <span class="ident">ParameterizedValue</span>::<span class="ident">Array</span>(<span class="ident">vec</span>) <span class="op">=&gt;</span> <span class="ident">vec</span>.<span class="ident">to_sql</span>(<span class="ident">ty</span>, <span class="ident">out</span>),
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;json-1&quot;</span>)]</span>
@@ -346,6 +349,7 @@
             },
             <span class="ident">ParameterizedValue</span>::<span class="ident">Text</span>(<span class="ident">string</span>) <span class="op">=&gt;</span> <span class="ident">string</span>.<span class="ident">to_sql_checked</span>(<span class="ident">ty</span>, <span class="ident">out</span>),
             <span class="ident">ParameterizedValue</span>::<span class="ident">Boolean</span>(<span class="ident">boo</span>) <span class="op">=&gt;</span> <span class="ident">boo</span>.<span class="ident">to_sql_checked</span>(<span class="ident">ty</span>, <span class="ident">out</span>),
+            <span class="ident">ParameterizedValue</span>::<span class="ident">Char</span>(<span class="ident">c</span>) <span class="op">=&gt;</span> (<span class="kw-2">*</span><span class="ident">c</span> <span class="kw">as</span> <span class="ident">i8</span>).<span class="ident">to_sql_checked</span>(<span class="ident">ty</span>, <span class="ident">out</span>),
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;array&quot;</span>)]</span>
             <span class="ident">ParameterizedValue</span>::<span class="ident">Array</span>(<span class="ident">vec</span>) <span class="op">=&gt;</span> <span class="ident">vec</span>.<span class="ident">to_sql_checked</span>(<span class="ident">ty</span>, <span class="ident">out</span>),
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;json-1&quot;</span>)]</span>

@@ -279,6 +279,13 @@
 <span id="279">279</span>
 <span id="280">280</span>
 <span id="281">281</span>
+<span id="282">282</span>
+<span id="283">283</span>
+<span id="284">284</span>
+<span id="285">285</span>
+<span id="286">286</span>
+<span id="287">287</span>
+<span id="288">288</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">ast</span>::{<span class="ident">Id</span>, <span class="ident">ParameterizedValue</span>},
@@ -525,6 +532,13 @@
                     <span class="prelude-val">Some</span>(<span class="ident">val</span>) <span class="op">=&gt;</span> {
                         <span class="kw">let</span> <span class="ident">val</span>: <span class="ident">u32</span> <span class="op">=</span> <span class="ident">val</span>;
                         <span class="ident">ParameterizedValue</span>::<span class="ident">Integer</span>(<span class="ident">i64</span>::<span class="ident">from</span>(<span class="ident">val</span>))
+                    }
+                    <span class="prelude-val">None</span> <span class="op">=&gt;</span> <span class="ident">ParameterizedValue</span>::<span class="ident">Null</span>,
+                },
+                <span class="ident">PostgresType</span>::<span class="ident">CHAR</span> <span class="op">=&gt;</span> <span class="kw">match</span> <span class="ident">row</span>.<span class="ident">try_get</span>(<span class="ident">i</span>)<span class="question-mark">?</span> {
+                    <span class="prelude-val">Some</span>(<span class="ident">val</span>) <span class="op">=&gt;</span> {
+                        <span class="kw">let</span> <span class="ident">val</span>: <span class="ident">i8</span> <span class="op">=</span> <span class="ident">val</span>;
+                        <span class="ident">ParameterizedValue</span>::<span class="ident">Char</span>((<span class="ident">val</span> <span class="kw">as</span> <span class="ident">u8</span>) <span class="kw">as</span> <span class="ident">char</span>)
                     }
                     <span class="prelude-val">None</span> <span class="op">=&gt;</span> <span class="ident">ParameterizedValue</span>::<span class="ident">Null</span>,
                 },
