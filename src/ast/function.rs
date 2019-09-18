@@ -1,8 +1,10 @@
 mod aggregate_to_string;
+mod cast;
 mod count;
 mod row_number;
 
 pub use aggregate_to_string::*;
+pub use cast::*;
 pub use count::*;
 pub use row_number::*;
 
@@ -20,6 +22,7 @@ pub struct Function<'a> {
 #[derive(Debug, Clone, PartialEq)]
 pub(crate) enum FunctionType<'a> {
     RowNumber(RowNumber<'a>),
+    Cast(Cast<'a>),
     Count(Count<'a>),
     AggregateToString(AggregateToString<'a>),
 }
@@ -58,4 +61,4 @@ macro_rules! function {
     );
 }
 
-function!(RowNumber, Count, AggregateToString);
+function!(RowNumber, Cast, Count, AggregateToString);

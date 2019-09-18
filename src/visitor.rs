@@ -524,6 +524,11 @@ pub trait Visitor<'a> {
                     )
                 }
             }
+            FunctionType::Cast(cast) => format!(
+                "CAST({expr} AS {tpe})",
+                expr = self.visit_database_value(*cast.expr),
+                tpe = cast.tpe
+            ),
             FunctionType::Count(fun_count) => {
                 if fun_count.exprs.is_empty() {
                     String::from("COUNT(*)")
