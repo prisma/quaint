@@ -151,10 +151,11 @@
 <span id="151">151</span>
 <span id="152">152</span>
 <span id="153">153</span>
+<span id="154">154</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">super</span>::<span class="ident">PrismaConnectionManager</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">connector</span>::{<span class="ident">PostgreSql</span>, <span class="ident">PostgresParams</span>, <span class="ident">Queryable</span>, <span class="ident">DEFAULT_SCHEMA</span>, <span class="ident">metrics</span>},
+    <span class="ident">connector</span>::{<span class="ident">metrics</span>, <span class="ident">PostgreSql</span>, <span class="ident">PostgresParams</span>, <span class="ident">Queryable</span>, <span class="ident">DEFAULT_SCHEMA</span>},
     <span class="ident">error</span>::<span class="ident">Error</span>,
 };
 <span class="kw">use</span> <span class="ident">failure</span>::{<span class="ident">Compat</span>, <span class="ident">Fail</span>};
@@ -182,7 +183,8 @@
     <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">Error</span>;
 
     <span class="kw">fn</span> <span class="ident">try_from</span>(<span class="ident">params</span>: <span class="ident">PostgresParams</span>) <span class="op">-&gt;</span> <span class="kw">crate</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">manager</span> <span class="op">=</span> <span class="ident">PrismaConnectionManager</span>::<span class="ident">postgres</span>(<span class="ident">params</span>.<span class="ident">config</span>, <span class="prelude-val">Some</span>(<span class="ident">params</span>.<span class="ident">schema</span>)).<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">manager</span> <span class="op">=</span>
+            <span class="ident">PrismaConnectionManager</span>::<span class="ident">postgres</span>(<span class="ident">params</span>.<span class="ident">config</span>, <span class="prelude-val">Some</span>(<span class="ident">params</span>.<span class="ident">schema</span>)).<span class="ident">unwrap</span>();
 
         <span class="kw">let</span> <span class="ident">pool</span> <span class="op">=</span> <span class="ident">r2d2</span>::<span class="ident">Pool</span>::<span class="ident">builder</span>()
             .<span class="ident">max_size</span>(<span class="ident">params</span>.<span class="ident">connection_limit</span>)

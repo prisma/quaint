@@ -129,7 +129,7 @@
 <span class="doccomment">/// use std::thread;</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// fn main() {</span>
-<span class="doccomment">///     let manager = PrismaConnectionManager::sqlite(&quot;db/test.db&quot;).unwrap();</span>
+<span class="doccomment">///     let manager = PrismaConnectionManager::sqlite(None, &quot;db/test.db&quot;).unwrap();</span>
 <span class="doccomment">///     let pool = r2d2::Pool::new(manager).unwrap();</span>
 <span class="doccomment">///</span>
 <span class="doccomment">///     for i in 0..10i32 {</span>
