@@ -53,25 +53,25 @@
 <span class="kw">where</span>
     <span class="ident">F</span>: <span class="ident">FnOnce</span>() <span class="op">-&gt;</span> <span class="ident">T</span>,
 {
+    <span class="kw">let</span> <span class="ident">start</span> <span class="op">=</span> <span class="ident">Instant</span>::<span class="ident">now</span>();
+    <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">f</span>();
+    <span class="kw">let</span> <span class="ident">end</span> <span class="op">=</span> <span class="ident">Instant</span>::<span class="ident">now</span>();
+
     <span class="kw">if</span> <span class="kw-2">*</span><span class="kw">crate</span>::<span class="ident">LOG_QUERIES</span> {
         <span class="macro">info</span><span class="macro">!</span>(
-            <span class="string">&quot;query: \&quot;{}\&quot;, params: {}&quot;</span>,
+            <span class="string">&quot;query: \&quot;{}\&quot;, params: {} (in {}ms)&quot;</span>,
             <span class="ident">query</span>,
-            <span class="ident">Params</span>(<span class="ident">params</span>)
+            <span class="ident">Params</span>(<span class="ident">params</span>),
+            <span class="ident">start</span>.<span class="ident">elapsed</span>().<span class="ident">as_millis</span>(),
         );
     }
 
-    <span class="ident">time</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}.query.time ({})&quot;</span>, <span class="ident">tag</span>, <span class="ident">query</span>), <span class="ident">f</span>)
+    <span class="macro">timing</span><span class="macro">!</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}.query.time&quot;</span>, <span class="ident">tag</span>), <span class="ident">start</span>, <span class="ident">end</span>);
+
+    <span class="ident">res</span>
 }
 
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">connect</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">tag</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>, <span class="ident">f</span>: <span class="ident">F</span>) <span class="op">-&gt;</span> <span class="ident">T</span>
-<span class="kw">where</span>
-    <span class="ident">F</span>: <span class="ident">FnOnce</span>() <span class="op">-&gt;</span> <span class="ident">T</span>,
-{
-    <span class="ident">time</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}.connect.time&quot;</span>, <span class="ident">tag</span>), <span class="ident">f</span>)
-}
-
-<span class="kw">fn</span> <span class="ident">time</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">tag</span>: <span class="ident">String</span>, <span class="ident">f</span>: <span class="ident">F</span>) <span class="op">-&gt;</span> <span class="ident">T</span>
 <span class="kw">where</span>
     <span class="ident">F</span>: <span class="ident">FnOnce</span>() <span class="op">-&gt;</span> <span class="ident">T</span>,
 {
@@ -79,7 +79,7 @@
     <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">f</span>();
     <span class="kw">let</span> <span class="ident">end</span> <span class="op">=</span> <span class="ident">Instant</span>::<span class="ident">now</span>();
 
-    <span class="macro">timing</span><span class="macro">!</span>(<span class="ident">tag</span>, <span class="ident">start</span>, <span class="ident">end</span>);
+    <span class="macro">timing</span><span class="macro">!</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}.connect.time&quot;</span>, <span class="ident">tag</span>), <span class="ident">start</span>, <span class="ident">end</span>);
 
     <span class="ident">res</span>
 }
