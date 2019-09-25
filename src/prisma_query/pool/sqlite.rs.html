@@ -180,7 +180,7 @@
         <span class="kw">let</span> <span class="ident">params</span> <span class="op">=</span> <span class="ident">SqliteParams</span>::<span class="ident">try_from</span>(<span class="ident">conn_string</span>.<span class="ident">as_str</span>()).<span class="ident">unwrap</span>();
         <span class="kw">let</span> <span class="ident">pool</span> <span class="op">=</span> <span class="ident">r2d2</span>::<span class="ident">Pool</span>::<span class="ident">try_from</span>(<span class="ident">params</span>).<span class="ident">unwrap</span>();
 
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="number">2</span>, <span class="ident">pool</span>.<span class="ident">max_size</span>());
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">num_cpus</span>::<span class="ident">get</span>() <span class="op">*</span> <span class="number">2</span> <span class="op">+</span> <span class="number">4</span>, <span class="ident">pool</span>.<span class="ident">max_size</span>() <span class="kw">as</span> <span class="ident">usize</span>);
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
