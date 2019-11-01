@@ -551,6 +551,30 @@
 <span id="551">551</span>
 <span id="552">552</span>
 <span id="553">553</span>
+<span id="554">554</span>
+<span id="555">555</span>
+<span id="556">556</span>
+<span id="557">557</span>
+<span id="558">558</span>
+<span id="559">559</span>
+<span id="560">560</span>
+<span id="561">561</span>
+<span id="562">562</span>
+<span id="563">563</span>
+<span id="564">564</span>
+<span id="565">565</span>
+<span id="566">566</span>
+<span id="567">567</span>
+<span id="568">568</span>
+<span id="569">569</span>
+<span id="570">570</span>
+<span id="571">571</span>
+<span id="572">572</span>
+<span id="573">573</span>
+<span id="574">574</span>
+<span id="575">575</span>
+<span id="576">576</span>
+<span id="577">577</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">ast</span>::<span class="kw-2">*</span>, <span class="ident">visitor</span>::<span class="ident">Visitor</span>};
 
@@ -558,70 +582,83 @@
     <span class="ident">types</span>::{<span class="ident">Null</span>, <span class="ident">ToSql</span>, <span class="ident">ToSqlOutput</span>},
     <span class="ident">Error</span> <span class="kw">as</span> <span class="ident">RusqlError</span>,
 };
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>::{<span class="self">self</span>, <span class="ident">Write</span>};
 
 <span class="doccomment">/// A visitor to generate queries for the SQLite database.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// The returned parameter values implement the `ToSql` trait from rusqlite and</span>
 <span class="doccomment">/// can be used directly with the database.</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Sqlite</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="ident">parameters</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ParameterizedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;&gt;</span>,
+    <span class="ident">query</span>: <span class="ident">String</span>,
+    <span class="ident">parameters</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ParameterizedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">Visitor</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Sqlite</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="kw">const</span> <span class="ident">C_BACKTICK</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span> <span class="op">=</span> <span class="string">&quot;`&quot;</span>;
     <span class="kw">const</span> <span class="ident">C_WILDCARD</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span> <span class="op">=</span> <span class="string">&quot;%&quot;</span>;
 
-    <span class="kw">fn</span> <span class="ident">build</span><span class="op">&lt;</span><span class="ident">Q</span><span class="op">&gt;</span>(<span class="ident">query</span>: <span class="ident">Q</span>) <span class="op">-&gt;</span> (<span class="ident">String</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ParameterizedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;&gt;</span>)
+    <span class="kw">fn</span> <span class="ident">build</span><span class="op">&lt;</span><span class="ident">Q</span><span class="op">&gt;</span>(<span class="ident">query</span>: <span class="ident">Q</span>) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">String</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ParameterizedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>)
     <span class="kw">where</span>
-        <span class="ident">Q</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Query</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;&gt;</span>,
+        <span class="ident">Q</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Query</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">sqlite</span> <span class="op">=</span> <span class="ident">Sqlite</span> {
-            <span class="ident">parameters</span>: <span class="ident">Vec</span>::<span class="ident">new</span>(),
+            <span class="ident">query</span>: <span class="ident">String</span>::<span class="ident">with_capacity</span>(<span class="number">4096</span>),
+            <span class="ident">parameters</span>: <span class="ident">Vec</span>::<span class="ident">with_capacity</span>(<span class="number">128</span>),
         };
 
-        <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> (
-            <span class="ident">Sqlite</span>::<span class="ident">visit_query</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">sqlite</span>, <span class="ident">query</span>.<span class="ident">into</span>()),
-            <span class="ident">sqlite</span>.<span class="ident">parameters</span>,
-        );
+        <span class="ident">Sqlite</span>::<span class="ident">visit_query</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">sqlite</span>, <span class="ident">query</span>.<span class="ident">into</span>());
 
-        <span class="ident">result</span>
+        (
+            <span class="ident">sqlite</span>.<span class="ident">query</span>,
+            <span class="ident">sqlite</span>.<span class="ident">parameters</span>,
+        )
     }
 
-    <span class="kw">fn</span> <span class="ident">visit_insert</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">insert</span>: <span class="ident">Insert</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-&gt;</span> <span class="ident">String</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">result</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">insert</span>.<span class="ident">on_conflict</span> {
-            <span class="prelude-val">Some</span>(<span class="ident">OnConflict</span>::<span class="ident">DoNothing</span>) <span class="op">=&gt;</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">String</span>::<span class="ident">from</span>(<span class="string">&quot;INSERT OR IGNORE&quot;</span>)],
-            <span class="prelude-val">None</span> <span class="op">=&gt;</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">String</span>::<span class="ident">from</span>(<span class="string">&quot;INSERT&quot;</span>)],
+    <span class="kw">fn</span> <span class="ident">write</span><span class="op">&lt;</span><span class="ident">D</span>: <span class="ident">fmt</span>::<span class="ident">Display</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">s</span>: <span class="ident">D</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
+        <span class="macro">write</span><span class="macro">!</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">query</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">s</span>)
+    }
+
+    <span class="kw">fn</span> <span class="ident">visit_insert</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">insert</span>: <span class="ident">Insert</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
+        <span class="kw">match</span> <span class="ident">insert</span>.<span class="ident">on_conflict</span> {
+            <span class="prelude-val">Some</span>(<span class="ident">OnConflict</span>::<span class="ident">DoNothing</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">write</span>(<span class="string">&quot;INSERT OR IGNORE&quot;</span>)<span class="question-mark">?</span>,
+            <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">write</span>(<span class="string">&quot;INSERT&quot;</span>)<span class="question-mark">?</span>,
         };
 
-        <span class="ident">result</span>.<span class="ident">push</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;INTO {}&quot;</span>, <span class="self">self</span>.<span class="ident">visit_table</span>(<span class="ident">insert</span>.<span class="ident">table</span>, <span class="bool-val">true</span>)));
+        <span class="self">self</span>.<span class="ident">write</span>(<span class="string">&quot; INTO &quot;</span>)<span class="question-mark">?</span>;
+        <span class="self">self</span>.<span class="ident">visit_table</span>(<span class="ident">insert</span>.<span class="ident">table</span>, <span class="bool-val">true</span>)<span class="question-mark">?</span>;
 
         <span class="kw">if</span> <span class="ident">insert</span>.<span class="ident">values</span>.<span class="ident">is_empty</span>() {
-            <span class="ident">result</span>.<span class="ident">push</span>(<span class="string">&quot;DEFAULT VALUES&quot;</span>.<span class="ident">to_string</span>());
+            <span class="self">self</span>.<span class="ident">write</span>(<span class="string">&quot; DEFAULT VALUES&quot;</span>)<span class="question-mark">?</span>;
         } <span class="kw">else</span> {
-            <span class="kw">let</span> <span class="ident">columns</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">insert</span>
-                .<span class="ident">columns</span>
-                .<span class="ident">into_iter</span>()
-                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">c</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">visit_column</span>(<span class="ident">c</span>))
-                .<span class="ident">collect</span>();
+            <span class="kw">let</span> <span class="ident">columns</span> <span class="op">=</span> <span class="ident">insert</span>.<span class="ident">columns</span>.<span class="ident">len</span>();
 
-            <span class="kw">let</span> <span class="ident">values</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">insert</span>
-                .<span class="ident">values</span>
-                .<span class="ident">into_iter</span>()
-                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">row</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">visit_row</span>(<span class="ident">row</span>))
-                .<span class="ident">collect</span>();
+            <span class="self">self</span>.<span class="ident">write</span>(<span class="string">&quot; (&quot;</span>)<span class="question-mark">?</span>;
+            <span class="kw">for</span> (<span class="ident">i</span>, <span class="ident">c</span>) <span class="kw">in</span> <span class="ident">insert</span>.<span class="ident">columns</span>.<span class="ident">into_iter</span>().<span class="ident">enumerate</span>() {
+                <span class="self">self</span>.<span class="ident">visit_column</span>(<span class="ident">c</span>)<span class="question-mark">?</span>;
 
-            <span class="ident">result</span>.<span class="ident">push</span>(<span class="macro">format</span><span class="macro">!</span>(
-                <span class="string">&quot;({}) VALUES {}&quot;</span>,
-                <span class="ident">columns</span>.<span class="ident">join</span>(<span class="string">&quot;, &quot;</span>),
-                <span class="ident">values</span>.<span class="ident">join</span>(<span class="string">&quot;, &quot;</span>),
-            ))
+                <span class="kw">if</span> <span class="ident">i</span> <span class="op">&lt;</span> (<span class="ident">columns</span> <span class="op">-</span> <span class="number">1</span>) {
+                    <span class="self">self</span>.<span class="ident">write</span>(<span class="string">&quot;, &quot;</span>)<span class="question-mark">?</span>;
+                }
+            }
+            <span class="self">self</span>.<span class="ident">write</span>(<span class="string">&quot;)&quot;</span>)<span class="question-mark">?</span>;
+
+            <span class="self">self</span>.<span class="ident">write</span>(<span class="string">&quot; VALUES &quot;</span>)<span class="question-mark">?</span>;
+            <span class="kw">let</span> <span class="ident">values</span> <span class="op">=</span> <span class="ident">insert</span>.<span class="ident">values</span>.<span class="ident">len</span>();
+
+            <span class="kw">for</span> (<span class="ident">i</span>, <span class="ident">row</span>) <span class="kw">in</span> <span class="ident">insert</span>.<span class="ident">values</span>.<span class="ident">into_iter</span>().<span class="ident">enumerate</span>() {
+                <span class="self">self</span>.<span class="ident">visit_row</span>(<span class="ident">row</span>)<span class="question-mark">?</span>;
+
+                <span class="kw">if</span> <span class="ident">i</span> <span class="op">&lt;</span> (<span class="ident">values</span> <span class="op">-</span> <span class="number">1</span>) {
+                    <span class="self">self</span>.<span class="ident">write</span>(<span class="string">&quot;, &quot;</span>)<span class="question-mark">?</span>;
+                }
+            }
         }
 
-        <span class="ident">result</span>.<span class="ident">join</span>(<span class="string">&quot; &quot;</span>)
+        <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="kw">fn</span> <span class="ident">parameter_substitution</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">String</span> {
-        <span class="ident">String</span>::<span class="ident">from</span>(<span class="string">&quot;?&quot;</span>)
+    <span class="kw">fn</span> <span class="ident">parameter_substitution</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
+        <span class="self">self</span>.<span class="ident">write</span>(<span class="string">&quot;?&quot;</span>)
     }
 
     <span class="kw">fn</span> <span class="ident">add_parameter</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">value</span>: <span class="ident">ParameterizedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) {
@@ -630,51 +667,62 @@
 
     <span class="kw">fn</span> <span class="ident">visit_limit_and_offset</span>(
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
-        <span class="ident">limit</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ParameterizedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;&gt;</span>,
-        <span class="ident">offset</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ParameterizedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;&gt;</span>,
-    ) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
+        <span class="ident">limit</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ParameterizedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+        <span class="ident">offset</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ParameterizedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
         <span class="kw">match</span> (<span class="ident">limit</span>, <span class="ident">offset</span>) {
-            (<span class="prelude-val">Some</span>(<span class="ident">limit</span>), <span class="prelude-val">Some</span>(<span class="ident">offset</span>)) <span class="op">=&gt;</span> <span class="prelude-val">Some</span>(<span class="macro">format</span><span class="macro">!</span>(
-                <span class="string">&quot;LIMIT {} OFFSET {}&quot;</span>,
-                <span class="self">self</span>.<span class="ident">visit_parameterized</span>(<span class="ident">limit</span>),
+            (<span class="prelude-val">Some</span>(<span class="ident">limit</span>), <span class="prelude-val">Some</span>(<span class="ident">offset</span>)) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="self">self</span>.<span class="ident">write</span>(<span class="string">&quot; LIMIT &quot;</span>)<span class="question-mark">?</span>;
+                <span class="self">self</span>.<span class="ident">visit_parameterized</span>(<span class="ident">limit</span>)<span class="question-mark">?</span>;
+
+                <span class="self">self</span>.<span class="ident">write</span>(<span class="string">&quot; OFFSET &quot;</span>)<span class="question-mark">?</span>;
                 <span class="self">self</span>.<span class="ident">visit_parameterized</span>(<span class="ident">offset</span>)
-            )),
-            (<span class="prelude-val">None</span>, <span class="prelude-val">Some</span>(<span class="ident">offset</span>)) <span class="op">=&gt;</span> <span class="prelude-val">Some</span>(<span class="macro">format</span><span class="macro">!</span>(
-                <span class="string">&quot;LIMIT {} OFFSET {}&quot;</span>,
-                <span class="self">self</span>.<span class="ident">visit_parameterized</span>(<span class="ident">ParameterizedValue</span>::<span class="ident">from</span>(<span class="op">-</span><span class="number">1</span>)),
+            },
+            (<span class="prelude-val">None</span>, <span class="prelude-val">Some</span>(<span class="ident">offset</span>)) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="self">self</span>.<span class="ident">write</span>(<span class="string">&quot; LIMIT &quot;</span>)<span class="question-mark">?</span>;
+                <span class="self">self</span>.<span class="ident">visit_parameterized</span>(<span class="ident">ParameterizedValue</span>::<span class="ident">from</span>(<span class="op">-</span><span class="number">1</span>))<span class="question-mark">?</span>;
+
+                <span class="self">self</span>.<span class="ident">write</span>(<span class="string">&quot; OFFSET &quot;</span>)<span class="question-mark">?</span>;
                 <span class="self">self</span>.<span class="ident">visit_parameterized</span>(<span class="ident">offset</span>)
-            )),
-            (<span class="prelude-val">Some</span>(<span class="ident">limit</span>), <span class="prelude-val">None</span>) <span class="op">=&gt;</span> <span class="prelude-val">Some</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;LIMIT {}&quot;</span>, <span class="self">self</span>.<span class="ident">visit_parameterized</span>(<span class="ident">limit</span>))),
-            (<span class="prelude-val">None</span>, <span class="prelude-val">None</span>) <span class="op">=&gt;</span> <span class="prelude-val">None</span>,
+            },
+            (<span class="prelude-val">Some</span>(<span class="ident">limit</span>), <span class="prelude-val">None</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="self">self</span>.<span class="ident">write</span>(<span class="string">&quot; LIMIT &quot;</span>)<span class="question-mark">?</span>;
+                <span class="self">self</span>.<span class="ident">visit_parameterized</span>(<span class="ident">limit</span>)
+            }
+            (<span class="prelude-val">None</span>, <span class="prelude-val">None</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(()),
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">visit_aggregate_to_string</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">value</span>: <span class="ident">DatabaseValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-&gt;</span> <span class="ident">String</span> {
-        <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;group_concat({})&quot;</span>, <span class="self">self</span>.<span class="ident">visit_database_value</span>(<span class="ident">value</span>))
+    <span class="kw">fn</span> <span class="ident">visit_aggregate_to_string</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">value</span>: <span class="ident">DatabaseValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
+        <span class="self">self</span>.<span class="ident">write</span>(<span class="string">&quot;GROUP_CONCAT&quot;</span>)<span class="question-mark">?</span>;
+
+        <span class="self">self</span>.<span class="ident">write</span>(<span class="string">&quot;(&quot;</span>)<span class="question-mark">?</span>;
+        <span class="self">self</span>.<span class="ident">visit_database_value</span>(<span class="ident">value</span>)<span class="question-mark">?</span>;
+        <span class="self">self</span>.<span class="ident">write</span>(<span class="string">&quot;)&quot;</span>)
     }
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">ToSql</span> <span class="kw">for</span> <span class="ident">ParameterizedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">to_sql</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ToSqlOutput</span>, <span class="ident">RusqlError</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">to_sql</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ToSqlOutput</span>, <span class="ident">RusqlError</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">value</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">ParameterizedValue</span>::<span class="ident">Null</span> <span class="op">=&gt;</span> <span class="ident">ToSqlOutput</span>::<span class="ident">from</span>(<span class="ident">Null</span>),
-            <span class="ident">ParameterizedValue</span>::<span class="ident">Integer</span>(<span class="ident">integer</span>) <span class="op">=&gt;</span> <span class="ident">ToSqlOutput</span>::<span class="ident">from</span>(<span class="kw-2">*</span><span class="ident">integer</span>),
-            <span class="ident">ParameterizedValue</span>::<span class="ident">Real</span>(<span class="ident">float</span>) <span class="op">=&gt;</span> <span class="ident">ToSqlOutput</span>::<span class="ident">from</span>(<span class="kw-2">*</span><span class="ident">float</span>),
-            <span class="ident">ParameterizedValue</span>::<span class="ident">Text</span>(<span class="ident">cow</span>) <span class="op">=&gt;</span> <span class="ident">ToSqlOutput</span>::<span class="ident">from</span>(<span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="kw-2">*</span><span class="ident">cow</span>),
-            <span class="ident">ParameterizedValue</span>::<span class="ident">Boolean</span>(<span class="ident">boo</span>) <span class="op">=&gt;</span> <span class="ident">ToSqlOutput</span>::<span class="ident">from</span>(<span class="kw-2">*</span><span class="ident">boo</span>),
-            <span class="ident">ParameterizedValue</span>::<span class="ident">Char</span>(<span class="ident">c</span>) <span class="op">=&gt;</span> <span class="ident">ToSqlOutput</span>::<span class="ident">from</span>(<span class="kw-2">*</span><span class="ident">c</span> <span class="kw">as</span> <span class="ident">u8</span>),
+            <span class="ident">ParameterizedValue</span>::<span class="ident">Null</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ToSqlOutput</span>::<span class="ident">from</span>(<span class="ident">Null</span>),
+            <span class="ident">ParameterizedValue</span>::<span class="ident">Integer</span>(<span class="ident">integer</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ToSqlOutput</span>::<span class="ident">from</span>(<span class="kw-2">*</span><span class="ident">integer</span>),
+            <span class="ident">ParameterizedValue</span>::<span class="ident">Real</span>(<span class="ident">float</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ToSqlOutput</span>::<span class="ident">from</span>(<span class="kw-2">*</span><span class="ident">float</span>),
+            <span class="ident">ParameterizedValue</span>::<span class="ident">Text</span>(<span class="ident">cow</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ToSqlOutput</span>::<span class="ident">from</span>(<span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="kw-2">*</span><span class="ident">cow</span>),
+            <span class="ident">ParameterizedValue</span>::<span class="ident">Boolean</span>(<span class="ident">boo</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ToSqlOutput</span>::<span class="ident">from</span>(<span class="kw-2">*</span><span class="ident">boo</span>),
+            <span class="ident">ParameterizedValue</span>::<span class="ident">Char</span>(<span class="ident">c</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ToSqlOutput</span>::<span class="ident">from</span>(<span class="kw-2">*</span><span class="ident">c</span> <span class="kw">as</span> <span class="ident">u8</span>),
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;array&quot;</span>)]</span>
-            <span class="ident">ParameterizedValue</span>::<span class="ident">Array</span>(<span class="kw">_</span>) <span class="op">=&gt;</span> <span class="macro">unimplemented</span><span class="macro">!</span>(<span class="string">&quot;Arrays are not supported for sqlite.&quot;</span>),
+            <span class="ident">ParameterizedValue</span>::<span class="ident">Array</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unimplemented</span><span class="macro">!</span>(<span class="string">&quot;Arrays are not supported for sqlite.&quot;</span>),
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;json-1&quot;</span>)]</span>
-            <span class="ident">ParameterizedValue</span>::<span class="ident">Json</span>(<span class="ident">value</span>) <span class="op">=&gt;</span> {
+            <span class="ident">ParameterizedValue</span>::<span class="ident">Json</span>(<span class="ident">value</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">let</span> <span class="ident">stringified</span> <span class="op">=</span> <span class="ident">serde_json</span>::<span class="ident">to_string</span>(<span class="ident">value</span>)
                     .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> <span class="ident">RusqlError</span>::<span class="ident">ToSqlConversionFailure</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">err</span>)))<span class="question-mark">?</span>;
                 <span class="ident">ToSqlOutput</span>::<span class="ident">from</span>(<span class="ident">stringified</span>)
             }
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;uuid-0_7&quot;</span>)]</span>
-            <span class="ident">ParameterizedValue</span>::<span class="ident">Uuid</span>(<span class="ident">value</span>) <span class="op">=&gt;</span> <span class="ident">ToSqlOutput</span>::<span class="ident">from</span>(<span class="ident">value</span>.<span class="ident">to_hyphenated</span>().<span class="ident">to_string</span>()),
+            <span class="ident">ParameterizedValue</span>::<span class="ident">Uuid</span>(<span class="ident">value</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ToSqlOutput</span>::<span class="ident">from</span>(<span class="ident">value</span>.<span class="ident">to_hyphenated</span>().<span class="ident">to_string</span>()),
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;chrono-0_4&quot;</span>)]</span>
-            <span class="ident">ParameterizedValue</span>::<span class="ident">DateTime</span>(<span class="ident">value</span>) <span class="op">=&gt;</span> <span class="ident">ToSqlOutput</span>::<span class="ident">from</span>(<span class="ident">value</span>.<span class="ident">timestamp_millis</span>()),
+            <span class="ident">ParameterizedValue</span>::<span class="ident">DateTime</span>(<span class="ident">value</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ToSqlOutput</span>::<span class="ident">from</span>(<span class="ident">value</span>.<span class="ident">timestamp_millis</span>()),
         };
 
         <span class="prelude-val">Ok</span>(<span class="ident">value</span>)
@@ -688,9 +736,9 @@
     <span class="kw">fn</span> <span class="ident">expected_values</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span>(
         <span class="ident">sql</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>,
         <span class="ident">params</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>,
-    ) <span class="op">-&gt;</span> (<span class="ident">String</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ParameterizedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;&gt;</span>)
+    ) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">String</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ParameterizedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>)
     <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">ParameterizedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;&gt;</span>,
+        <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">ParameterizedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     {
         (
             <span class="ident">String</span>::<span class="ident">from</span>(<span class="ident">sql</span>),
@@ -699,8 +747,8 @@
     }
 
     <span class="kw">fn</span> <span class="ident">default_params</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(
-        <span class="kw-2">mut</span> <span class="ident">additional</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ParameterizedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;&gt;</span>,
-    ) <span class="op">-&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ParameterizedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;&gt;</span> {
+        <span class="kw-2">mut</span> <span class="ident">additional</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ParameterizedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ParameterizedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
 
         <span class="kw">for</span> <span class="ident">param</span> <span class="kw">in</span> <span class="ident">additional</span>.<span class="ident">drain</span>(<span class="number">0</span>..) {
@@ -1048,7 +1096,7 @@
         <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">expected_sql</span>, <span class="ident">sql</span>);
     }
 
-    <span class="kw">fn</span> <span class="ident">sqlite_harness</span>() <span class="op">-&gt;</span> ::<span class="ident">rusqlite</span>::<span class="ident">Connection</span> {
+    <span class="kw">fn</span> <span class="ident">sqlite_harness</span>() <span class="op">-</span><span class="op">&gt;</span> ::<span class="ident">rusqlite</span>::<span class="ident">Connection</span> {
         <span class="kw">let</span> <span class="ident">conn</span> <span class="op">=</span> ::<span class="ident">rusqlite</span>::<span class="ident">Connection</span>::<span class="ident">open_in_memory</span>().<span class="ident">unwrap</span>();
 
         <span class="ident">conn</span>.<span class="ident">execute</span>(

@@ -706,7 +706,7 @@
     <span class="ident">Boolean</span>(<span class="ident">bool</span>),
     <span class="ident">Char</span>(<span class="ident">char</span>),
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;array&quot;</span>)]</span>
-    <span class="ident">Array</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ParameterizedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;&gt;</span>),
+    <span class="ident">Array</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ParameterizedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>),
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;json-1&quot;</span>)]</span>
     <span class="ident">Json</span>(<span class="ident">Value</span>),
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;uuid-0_7&quot;</span>)]</span>
@@ -718,7 +718,7 @@
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct</span> <span class="ident">Params</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">ParameterizedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>]);
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="ident">Display</span> <span class="kw">for</span> <span class="ident">Params</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt</span>::<span class="ident">Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt</span>::<span class="ident">Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
         <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="self">self</span>.<span class="number">0</span>.<span class="ident">len</span>();
 
         <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;[&quot;</span>)<span class="question-mark">?</span>;
@@ -734,16 +734,16 @@
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="ident">Display</span> <span class="kw">for</span> <span class="ident">ParameterizedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt</span>::<span class="ident">Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt</span>::<span class="ident">Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">ParameterizedValue</span>::<span class="ident">Null</span> <span class="op">=&gt;</span> <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;null&quot;</span>),
-            <span class="ident">ParameterizedValue</span>::<span class="ident">Integer</span>(<span class="ident">val</span>) <span class="op">=&gt;</span> <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">val</span>),
-            <span class="ident">ParameterizedValue</span>::<span class="ident">Real</span>(<span class="ident">val</span>) <span class="op">=&gt;</span> <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">val</span>),
-            <span class="ident">ParameterizedValue</span>::<span class="ident">Text</span>(<span class="ident">val</span>) <span class="op">=&gt;</span> <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;\&quot;{}\&quot;&quot;</span>, <span class="ident">val</span>),
-            <span class="ident">ParameterizedValue</span>::<span class="ident">Boolean</span>(<span class="ident">val</span>) <span class="op">=&gt;</span> <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">val</span>),
-            <span class="ident">ParameterizedValue</span>::<span class="ident">Char</span>(<span class="ident">val</span>) <span class="op">=&gt;</span> <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;&#39;{}&#39;&quot;</span>, <span class="ident">val</span>),
+            <span class="ident">ParameterizedValue</span>::<span class="ident">Null</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;null&quot;</span>),
+            <span class="ident">ParameterizedValue</span>::<span class="ident">Integer</span>(<span class="ident">val</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">val</span>),
+            <span class="ident">ParameterizedValue</span>::<span class="ident">Real</span>(<span class="ident">val</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">val</span>),
+            <span class="ident">ParameterizedValue</span>::<span class="ident">Text</span>(<span class="ident">val</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;\&quot;{}\&quot;&quot;</span>, <span class="ident">val</span>),
+            <span class="ident">ParameterizedValue</span>::<span class="ident">Boolean</span>(<span class="ident">val</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">val</span>),
+            <span class="ident">ParameterizedValue</span>::<span class="ident">Char</span>(<span class="ident">val</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;&#39;{}&#39;&quot;</span>, <span class="ident">val</span>),
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;array&quot;</span>)]</span>
-            <span class="ident">ParameterizedValue</span>::<span class="ident">Array</span>(<span class="ident">vals</span>) <span class="op">=&gt;</span> {
+            <span class="ident">ParameterizedValue</span>::<span class="ident">Array</span>(<span class="ident">vals</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">vals</span>.<span class="ident">len</span>();
 
                 <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;[&quot;</span>)<span class="question-mark">?</span>;
@@ -757,222 +757,222 @@
                 <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;]&quot;</span>)
             }
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;json-1&quot;</span>)]</span>
-            <span class="ident">ParameterizedValue</span>::<span class="ident">Json</span>(<span class="ident">val</span>) <span class="op">=&gt;</span> <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">val</span>),
+            <span class="ident">ParameterizedValue</span>::<span class="ident">Json</span>(<span class="ident">val</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">val</span>),
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;uuid-0_7&quot;</span>)]</span>
-            <span class="ident">ParameterizedValue</span>::<span class="ident">Uuid</span>(<span class="ident">val</span>) <span class="op">=&gt;</span> <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">val</span>),
+            <span class="ident">ParameterizedValue</span>::<span class="ident">Uuid</span>(<span class="ident">val</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">val</span>),
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;chrono-0_4&quot;</span>)]</span>
-            <span class="ident">ParameterizedValue</span>::<span class="ident">DateTime</span>(<span class="ident">val</span>) <span class="op">=&gt;</span> <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">val</span>),
+            <span class="ident">ParameterizedValue</span>::<span class="ident">DateTime</span>(<span class="ident">val</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">val</span>),
         }
     }
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;json-1&quot;</span>)]</span>
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">ParameterizedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;&gt;</span> <span class="kw">for</span> <span class="ident">Value</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">pv</span>: <span class="ident">ParameterizedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-&gt;</span> <span class="self">Self</span> {
+<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">ParameterizedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Value</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">pv</span>: <span class="ident">ParameterizedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="kw">match</span> <span class="ident">pv</span> {
-            <span class="ident">ParameterizedValue</span>::<span class="ident">Null</span> <span class="op">=&gt;</span> <span class="ident">Value</span>::<span class="ident">Null</span>,
-            <span class="ident">ParameterizedValue</span>::<span class="ident">Integer</span>(<span class="ident">i</span>) <span class="op">=&gt;</span> <span class="ident">Value</span>::<span class="ident">Number</span>(<span class="ident">Number</span>::<span class="ident">from</span>(<span class="ident">i</span>)),
-            <span class="ident">ParameterizedValue</span>::<span class="ident">Real</span>(<span class="ident">f</span>) <span class="op">=&gt;</span> <span class="ident">Value</span>::<span class="ident">Number</span>(<span class="ident">Number</span>::<span class="ident">from_f64</span>(<span class="ident">f</span>).<span class="ident">unwrap</span>()),
-            <span class="ident">ParameterizedValue</span>::<span class="ident">Text</span>(<span class="ident">cow</span>) <span class="op">=&gt;</span> <span class="ident">Value</span>::<span class="ident">String</span>(<span class="ident">cow</span>.<span class="ident">into_owned</span>()),
-            <span class="ident">ParameterizedValue</span>::<span class="ident">Boolean</span>(<span class="ident">b</span>) <span class="op">=&gt;</span> <span class="ident">Value</span>::<span class="ident">Bool</span>(<span class="ident">b</span>),
-            <span class="ident">ParameterizedValue</span>::<span class="ident">Char</span>(<span class="ident">c</span>) <span class="op">=&gt;</span> {
+            <span class="ident">ParameterizedValue</span>::<span class="ident">Null</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Value</span>::<span class="ident">Null</span>,
+            <span class="ident">ParameterizedValue</span>::<span class="ident">Integer</span>(<span class="ident">i</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Value</span>::<span class="ident">Number</span>(<span class="ident">Number</span>::<span class="ident">from</span>(<span class="ident">i</span>)),
+            <span class="ident">ParameterizedValue</span>::<span class="ident">Real</span>(<span class="ident">f</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Value</span>::<span class="ident">Number</span>(<span class="ident">Number</span>::<span class="ident">from_f64</span>(<span class="ident">f</span>).<span class="ident">unwrap</span>()),
+            <span class="ident">ParameterizedValue</span>::<span class="ident">Text</span>(<span class="ident">cow</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Value</span>::<span class="ident">String</span>(<span class="ident">cow</span>.<span class="ident">into_owned</span>()),
+            <span class="ident">ParameterizedValue</span>::<span class="ident">Boolean</span>(<span class="ident">b</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Value</span>::<span class="ident">Bool</span>(<span class="ident">b</span>),
+            <span class="ident">ParameterizedValue</span>::<span class="ident">Char</span>(<span class="ident">c</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">let</span> <span class="ident">bytes</span> <span class="op">=</span> [<span class="ident">c</span> <span class="kw">as</span> <span class="ident">u8</span>];
                 <span class="kw">let</span> <span class="ident">s</span> <span class="op">=</span> <span class="ident">std</span>::<span class="ident">str</span>::<span class="ident">from_utf8</span>(<span class="kw-2">&amp;</span><span class="ident">bytes</span>)
                     .<span class="ident">expect</span>(<span class="string">&quot;interpret byte as UTF-8&quot;</span>)
                     .<span class="ident">to_string</span>();
                 <span class="ident">Value</span>::<span class="ident">String</span>(<span class="ident">s</span>)
             }
-            <span class="ident">ParameterizedValue</span>::<span class="ident">Json</span>(<span class="ident">v</span>) <span class="op">=&gt;</span> <span class="ident">v</span>,
+            <span class="ident">ParameterizedValue</span>::<span class="ident">Json</span>(<span class="ident">v</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">v</span>,
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;array&quot;</span>)]</span>
-            <span class="ident">ParameterizedValue</span>::<span class="ident">Array</span>(<span class="ident">v</span>) <span class="op">=&gt;</span> <span class="ident">Value</span>::<span class="ident">Array</span>(<span class="ident">v</span>.<span class="ident">into_iter</span>().<span class="ident">map</span>(<span class="ident">Value</span>::<span class="ident">from</span>).<span class="ident">collect</span>()),
+            <span class="ident">ParameterizedValue</span>::<span class="ident">Array</span>(<span class="ident">v</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Value</span>::<span class="ident">Array</span>(<span class="ident">v</span>.<span class="ident">into_iter</span>().<span class="ident">map</span>(<span class="ident">Value</span>::<span class="ident">from</span>).<span class="ident">collect</span>()),
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;uuid-0_7&quot;</span>)]</span>
-            <span class="ident">ParameterizedValue</span>::<span class="ident">Uuid</span>(<span class="ident">u</span>) <span class="op">=&gt;</span> <span class="ident">Value</span>::<span class="ident">String</span>(<span class="ident">u</span>.<span class="ident">to_hyphenated</span>().<span class="ident">to_string</span>()),
+            <span class="ident">ParameterizedValue</span>::<span class="ident">Uuid</span>(<span class="ident">u</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Value</span>::<span class="ident">String</span>(<span class="ident">u</span>.<span class="ident">to_hyphenated</span>().<span class="ident">to_string</span>()),
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;chrono-0_4&quot;</span>)]</span>
-            <span class="ident">ParameterizedValue</span>::<span class="ident">DateTime</span>(<span class="ident">dt</span>) <span class="op">=&gt;</span> <span class="ident">Value</span>::<span class="ident">String</span>(<span class="ident">dt</span>.<span class="ident">to_rfc3339</span>()),
+            <span class="ident">ParameterizedValue</span>::<span class="ident">DateTime</span>(<span class="ident">dt</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Value</span>::<span class="ident">String</span>(<span class="ident">dt</span>.<span class="ident">to_rfc3339</span>()),
         }
     }
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">ParameterizedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="doccomment">/// `true` if the `ParameterizedValue` is null.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_null</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_null</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">ParameterizedValue</span>::<span class="ident">Null</span> <span class="op">=&gt;</span> <span class="bool-val">true</span>,
-            <span class="kw">_</span> <span class="op">=&gt;</span> <span class="bool-val">false</span>,
+            <span class="ident">ParameterizedValue</span>::<span class="ident">Null</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
+            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
         }
     }
 
     <span class="doccomment">/// `true` if the `ParameterizedValue` is text.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_text</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_text</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">ParameterizedValue</span>::<span class="ident">Text</span>(<span class="kw">_</span>) <span class="op">=&gt;</span> <span class="bool-val">true</span>,
-            <span class="kw">_</span> <span class="op">=&gt;</span> <span class="bool-val">false</span>,
+            <span class="ident">ParameterizedValue</span>::<span class="ident">Text</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
+            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
         }
     }
 
     <span class="doccomment">/// Returns a &amp;str if the value is text, otherwise `None`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">as_str</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">as_str</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">ParameterizedValue</span>::<span class="ident">Text</span>(<span class="ident">cow</span>) <span class="op">=&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">cow</span>.<span class="ident">borrow</span>()),
-            <span class="kw">_</span> <span class="op">=&gt;</span> <span class="prelude-val">None</span>,
+            <span class="ident">ParameterizedValue</span>::<span class="ident">Text</span>(<span class="ident">cow</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">cow</span>.<span class="ident">borrow</span>()),
+            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
         }
     }
 
     <span class="doccomment">/// Returns a char if the value is a char, otherwise `None`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">as_char</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">char</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">as_char</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">char</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">ParameterizedValue</span>::<span class="ident">Char</span>(<span class="ident">c</span>) <span class="op">=&gt;</span> <span class="prelude-val">Some</span>(<span class="kw-2">*</span><span class="ident">c</span>),
-            <span class="kw">_</span> <span class="op">=&gt;</span> <span class="prelude-val">None</span>,
+            <span class="ident">ParameterizedValue</span>::<span class="ident">Char</span>(<span class="ident">c</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="kw-2">*</span><span class="ident">c</span>),
+            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
         }
     }
 
     <span class="doccomment">/// Returns a cloned String if the value is text, otherwise `None`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_string</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_string</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">ParameterizedValue</span>::<span class="ident">Text</span>(<span class="ident">cow</span>) <span class="op">=&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">cow</span>.<span class="ident">to_string</span>()),
-            <span class="kw">_</span> <span class="op">=&gt;</span> <span class="prelude-val">None</span>,
+            <span class="ident">ParameterizedValue</span>::<span class="ident">Text</span>(<span class="ident">cow</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">cow</span>.<span class="ident">to_string</span>()),
+            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
         }
     }
 
     <span class="doccomment">/// Transforms the `ParameterizedValue` to a `String` if it&#39;s text,</span>
     <span class="doccomment">/// otherwise `None`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">into_string</span>(<span class="self">self</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">into_string</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">ParameterizedValue</span>::<span class="ident">Text</span>(<span class="ident">cow</span>) <span class="op">=&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">cow</span>.<span class="ident">into_owned</span>()),
-            <span class="kw">_</span> <span class="op">=&gt;</span> <span class="prelude-val">None</span>,
+            <span class="ident">ParameterizedValue</span>::<span class="ident">Text</span>(<span class="ident">cow</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">cow</span>.<span class="ident">into_owned</span>()),
+            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
         }
     }
 
     <span class="doccomment">/// `true` if the `ParameterizedValue` is an integer.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_integer</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_integer</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">ParameterizedValue</span>::<span class="ident">Integer</span>(<span class="kw">_</span>) <span class="op">=&gt;</span> <span class="bool-val">true</span>,
-            <span class="kw">_</span> <span class="op">=&gt;</span> <span class="bool-val">false</span>,
+            <span class="ident">ParameterizedValue</span>::<span class="ident">Integer</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
+            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
         }
     }
 
     <span class="doccomment">/// Returns an i64 if the value is an integer, otherwise `None`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">as_i64</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i64</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">as_i64</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">i64</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">ParameterizedValue</span>::<span class="ident">Integer</span>(<span class="ident">i</span>) <span class="op">=&gt;</span> <span class="prelude-val">Some</span>(<span class="kw-2">*</span><span class="ident">i</span>),
-            <span class="kw">_</span> <span class="op">=&gt;</span> <span class="prelude-val">None</span>,
+            <span class="ident">ParameterizedValue</span>::<span class="ident">Integer</span>(<span class="ident">i</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="kw-2">*</span><span class="ident">i</span>),
+            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
         }
     }
 
     <span class="doccomment">/// `true` if the `ParameterizedValue` is a real value.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_real</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_real</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">ParameterizedValue</span>::<span class="ident">Real</span>(<span class="kw">_</span>) <span class="op">=&gt;</span> <span class="bool-val">true</span>,
-            <span class="kw">_</span> <span class="op">=&gt;</span> <span class="bool-val">false</span>,
+            <span class="ident">ParameterizedValue</span>::<span class="ident">Real</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
+            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
         }
     }
 
     <span class="doccomment">/// Returns a f64 if the value is a real value, otherwise `None`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">as_f64</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">as_f64</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">ParameterizedValue</span>::<span class="ident">Real</span>(<span class="ident">f</span>) <span class="op">=&gt;</span> <span class="prelude-val">Some</span>(<span class="kw-2">*</span><span class="ident">f</span>),
-            <span class="kw">_</span> <span class="op">=&gt;</span> <span class="prelude-val">None</span>,
+            <span class="ident">ParameterizedValue</span>::<span class="ident">Real</span>(<span class="ident">f</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="kw-2">*</span><span class="ident">f</span>),
+            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
         }
     }
 
     <span class="doccomment">/// `true` if the `ParameterizedValue` is a boolean value.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_bool</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_bool</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">ParameterizedValue</span>::<span class="ident">Boolean</span>(<span class="kw">_</span>) <span class="op">=&gt;</span> <span class="bool-val">true</span>,
+            <span class="ident">ParameterizedValue</span>::<span class="ident">Boolean</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
             <span class="comment">// For schemas which don&#39;t tag booleans</span>
-            <span class="ident">ParameterizedValue</span>::<span class="ident">Integer</span>(<span class="ident">i</span>) <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">i</span> <span class="op">==</span> <span class="number">0</span> <span class="op">||</span> <span class="kw-2">*</span><span class="ident">i</span> <span class="op">==</span> <span class="number">1</span> <span class="op">=&gt;</span> <span class="bool-val">true</span>,
-            <span class="kw">_</span> <span class="op">=&gt;</span> <span class="bool-val">false</span>,
+            <span class="ident">ParameterizedValue</span>::<span class="ident">Integer</span>(<span class="ident">i</span>) <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">i</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> <span class="op">|</span><span class="op">|</span> <span class="kw-2">*</span><span class="ident">i</span> <span class="op">=</span><span class="op">=</span> <span class="number">1</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
+            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
         }
     }
 
     <span class="doccomment">/// Returns a bool if the value is a boolean, otherwise `None`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">as_bool</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">as_bool</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">ParameterizedValue</span>::<span class="ident">Boolean</span>(<span class="ident">b</span>) <span class="op">=&gt;</span> <span class="prelude-val">Some</span>(<span class="kw-2">*</span><span class="ident">b</span>),
+            <span class="ident">ParameterizedValue</span>::<span class="ident">Boolean</span>(<span class="ident">b</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="kw-2">*</span><span class="ident">b</span>),
             <span class="comment">// For schemas which don&#39;t tag booleans</span>
-            <span class="ident">ParameterizedValue</span>::<span class="ident">Integer</span>(<span class="ident">i</span>) <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">i</span> <span class="op">==</span> <span class="number">0</span> <span class="op">||</span> <span class="kw-2">*</span><span class="ident">i</span> <span class="op">==</span> <span class="number">1</span> <span class="op">=&gt;</span> <span class="prelude-val">Some</span>(<span class="kw-2">*</span><span class="ident">i</span> <span class="op">==</span> <span class="number">1</span>),
-            <span class="kw">_</span> <span class="op">=&gt;</span> <span class="prelude-val">None</span>,
+            <span class="ident">ParameterizedValue</span>::<span class="ident">Integer</span>(<span class="ident">i</span>) <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">i</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> <span class="op">|</span><span class="op">|</span> <span class="kw-2">*</span><span class="ident">i</span> <span class="op">=</span><span class="op">=</span> <span class="number">1</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="kw-2">*</span><span class="ident">i</span> <span class="op">=</span><span class="op">=</span> <span class="number">1</span>),
+            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
         }
     }
 
     <span class="doccomment">/// `true` if the `ParameterizedValue` is of UUID type.</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;uuid-0_7&quot;</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_uuid</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_uuid</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">ParameterizedValue</span>::<span class="ident">Uuid</span>(<span class="kw">_</span>) <span class="op">=&gt;</span> <span class="bool-val">true</span>,
-            <span class="kw">_</span> <span class="op">=&gt;</span> <span class="bool-val">false</span>,
+            <span class="ident">ParameterizedValue</span>::<span class="ident">Uuid</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
+            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
         }
     }
 
     <span class="doccomment">/// Returns an UUID if the value is of UUID type, otherwise `None`.</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;uuid-0_7&quot;</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">as_uuid</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">as_uuid</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Uuid</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">ParameterizedValue</span>::<span class="ident">Uuid</span>(<span class="ident">u</span>) <span class="op">=&gt;</span> <span class="prelude-val">Some</span>(<span class="kw-2">*</span><span class="ident">u</span>),
-            <span class="kw">_</span> <span class="op">=&gt;</span> <span class="prelude-val">None</span>,
+            <span class="ident">ParameterizedValue</span>::<span class="ident">Uuid</span>(<span class="ident">u</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="kw-2">*</span><span class="ident">u</span>),
+            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
         }
     }
 
     <span class="doccomment">/// `true` if the `ParameterizedValue` is a DateTime.</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;uuid-0_7&quot;</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_datetime</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_datetime</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">ParameterizedValue</span>::<span class="ident">DateTime</span>(<span class="kw">_</span>) <span class="op">=&gt;</span> <span class="bool-val">true</span>,
-            <span class="kw">_</span> <span class="op">=&gt;</span> <span class="bool-val">false</span>,
+            <span class="ident">ParameterizedValue</span>::<span class="ident">DateTime</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
+            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
         }
     }
 
     <span class="doccomment">/// Returns a DateTime if the value is a DateTime, otherwise `None`.</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;chrono-0_4&quot;</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">as_datetime</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">as_datetime</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">ParameterizedValue</span>::<span class="ident">DateTime</span>(<span class="ident">dt</span>) <span class="op">=&gt;</span> <span class="prelude-val">Some</span>(<span class="kw-2">*</span><span class="ident">dt</span>),
-            <span class="kw">_</span> <span class="op">=&gt;</span> <span class="prelude-val">None</span>,
+            <span class="ident">ParameterizedValue</span>::<span class="ident">DateTime</span>(<span class="ident">dt</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="kw-2">*</span><span class="ident">dt</span>),
+            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
         }
     }
 
     <span class="doccomment">/// `true` if the `ParameterizedValue` is a JSON value.</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;json-1&quot;</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_json</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_json</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">ParameterizedValue</span>::<span class="ident">Json</span>(<span class="kw">_</span>) <span class="op">=&gt;</span> <span class="bool-val">true</span>,
-            <span class="kw">_</span> <span class="op">=&gt;</span> <span class="bool-val">false</span>,
+            <span class="ident">ParameterizedValue</span>::<span class="ident">Json</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
+            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
         }
     }
 
     <span class="doccomment">/// Returns a reference to a JSON Value if of Json type, otherwise `None`.</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;json-1&quot;</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">as_json</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Value</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">as_json</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Value</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">ParameterizedValue</span>::<span class="ident">Json</span>(<span class="ident">j</span>) <span class="op">=&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">j</span>),
-            <span class="kw">_</span> <span class="op">=&gt;</span> <span class="prelude-val">None</span>,
+            <span class="ident">ParameterizedValue</span>::<span class="ident">Json</span>(<span class="ident">j</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">j</span>),
+            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
         }
     }
 
     <span class="doccomment">/// Transforms to a JSON Value if of Json type, otherwise `None`.</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;json-1&quot;</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">into_json</span>(<span class="self">self</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Value</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">into_json</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Value</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">ParameterizedValue</span>::<span class="ident">Json</span>(<span class="ident">j</span>) <span class="op">=&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">j</span>),
-            <span class="kw">_</span> <span class="op">=&gt;</span> <span class="prelude-val">None</span>,
+            <span class="ident">ParameterizedValue</span>::<span class="ident">Json</span>(<span class="ident">j</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">j</span>),
+            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
         }
     }
 
     <span class="doccomment">/// Returns a Vec&lt;T&gt; if the value is an array of T, otherwise `None`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">into_vec</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;&gt;</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">into_vec</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="comment">// Implement From&lt;ParameterizedValue&gt;</span>
-        <span class="ident">T</span>: <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="ident">ParameterizedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;&gt;</span>,
+        <span class="ident">T</span>: <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="ident">ParameterizedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">ParameterizedValue</span>::<span class="ident">Array</span>(<span class="ident">vec</span>) <span class="op">=&gt;</span> {
+            <span class="ident">ParameterizedValue</span>::<span class="ident">Array</span>(<span class="ident">vec</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">let</span> <span class="ident">rslt</span>: <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span>, <span class="kw">_</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">vec</span>.<span class="ident">into_iter</span>().<span class="ident">map</span>(<span class="ident">T</span>::<span class="ident">try_from</span>).<span class="ident">collect</span>();
                 <span class="kw">match</span> <span class="ident">rslt</span> {
-                    <span class="prelude-val">Err</span>(<span class="kw">_</span>) <span class="op">=&gt;</span> <span class="prelude-val">None</span>,
-                    <span class="prelude-val">Ok</span>(<span class="ident">values</span>) <span class="op">=&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">values</span>),
+                    <span class="prelude-val">Err</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
+                    <span class="prelude-val">Ok</span>(<span class="ident">values</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">values</span>),
                 }
             }
-            <span class="kw">_</span> <span class="op">=&gt;</span> <span class="prelude-val">None</span>,
+            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
         }
     }
 }
@@ -983,7 +983,7 @@
     <span class="doccomment">/// Anything that we must parameterize before querying</span>
     <span class="ident">Parameterized</span>(<span class="ident">ParameterizedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>),
     <span class="doccomment">/// A database column</span>
-    <span class="ident">Column</span>(<span class="ident">Box</span><span class="op">&lt;</span><span class="ident">Column</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;&gt;</span>),
+    <span class="ident">Column</span>(<span class="ident">Box</span><span class="op">&lt;</span><span class="ident">Column</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>),
     <span class="doccomment">/// Data in a row form, e.g. (1, 2, 3)</span>
     <span class="ident">Row</span>(<span class="ident">Row</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>),
     <span class="doccomment">/// A nested `SELECT` statement</span>
@@ -991,7 +991,7 @@
     <span class="doccomment">/// A database function call</span>
     <span class="ident">Function</span>(<span class="ident">Function</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>),
     <span class="doccomment">/// A qualified asterisk to a table</span>
-    <span class="ident">Asterisk</span>(<span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="ident">Table</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;&gt;</span><span class="op">&gt;</span>),
+    <span class="ident">Asterisk</span>(<span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="ident">Table</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>),
 }
 
 <span class="doccomment">/// A quick alias to create an asterisk to a table.</span>
@@ -1004,7 +1004,7 @@
 <span class="doccomment">/// )</span>
 <span class="doccomment">/// ```</span>
 <span class="attribute">#[<span class="ident">inline</span>]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">asterisk</span>() <span class="op">-&gt;</span> <span class="ident">DatabaseValue</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span><span class="op">&gt;</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">asterisk</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">DatabaseValue</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span><span class="op">&gt;</span> {
     <span class="ident">DatabaseValue</span>::<span class="ident">Asterisk</span>(<span class="prelude-val">None</span>)
 }
 
@@ -1013,70 +1013,70 @@
  */</span>
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ParameterizedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">that</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>) <span class="op">-&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">that</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="ident">ParameterizedValue</span>::<span class="ident">Text</span>(<span class="ident">that</span>.<span class="ident">into</span>())
     }
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ParameterizedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">that</span>: <span class="ident">String</span>) <span class="op">-&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">that</span>: <span class="ident">String</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="ident">ParameterizedValue</span>::<span class="ident">Text</span>(<span class="ident">that</span>.<span class="ident">into</span>())
     }
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ParameterizedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">that</span>: <span class="ident">usize</span>) <span class="op">-&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">that</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="ident">ParameterizedValue</span>::<span class="ident">Integer</span>(<span class="ident">i64</span>::<span class="ident">try_from</span>(<span class="ident">that</span>).<span class="ident">unwrap</span>())
     }
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ParameterizedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">that</span>: <span class="ident">i32</span>) <span class="op">-&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">that</span>: <span class="ident">i32</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="ident">ParameterizedValue</span>::<span class="ident">Integer</span>(<span class="ident">i64</span>::<span class="ident">try_from</span>(<span class="ident">that</span>).<span class="ident">unwrap</span>())
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="ident">ParameterizedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;&gt;</span> <span class="kw">for</span> <span class="ident">i64</span> {
+<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="ident">ParameterizedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">i64</span> {
     <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">Error</span>;
 
-    <span class="kw">fn</span> <span class="ident">try_from</span>(<span class="ident">value</span>: <span class="ident">ParameterizedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">i64</span>, <span class="self">Self</span>::<span class="ident">Error</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">try_from</span>(<span class="ident">value</span>: <span class="ident">ParameterizedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">i64</span>, <span class="self">Self</span>::<span class="ident">Error</span><span class="op">&gt;</span> {
         <span class="ident">value</span>.<span class="ident">as_i64</span>().<span class="ident">ok_or</span>(<span class="ident">Error</span>::<span class="ident">ConversionError</span>(<span class="string">&quot;Not an i64&quot;</span>))
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="ident">ParameterizedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;&gt;</span> <span class="kw">for</span> <span class="ident">f64</span> {
+<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="ident">ParameterizedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">f64</span> {
     <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">Error</span>;
 
-    <span class="kw">fn</span> <span class="ident">try_from</span>(<span class="ident">value</span>: <span class="ident">ParameterizedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">f64</span>, <span class="self">Self</span>::<span class="ident">Error</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">try_from</span>(<span class="ident">value</span>: <span class="ident">ParameterizedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">f64</span>, <span class="self">Self</span>::<span class="ident">Error</span><span class="op">&gt;</span> {
         <span class="ident">value</span>.<span class="ident">as_f64</span>().<span class="ident">ok_or</span>(<span class="ident">Error</span>::<span class="ident">ConversionError</span>(<span class="string">&quot;Not an f64&quot;</span>))
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="ident">ParameterizedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;&gt;</span> <span class="kw">for</span> <span class="ident">String</span> {
+<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="ident">ParameterizedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">String</span> {
     <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">Error</span>;
 
-    <span class="kw">fn</span> <span class="ident">try_from</span>(<span class="ident">value</span>: <span class="ident">ParameterizedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="self">Self</span>::<span class="ident">Error</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">try_from</span>(<span class="ident">value</span>: <span class="ident">ParameterizedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="self">Self</span>::<span class="ident">Error</span><span class="op">&gt;</span> {
         <span class="ident">value</span>
             .<span class="ident">into_string</span>()
             .<span class="ident">ok_or</span>(<span class="ident">Error</span>::<span class="ident">ConversionError</span>(<span class="string">&quot;Not a string&quot;</span>))
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="ident">ParameterizedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;&gt;</span> <span class="kw">for</span> <span class="ident">bool</span> {
+<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="ident">ParameterizedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">bool</span> {
     <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">Error</span>;
 
-    <span class="kw">fn</span> <span class="ident">try_from</span>(<span class="ident">value</span>: <span class="ident">ParameterizedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">bool</span>, <span class="self">Self</span>::<span class="ident">Error</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">try_from</span>(<span class="ident">value</span>: <span class="ident">ParameterizedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">bool</span>, <span class="self">Self</span>::<span class="ident">Error</span><span class="op">&gt;</span> {
         <span class="ident">value</span>.<span class="ident">as_bool</span>().<span class="ident">ok_or</span>(<span class="ident">Error</span>::<span class="ident">ConversionError</span>(<span class="string">&quot;Not a bool&quot;</span>))
     }
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;chrono-0_4&quot;</span>)]</span>
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="ident">ParameterizedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;&gt;</span> <span class="kw">for</span> <span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span> {
+<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="ident">ParameterizedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span> {
     <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">Error</span>;
 
-    <span class="kw">fn</span> <span class="ident">try_from</span>(<span class="ident">value</span>: <span class="ident">ParameterizedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span>, <span class="self">Self</span>::<span class="ident">Error</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">try_from</span>(<span class="ident">value</span>: <span class="ident">ParameterizedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span>, <span class="self">Self</span>::<span class="ident">Error</span><span class="op">&gt;</span> {
         <span class="ident">value</span>
             .<span class="ident">as_datetime</span>()
             .<span class="ident">ok_or</span>(<span class="ident">Error</span>::<span class="ident">ConversionError</span>(<span class="string">&quot;Not a datetime&quot;</span>))
@@ -1084,9 +1084,9 @@
 }
 
 <span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">parameterized_value</span> {
-    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">kind</span>:<span class="ident">ident</span>,<span class="macro-nonterminal">$</span><span class="macro-nonterminal">paramkind</span>:<span class="ident">ident</span>) <span class="op">=&gt;</span> {
+    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">kind</span>:<span class="ident">ident</span>,<span class="macro-nonterminal">$</span><span class="macro-nonterminal">paramkind</span>:<span class="ident">ident</span>) <span class="op">=</span><span class="op">&gt;</span> {
         <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">kind</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ParameterizedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-            <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">that</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">kind</span>) <span class="op">-&gt;</span> <span class="self">Self</span> {
+            <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">that</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">kind</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
                 <span class="ident">ParameterizedValue</span>::<span class="macro-nonterminal">$</span><span class="macro-nonterminal">paramkind</span>(<span class="ident">that</span>)
             }
         }
@@ -1104,9 +1104,9 @@
 <span class="macro">parameterized_value</span><span class="macro">!</span>(<span class="ident">Uuid</span>, <span class="ident">Uuid</span>);
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;chrono-0_4&quot;</span>)]</span>
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;&gt;</span> <span class="kw">for</span> <span class="ident">ParameterizedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ParameterizedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">that</span>: <span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span>) <span class="op">-&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">that</span>: <span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="ident">ParameterizedValue</span>::<span class="ident">DateTime</span>(<span class="ident">that</span>)
     }
 }
@@ -1116,9 +1116,9 @@
  */</span>
 
 <span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">database_value</span> {
-    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">kind</span>:<span class="ident">ident</span>,<span class="macro-nonterminal">$</span><span class="macro-nonterminal">paramkind</span>:<span class="ident">ident</span>) <span class="op">=&gt;</span> {
-        <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">kind</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;&gt;</span> <span class="kw">for</span> <span class="ident">DatabaseValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-            <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">that</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">kind</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-&gt;</span> <span class="self">Self</span> {
+    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">kind</span>:<span class="ident">ident</span>,<span class="macro-nonterminal">$</span><span class="macro-nonterminal">paramkind</span>:<span class="ident">ident</span>) <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">kind</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">DatabaseValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+            <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">that</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">kind</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
                 <span class="ident">DatabaseValue</span>::<span class="macro-nonterminal">$</span><span class="macro-nonterminal">paramkind</span>(<span class="ident">that</span>)
             }
         }
@@ -1130,20 +1130,20 @@
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">DatabaseValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>
 <span class="kw">where</span>
-    <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">ParameterizedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;&gt;</span>,
+    <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">ParameterizedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
 {
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">p</span>: <span class="ident">T</span>) <span class="op">-&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">p</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="ident">DatabaseValue</span>::<span class="ident">Parameterized</span>(<span class="ident">p</span>.<span class="ident">into</span>())
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;&gt;</span> <span class="kw">for</span> <span class="ident">DatabaseValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>
+<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">DatabaseValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>
 <span class="kw">where</span>
-    <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;&gt;</span>,
+    <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
 {
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">v</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>) <span class="op">-&gt;</span> <span class="self">Self</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">v</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="kw">let</span> <span class="ident">row</span>: <span class="ident">Row</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">v</span>.<span class="ident">into</span>();
         <span class="ident">row</span>.<span class="ident">into</span>()
     }
@@ -1151,132 +1151,132 @@
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">Comparable</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">DatabaseValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">equals</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">comparison</span>: <span class="ident">T</span>) <span class="op">-&gt;</span> <span class="ident">Compare</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>
+    <span class="kw">fn</span> <span class="ident">equals</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">comparison</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Compare</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;&gt;</span>,
+        <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     {
         <span class="ident">Compare</span>::<span class="ident">Equals</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="self">self</span>), <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">comparison</span>.<span class="ident">into</span>()))
     }
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">not_equals</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">comparison</span>: <span class="ident">T</span>) <span class="op">-&gt;</span> <span class="ident">Compare</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>
+    <span class="kw">fn</span> <span class="ident">not_equals</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">comparison</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Compare</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;&gt;</span>,
+        <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     {
         <span class="ident">Compare</span>::<span class="ident">NotEquals</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="self">self</span>), <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">comparison</span>.<span class="ident">into</span>()))
     }
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">less_than</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">comparison</span>: <span class="ident">T</span>) <span class="op">-&gt;</span> <span class="ident">Compare</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>
+    <span class="kw">fn</span> <span class="ident">less_than</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">comparison</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Compare</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;&gt;</span>,
+        <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     {
         <span class="ident">Compare</span>::<span class="ident">LessThan</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="self">self</span>), <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">comparison</span>.<span class="ident">into</span>()))
     }
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">less_than_or_equals</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">comparison</span>: <span class="ident">T</span>) <span class="op">-&gt;</span> <span class="ident">Compare</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>
+    <span class="kw">fn</span> <span class="ident">less_than_or_equals</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">comparison</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Compare</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;&gt;</span>,
+        <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     {
         <span class="ident">Compare</span>::<span class="ident">LessThanOrEquals</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="self">self</span>), <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">comparison</span>.<span class="ident">into</span>()))
     }
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">greater_than</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">comparison</span>: <span class="ident">T</span>) <span class="op">-&gt;</span> <span class="ident">Compare</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>
+    <span class="kw">fn</span> <span class="ident">greater_than</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">comparison</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Compare</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;&gt;</span>,
+        <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     {
         <span class="ident">Compare</span>::<span class="ident">GreaterThan</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="self">self</span>), <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">comparison</span>.<span class="ident">into</span>()))
     }
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">greater_than_or_equals</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">comparison</span>: <span class="ident">T</span>) <span class="op">-&gt;</span> <span class="ident">Compare</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>
+    <span class="kw">fn</span> <span class="ident">greater_than_or_equals</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">comparison</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Compare</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;&gt;</span>,
+        <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     {
         <span class="ident">Compare</span>::<span class="ident">GreaterThanOrEquals</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="self">self</span>), <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">comparison</span>.<span class="ident">into</span>()))
     }
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">in_selection</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">selection</span>: <span class="ident">T</span>) <span class="op">-&gt;</span> <span class="ident">Compare</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>
+    <span class="kw">fn</span> <span class="ident">in_selection</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">selection</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Compare</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;&gt;</span>,
+        <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     {
         <span class="ident">Compare</span>::<span class="ident">In</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="self">self</span>), <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">selection</span>.<span class="ident">into</span>()))
     }
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">not_in_selection</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">selection</span>: <span class="ident">T</span>) <span class="op">-&gt;</span> <span class="ident">Compare</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>
+    <span class="kw">fn</span> <span class="ident">not_in_selection</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">selection</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Compare</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;&gt;</span>,
+        <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     {
         <span class="ident">Compare</span>::<span class="ident">NotIn</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="self">self</span>), <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">selection</span>.<span class="ident">into</span>()))
     }
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">like</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">pattern</span>: <span class="ident">T</span>) <span class="op">-&gt;</span> <span class="ident">Compare</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>
+    <span class="kw">fn</span> <span class="ident">like</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">pattern</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Compare</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">str</span><span class="op">&gt;&gt;</span>,
+        <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">str</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     {
         <span class="ident">Compare</span>::<span class="ident">Like</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="self">self</span>), <span class="ident">pattern</span>.<span class="ident">into</span>())
     }
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">not_like</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">pattern</span>: <span class="ident">T</span>) <span class="op">-&gt;</span> <span class="ident">Compare</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>
+    <span class="kw">fn</span> <span class="ident">not_like</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">pattern</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Compare</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">str</span><span class="op">&gt;&gt;</span>,
+        <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">str</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     {
         <span class="ident">Compare</span>::<span class="ident">NotLike</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="self">self</span>), <span class="ident">pattern</span>.<span class="ident">into</span>())
     }
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">begins_with</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">pattern</span>: <span class="ident">T</span>) <span class="op">-&gt;</span> <span class="ident">Compare</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>
+    <span class="kw">fn</span> <span class="ident">begins_with</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">pattern</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Compare</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">str</span><span class="op">&gt;&gt;</span>,
+        <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">str</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     {
         <span class="ident">Compare</span>::<span class="ident">BeginsWith</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="self">self</span>), <span class="ident">pattern</span>.<span class="ident">into</span>())
     }
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">not_begins_with</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">pattern</span>: <span class="ident">T</span>) <span class="op">-&gt;</span> <span class="ident">Compare</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>
+    <span class="kw">fn</span> <span class="ident">not_begins_with</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">pattern</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Compare</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">str</span><span class="op">&gt;&gt;</span>,
+        <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">str</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     {
         <span class="ident">Compare</span>::<span class="ident">NotBeginsWith</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="self">self</span>), <span class="ident">pattern</span>.<span class="ident">into</span>())
     }
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">ends_into</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">pattern</span>: <span class="ident">T</span>) <span class="op">-&gt;</span> <span class="ident">Compare</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>
+    <span class="kw">fn</span> <span class="ident">ends_into</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">pattern</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Compare</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">str</span><span class="op">&gt;&gt;</span>,
+        <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">str</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     {
         <span class="ident">Compare</span>::<span class="ident">EndsInto</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="self">self</span>), <span class="ident">pattern</span>.<span class="ident">into</span>())
     }
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">not_ends_into</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">pattern</span>: <span class="ident">T</span>) <span class="op">-&gt;</span> <span class="ident">Compare</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>
+    <span class="kw">fn</span> <span class="ident">not_ends_into</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">pattern</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Compare</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">str</span><span class="op">&gt;&gt;</span>,
+        <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">str</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     {
         <span class="ident">Compare</span>::<span class="ident">NotEndsInto</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="self">self</span>), <span class="ident">pattern</span>.<span class="ident">into</span>())
     }
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">is_null</span>(<span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">Compare</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">is_null</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Compare</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
         <span class="ident">Compare</span>::<span class="ident">Null</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="self">self</span>))
     }
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">is_not_null</span>(<span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">Compare</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">is_not_null</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Compare</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
         <span class="ident">Compare</span>::<span class="ident">NotNull</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="self">self</span>))
     }
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">between</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">V</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">left</span>: <span class="ident">T</span>, <span class="ident">right</span>: <span class="ident">V</span>) <span class="op">-&gt;</span> <span class="ident">Compare</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>
+    <span class="kw">fn</span> <span class="ident">between</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">V</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">left</span>: <span class="ident">T</span>, <span class="ident">right</span>: <span class="ident">V</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Compare</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;&gt;</span>,
-        <span class="ident">V</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;&gt;</span>,
+        <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+        <span class="ident">V</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     {
         <span class="ident">Compare</span>::<span class="ident">Between</span>(
             <span class="ident">Box</span>::<span class="ident">new</span>(<span class="self">self</span>),
@@ -1286,10 +1286,10 @@
     }
 
     <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">not_between</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">V</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">left</span>: <span class="ident">T</span>, <span class="ident">right</span>: <span class="ident">V</span>) <span class="op">-&gt;</span> <span class="ident">Compare</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>
+    <span class="kw">fn</span> <span class="ident">not_between</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">V</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">left</span>: <span class="ident">T</span>, <span class="ident">right</span>: <span class="ident">V</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Compare</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;&gt;</span>,
-        <span class="ident">V</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;&gt;</span>,
+        <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+        <span class="ident">V</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     {
         <span class="ident">Compare</span>::<span class="ident">NotBetween</span>(
             <span class="ident">Box</span>::<span class="ident">new</span>(<span class="self">self</span>),
@@ -1345,7 +1345,7 @@
         <span class="kw">let</span> <span class="ident">datetime</span> <span class="op">=</span> <span class="ident">DateTime</span>::<span class="ident">from_str</span>(<span class="string">&quot;2019-07-27T05:30:30Z&quot;</span>).<span class="ident">expect</span>(<span class="string">&quot;parsing date/time&quot;</span>);
         <span class="kw">let</span> <span class="ident">pv</span> <span class="op">=</span> <span class="ident">ParameterizedValue</span>::<span class="ident">Array</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="ident">ParameterizedValue</span>::<span class="ident">DateTime</span>(<span class="ident">datetime</span>)]);
 
-        <span class="kw">let</span> <span class="ident">values</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;&gt;</span> <span class="op">=</span> <span class="ident">pv</span>.<span class="ident">into_vec</span>().<span class="ident">expect</span>(<span class="string">&quot;convert into Vec&lt;DateTime&gt;&quot;</span>);
+        <span class="kw">let</span> <span class="ident">values</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">pv</span>.<span class="ident">into_vec</span>().<span class="ident">expect</span>(<span class="string">&quot;convert into Vec&lt;DateTime&gt;&quot;</span>);
 
         <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">values</span>, <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">datetime</span>]);
     }
@@ -1354,7 +1354,7 @@
     <span class="kw">fn</span> <span class="ident">a_parameterized_value_of_an_array_cant_be_converted_into_a_vec_of_the_wrong_type</span>() {
         <span class="kw">let</span> <span class="ident">pv</span> <span class="op">=</span> <span class="ident">ParameterizedValue</span>::<span class="ident">Array</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="ident">ParameterizedValue</span>::<span class="ident">Integer</span>(<span class="number">1</span>)]);
 
-        <span class="kw">let</span> <span class="ident">rslt</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;&gt;</span> <span class="op">=</span> <span class="ident">pv</span>.<span class="ident">into_vec</span>();
+        <span class="kw">let</span> <span class="ident">rslt</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">pv</span>.<span class="ident">into_vec</span>();
 
         <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">rslt</span>.<span class="ident">is_none</span>());
     }

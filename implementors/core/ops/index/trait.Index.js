@@ -6,5 +6,4 @@ implementors["prisma_query"] = [{text:"impl&lt;'a, I:&nbsp;<a class=\"trait\" hr
             } else {
                 window.pending_implementors = implementors;
             }
-        
-})()
+        })()

@@ -109,7 +109,7 @@
 <span class="kw">let</span> <span class="ident">query</span> <span class="op">=</span> <span class="ident">Select</span>::<span class="ident">from_table</span>(<span class="string">&quot;users&quot;</span>).<span class="ident">so_that</span>(<span class="string">&quot;foo&quot;</span>.<span class="ident">in_selection</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="number">1</span>, <span class="number">2</span>]));
 <span class="kw">let</span> (<span class="ident">sql</span>, <span class="ident">params</span>) <span class="op">=</span> <span class="ident">Sqlite</span>::<span class="ident">build</span>(<span class="ident">query</span>);
 
-<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="string">&quot;SELECT `users`.* FROM `users` WHERE `foo` IN (?, ?)&quot;</span>, <span class="ident">sql</span>);
+<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="string">&quot;SELECT `users`.* FROM `users` WHERE `foo` IN (?,?)&quot;</span>, <span class="ident">sql</span>);
 <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="macro">vec</span><span class="macro">!</span>[
     <span class="ident">ParameterizedValue</span>::<span class="ident">Integer</span>(<span class="number">1</span>),
     <span class="ident">ParameterizedValue</span>::<span class="ident">Integer</span>(<span class="number">2</span>),
@@ -120,7 +120,7 @@
 <span class="kw">let</span> <span class="ident">query</span> <span class="op">=</span> <span class="ident">Select</span>::<span class="ident">from_table</span>(<span class="string">&quot;users&quot;</span>).<span class="ident">so_that</span>(<span class="string">&quot;foo&quot;</span>.<span class="ident">not_in_selection</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="number">1</span>, <span class="number">2</span>]));
 <span class="kw">let</span> (<span class="ident">sql</span>, <span class="ident">params</span>) <span class="op">=</span> <span class="ident">Sqlite</span>::<span class="ident">build</span>(<span class="ident">query</span>);
 
-<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="string">&quot;SELECT `users`.* FROM `users` WHERE `foo` NOT IN (?, ?)&quot;</span>, <span class="ident">sql</span>);
+<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="string">&quot;SELECT `users`.* FROM `users` WHERE `foo` NOT IN (?,?)&quot;</span>, <span class="ident">sql</span>);
 
 <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="macro">vec</span><span class="macro">!</span>[
     <span class="ident">ParameterizedValue</span>::<span class="ident">Integer</span>(<span class="number">1</span>),

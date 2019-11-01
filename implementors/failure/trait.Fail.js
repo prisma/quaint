@@ -6,5 +6,4 @@ implementors["prisma_query"] = [{text:"impl Fail for <a class=\"enum\" href=\"pr
             } else {
                 window.pending_implementors = implementors;
             }
-        
-})()
+        })()

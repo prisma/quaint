@@ -23,12 +23,13 @@
 <span id="23">23</span>
 <span id="24">24</span>
 <span id="25">25</span>
+<span id="26">26</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">ast</span>::<span class="ident">DatabaseValue</span>;
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">PartialEq</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">AggregateToString</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">value</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;&gt;</span>,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">value</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
 }
 
 <span class="doccomment">/// Aggregates the given field into a string.</span>
@@ -37,13 +38,14 @@
 <span class="doccomment">/// # use prisma_query::{ast::*, visitor::{Visitor, Sqlite}};</span>
 <span class="doccomment">/// let query = Select::from_table(&quot;users&quot;).value(aggregate_to_string(Column::new(&quot;firstName&quot;)))</span>
 <span class="doccomment">///     .group_by(&quot;firstName&quot;);</span>
+<span class="doccomment">///</span>
 <span class="doccomment">/// let (sql, _) = Sqlite::build(query);</span>
-<span class="doccomment">/// assert_eq!(&quot;SELECT group_concat(`firstName`) FROM `users` GROUP BY `firstName`&quot;, sql);</span>
+<span class="doccomment">/// assert_eq!(&quot;SELECT GROUP_CONCAT(`firstName`) FROM `users` GROUP BY `firstName`&quot;, sql);</span>
 <span class="doccomment">/// ```</span>
 <span class="attribute">#[<span class="ident">inline</span>]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">aggregate_to_string</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">expr</span>: <span class="ident">T</span>) <span class="op">-&gt;</span> <span class="ident">AggregateToString</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">aggregate_to_string</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">expr</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">AggregateToString</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>
 <span class="kw">where</span>
-    <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;&gt;</span>,
+    <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
 {
     <span class="ident">AggregateToString</span> {
         <span class="ident">value</span>: <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">expr</span>.<span class="ident">into</span>()),

@@ -6,5 +6,4 @@ implementors["prisma_query"] = [];
             } else {
                 window.pending_implementors = implementors;
             }
-        
-})()
+        })()

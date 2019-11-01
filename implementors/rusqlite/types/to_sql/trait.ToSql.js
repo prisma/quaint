@@ -6,5 +6,4 @@ implementors["prisma_query"] = [{text:"impl&lt;'a&gt; ToSql for <a class=\"enum\
             } else {
                 window.pending_implementors = implementors;
             }
-        
-})()
+        })()
