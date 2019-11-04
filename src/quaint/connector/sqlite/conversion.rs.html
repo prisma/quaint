@@ -46,6 +46,8 @@
 <span id="46">46</span>
 <span id="47">47</span>
 <span id="48">48</span>
+<span id="49">49</span>
+<span id="50">50</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">ast</span>::<span class="ident">ParameterizedValue</span>,
@@ -71,7 +73,9 @@
                     <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ParameterizedValue</span>::<span class="ident">Integer</span>(<span class="ident">i</span>),
                 },
                 <span class="ident">ValueRef</span>::<span class="ident">Real</span>(<span class="ident">f</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ParameterizedValue</span>::<span class="ident">Real</span>(<span class="ident">f</span>),
-                <span class="ident">ValueRef</span>::<span class="ident">Text</span>(<span class="ident">s</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ParameterizedValue</span>::<span class="ident">Text</span>(<span class="ident">s</span>.<span class="ident">to_string</span>().<span class="ident">into</span>()),
+                <span class="ident">ValueRef</span>::<span class="ident">Text</span>(<span class="ident">bytes</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="ident">ParameterizedValue</span>::<span class="ident">Text</span>(<span class="ident">String</span>::<span class="ident">from_utf8</span>(<span class="ident">bytes</span>.<span class="ident">to_vec</span>())<span class="question-mark">?</span>.<span class="ident">into</span>())
+                }
                 <span class="ident">ValueRef</span>::<span class="ident">Blob</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;Blobs not supprted, yet&quot;</span>),
             };
 
