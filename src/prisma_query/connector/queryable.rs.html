@@ -162,13 +162,13 @@
     <span class="kw">fn</span> <span class="ident">execute_raw</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="self">self</span>, <span class="ident">sql</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>, <span class="ident">params</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">ParameterizedValue</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">DBIO</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">u64</span><span class="op">&gt;</span>;
 
     <span class="doccomment">/// Turns off all foreign key constraints.</span>
-    <span class="kw">fn</span> <span class="ident">turn_off_fk_constraints</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">DBIO</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, ()<span class="op">&gt;</span>;
+    <span class="kw">fn</span> <span class="ident">turn_off_fk_constraints</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">DBIO</span><span class="op">&lt;</span>()<span class="op">&gt;</span>;
 
     <span class="doccomment">/// Turns on all foreign key constraints.</span>
-    <span class="kw">fn</span> <span class="ident">turn_on_fk_constraints</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">DBIO</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, ()<span class="op">&gt;</span>;
+    <span class="kw">fn</span> <span class="ident">turn_on_fk_constraints</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">DBIO</span><span class="op">&lt;</span>()<span class="op">&gt;</span>;
 
     <span class="doccomment">/// Starts a new transaction</span>
-    <span class="kw">fn</span> <span class="ident">start_transaction</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">DBIO</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">Transaction</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>;
+    <span class="kw">fn</span> <span class="ident">start_transaction</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">DBIO</span><span class="op">&lt;</span><span class="ident">Transaction</span><span class="op">&gt;</span>;
 
     <span class="doccomment">/// Runs a command in the database, for queries that can&#39;t be run using</span>
     <span class="doccomment">/// prepared statements.</span>
@@ -237,15 +237,15 @@
         <span class="ident">T</span>::<span class="ident">execute_raw</span>(<span class="self">self</span>, <span class="ident">sql</span>, <span class="ident">params</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">turn_off_fk_constraints</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">DBIO</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, ()<span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">turn_off_fk_constraints</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">DBIO</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="ident">T</span>::<span class="ident">turn_off_fk_constraints</span>(<span class="self">self</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">turn_on_fk_constraints</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">DBIO</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, ()<span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">turn_on_fk_constraints</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">DBIO</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="ident">T</span>::<span class="ident">turn_on_fk_constraints</span>(<span class="self">self</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">start_transaction</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">DBIO</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">Transaction</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">start_transaction</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">DBIO</span><span class="op">&lt;</span><span class="ident">Transaction</span><span class="op">&gt;</span> {
         <span class="ident">T</span>::<span class="ident">start_transaction</span>(<span class="self">self</span>)
     }
 
