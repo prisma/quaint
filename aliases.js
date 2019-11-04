@@ -1,2 +1,2 @@
 var ALIASES = {};
-ALIASES["prisma_query"] = {};
+ALIASES["quaint"] = {};
