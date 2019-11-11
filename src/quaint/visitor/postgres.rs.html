@@ -291,6 +291,8 @@
 <span id="291">291</span>
 <span id="292">292</span>
 <span id="293">293</span>
+<span id="294">294</span>
+<span id="295">295</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">ast</span>::<span class="kw-2">*</span>, <span class="ident">visitor</span>::<span class="ident">Visitor</span>};
 <span class="kw">use</span> <span class="ident">bytes</span>::<span class="ident">BytesMut</span>;
@@ -436,6 +438,7 @@
             <span class="ident">ParameterizedValue</span>::<span class="ident">Integer</span>(<span class="ident">integer</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="kw-2">*</span><span class="ident">ty</span> {
                 <span class="ident">Type</span>::<span class="ident">INT2</span> <span class="op">=</span><span class="op">&gt;</span> (<span class="kw-2">*</span><span class="ident">integer</span> <span class="kw">as</span> <span class="ident">i16</span>).<span class="ident">to_sql</span>(<span class="ident">ty</span>, <span class="ident">out</span>),
                 <span class="ident">Type</span>::<span class="ident">INT4</span> <span class="op">=</span><span class="op">&gt;</span> (<span class="kw-2">*</span><span class="ident">integer</span> <span class="kw">as</span> <span class="ident">i32</span>).<span class="ident">to_sql</span>(<span class="ident">ty</span>, <span class="ident">out</span>),
+                <span class="ident">Type</span>::<span class="ident">TEXT</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">integer</span>).<span class="ident">to_sql</span>(<span class="ident">ty</span>, <span class="ident">out</span>),
                 <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> (<span class="kw-2">*</span><span class="ident">integer</span> <span class="kw">as</span> <span class="ident">i64</span>).<span class="ident">to_sql</span>(<span class="ident">ty</span>, <span class="ident">out</span>),
             },
             <span class="ident">ParameterizedValue</span>::<span class="ident">Real</span>(<span class="ident">float</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="kw-2">*</span><span class="ident">ty</span> {
@@ -473,6 +476,7 @@
             <span class="ident">ParameterizedValue</span>::<span class="ident">Integer</span>(<span class="ident">integer</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="kw-2">*</span><span class="ident">ty</span> {
                 <span class="ident">Type</span>::<span class="ident">INT2</span> <span class="op">=</span><span class="op">&gt;</span> (<span class="kw-2">*</span><span class="ident">integer</span> <span class="kw">as</span> <span class="ident">i16</span>).<span class="ident">to_sql_checked</span>(<span class="ident">ty</span>, <span class="ident">out</span>),
                 <span class="ident">Type</span>::<span class="ident">INT4</span> <span class="op">=</span><span class="op">&gt;</span> (<span class="kw-2">*</span><span class="ident">integer</span> <span class="kw">as</span> <span class="ident">i32</span>).<span class="ident">to_sql_checked</span>(<span class="ident">ty</span>, <span class="ident">out</span>),
+                <span class="ident">Type</span>::<span class="ident">TEXT</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">integer</span>).<span class="ident">to_sql</span>(<span class="ident">ty</span>, <span class="ident">out</span>),
                 <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">integer</span>.<span class="ident">to_sql_checked</span>(<span class="ident">ty</span>, <span class="ident">out</span>),
             },
             <span class="ident">ParameterizedValue</span>::<span class="ident">Real</span>(<span class="ident">float</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="kw-2">*</span><span class="ident">ty</span> {
