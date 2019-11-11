@@ -199,7 +199,7 @@
 <span class="doccomment">//!</span>
 <span class="doccomment">//! #[tokio::main]</span>
 <span class="doccomment">//! async fn main() -&gt; Result&lt;(), quaint::error::Error&gt; {</span>
-<span class="doccomment">//!     let mut conn = Sqlite::new(&quot;test.db&quot;)?;</span>
+<span class="doccomment">//!     let conn = Sqlite::new(&quot;test.db&quot;)?;</span>
 <span class="doccomment">//!     let query = Select::default().value(1);</span>
 <span class="doccomment">//!     let result = conn.query(query.into()).await?;</span>
 <span class="doccomment">//!</span>
