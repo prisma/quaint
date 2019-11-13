@@ -446,8 +446,6 @@
 <span id="446">446</span>
 <span id="447">447</span>
 <span id="448">448</span>
-<span id="449">449</span>
-<span id="450">450</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">mod</span> <span class="ident">conversion</span>;
 <span class="kw">mod</span> <span class="ident">error</span>;
@@ -460,7 +458,7 @@
 
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">ast</span>::{<span class="ident">Id</span>, <span class="ident">ParameterizedValue</span>, <span class="ident">Query</span>},
-    <span class="ident">connector</span>::{<span class="ident">metrics</span>, <span class="ident">queryable</span>::<span class="kw-2">*</span>, <span class="ident">ResultSet</span>, <span class="ident">Transaction</span>, <span class="ident">DBIO</span>},
+    <span class="ident">connector</span>::{<span class="ident">metrics</span>, <span class="ident">queryable</span>::<span class="kw-2">*</span>, <span class="ident">ResultSet</span>, <span class="ident">DBIO</span>},
     <span class="ident">error</span>::<span class="ident">Error</span>,
     <span class="ident">visitor</span>::{<span class="self">self</span>, <span class="ident">Visitor</span>},
 };
@@ -702,6 +700,8 @@
     }
 }
 
+<span class="kw">impl</span> <span class="ident">TransactionCapable</span> <span class="kw">for</span> <span class="ident">Mysql</span> { }
+
 <span class="kw">impl</span> <span class="ident">Queryable</span> <span class="kw">for</span> <span class="ident">Mysql</span> {
     <span class="kw">fn</span> <span class="ident">execute</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="self">self</span>, <span class="ident">q</span>: <span class="ident">Query</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">DBIO</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Id</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="ident">DBIO</span>::<span class="ident">new</span>(<span class="kw">async</span> <span class="kw">move</span> {
@@ -773,10 +773,6 @@
         })
     }
 
-    <span class="kw">fn</span> <span class="ident">start_transaction</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">DBIO</span><span class="op">&lt;</span><span class="ident">Transaction</span><span class="op">&gt;</span> {
-        <span class="ident">DBIO</span>::<span class="ident">new</span>(<span class="kw">async</span> <span class="kw">move</span> { <span class="ident">Transaction</span>::<span class="ident">new</span>(<span class="self">self</span>).<span class="kw">await</span> })
-    }
-
     <span class="kw">fn</span> <span class="ident">raw_cmd</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="self">self</span>, <span class="ident">cmd</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">DBIO</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, ()<span class="op">&gt;</span> {
         <span class="ident">metrics</span>::<span class="ident">query</span>(<span class="string">&quot;mysql.raw_cmd&quot;</span>, <span class="ident">cmd</span>, <span class="kw-2">&amp;</span>[], <span class="kw">move</span> <span class="op">|</span><span class="op">|</span> {
             <span class="kw">async</span> <span class="kw">move</span> {
@@ -790,7 +786,7 @@
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
 <span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">connector</span>::<span class="ident">Queryable</span>, <span class="ident">Quaint</span>, <span class="ident">error</span>::<span class="ident">Error</span>};
+    <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">connector</span>::{<span class="ident">Queryable</span>, <span class="ident">TransactionCapable</span>}, <span class="ident">Quaint</span>, <span class="ident">error</span>::<span class="ident">Error</span>};
     <span class="kw">use</span> <span class="kw">super</span>::<span class="ident">MysqlUrl</span>;
     <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">env</span>;
     <span class="kw">use</span> <span class="ident">lazy_static</span>::<span class="ident">lazy_static</span>;
