@@ -292,6 +292,12 @@
 <span id="292">292</span>
 <span id="293">293</span>
 <span id="294">294</span>
+<span id="295">295</span>
+<span id="296">296</span>
+<span id="297">297</span>
+<span id="298">298</span>
+<span id="299">299</span>
+<span id="300">300</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">mod</span> <span class="ident">conversion</span>;
 <span class="kw">mod</span> <span class="ident">error</span>;
@@ -320,6 +326,7 @@
     <span class="doccomment">/// This is not a `PathBuf` because we need to `ATTACH` the database to the path, and this can</span>
     <span class="doccomment">/// only be done with UTF-8 paths.</span>
     <span class="kw">pub</span> <span class="ident">file_path</span>: <span class="ident">String</span>,
+    <span class="kw">pub</span> <span class="ident">db_name</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
 }
 
 <span class="kw">type</span> <span class="ident">ConnectionParams</span> <span class="op">=</span> (<span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">String</span>, <span class="ident">String</span>)<span class="op">&gt;</span>, <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">String</span>, <span class="ident">String</span>)<span class="op">&gt;</span>);
@@ -340,6 +347,7 @@
         } <span class="kw">else</span> {
             <span class="kw">let</span> <span class="ident">official</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[];
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">connection_limit</span> <span class="op">=</span> <span class="ident">num_cpus</span>::<span class="ident">get_physical</span>() <span class="op">*</span> <span class="number">2</span> <span class="op">+</span> <span class="number">1</span>;
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">db_name</span> <span class="op">=</span> <span class="prelude-val">None</span>;
 
             <span class="kw">if</span> <span class="ident">path_parts</span>.<span class="ident">len</span>() <span class="op">&gt;</span> <span class="number">1</span> {
                 <span class="kw">let</span> (<span class="kw">_</span>, <span class="ident">unsupported</span>): <span class="ident">ConnectionParams</span> <span class="op">=</span> <span class="ident">path_parts</span>
@@ -362,6 +370,9 @@
 
                             <span class="ident">connection_limit</span> <span class="op">=</span> <span class="ident">as_int</span>;
                         }
+                        <span class="string">&quot;db_name&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                            <span class="ident">db_name</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">v</span>.<span class="ident">to_string</span>());
+                        }
                         <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {
                             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;tracing-log&quot;</span>))]</span>
                             <span class="macro">trace</span><span class="macro">!</span>(<span class="string">&quot;Discarding connection string param: {}&quot;</span>, <span class="ident">k</span>);
@@ -378,6 +389,7 @@
             <span class="prelude-val">Ok</span>(<span class="self">Self</span> {
                 <span class="ident">connection_limit</span>: <span class="ident">u32</span>::<span class="ident">try_from</span>(<span class="ident">connection_limit</span>).<span class="ident">unwrap</span>(),
                 <span class="ident">file_path</span>: <span class="ident">path_str</span>.<span class="ident">to_owned</span>(),
+                <span class="ident">db_name</span>,
             })
         }
     }

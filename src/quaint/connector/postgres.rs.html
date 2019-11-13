@@ -620,16 +620,6 @@
 <span id="620">620</span>
 <span id="621">621</span>
 <span id="622">622</span>
-<span id="623">623</span>
-<span id="624">624</span>
-<span id="625">625</span>
-<span id="626">626</span>
-<span id="627">627</span>
-<span id="628">628</span>
-<span id="629">629</span>
-<span id="630">630</span>
-<span id="631">631</span>
-<span id="632">632</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">mod</span> <span class="ident">conversion</span>;
 <span class="kw">mod</span> <span class="ident">error</span>;
@@ -1111,20 +1101,13 @@
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
 <span class="kw">mod</span> <span class="ident">tests</span> {
     <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
-    <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">connector</span>::<span class="ident">Queryable</span>;
+    <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">connector</span>::<span class="ident">Queryable</span>, <span class="ident">Quaint</span>};
     <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">env</span>;
-    <span class="kw">use</span> <span class="ident">tokio_postgres</span> <span class="kw">as</span> <span class="ident">postgres</span>;
     <span class="kw">use</span> <span class="ident">url</span>::<span class="ident">Url</span>;
+    <span class="kw">use</span> <span class="ident">lazy_static</span>::<span class="ident">lazy_static</span>;
 
-    <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">unused</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">get_config</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">postgres</span>::<span class="ident">Config</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">config</span> <span class="op">=</span> <span class="ident">postgres</span>::<span class="ident">Config</span>::<span class="ident">new</span>();
-        <span class="ident">config</span>.<span class="ident">host</span>(<span class="kw-2">&amp;</span><span class="ident">env</span>::<span class="ident">var</span>(<span class="string">&quot;TEST_PG_HOST&quot;</span>).<span class="ident">unwrap</span>());
-        <span class="ident">config</span>.<span class="ident">dbname</span>(<span class="kw-2">&amp;</span><span class="ident">env</span>::<span class="ident">var</span>(<span class="string">&quot;TEST_PG_DB&quot;</span>).<span class="ident">unwrap</span>());
-        <span class="ident">config</span>.<span class="ident">user</span>(<span class="kw-2">&amp;</span><span class="ident">env</span>::<span class="ident">var</span>(<span class="string">&quot;TEST_PG_USER&quot;</span>).<span class="ident">unwrap</span>());
-        <span class="ident">config</span>.<span class="ident">password</span>(<span class="ident">env</span>::<span class="ident">var</span>(<span class="string">&quot;TEST_PG_PASSWORD&quot;</span>).<span class="ident">unwrap</span>());
-        <span class="ident">config</span>.<span class="ident">port</span>(<span class="ident">env</span>::<span class="ident">var</span>(<span class="string">&quot;TEST_PG_PORT&quot;</span>).<span class="ident">unwrap</span>().<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">u16</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>());
-        <span class="ident">config</span>
+    <span class="macro">lazy_static</span><span class="macro">!</span> {
+        <span class="kw">static</span> <span class="kw-2">ref</span> <span class="ident">CONN_STR</span>: <span class="ident">String</span> <span class="op">=</span> <span class="ident">env</span>::<span class="ident">var</span>(<span class="string">&quot;TEST_PSQL&quot;</span>).<span class="ident">unwrap</span>();
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
@@ -1143,7 +1126,8 @@
 
     <span class="attribute">#[<span class="ident">tokio</span>::<span class="ident">test</span>]</span>
     <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">should_provide_a_database_connection</span>() {
-        <span class="kw">let</span> <span class="ident">connection</span> <span class="op">=</span> <span class="ident">PostgreSql</span>::<span class="ident">new</span>(<span class="ident">get_config</span>(), <span class="prelude-val">None</span>, <span class="prelude-val">None</span>).<span class="kw">await</span>.<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">pool</span> <span class="op">=</span> <span class="ident">Quaint</span>::<span class="ident">new</span>(<span class="kw-2">&amp;</span><span class="ident">CONN_STR</span>).<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">connection</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">check_out</span>().<span class="kw">await</span>.<span class="ident">unwrap</span>();
 
         <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">connection</span>
             .<span class="ident">query_raw</span>(
@@ -1159,7 +1143,8 @@
 
     <span class="attribute">#[<span class="ident">tokio</span>::<span class="ident">test</span>]</span>
     <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">should_provide_a_database_transaction</span>() {
-        <span class="kw">let</span> <span class="ident">connection</span> <span class="op">=</span> <span class="ident">PostgreSql</span>::<span class="ident">new</span>(<span class="ident">get_config</span>(), <span class="prelude-val">None</span>, <span class="prelude-val">None</span>).<span class="kw">await</span>.<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">pool</span> <span class="op">=</span> <span class="ident">Quaint</span>::<span class="ident">new</span>(<span class="kw-2">&amp;</span><span class="ident">CONN_STR</span>).<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">connection</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">check_out</span>().<span class="kw">await</span>.<span class="ident">unwrap</span>();
         <span class="kw">let</span> <span class="ident">tx</span> <span class="op">=</span> <span class="ident">connection</span>.<span class="ident">start_transaction</span>().<span class="kw">await</span>.<span class="ident">unwrap</span>();
 
         <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">tx</span>
@@ -1194,7 +1179,9 @@
 
     <span class="attribute">#[<span class="ident">tokio</span>::<span class="ident">test</span>]</span>
     <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">should_map_columns_correctly</span>() {
-        <span class="kw">let</span> <span class="ident">connection</span> <span class="op">=</span> <span class="ident">PostgreSql</span>::<span class="ident">new</span>(<span class="ident">get_config</span>(), <span class="prelude-val">None</span>, <span class="prelude-val">None</span>).<span class="kw">await</span>.<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">pool</span> <span class="op">=</span> <span class="ident">Quaint</span>::<span class="ident">new</span>(<span class="kw-2">&amp;</span><span class="ident">CONN_STR</span>).<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">connection</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">check_out</span>().<span class="kw">await</span>.<span class="ident">unwrap</span>();
+
         <span class="ident">connection</span>.<span class="ident">query_raw</span>(<span class="ident">DROP_TABLE</span>, <span class="kw-2">&amp;</span>[]).<span class="kw">await</span>.<span class="ident">unwrap</span>();
         <span class="ident">connection</span>.<span class="ident">query_raw</span>(<span class="ident">TABLE_DEF</span>, <span class="kw-2">&amp;</span>[]).<span class="kw">await</span>.<span class="ident">unwrap</span>();
         <span class="ident">connection</span>.<span class="ident">query_raw</span>(<span class="ident">CREATE_USER</span>, <span class="kw-2">&amp;</span>[]).<span class="kw">await</span>.<span class="ident">unwrap</span>();
@@ -1215,20 +1202,11 @@
 
     <span class="attribute">#[<span class="ident">tokio</span>::<span class="ident">test</span>]</span>
     <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">test_custom_search_path</span>() {
-        <span class="kw">let</span> <span class="ident">conn_string</span> <span class="op">=</span> <span class="macro">format</span><span class="macro">!</span>(
-            <span class="string">&quot;postgresql://{}:{}@{}:{}/{}?schema=musti-test&quot;</span>,
-            <span class="ident">env</span>::<span class="ident">var</span>(<span class="string">&quot;TEST_PG_USER&quot;</span>).<span class="ident">unwrap</span>(),
-            <span class="ident">env</span>::<span class="ident">var</span>(<span class="string">&quot;TEST_PG_PASSWORD&quot;</span>).<span class="ident">unwrap</span>(),
-            <span class="ident">env</span>::<span class="ident">var</span>(<span class="string">&quot;TEST_PG_HOST&quot;</span>).<span class="ident">unwrap</span>(),
-            <span class="ident">env</span>::<span class="ident">var</span>(<span class="string">&quot;TEST_PG_PORT&quot;</span>).<span class="ident">unwrap</span>(),
-            <span class="ident">env</span>::<span class="ident">var</span>(<span class="string">&quot;TEST_PG_DB&quot;</span>).<span class="ident">unwrap</span>(),
-        );
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">url</span> <span class="op">=</span> <span class="ident">Url</span>::<span class="ident">parse</span>(<span class="kw-2">&amp;</span><span class="ident">CONN_STR</span>).<span class="ident">unwrap</span>();
+        <span class="ident">url</span>.<span class="ident">query_pairs_mut</span>().<span class="ident">append_pair</span>(<span class="string">&quot;schema&quot;</span>, <span class="string">&quot;musti-test&quot;</span>);
 
-        <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="ident">Url</span>::<span class="ident">parse</span>(<span class="kw-2">&amp;</span><span class="ident">conn_string</span>).<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">params</span> <span class="op">=</span> <span class="ident">PostgresParams</span>::<span class="ident">try_from</span>(<span class="ident">url</span>).<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">client</span> <span class="op">=</span> <span class="ident">PostgreSql</span>::<span class="ident">new</span>(<span class="ident">params</span>.<span class="ident">config</span>, <span class="prelude-val">Some</span>(<span class="ident">params</span>.<span class="ident">schema</span>), <span class="prelude-val">Some</span>(<span class="ident">params</span>.<span class="ident">ssl_params</span>))
-            .<span class="kw">await</span>
-            .<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">pool</span> <span class="op">=</span> <span class="ident">Quaint</span>::<span class="ident">new</span>(<span class="ident">url</span>.<span class="ident">as_str</span>()).<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">client</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">check_out</span>().<span class="kw">await</span>.<span class="ident">unwrap</span>();
 
         <span class="kw">let</span> <span class="ident">result_set</span> <span class="op">=</span> <span class="ident">client</span>.<span class="ident">query_raw</span>(<span class="string">&quot;SHOW search_path&quot;</span>, <span class="kw-2">&amp;</span>[]).<span class="kw">await</span>.<span class="ident">unwrap</span>();
         <span class="kw">let</span> <span class="ident">row</span> <span class="op">=</span> <span class="ident">result_set</span>.<span class="ident">first</span>().<span class="ident">unwrap</span>();
@@ -1238,18 +1216,20 @@
 
     <span class="attribute">#[<span class="ident">tokio</span>::<span class="ident">test</span>]</span>
     <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">should_map_nonexisting_database_error</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">config</span> <span class="op">=</span> <span class="ident">get_config</span>();
-        <span class="ident">config</span>.<span class="ident">dbname</span>(<span class="string">&quot;this_does_not_exist&quot;</span>);
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">url</span> <span class="op">=</span> <span class="ident">Url</span>::<span class="ident">parse</span>(<span class="kw-2">&amp;</span><span class="ident">CONN_STR</span>).<span class="ident">unwrap</span>();
+        <span class="ident">url</span>.<span class="ident">set_path</span>(<span class="string">&quot;this_does_not_exist&quot;</span>);
 
-        <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">PostgreSql</span>::<span class="ident">new</span>(<span class="ident">config</span>, <span class="prelude-val">None</span>, <span class="prelude-val">None</span>).<span class="kw">await</span>;
+        <span class="kw">let</span> <span class="ident">pool</span> <span class="op">=</span> <span class="ident">Quaint</span>::<span class="ident">new</span>(<span class="ident">url</span>.<span class="ident">as_str</span>()).<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">check_out</span>().<span class="kw">await</span>;
 
         <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">res</span>.<span class="ident">is_err</span>());
 
-        <span class="kw">match</span> <span class="ident">res</span>.<span class="ident">unwrap_err</span>() {
-            <span class="ident">Error</span>::<span class="ident">DatabaseDoesNotExist</span> { <span class="ident">db_name</span> } <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="kw">match</span> <span class="ident">res</span> {
+            <span class="prelude-val">Ok</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
+            <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">DatabaseDoesNotExist</span> { <span class="ident">db_name</span> }) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="string">&quot;this_does_not_exist&quot;</span>, <span class="ident">db_name</span>.<span class="ident">as_str</span>())
             }
-            <span class="ident">e</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;Expected `DatabaseDoesNotExist`, got {:?}&quot;</span>, <span class="ident">e</span>),
+            <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;Expected `DatabaseDoesNotExist`, got {:?}&quot;</span>, <span class="ident">e</span>),
         }
     }
 

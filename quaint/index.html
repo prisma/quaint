@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="API documentation for the Rust `quaint` crate."><meta name="keywords" content="rust, rustlang, rust-lang, quaint"><title>quaint - Rust</title><link rel="stylesheet" type="text/css" href="../normalize.css"><link rel="stylesheet" type="text/css" href="../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../dark.css"><link rel="stylesheet" type="text/css" href="../light.css" id="themeStyle"><script src="../storage.js"></script><noscript><link rel="stylesheet" href="../noscript.css"></noscript><link rel="shortcut icon" href="../favicon.ico"><style type="text/css">#crate-search{background-image:url("../down-arrow.svg");}</style></head><body class="rustdoc mod"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../quaint/index.html'><div class='logo-container'><img src='../rust-logo.png' alt='logo'></div></a><p class='location'>Crate quaint</p><div class="sidebar-elems"><a id='all-types' href='all.html'><p>See all quaint's items</p></a><div class="block items"><ul><li><a href="#modules">Modules</a></li><li><a href="#types">Type Definitions</a></li></ul></div><p class='location'></p><script>window.sidebarCurrent = {name: 'quaint', ty: 'mod', relpath: '../'};</script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!"><img src="../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices"></div></div><script src="../theme.js"></script><nav class="sub"><form class="search-form js-only"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><a id="settings-menu" href="../settings.html"><img src="../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><h1 class='fqn'><span class='out-of-band'><span id='render-detail'><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class='inner'>&#x2212;</span>]</a></span><a class='srclink' href='../src/quaint/lib.rs.html#1-120' title='goto source code'>[src]</a></span><span class='in-band'>Crate <a class="mod" href=''>quaint</a></span></h1><div class='docblock'><h1 id="quaint" class="section-header"><a href="#quaint">quaint</a></h1>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="API documentation for the Rust `quaint` crate."><meta name="keywords" content="rust, rustlang, rust-lang, quaint"><title>quaint - Rust</title><link rel="stylesheet" type="text/css" href="../normalize.css"><link rel="stylesheet" type="text/css" href="../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../dark.css"><link rel="stylesheet" type="text/css" href="../light.css" id="themeStyle"><script src="../storage.js"></script><noscript><link rel="stylesheet" href="../noscript.css"></noscript><link rel="shortcut icon" href="../favicon.ico"><style type="text/css">#crate-search{background-image:url("../down-arrow.svg");}</style></head><body class="rustdoc mod"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../quaint/index.html'><div class='logo-container'><img src='../rust-logo.png' alt='logo'></div></a><p class='location'>Crate quaint</p><div class="sidebar-elems"><a id='all-types' href='all.html'><p>See all quaint's items</p></a><div class="block items"><ul><li><a href="#modules">Modules</a></li><li><a href="#structs">Structs</a></li><li><a href="#types">Type Definitions</a></li></ul></div><p class='location'></p><script>window.sidebarCurrent = {name: 'quaint', ty: 'mod', relpath: '../'};</script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!"><img src="../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices"></div></div><script src="../theme.js"></script><nav class="sub"><form class="search-form js-only"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><a id="settings-menu" href="../settings.html"><img src="../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><h1 class='fqn'><span class='out-of-band'><span id='render-detail'><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class='inner'>&#x2212;</span>]</a></span><a class='srclink' href='../src/quaint/lib.rs.html#1-122' title='goto source code'>[src]</a></span><span class='in-band'>Crate <a class="mod" href=''>quaint</a></span></h1><div class='docblock'><h1 id="quaint" class="section-header"><a href="#quaint">quaint</a></h1>
 <p>Quaint is an AST and database-specific visitors for creating SQL
 statements.</p>
 <p>Under construction and will go through several rounds of changes. Not meant
@@ -21,7 +21,31 @@ different databases.</li>
 <li>PostgreSQL</li>
 <li>MySQL</li>
 </ul>
-<h2 id="examples" class="section-header"><a href="#examples">Examples</a></h2><h3 id="building-an-sql-query-string" class="section-header"><a href="#building-an-sql-query-string">Building an SQL query string</a></h3>
+<h2 id="examples" class="section-header"><a href="#examples">Examples</a></h2><h3 id="querying-a-database-with-an-ast-object" class="section-header"><a href="#querying-a-database-with-an-ast-object">Querying a database with an AST object</a></h3>
+<p>The <a href="struct.Quaint.html">Quaint</a> abstracts a generic pooling and connection
+interface over different databases. It offers querying with the
+<a href="ast/index.html">ast</a> module or directly using raw strings. See
+documentation for <a href="connector/trait.Queryable.html">Queryable</a> for details.</p>
+<p>When querying with an ast object the queries are paremeterized
+automatically.</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">quaint</span>::<span class="ident">prelude</span>::<span class="kw-2">*</span>;
+
+<span class="attribute">#[<span class="ident">tokio</span>::<span class="ident">main</span>]</span>
+<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">main</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">quaint</span>::<span class="ident">error</span>::<span class="ident">Error</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="ident">quaint</span> <span class="op">=</span> <span class="ident">Quaint</span>::<span class="ident">new</span>(<span class="string">&quot;sqlite:///tmp/test.db&quot;</span>)<span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">quaint</span>.<span class="ident">check_out</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">conn</span>.<span class="ident">select</span>(<span class="ident">Select</span>::<span class="ident">default</span>().<span class="ident">value</span>(<span class="number">1</span>)).<span class="kw">await</span><span class="question-mark">?</span>;
+
+    <span class="macro">assert_eq</span><span class="macro">!</span>(
+        <span class="prelude-val">Some</span>(<span class="number">1</span>),
+        <span class="ident">result</span>.<span class="ident">into_iter</span>().<span class="ident">nth</span>(<span class="number">0</span>).<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">row</span><span class="op">|</span> <span class="ident">row</span>[<span class="number">0</span>].<span class="ident">as_i64</span>()),
+    );
+
+    <span class="prelude-val">Ok</span>(())
+}</pre></div>
+<h3 id="building-an-sql-query-string" class="section-header"><a href="#building-an-sql-query-string">Building an SQL query string</a></h3>
 <p>The crate can be used as an SQL string builder using the <a href="ast/index.html">ast</a> and
 <a href="visitor/index.html">visitor</a> modules.</p>
 <p>AST is generic for all databases and the visitors generate correct SQL
@@ -29,7 +53,7 @@ syntax for the database.</p>
 <p>The visitor returns the query as a string and its parameters as a vector.</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered">
-<span class="kw">use</span> <span class="ident">quaint</span>::{<span class="ident">ast</span>::<span class="kw-2">*</span>, <span class="ident">visitor</span>::{<span class="ident">Sqlite</span>, <span class="ident">Visitor</span>}};
+<span class="kw">use</span> <span class="ident">quaint</span>::{<span class="ident">prelude</span>::<span class="kw-2">*</span>, <span class="ident">visitor</span>::{<span class="ident">Sqlite</span>, <span class="ident">Visitor</span>}};
 
 <span class="kw">fn</span> <span class="ident">main</span>() {
     <span class="kw">let</span> <span class="ident">conditions</span> <span class="op">=</span> <span class="string">&quot;word&quot;</span>
@@ -54,33 +78,15 @@ syntax for the database.</p>
         <span class="ident">params</span>
     );
 }</pre></div>
-<h3 id="querying-a-database-with-an-ast-object" class="section-header"><a href="#querying-a-database-with-an-ast-object">Querying a database with an AST object</a></h3>
-<p>The <a href="connector/index.html">connector</a> module abstracts a generic query interface over
-different databases. It offers querying with the <a href="ast/index.html">ast</a> module or
-directly using raw strings.</p>
-<p>When querying with an ast object the queries are paremeterized
-automatically.</p>
-
-<div class="example-wrap"><pre class="rust rust-example-rendered">
-<span class="kw">use</span> <span class="ident">quaint</span>::{<span class="ident">ast</span>::<span class="kw-2">*</span>, <span class="ident">connector</span>::<span class="kw-2">*</span>};
-
-<span class="attribute">#[<span class="ident">tokio</span>::<span class="ident">main</span>]</span>
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">main</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">quaint</span>::<span class="ident">error</span>::<span class="ident">Error</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">Sqlite</span>::<span class="ident">new</span>(<span class="string">&quot;test.db&quot;</span>)<span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">query</span> <span class="op">=</span> <span class="ident">Select</span>::<span class="ident">default</span>().<span class="ident">value</span>(<span class="number">1</span>);
-    <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">conn</span>.<span class="ident">query</span>(<span class="ident">query</span>.<span class="ident">into</span>()).<span class="kw">await</span><span class="question-mark">?</span>;
-
-    <span class="macro">assert_eq</span><span class="macro">!</span>(
-        <span class="prelude-val">Some</span>(<span class="number">1</span>),
-        <span class="ident">result</span>.<span class="ident">into_iter</span>().<span class="ident">nth</span>(<span class="number">0</span>).<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">row</span><span class="op">|</span> <span class="ident">row</span>[<span class="number">0</span>].<span class="ident">as_i64</span>()),
-    );
-
-    <span class="prelude-val">Ok</span>(())
-}</pre></div>
 </div><h2 id='modules' class='section-header'><a href="#modules">Modules</a></h2>
 <table><tr class='module-item'><td><a class="mod" href="ast/index.html" title='quaint::ast mod'>ast</a></td><td class='docblock-short'><p>An abstract syntax tree for SQL queries.</p>
 </td></tr><tr class='module-item'><td><a class="mod" href="connector/index.html" title='quaint::connector mod'>connector</a></td><td class='docblock-short'><p>A set of abstractions for database connections.</p>
-</td></tr><tr class='module-item'><td><a class="mod" href="error/index.html" title='quaint::error mod'>error</a></td><td class='docblock-short'></td></tr><tr class='module-item'><td><a class="mod" href="pool/index.html" title='quaint::pool mod'>pool</a></td><td class='docblock-short'></td></tr><tr class='module-item'><td><a class="mod" href="visitor/index.html" title='quaint::visitor mod'>visitor</a></td><td class='docblock-short'><p>Visitors for reading an abstract SQL syntax tree, generating the query and
+</td></tr><tr class='module-item'><td><a class="mod" href="error/index.html" title='quaint::error mod'>error</a></td><td class='docblock-short'></td></tr><tr class='module-item'><td><a class="mod" href="prelude/index.html" title='quaint::prelude mod'>prelude</a></td><td class='docblock-short'></td></tr><tr class='module-item'><td><a class="mod" href="visitor/index.html" title='quaint::visitor mod'>visitor</a></td><td class='docblock-short'><p>Visitors for reading an abstract SQL syntax tree, generating the query and
 gathering parameters in the right order.</p>
+</td></tr></table><h2 id='structs' class='section-header'><a href="#structs">Structs</a></h2>
+<table><tr class='module-item'><td><a class="struct" href="struct.PooledConnection.html" title='quaint::PooledConnection struct'>PooledConnection</a></td><td class='docblock-short'><p>A connection from the pool. Implements
+<a href="connector/trait.Queryable.html">Queryable</a>.</p>
+</td></tr><tr class='module-item'><td><a class="struct" href="struct.Quaint.html" title='quaint::Quaint struct'>Quaint</a></td><td class='docblock-short'><p>The main entry point and an abstraction over database connections and
+pooling.</p>
 </td></tr></table><h2 id='types' class='section-header'><a href="#types">Type Definitions</a></h2>
 <table><tr class='module-item'><td><a class="type" href="type.Result.html" title='quaint::Result type'>Result</a></td><td class='docblock-short'></td></tr></table></section><section id="search" class="content hidden"></section><section class="footer"></section><aside id="help" class="hidden"><div><h1 class="hidden">Help</h1><div class="shortcuts"><h2>Keyboard Shortcuts</h2><dl><dt><kbd>?</kbd></dt><dd>Show this help dialog</dd><dt><kbd>S</kbd></dt><dd>Focus the search field</dd><dt><kbd>↑</kbd></dt><dd>Move up in search results</dd><dt><kbd>↓</kbd></dt><dd>Move down in search results</dd><dt><kbd>↹</kbd></dt><dd>Switch tab</dd><dt><kbd>&#9166;</kbd></dt><dd>Go to active search result</dd><dt><kbd>+</kbd></dt><dd>Expand all sections</dd><dt><kbd>-</kbd></dt><dd>Collapse all sections</dd></dl></div><div class="infos"><h2>Search Tricks</h2><p>Prefix searches with a type followed by a colon (e.g., <code>fn:</code>) to restrict the search to a given type.</p><p>Accepted types are: <code>fn</code>, <code>mod</code>, <code>struct</code>, <code>enum</code>, <code>trait</code>, <code>type</code>, <code>macro</code>, and <code>const</code>.</p><p>Search functions by type signature (e.g., <code>vec -> usize</code> or <code>* -> vec</code>)</p><p>Search multiple things at once by splitting your query with comma (e.g., <code>str,u8</code> or <code>String,struct:Vec,test</code>)</p></div></div></aside><script>window.rootPath = "../";window.currentCrate = "quaint";</script><script src="../aliases.js"></script><script src="../main.js"></script><script defer src="../search-index.js"></script></body></html>
