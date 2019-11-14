@@ -630,10 +630,6 @@
 <span id="630">630</span>
 <span id="631">631</span>
 <span id="632">632</span>
-<span id="633">633</span>
-<span id="634">634</span>
-<span id="635">635</span>
-<span id="636">636</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">mod</span> <span class="ident">conversion</span>;
 <span class="kw">mod</span> <span class="ident">error</span>;
@@ -832,11 +828,7 @@
         <span class="self">self</span>.<span class="ident">url</span>.<span class="ident">query_pairs</span>().<span class="ident">find</span>(<span class="op">|</span>(<span class="ident">key</span>, <span class="ident">_value</span>)<span class="op">|</span> <span class="ident">key</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;schema&quot;</span>).<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">_key</span>, <span class="ident">value</span>)<span class="op">|</span> <span class="ident">value</span>.<span class="ident">into_owned</span>()).<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">DEFAULT_SCHEMA</span>.<span class="ident">to_string</span>())
     }
 
-    <span class="doccomment">/// If not set, the default connection limit is the number of physical cpus</span>
-    <span class="doccomment">/// times two plus one.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Modeled after the [HikariCP Pool Sizing page](https://github.com/brettwooldridge/HikariCP/wiki/About-Pool-Sizing)</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">default_connection_limit</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
+    <span class="kw">fn</span> <span class="ident">default_connection_limit</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
         <span class="ident">num_cpus</span>::<span class="ident">get_physical</span>() <span class="op">*</span> <span class="number">2</span> <span class="op">+</span> <span class="number">1</span>
     }
 

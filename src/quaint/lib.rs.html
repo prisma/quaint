@@ -314,6 +314,8 @@
 <span id="314">314</span>
 <span id="315">315</span>
 <span id="316">316</span>
+<span id="317">317</span>
+<span id="318">318</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! # quaint</span>
 <span class="doccomment">//!</span>
@@ -465,7 +467,9 @@
     <span class="doccomment">/// Common parameters:</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// - `connection_limit` defines the number of connections opened to the</span>
-    <span class="doccomment">/// database.</span>
+    <span class="doccomment">/// database. If not set, defaults to the [HikariCP</span>
+    <span class="doccomment">/// Recommendation](https://github.com/brettwooldridge/HikariCP/wiki/About-Pool-Sizing):</span>
+    <span class="doccomment">/// `physical_cpus * 2 + 1`.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// SQLite:</span>
     <span class="doccomment">///</span>
@@ -547,7 +551,7 @@
         })
     }
 
-    <span class="doccomment">/// The number of capacity in the pool of connections.</span>
+    <span class="doccomment">/// The number of connections in the pool.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">capacity</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
         <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">capacity</span>()
     }
