@@ -446,6 +446,19 @@
 <span id="446">446</span>
 <span id="447">447</span>
 <span id="448">448</span>
+<span id="449">449</span>
+<span id="450">450</span>
+<span id="451">451</span>
+<span id="452">452</span>
+<span id="453">453</span>
+<span id="454">454</span>
+<span id="455">455</span>
+<span id="456">456</span>
+<span id="457">457</span>
+<span id="458">458</span>
+<span id="459">459</span>
+<span id="460">460</span>
+<span id="461">461</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">mod</span> <span class="ident">conversion</span>;
 <span class="kw">mod</span> <span class="ident">error</span>;
@@ -478,22 +491,26 @@
 
 <span class="doccomment">/// Wraps a connection url and exposes the parsing logic used by quaint, including default values.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">MysqlUrl</span>{
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">MysqlUrl</span> {
     <span class="ident">url</span>: <span class="ident">Url</span>,
     <span class="ident">query_params</span>: <span class="ident">MysqlUrlQueryParams</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">MysqlUrl</span> {
+    <span class="doccomment">/// Parse `Url` to `MysqlUrl`. Returns error for mistyped connection</span>
+    <span class="doccomment">/// parameters.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">url</span>: <span class="ident">Url</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">query_params</span> <span class="op">=</span> <span class="self">Self</span>::<span class="ident">parse_query_params</span>(<span class="kw-2">&amp;</span><span class="ident">url</span>)<span class="question-mark">?</span>;
 
         <span class="prelude-val">Ok</span>(<span class="self">Self</span> { <span class="ident">url</span>, <span class="ident">query_params</span>, })
     }
 
+    <span class="doccomment">/// The bare `Url` to the database.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">url</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">Url</span> {
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">url</span>
     }
 
+    <span class="doccomment">/// The percent-decoded database username.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">username</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">str</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="ident">percent_decode</span>(<span class="self">self</span>.<span class="ident">url</span>.<span class="ident">username</span>().<span class="ident">as_bytes</span>()).<span class="ident">decode_utf8</span>() {
             <span class="prelude-val">Ok</span>(<span class="ident">username</span>) <span class="op">=</span><span class="op">&gt;</span> {
@@ -511,7 +528,8 @@
 
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">password</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">str</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="doccomment">/// The percent-decoded database password.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">password</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Cow</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">url</span>
             .<span class="ident">password</span>()
             .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">pw</span><span class="op">|</span> <span class="ident">percent_decode</span>(<span class="ident">pw</span>.<span class="ident">as_bytes</span>()).<span class="ident">decode_utf8</span>().<span class="ident">ok</span>())
@@ -526,6 +544,7 @@
 
     }
 
+    <span class="doccomment">/// Name of the database connected. Defaults to `mysql`.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">dbname</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">str</span> {
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">url</span>.<span class="ident">path_segments</span>() {
             <span class="prelude-val">Some</span>(<span class="kw-2">mut</span> <span class="ident">segments</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">segments</span>.<span class="ident">next</span>().<span class="ident">unwrap_or</span>(<span class="string">&quot;mysql&quot;</span>),
@@ -534,24 +553,31 @@
 
     }
 
+    <span class="doccomment">/// The database host. If `socket` and `host` are not set, defaults to `localhost`.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">host</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">str</span> {
         <span class="self">self</span>.<span class="ident">url</span>.<span class="ident">host_str</span>().<span class="ident">unwrap_or</span>(<span class="string">&quot;localhost&quot;</span>)
     }
 
+    <span class="doccomment">/// If set, connected to the database through a Unix socket.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">socket</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">query_params</span>.<span class="ident">socket</span>
     }
 
+    <span class="doccomment">/// The database port, defaults to `3306`.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">port</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">u16</span> {
         <span class="self">self</span>.<span class="ident">url</span>.<span class="ident">port</span>().<span class="ident">unwrap_or</span>(<span class="number">3306</span>)
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">query_params</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">MysqlUrlQueryParams</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">query_params</span>
+    <span class="doccomment">/// If not set, the default connection limit is the number of physical cpus</span>
+    <span class="doccomment">/// times two plus one.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Modeled after the [HikariCP Pool Sizing page](https://github.com/brettwooldridge/HikariCP/wiki/About-Pool-Sizing)</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">default_connection_limit</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
+        <span class="ident">num_cpus</span>::<span class="ident">get_physical</span>() <span class="op">*</span> <span class="number">2</span> <span class="op">+</span> <span class="number">1</span>
     }
 
     <span class="kw">fn</span> <span class="ident">parse_query_params</span>(<span class="ident">url</span>: <span class="kw-2">&amp;</span><span class="ident">Url</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">MysqlUrlQueryParams</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">connection_limit</span> <span class="op">=</span> <span class="ident">num_cpus</span>::<span class="ident">get_physical</span>() <span class="op">*</span> <span class="number">2</span> <span class="op">+</span> <span class="number">1</span>;
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">connection_limit</span> <span class="op">=</span> <span class="self">Self</span>::<span class="ident">default_connection_limit</span>();
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ssl_opts</span> <span class="op">=</span> <span class="ident">my</span>::<span class="ident">SslOpts</span>::<span class="ident">default</span>();
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">use_ssl</span> <span class="op">=</span> <span class="bool-val">false</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">socket</span> <span class="op">=</span> <span class="prelude-val">None</span>;
@@ -617,7 +643,7 @@
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">MysqlUrlQueryParams</span> {
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct</span> <span class="ident">MysqlUrlQueryParams</span> {
     <span class="ident">ssl_opts</span>: <span class="ident">my</span>::<span class="ident">SslOpts</span>,
     <span class="ident">connection_limit</span>: <span class="ident">usize</span>,
     <span class="ident">use_ssl</span>: <span class="ident">bool</span>,
