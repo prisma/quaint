@@ -1,8 +1,10 @@
 mod conversion;
 mod error;
 
+use failure::Fail;
+use std::future::Future;
 use std::borrow::Cow;
-use mysql_async::{self as my, prelude::Queryable as _};
+use mysql_async::{self as my, prelude::Queryable as _, error::Error as MysqlError};
 use percent_encoding::percent_decode;
 use std::{path::Path, time::Duration};
 use url::Url;
@@ -227,15 +229,44 @@ impl Mysql {
         params: &'a [ParameterizedValue],
     ) -> DBIO<'a, Option<Id>> {
         metrics::query("mysql.execute", sql, params, move || {
-            async move {
+            self.catch(async move {
                 let conn = self.pool.get_conn().await?;
                 let results = conn.prep_exec(sql, params.to_vec()).await?;
 
                 Ok(results.last_insert_id().map(Id::from))
-            }
+            })
         })
     }
+
+    async fn catch<O>(&self, fut: impl Future<Output = Result<O, BackendError>>) -> Result<O, Error> {
+        match fut.await {
+            Ok(out) => Ok(out),
+            Err(BackendError::Quaint(err)) => Err(err),
+            Err(BackendError::Mysql(err)) => Err(error::mysql_error_to_quaint_error(&self.url, err))
+        }
+    }
 }
+
+#[derive(Fail, Debug)]
+enum BackendError {
+    #[fail(display = "{}", _0)]
+    Mysql(#[cause] MysqlError),
+    #[fail(display = "{}", _0)]
+    Quaint(#[cause] Error),
+}
+
+impl From<MysqlError> for BackendError {
+    fn from(err: MysqlError) -> Self {
+        BackendError::Mysql(err)
+    }
+}
+
+impl From<Error> for BackendError {
+    fn from(err: Error) -> Self {
+        BackendError::Quaint(err)
+    }
+}
+
 
 impl TransactionCapable for Mysql { }
 
@@ -260,7 +291,7 @@ impl Queryable for Mysql {
         params: &'a [ParameterizedValue],
     ) -> DBIO<'a, ResultSet> {
         metrics::query("mysql.query_raw", sql, params, move || {
-            async move {
+            self.catch(async move {
                 let conn = self.pool.get_conn().await?;
                 let results = conn.prep_exec(sql, conversion::conv_params(params)).await?;
                 let columns = results
@@ -277,46 +308,46 @@ impl Queryable for Mysql {
                 }
 
                 Ok(result_set)
-            }
+            })
         })
     }
 
     fn execute_raw<'a>(&'a self, sql: &'a str, params: &'a [ParameterizedValue]) -> DBIO<'a, u64> {
         metrics::query("mysql.execute_raw", sql, params, move || {
-            async move {
+            self.catch(async move {
                 let conn = self.pool.get_conn().await?;
                 let result = conn.prep_exec(sql, conversion::conv_params(params)).await?;
 
                 Ok(result.affected_rows())
-            }
+            })
         })
     }
 
     fn turn_off_fk_constraints(&self) -> DBIO<()> {
-        DBIO::new(async move {
+        DBIO::new(self.catch(async move {
             let conn = self.pool.get_conn().await?;
             conn.query("SET FOREIGN_KEY_CHECKS=0").await?;
 
             Ok(())
-        })
+        }))
     }
 
     fn turn_on_fk_constraints(&self) -> DBIO<()> {
-        DBIO::new(async move {
+        DBIO::new(self.catch(async move {
             let conn = self.pool.get_conn().await?;
             conn.query("SET FOREIGN_KEY_CHECKS=1").await?;
 
             Ok(())
-        })
+        }))
     }
 
     fn raw_cmd<'a>(&'a self, cmd: &'a str) -> DBIO<'a, ()> {
         metrics::query("mysql.raw_cmd", cmd, &[], move || {
-            async move {
+            self.catch(async move {
                 let conn = self.pool.get_conn().await?;
                 conn.query(cmd).await?;
                 Ok(())
-            }
+            })
         })
     }
 }
