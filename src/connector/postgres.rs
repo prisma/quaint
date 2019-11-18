@@ -24,6 +24,7 @@ pub(crate) const DEFAULT_SCHEMA: &str = "public";
 pub struct PostgreSql {
     #[debug_stub = "postgres::Client"]
     client: Mutex<Client>,
+    url: PostgresUrl,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -354,6 +355,7 @@ impl PostgreSql {
 
         Ok(Self {
             client: Mutex::new(client),
+            url,
         })
     }
 
