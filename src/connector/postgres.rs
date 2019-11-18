@@ -1,6 +1,7 @@
 mod conversion;
 mod error;
 
+use failure::Fail;
 use crate::{
     ast::{Id, ParameterizedValue, Query},
     connector::{metrics, queryable::*, ResultSet, DBIO},
@@ -12,10 +13,9 @@ use futures::future::FutureExt;
 use native_tls::{Certificate, Identity, TlsConnector};
 use percent_encoding::percent_decode;
 use postgres_native_tls::MakeTlsConnector;
-use std::{borrow::Borrow, time::Duration};
-use tokio_postgres::{config::SslMode, Client, Config};
+use tokio_postgres::{config::SslMode, Client, Config, error::Error as PgError};
 use url::Url;
-use std::borrow::Cow;
+use std::{time::Duration, future::Future, borrow::{Borrow, Cow}};
 
 pub(crate) const DEFAULT_SCHEMA: &str = "public";
 
@@ -322,8 +322,6 @@ impl PostgreSql {
     /// Create a new connection to the database.
     pub async fn new(
         url: PostgresUrl,
-        // schema: Option<String>,
-        // ssl_params: Option<SslParams>,
     ) -> crate::Result<Self> {
         let config = url.to_config();
         let mut tls_builder = TlsConnector::builder();
@@ -346,12 +344,21 @@ impl PostgreSql {
         }
 
         let tls = MakeTlsConnector::new(tls_builder.build()?);
-        let (client, conn) = config.connect(tls).await?;
-        tokio::spawn(conn.map(|r| r.unwrap()));
+        let connect_fut = async {
+            let (client, conn)= config.connect(tls).await?;
+            tokio::spawn(conn.map(|r| r.unwrap()));
 
-        let schema = url.schema();
-        let path = format!("SET search_path = \"{}\"", schema);
-        client.execute(path.as_str(), &[]).await?;
+            let schema = url.schema();
+            let path = format!("SET search_path = \"{}\"", schema);
+            client.execute(path.as_str(), &[]).await?;
+
+            Ok(client)
+        };
+
+        let client = match connect_fut.await {
+            Ok(client) => client,
+            Err(pg_error) => return Err(error::tokio_postgres_error_to_quaint_error(&url, pg_error))
+        };
 
         Ok(Self {
             client: Mutex::new(client),
@@ -365,7 +372,7 @@ impl PostgreSql {
         params: &'a [ParameterizedValue],
     ) -> DBIO<'a, Option<Id>> {
         metrics::query("postgres.execute", sql, params, move || {
-            async move {
+            self.catch(async move {
                 let client = self.client.lock().await;
                 let stmt = client.prepare(sql).await?;
                 let rows = client
@@ -378,10 +385,39 @@ impl PostgreSql {
                 });
 
                 Ok(id)
-            }
+            })
         })
     }
+
+    async fn catch<O>(&self, fut: impl Future<Output = Result<O, BackendError>>) -> Result<O, Error> {
+        match fut.await {
+            Ok(out) => Ok(out),
+            Err(BackendError::Quaint(err)) => Err(err),
+            Err(BackendError::Pg(err)) => Err(error::tokio_postgres_error_to_quaint_error(&self.url, err))
+        }
+    }
 }
+
+#[derive(Fail, Debug)]
+enum BackendError {
+    #[fail(display = "{}", _0)]
+    Pg(#[cause] PgError),
+    #[fail(display = "{}", _0)]
+    Quaint(#[cause] Error),
+}
+
+impl From<PgError> for BackendError {
+    fn from(err: PgError) -> Self {
+        BackendError::Pg(err)
+    }
+}
+
+impl From<Error> for BackendError {
+    fn from(err: Error) -> Self {
+        BackendError::Quaint(err)
+    }
+}
+
 
 impl TransactionCapable for PostgreSql {}
 
@@ -405,7 +441,7 @@ impl Queryable for PostgreSql {
         params: &'a [ParameterizedValue],
     ) -> DBIO<'a, ResultSet> {
         metrics::query("postgres.query_raw", sql, params, move || {
-            async move {
+            self.catch(async move {
                 let client = self.client.lock().await;
                 let stmt = client.prepare(sql).await?;
                 let rows = client
@@ -419,13 +455,13 @@ impl Queryable for PostgreSql {
                 }
 
                 Ok(result)
-            }
+            })
         })
     }
 
     fn execute_raw<'a>(&'a self, sql: &'a str, params: &'a [ParameterizedValue]) -> DBIO<'a, u64> {
         metrics::query("postgres.execute_raw", sql, params, move || {
-            async move {
+            self.catch(async move {
                 let client = self.client.lock().await;
                 let stmt = client.prepare(sql).await?;
                 let changes = client
@@ -433,32 +469,32 @@ impl Queryable for PostgreSql {
                     .await?;
 
                 Ok(changes)
-            }
+            })
         })
     }
 
     fn turn_off_fk_constraints(&self) -> DBIO<()> {
-        DBIO::new(async move {
+        DBIO::new(self.catch(async move {
             self.query_raw("SET CONSTRAINTS ALL DEFERRED", &[]).await?;
             Ok(())
-        })
+        }))
     }
 
     fn turn_on_fk_constraints(&self) -> DBIO<()> {
-        DBIO::new(async move {
+        DBIO::new(self.catch(async move {
             self.query_raw("SET CONSTRAINTS ALL IMMEDIATE", &[]).await?;
             Ok(())
-        })
+        }))
     }
 
     fn raw_cmd<'a>(&'a self, cmd: &'a str) -> DBIO<'a, ()> {
         metrics::query("postgres.raw_cmd", cmd, &[], move || {
-            async move {
+            self.catch(async move {
                 let client = self.client.lock().await;
                 client.simple_query(cmd).await?;
 
                 Ok(())
-            }
+            })
         })
     }
 }

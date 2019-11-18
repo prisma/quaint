@@ -7,7 +7,7 @@ use chrono::{DateTime, NaiveDateTime, Utc};
 use rust_decimal::Decimal;
 use tokio_postgres::{
     types::{self, FromSql, ToSql, Type as PostgresType},
-    Row as PostgresRow, Statement as PostgresStatement,
+    Error as PgError, Row as PostgresRow, Statement as PostgresStatement,
 };
 
 #[cfg(feature = "uuid-0_7")]
@@ -61,7 +61,10 @@ impl<'a> FromSql<'a> for Id {
 
 impl ToRow for PostgresRow {
     fn to_result_row<'b>(&'b self) -> crate::Result<Vec<ParameterizedValue<'static>>> {
-        fn convert(row: &PostgresRow, i: usize) -> crate::Result<ParameterizedValue<'static>> {
+        fn convert(
+            row: &PostgresRow,
+            i: usize,
+        ) -> std::result::Result<ParameterizedValue<'static>, PgError> {
             let result = match *row.columns()[i].type_() {
                 PostgresType::BOOL => match row.try_get(i)? {
                     Some(val) => ParameterizedValue::Boolean(val),
@@ -266,7 +269,10 @@ impl ToRow for PostgresRow {
         let mut row = Vec::new();
 
         for i in 0..self.columns().len() {
-            row.push(convert(self, i)?);
+            row.push(
+                convert(self, i)
+                    .map_err(|pg_error| crate::error::Error::QueryError(pg_error.into()))?,
+            );
         }
 
         Ok(row)
