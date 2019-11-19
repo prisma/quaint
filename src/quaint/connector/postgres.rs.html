@@ -630,6 +630,8 @@
 <span id="630">630</span>
 <span id="631">631</span>
 <span id="632">632</span>
+<span id="633">633</span>
+<span id="634">634</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">mod</span> <span class="ident">conversion</span>;
 <span class="kw">mod</span> <span class="ident">error</span>;
@@ -645,10 +647,10 @@
 <span class="kw">use</span> <span class="ident">native_tls</span>::{<span class="ident">Certificate</span>, <span class="ident">Identity</span>, <span class="ident">TlsConnector</span>};
 <span class="kw">use</span> <span class="ident">percent_encoding</span>::<span class="ident">percent_decode</span>;
 <span class="kw">use</span> <span class="ident">postgres_native_tls</span>::<span class="ident">MakeTlsConnector</span>;
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">borrow</span>::<span class="ident">Cow</span>;
 <span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">borrow</span>::<span class="ident">Borrow</span>, <span class="ident">convert</span>::<span class="ident">TryFrom</span>, <span class="ident">time</span>::<span class="ident">Duration</span>};
 <span class="kw">use</span> <span class="ident">tokio_postgres</span>::{<span class="ident">config</span>::<span class="ident">SslMode</span>, <span class="ident">Client</span>, <span class="ident">Config</span>};
 <span class="kw">use</span> <span class="ident">url</span>::<span class="ident">Url</span>;
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">borrow</span>::<span class="ident">Cow</span>;
 
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const</span> <span class="ident">DEFAULT_SCHEMA</span>: <span class="kw-2">&amp;</span><span class="ident">str</span> <span class="op">=</span> <span class="string">&quot;public&quot;</span>;
 
@@ -758,7 +760,7 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">url</span>: <span class="ident">Url</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">query_params</span> <span class="op">=</span> <span class="self">Self</span>::<span class="ident">parse_query_params</span>(<span class="kw-2">&amp;</span><span class="ident">url</span>)<span class="question-mark">?</span>;
 
-        <span class="prelude-val">Ok</span>(<span class="self">Self</span> { <span class="ident">url</span>, <span class="ident">query_params</span>, })
+        <span class="prelude-val">Ok</span>(<span class="self">Self</span> { <span class="ident">url</span>, <span class="ident">query_params</span> })
     }
 
     <span class="doccomment">/// The bare `Url` to the database.</span>
@@ -805,17 +807,14 @@
 
     <span class="doccomment">/// The percent-decoded database password.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">password</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Cow</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">url</span>
+        <span class="kw">match</span> <span class="self">self</span>
+            .<span class="ident">url</span>
             .<span class="ident">password</span>()
             .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">pw</span><span class="op">|</span> <span class="ident">percent_decode</span>(<span class="ident">pw</span>.<span class="ident">as_bytes</span>()).<span class="ident">decode_utf8</span>().<span class="ident">ok</span>())
-            {
-                <span class="prelude-val">Some</span>(<span class="ident">password</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="ident">password</span>
-                }
-                <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="self">self</span>.<span class="ident">url</span>.<span class="ident">password</span>().<span class="ident">unwrap_or</span>(<span class="string">&quot;&quot;</span>).<span class="ident">into</span>()
-                }
-            }
+        {
+            <span class="prelude-val">Some</span>(<span class="ident">password</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">password</span>,
+            <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">url</span>.<span class="ident">password</span>().<span class="ident">unwrap_or</span>(<span class="string">&quot;&quot;</span>).<span class="ident">into</span>(),
+        }
     }
 
     <span class="doccomment">/// The database port, defaults to `5432`.</span>
@@ -825,7 +824,11 @@
 
     <span class="doccomment">/// The database schema, defaults to `public`.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">schema</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
-        <span class="self">self</span>.<span class="ident">url</span>.<span class="ident">query_pairs</span>().<span class="ident">find</span>(<span class="op">|</span>(<span class="ident">key</span>, <span class="ident">_value</span>)<span class="op">|</span> <span class="ident">key</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;schema&quot;</span>).<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">_key</span>, <span class="ident">value</span>)<span class="op">|</span> <span class="ident">value</span>.<span class="ident">into_owned</span>()).<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">DEFAULT_SCHEMA</span>.<span class="ident">to_string</span>())
+        <span class="self">self</span>.<span class="ident">url</span>
+            .<span class="ident">query_pairs</span>()
+            .<span class="ident">find</span>(<span class="op">|</span>(<span class="ident">key</span>, <span class="ident">_value</span>)<span class="op">|</span> <span class="ident">key</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;schema&quot;</span>)
+            .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">_key</span>, <span class="ident">value</span>)<span class="op">|</span> <span class="ident">value</span>.<span class="ident">into_owned</span>())
+            .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">DEFAULT_SCHEMA</span>.<span class="ident">to_string</span>())
     }
 
     <span class="kw">fn</span> <span class="ident">default_connection_limit</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
@@ -846,9 +849,9 @@
             <span class="kw">match</span> <span class="ident">k</span>.<span class="ident">as_ref</span>() {
                 <span class="string">&quot;sslmode&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">match</span> <span class="ident">v</span>.<span class="ident">as_ref</span>() {
-                        <span class="string">&quot;disable&quot;</span> <span class="op">=</span><span class="op">&gt;</span> { <span class="ident">ssl_mode</span> <span class="op">=</span> <span class="ident">SslMode</span>::<span class="ident">Disable</span>},
-                        <span class="string">&quot;prefer&quot;</span> <span class="op">=</span><span class="op">&gt;</span> { <span class="ident">ssl_mode</span> <span class="op">=</span> <span class="ident">SslMode</span>::<span class="ident">Prefer</span> },
-                        <span class="string">&quot;require&quot;</span> <span class="op">=</span><span class="op">&gt;</span> { <span class="ident">ssl_mode</span> <span class="op">=</span> <span class="ident">SslMode</span>::<span class="ident">Require</span> },
+                        <span class="string">&quot;disable&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ssl_mode</span> <span class="op">=</span> <span class="ident">SslMode</span>::<span class="ident">Disable</span>,
+                        <span class="string">&quot;prefer&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ssl_mode</span> <span class="op">=</span> <span class="ident">SslMode</span>::<span class="ident">Prefer</span>,
+                        <span class="string">&quot;require&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ssl_mode</span> <span class="op">=</span> <span class="ident">SslMode</span>::<span class="ident">Require</span>,
                         <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {
                             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;tracing-log&quot;</span>))]</span>
                             <span class="macro">debug</span><span class="macro">!</span>(<span class="string">&quot;Unsupported ssl mode {}, defaulting to &#39;prefer&#39;&quot;</span>, <span class="ident">v</span>);
@@ -924,7 +927,6 @@
             <span class="ident">ssl_mode</span>,
             <span class="ident">host</span>,
         })
-
     }
 }
 
@@ -1070,7 +1072,7 @@
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">ResultSet</span>::<span class="ident">new</span>(<span class="ident">stmt</span>.<span class="ident">to_column_names</span>(), <span class="ident">Vec</span>::<span class="ident">new</span>());
 
                 <span class="kw">for</span> <span class="ident">row</span> <span class="kw">in</span> <span class="ident">rows</span> {
-                    <span class="ident">result</span>.<span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">row</span>.<span class="ident">to_result_row</span>()<span class="question-mark">?</span>);
+                    <span class="ident">result</span>.<span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">row</span>.<span class="ident">get_result_row</span>()<span class="question-mark">?</span>);
                 }
 
                 <span class="prelude-val">Ok</span>(<span class="ident">result</span>)
@@ -1122,9 +1124,9 @@
 <span class="kw">mod</span> <span class="ident">tests</span> {
     <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
     <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">connector</span>::<span class="ident">Queryable</span>, <span class="ident">Quaint</span>};
+    <span class="kw">use</span> <span class="ident">lazy_static</span>::<span class="ident">lazy_static</span>;
     <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">env</span>;
     <span class="kw">use</span> <span class="ident">url</span>::<span class="ident">Url</span>;
-    <span class="kw">use</span> <span class="ident">lazy_static</span>::<span class="ident">lazy_static</span>;
 
     <span class="macro">lazy_static</span><span class="macro">!</span> {
         <span class="kw">static</span> <span class="kw-2">ref</span> <span class="ident">CONN_STR</span>: <span class="ident">String</span> <span class="op">=</span> <span class="ident">env</span>::<span class="ident">var</span>(<span class="string">&quot;TEST_PSQL&quot;</span>).<span class="ident">unwrap</span>();
@@ -1132,7 +1134,9 @@
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">should_parse_socket_url</span>() {
-        <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="ident">PostgresUrl</span>::<span class="ident">new</span>(<span class="ident">Url</span>::<span class="ident">parse</span>(<span class="string">&quot;postgresql:///dbname?host=/var/run/psql.sock&quot;</span>).<span class="ident">unwrap</span>()).<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span>
+            <span class="ident">PostgresUrl</span>::<span class="ident">new</span>(<span class="ident">Url</span>::<span class="ident">parse</span>(<span class="string">&quot;postgresql:///dbname?host=/var/run/psql.sock&quot;</span>).<span class="ident">unwrap</span>())
+                .<span class="ident">unwrap</span>();
         <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="string">&quot;dbname&quot;</span>, <span class="ident">url</span>.<span class="ident">dbname</span>());
         <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="string">&quot;/var/run/psql.sock&quot;</span>, <span class="ident">url</span>.<span class="ident">host</span>());
     }

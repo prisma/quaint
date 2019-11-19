@@ -246,6 +246,8 @@
 <span id="246">246</span>
 <span id="247">247</span>
 <span id="248">248</span>
+<span id="249">249</span>
+<span id="250">250</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">ast</span>::<span class="kw-2">*</span>, <span class="ident">visitor</span>::<span class="ident">Visitor</span>};
 <span class="kw">use</span> <span class="ident">mysql_async</span>::<span class="ident">Value</span> <span class="kw">as</span> <span class="ident">MyValue</span>;
@@ -277,10 +279,7 @@
 
         <span class="ident">Mysql</span>::<span class="ident">visit_query</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">mysql</span>, <span class="ident">query</span>.<span class="ident">into</span>());
 
-        (
-            <span class="ident">mysql</span>.<span class="ident">query</span>,
-            <span class="ident">mysql</span>.<span class="ident">parameters</span>,
-        )
+        (<span class="ident">mysql</span>.<span class="ident">query</span>, <span class="ident">mysql</span>.<span class="ident">parameters</span>)
     }
 
     <span class="kw">fn</span> <span class="ident">write</span><span class="op">&lt;</span><span class="ident">D</span>: <span class="ident">fmt</span>::<span class="ident">Display</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">s</span>: <span class="ident">D</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
@@ -345,7 +344,7 @@
 
                 <span class="self">self</span>.<span class="ident">write</span>(<span class="string">&quot; OFFSET &quot;</span>)<span class="question-mark">?</span>;
                 <span class="self">self</span>.<span class="ident">visit_parameterized</span>(<span class="ident">offset</span>)
-            },
+            }
             (<span class="prelude-val">None</span>, <span class="prelude-val">Some</span>(<span class="ident">ParameterizedValue</span>::<span class="ident">Integer</span>(<span class="ident">offset</span>))) <span class="kw">if</span> <span class="ident">offset</span> <span class="op">&lt;</span> <span class="number">1</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(()),
             (<span class="prelude-val">None</span>, <span class="prelude-val">Some</span>(<span class="ident">offset</span>)) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="self">self</span>.<span class="ident">write</span>(<span class="string">&quot; LIMIT &quot;</span>)<span class="question-mark">?</span>;
@@ -353,7 +352,7 @@
 
                 <span class="self">self</span>.<span class="ident">write</span>(<span class="string">&quot; OFFSET &quot;</span>)<span class="question-mark">?</span>;
                 <span class="self">self</span>.<span class="ident">visit_parameterized</span>(<span class="ident">offset</span>)
-            },
+            }
             (<span class="prelude-val">Some</span>(<span class="ident">limit</span>), <span class="prelude-val">None</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="self">self</span>.<span class="ident">write</span>(<span class="string">&quot; LIMIT &quot;</span>)<span class="question-mark">?</span>;
                 <span class="self">self</span>.<span class="ident">visit_parameterized</span>(<span class="ident">limit</span>)
@@ -454,7 +453,9 @@
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_multi_row_insert</span>() {
         <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="ident">expected_values</span>(<span class="string">&quot;INSERT INTO `users` (`foo`) VALUES (?), (?)&quot;</span>, <span class="macro">vec</span><span class="macro">!</span>[<span class="number">10</span>, <span class="number">11</span>]);
-        <span class="kw">let</span> <span class="ident">query</span> <span class="op">=</span> <span class="ident">Insert</span>::<span class="ident">multi_into</span>(<span class="string">&quot;users&quot;</span>, <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;foo&quot;</span>]).<span class="ident">values</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="number">10</span>]).<span class="ident">values</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="number">11</span>]);
+        <span class="kw">let</span> <span class="ident">query</span> <span class="op">=</span> <span class="ident">Insert</span>::<span class="ident">multi_into</span>(<span class="string">&quot;users&quot;</span>, <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;foo&quot;</span>])
+            .<span class="ident">values</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="number">10</span>])
+            .<span class="ident">values</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="number">11</span>]);
         <span class="kw">let</span> (<span class="ident">sql</span>, <span class="ident">params</span>) <span class="op">=</span> <span class="ident">Mysql</span>::<span class="ident">build</span>(<span class="ident">query</span>);
 
         <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">expected</span>.<span class="number">0</span>, <span class="ident">sql</span>);
@@ -463,7 +464,10 @@
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_limit_and_offset_when_both_are_set</span>() {
-        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="ident">expected_values</span>(<span class="string">&quot;SELECT `users`.* FROM `users` LIMIT ? OFFSET ?&quot;</span>, <span class="macro">vec</span><span class="macro">!</span>[<span class="number">10</span>, <span class="number">2</span>]);
+        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="ident">expected_values</span>(
+            <span class="string">&quot;SELECT `users`.* FROM `users` LIMIT ? OFFSET ?&quot;</span>,
+            <span class="macro">vec</span><span class="macro">!</span>[<span class="number">10</span>, <span class="number">2</span>],
+        );
         <span class="kw">let</span> <span class="ident">query</span> <span class="op">=</span> <span class="ident">Select</span>::<span class="ident">from_table</span>(<span class="string">&quot;users&quot;</span>).<span class="ident">limit</span>(<span class="number">10</span>).<span class="ident">offset</span>(<span class="number">2</span>);
         <span class="kw">let</span> (<span class="ident">sql</span>, <span class="ident">params</span>) <span class="op">=</span> <span class="ident">Mysql</span>::<span class="ident">build</span>(<span class="ident">query</span>);
 
@@ -475,7 +479,7 @@
     <span class="kw">fn</span> <span class="ident">test_limit_and_offset_when_only_offset_is_set</span>() {
         <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="ident">expected_values</span>(
             <span class="string">&quot;SELECT `users`.* FROM `users` LIMIT ? OFFSET ?&quot;</span>,
-            <span class="macro">vec</span><span class="macro">!</span>[<span class="number">9_223_372_036_854_775_807i64</span>,<span class="number">10</span>]
+            <span class="macro">vec</span><span class="macro">!</span>[<span class="number">9_223_372_036_854_775_807i64</span>, <span class="number">10</span>],
         );
 
         <span class="kw">let</span> <span class="ident">query</span> <span class="op">=</span> <span class="ident">Select</span>::<span class="ident">from_table</span>(<span class="string">&quot;users&quot;</span>).<span class="ident">offset</span>(<span class="number">10</span>);

@@ -293,11 +293,24 @@
 <span id="293">293</span>
 <span id="294">294</span>
 <span id="295">295</span>
+<span id="296">296</span>
+<span id="297">297</span>
+<span id="298">298</span>
+<span id="299">299</span>
+<span id="300">300</span>
+<span id="301">301</span>
+<span id="302">302</span>
+<span id="303">303</span>
+<span id="304">304</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">ast</span>::<span class="kw-2">*</span>, <span class="ident">visitor</span>::<span class="ident">Visitor</span>};
 <span class="kw">use</span> <span class="ident">bytes</span>::<span class="ident">BytesMut</span>;
 <span class="kw">use</span> <span class="ident">rust_decimal</span>::<span class="ident">Decimal</span>;
-<span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">error</span>::<span class="ident">Error</span>, <span class="ident">str</span>::<span class="ident">FromStr</span>, <span class="ident">fmt</span>::{<span class="self">self</span>, <span class="ident">Write</span>}};
+<span class="kw">use</span> <span class="ident">std</span>::{
+    <span class="ident">error</span>::<span class="ident">Error</span>,
+    <span class="ident">fmt</span>::{<span class="self">self</span>, <span class="ident">Write</span>},
+    <span class="ident">str</span>::<span class="ident">FromStr</span>,
+};
 <span class="kw">use</span> <span class="ident">tokio_postgres</span>::<span class="ident">types</span>::<span class="ident">ToSql</span>;
 <span class="kw">use</span> <span class="ident">tokio_postgres</span>::<span class="ident">types</span>::{<span class="ident">IsNull</span>, <span class="ident">Type</span>};
 
@@ -325,10 +338,7 @@
 
         <span class="ident">Postgres</span>::<span class="ident">visit_query</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">postgres</span>, <span class="ident">query</span>.<span class="ident">into</span>());
 
-        (
-            <span class="ident">postgres</span>.<span class="ident">query</span>,
-            <span class="ident">postgres</span>.<span class="ident">parameters</span>,
-        )
+        (<span class="ident">postgres</span>.<span class="ident">query</span>, <span class="ident">postgres</span>.<span class="ident">parameters</span>)
     }
 
     <span class="kw">fn</span> <span class="ident">write</span><span class="op">&lt;</span><span class="ident">D</span>: <span class="ident">fmt</span>::<span class="ident">Display</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">s</span>: <span class="ident">D</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
@@ -356,11 +366,11 @@
 
                 <span class="self">self</span>.<span class="ident">write</span>(<span class="string">&quot; OFFSET &quot;</span>)<span class="question-mark">?</span>;
                 <span class="self">self</span>.<span class="ident">visit_parameterized</span>(<span class="ident">offset</span>)
-            },
+            }
             (<span class="prelude-val">None</span>, <span class="prelude-val">Some</span>(<span class="ident">offset</span>)) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="self">self</span>.<span class="ident">write</span>(<span class="string">&quot; OFFSET &quot;</span>)<span class="question-mark">?</span>;
                 <span class="self">self</span>.<span class="ident">visit_parameterized</span>(<span class="ident">offset</span>)
-            },
+            }
             (<span class="prelude-val">Some</span>(<span class="ident">limit</span>), <span class="prelude-val">None</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="self">self</span>.<span class="ident">write</span>(<span class="string">&quot; LIMIT &quot;</span>)<span class="question-mark">?</span>;
                 <span class="self">self</span>.<span class="ident">visit_parameterized</span>(<span class="ident">limit</span>)
@@ -551,8 +561,13 @@
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_multi_row_insert</span>() {
-        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="ident">expected_values</span>(<span class="string">&quot;INSERT INTO \&quot;users\&quot; (\&quot;foo\&quot;) VALUES ($1), ($2)&quot;</span>, <span class="macro">vec</span><span class="macro">!</span>[<span class="number">10</span>, <span class="number">11</span>]);
-        <span class="kw">let</span> <span class="ident">query</span> <span class="op">=</span> <span class="ident">Insert</span>::<span class="ident">multi_into</span>(<span class="string">&quot;users&quot;</span>, <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;foo&quot;</span>]).<span class="ident">values</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="number">10</span>]).<span class="ident">values</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="number">11</span>]);
+        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="ident">expected_values</span>(
+            <span class="string">&quot;INSERT INTO \&quot;users\&quot; (\&quot;foo\&quot;) VALUES ($1), ($2)&quot;</span>,
+            <span class="macro">vec</span><span class="macro">!</span>[<span class="number">10</span>, <span class="number">11</span>],
+        );
+        <span class="kw">let</span> <span class="ident">query</span> <span class="op">=</span> <span class="ident">Insert</span>::<span class="ident">multi_into</span>(<span class="string">&quot;users&quot;</span>, <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;foo&quot;</span>])
+            .<span class="ident">values</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="number">10</span>])
+            .<span class="ident">values</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="number">11</span>]);
         <span class="kw">let</span> (<span class="ident">sql</span>, <span class="ident">params</span>) <span class="op">=</span> <span class="ident">Postgres</span>::<span class="ident">build</span>(<span class="ident">query</span>);
 
         <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">expected</span>.<span class="number">0</span>, <span class="ident">sql</span>);
@@ -561,7 +576,10 @@
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_limit_and_offset_when_both_are_set</span>() {
-        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="ident">expected_values</span>(<span class="string">&quot;SELECT \&quot;users\&quot;.* FROM \&quot;users\&quot; LIMIT $1 OFFSET $2&quot;</span>, <span class="macro">vec</span><span class="macro">!</span>[<span class="number">10</span>, <span class="number">2</span>]);
+        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="ident">expected_values</span>(
+            <span class="string">&quot;SELECT \&quot;users\&quot;.* FROM \&quot;users\&quot; LIMIT $1 OFFSET $2&quot;</span>,
+            <span class="macro">vec</span><span class="macro">!</span>[<span class="number">10</span>, <span class="number">2</span>],
+        );
         <span class="kw">let</span> <span class="ident">query</span> <span class="op">=</span> <span class="ident">Select</span>::<span class="ident">from_table</span>(<span class="string">&quot;users&quot;</span>).<span class="ident">limit</span>(<span class="number">10</span>).<span class="ident">offset</span>(<span class="number">2</span>);
         <span class="kw">let</span> (<span class="ident">sql</span>, <span class="ident">params</span>) <span class="op">=</span> <span class="ident">Postgres</span>::<span class="ident">build</span>(<span class="ident">query</span>);
 
