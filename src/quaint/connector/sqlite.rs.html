@@ -296,6 +296,13 @@
 <span id="296">296</span>
 <span id="297">297</span>
 <span id="298">298</span>
+<span id="299">299</span>
+<span id="300">300</span>
+<span id="301">301</span>
+<span id="302">302</span>
+<span id="303">303</span>
+<span id="304">304</span>
+<span id="305">305</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">mod</span> <span class="ident">conversion</span>;
 <span class="kw">mod</span> <span class="ident">error</span>;
@@ -535,6 +542,13 @@
 <span class="kw">mod</span> <span class="ident">tests</span> {
     <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
     <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">connector</span>::{<span class="ident">Queryable</span>, <span class="ident">TransactionCapable</span>};
+
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="kw">fn</span> <span class="ident">sqlite_params_from_str_should_resolve_path_correctly</span>() {
+        <span class="kw">let</span> <span class="ident">path</span> <span class="op">=</span> <span class="string">&quot;file:dev.db&quot;</span>;
+        <span class="kw">let</span> <span class="ident">params</span> <span class="op">=</span> <span class="ident">SqliteParams</span>::<span class="ident">try_from</span>(<span class="ident">path</span>).<span class="ident">unwrap</span>();
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">params</span>.<span class="ident">file_path</span>, <span class="string">&quot;dev.db&quot;</span>);
+    }
 
     <span class="attribute">#[<span class="ident">tokio</span>::<span class="ident">test</span>]</span>
     <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">should_provide_a_database_connection</span>() {
