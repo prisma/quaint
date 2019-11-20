@@ -323,9 +323,6 @@
 <span id="323">323</span>
 <span id="324">324</span>
 <span id="325">325</span>
-<span id="326">326</span>
-<span id="327">327</span>
-<span id="328">328</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! # quaint</span>
 <span class="doccomment">//!</span>
@@ -530,22 +527,19 @@
             }
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mysql&quot;</span>)]</span>
             <span class="string">&quot;mysql&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="kw">let</span> <span class="ident">params</span> <span class="op">=</span> <span class="ident">connector</span>::<span class="ident">MysqlParams</span>::<span class="ident">try_from</span>(<span class="ident">url</span>)<span class="question-mark">?</span>;
-                <span class="kw">let</span> <span class="ident">manager</span> <span class="op">=</span> <span class="ident">QuaintManager</span>::<span class="ident">Mysql</span>(<span class="ident">params</span>.<span class="ident">config</span>);
+                <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="ident">connector</span>::<span class="ident">MysqlUrl</span>::<span class="ident">new</span>(<span class="ident">url</span>)<span class="question-mark">?</span>;
+                <span class="kw">let</span> <span class="ident">connection_limit</span> <span class="op">=</span> <span class="ident">url</span>.<span class="ident">connection_limit</span>();
+                <span class="kw">let</span> <span class="ident">manager</span> <span class="op">=</span> <span class="ident">QuaintManager</span>::<span class="ident">Mysql</span>(<span class="ident">url</span>.<span class="ident">clone</span>());
 
-                (<span class="ident">manager</span>, <span class="ident">params</span>.<span class="ident">connection_limit</span>)
+                (<span class="ident">manager</span>, <span class="ident">connection_limit</span> <span class="kw">as</span> <span class="ident">u32</span>)
             }
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;postgresql&quot;</span>)]</span>
             <span class="string">&quot;postgres&quot;</span> <span class="op">|</span> <span class="string">&quot;postgresql&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="kw">let</span> <span class="ident">params</span> <span class="op">=</span> <span class="ident">connector</span>::<span class="ident">PostgresParams</span>::<span class="ident">try_from</span>(<span class="ident">url</span>)<span class="question-mark">?</span>;
+                <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="ident">connector</span>::<span class="ident">PostgresUrl</span>::<span class="ident">new</span>(<span class="ident">url</span>)<span class="question-mark">?</span>;
+                <span class="kw">let</span> <span class="ident">connection_limit</span> <span class="op">=</span> <span class="ident">url</span>.<span class="ident">connection_limit</span>();
+                <span class="kw">let</span> <span class="ident">manager</span> <span class="op">=</span> <span class="ident">QuaintManager</span>::<span class="ident">Postgres</span>(<span class="ident">url</span>);
 
-                <span class="kw">let</span> <span class="ident">manager</span> <span class="op">=</span> <span class="ident">QuaintManager</span>::<span class="ident">Postgres</span> {
-                    <span class="ident">config</span>: <span class="ident">params</span>.<span class="ident">config</span>,
-                    <span class="ident">schema</span>: <span class="ident">params</span>.<span class="ident">schema</span>,
-                    <span class="ident">ssl_params</span>: <span class="ident">params</span>.<span class="ident">ssl_params</span>,
-                };
-
-                (<span class="ident">manager</span>, <span class="ident">params</span>.<span class="ident">connection_limit</span>)
+                (<span class="ident">manager</span>, <span class="ident">connection_limit</span> <span class="kw">as</span> <span class="ident">u32</span>)
             }
             <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unimplemented</span><span class="macro">!</span>(
                 <span class="string">&quot;Supported url schemes: file or sqlite, mysql, postgres or postgresql.&quot;</span>
