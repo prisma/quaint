@@ -511,7 +511,7 @@
     <span class="doccomment">/// - `socket` needed when connecting to MySQL database through a unix</span>
     <span class="doccomment">///   socket. When set, the host parameter is dismissed.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">url_str</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">crate</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="ident">Url</span>::<span class="ident">parse</span>(<span class="macro">dbg</span><span class="macro">!</span>(<span class="ident">url_str</span>))<span class="question-mark">?</span>;
+        <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="ident">Url</span>::<span class="ident">parse</span>(<span class="ident">url_str</span>)<span class="question-mark">?</span>;
 
         <span class="kw">let</span> (<span class="ident">manager</span>, <span class="ident">connection_limit</span>) <span class="op">=</span> <span class="kw">match</span> <span class="ident">url</span>.<span class="ident">scheme</span>() {
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sqlite&quot;</span>)]</span>
