@@ -202,18 +202,24 @@
 
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">connection_info</span>::<span class="kw-2">*</span>;
 
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mysql&quot;</span>)]</span>
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">connector</span>::<span class="ident">MysqlUrl</span>;
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;postgresql&quot;</span>)]</span>
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">connector</span>::<span class="ident">PostgresUrl</span>;
+
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">ast</span>,
-    <span class="ident">connector</span>::{<span class="self">self</span>, <span class="ident">MysqlUrl</span>, <span class="ident">PostgresUrl</span>, <span class="ident">Queryable</span>, <span class="ident">TransactionCapable</span>, <span class="ident">DBIO</span>},
+    <span class="ident">connector</span>::{<span class="self">self</span>, <span class="ident">Queryable</span>, <span class="ident">TransactionCapable</span>, <span class="ident">DBIO</span>},
     <span class="ident">error</span>::<span class="ident">Error</span>,
 };
-<span class="kw">use</span> <span class="ident">futures</span>::<span class="ident">future</span>;
-<span class="kw">use</span> <span class="ident">tokio_resource_pool</span>::{<span class="ident">CheckOut</span>, <span class="ident">Manage</span>, <span class="ident">RealDependencies</span>, <span class="ident">Status</span>};
+<span class="kw">use</span> <span class="ident">failure</span>::{<span class="ident">Compat</span>, <span class="ident">Fail</span>};
+<span class="kw">use</span> <span class="ident">futures</span>::{<span class="ident">future</span>, <span class="ident">future</span>::<span class="ident">FutureExt</span>};
+<span class="kw">use</span> <span class="ident">mobc</span>::{<span class="ident">runtime</span>::<span class="ident">DefaultExecutor</span>, <span class="ident">AnyFuture</span>, <span class="ident">ConnectionManager</span>, <span class="ident">PooledConnection</span> <span class="kw">as</span> <span class="ident">MobcPooled</span>};
 
 <span class="doccomment">/// A connection from the pool. Implements</span>
 <span class="doccomment">/// [Queryable](connector/trait.Queryable.html).</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PooledConnection</span> {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">inner</span>: <span class="ident">CheckOut</span><span class="op">&lt;</span><span class="ident">QuaintManager</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">inner</span>: <span class="ident">MobcPooled</span><span class="op">&lt;</span><span class="ident">QuaintManager</span><span class="op">&gt;</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">TransactionCapable</span> <span class="kw">for</span> <span class="ident">PooledConnection</span> {}
@@ -227,19 +233,11 @@
         <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">query</span>(<span class="ident">q</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">query_raw</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(
-        <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="self">self</span>,
-        <span class="ident">sql</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>,
-        <span class="ident">params</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">ast</span>::<span class="ident">ParameterizedValue</span>],
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">DBIO</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">connector</span>::<span class="ident">ResultSet</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">query_raw</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="self">self</span>, <span class="ident">sql</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>, <span class="ident">params</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">ast</span>::<span class="ident">ParameterizedValue</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">DBIO</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">connector</span>::<span class="ident">ResultSet</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">query_raw</span>(<span class="ident">sql</span>, <span class="ident">params</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">execute_raw</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(
-        <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="self">self</span>,
-        <span class="ident">sql</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>,
-        <span class="ident">params</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">ast</span>::<span class="ident">ParameterizedValue</span>],
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">DBIO</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">u64</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">execute_raw</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="self">self</span>, <span class="ident">sql</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>, <span class="ident">params</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">ast</span>::<span class="ident">ParameterizedValue</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">DBIO</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">u64</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">execute_raw</span>(<span class="ident">sql</span>, <span class="ident">params</span>)
     }
 
@@ -268,15 +266,16 @@
     <span class="ident">Sqlite</span> { <span class="ident">file_path</span>: <span class="ident">String</span>, <span class="ident">db_name</span>: <span class="ident">String</span> },
 }
 
-<span class="kw">impl</span> <span class="ident">Manage</span> <span class="kw">for</span> <span class="ident">QuaintManager</span> {
-    <span class="kw">type</span> <span class="ident">Resource</span> <span class="op">=</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Queryable</span> <span class="op">+</span> <span class="ident">Send</span> <span class="op">+</span> <span class="ident">Sync</span><span class="op">&gt;</span>;
-    <span class="kw">type</span> <span class="ident">Dependencies</span> <span class="op">=</span> <span class="ident">RealDependencies</span>;
-    <span class="kw">type</span> <span class="ident">CheckOut</span> <span class="op">=</span> <span class="ident">CheckOut</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>;
-    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">Error</span>;
-    <span class="kw">type</span> <span class="ident">CreateFuture</span> <span class="op">=</span> <span class="ident">DBIO</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span>, <span class="self">Self</span>::<span class="ident">Resource</span><span class="op">&gt;</span>;
-    <span class="kw">type</span> <span class="ident">RecycleFuture</span> <span class="op">=</span> <span class="ident">DBIO</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span>::<span class="ident">Resource</span><span class="op">&gt;</span><span class="op">&gt;</span>;
+<span class="kw">impl</span> <span class="ident">ConnectionManager</span> <span class="kw">for</span> <span class="ident">QuaintManager</span> {
+    <span class="kw">type</span> <span class="ident">Connection</span> <span class="op">=</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Queryable</span> <span class="op">+</span> <span class="ident">Send</span> <span class="op">+</span> <span class="ident">Sync</span><span class="op">&gt;</span>;
+    <span class="kw">type</span> <span class="ident">Executor</span> <span class="op">=</span> <span class="ident">DefaultExecutor</span>;
+    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">Compat</span><span class="op">&lt;</span><span class="ident">Error</span><span class="op">&gt;</span>;
 
-    <span class="kw">fn</span> <span class="ident">create</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>::<span class="ident">CreateFuture</span> {
+    <span class="kw">fn</span> <span class="ident">get_executor</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>::<span class="ident">Executor</span> {
+        <span class="ident">DefaultExecutor</span>::<span class="ident">current</span>()
+    }
+
+    <span class="kw">fn</span> <span class="ident">connect</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">AnyFuture</span><span class="op">&lt;</span><span class="self">Self</span>::<span class="ident">Connection</span>, <span class="self">Self</span>::<span class="ident">Error</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="self">self</span> {
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sqlite&quot;</span>)]</span>
             <span class="self">Self</span>::<span class="ident">Sqlite</span> { <span class="ident">file_path</span>, <span class="ident">db_name</span> } <span class="op">=</span><span class="op">&gt;</span> {
@@ -284,10 +283,10 @@
 
                 <span class="kw">match</span> <span class="ident">Sqlite</span>::<span class="ident">new</span>(<span class="kw-2">&amp;</span><span class="ident">file_path</span>) {
                     <span class="prelude-val">Ok</span>(<span class="kw-2">mut</span> <span class="ident">conn</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">conn</span>.<span class="ident">attach_database</span>(<span class="ident">db_name</span>) {
-                        <span class="prelude-val">Ok</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">DBIO</span>::<span class="ident">new</span>(<span class="ident">future</span>::<span class="ident">ok</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">conn</span>) <span class="kw">as</span> <span class="self">Self</span>::<span class="ident">Resource</span>)),
-                        <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">DBIO</span>::<span class="ident">new</span>(<span class="ident">future</span>::<span class="ident">err</span>(<span class="ident">e</span>)),
+                        <span class="prelude-val">Ok</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">future</span>::<span class="ident">ok</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">conn</span>) <span class="kw">as</span> <span class="self">Self</span>::<span class="ident">Connection</span>).<span class="ident">boxed</span>(),
+                        <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">future</span>::<span class="ident">err</span>(<span class="ident">e</span>.<span class="ident">compat</span>()).<span class="ident">boxed</span>(),
                     },
-                    <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">DBIO</span>::<span class="ident">new</span>(<span class="ident">future</span>::<span class="ident">err</span>(<span class="ident">e</span>)),
+                    <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">future</span>::<span class="ident">err</span>(<span class="ident">e</span>.<span class="ident">compat</span>()).<span class="ident">boxed</span>(),
                 }
             }
 
@@ -296,8 +295,8 @@
                 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">connector</span>::<span class="ident">Mysql</span>;
 
                 <span class="kw">match</span> <span class="ident">Mysql</span>::<span class="ident">new</span>(<span class="ident">url</span>.<span class="ident">clone</span>()) {
-                    <span class="prelude-val">Ok</span>(<span class="ident">mysql</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">DBIO</span>::<span class="ident">new</span>(<span class="ident">future</span>::<span class="ident">ok</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">mysql</span>) <span class="kw">as</span> <span class="self">Self</span>::<span class="ident">Resource</span>)),
-                    <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">DBIO</span>::<span class="ident">new</span>(<span class="ident">future</span>::<span class="ident">err</span>(<span class="ident">e</span>)),
+                    <span class="prelude-val">Ok</span>(<span class="ident">mysql</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">future</span>::<span class="ident">ok</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">mysql</span>) <span class="kw">as</span> <span class="self">Self</span>::<span class="ident">Connection</span>).<span class="ident">boxed</span>(),
+                    <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">future</span>::<span class="ident">err</span>(<span class="ident">e</span>.<span class="ident">compat</span>()).<span class="ident">boxed</span>(),
                 }
             }
 
@@ -307,24 +306,25 @@
 
                 <span class="kw">let</span> <span class="ident">url</span>: <span class="ident">PostgresUrl</span> <span class="op">=</span> <span class="ident">url</span>.<span class="ident">clone</span>();
 
-                <span class="ident">DBIO</span>::<span class="ident">new</span>(<span class="kw">async</span> <span class="kw">move</span> {
-                    <span class="kw">let</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">PostgreSql</span>::<span class="ident">new</span>(<span class="ident">url</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-
-                    <span class="prelude-val">Ok</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">conn</span>) <span class="kw">as</span> <span class="self">Self</span>::<span class="ident">Resource</span>)
-                })
+                <span class="kw">async</span> <span class="kw">move</span> {
+                    <span class="kw">let</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">PostgreSql</span>::<span class="ident">new</span>(<span class="ident">url</span>).<span class="kw">await</span>.<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> <span class="ident">e</span>.<span class="ident">compat</span>())<span class="question-mark">?</span>;
+                    <span class="prelude-val">Ok</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">conn</span>) <span class="kw">as</span> <span class="self">Self</span>::<span class="ident">Connection</span>)
+                }
+                    .<span class="ident">boxed</span>()
             }
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">status</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="self">Self</span>::<span class="ident">Resource</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Status</span> {
-        <span class="ident">Status</span>::<span class="ident">Valid</span>
+    <span class="kw">fn</span> <span class="ident">is_valid</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">conn</span>: <span class="self">Self</span>::<span class="ident">Connection</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">AnyFuture</span><span class="op">&lt;</span><span class="self">Self</span>::<span class="ident">Connection</span>, <span class="self">Self</span>::<span class="ident">Error</span><span class="op">&gt;</span> {
+        <span class="kw">async</span> <span class="kw">move</span> {
+            <span class="ident">conn</span>.<span class="ident">query_raw</span>(<span class="string">&quot;SELECT 1&quot;</span>, <span class="kw-2">&amp;</span>[]).<span class="kw">await</span>.<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> <span class="ident">e</span>.<span class="ident">compat</span>())<span class="question-mark">?</span>;
+            <span class="prelude-val">Ok</span>(<span class="ident">conn</span>)
+        }
+            .<span class="ident">boxed</span>()
     }
 
-    <span class="kw">fn</span> <span class="ident">recycle</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">conn</span>: <span class="self">Self</span>::<span class="ident">Resource</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>::<span class="ident">RecycleFuture</span> {
-        <span class="ident">DBIO</span>::<span class="ident">new</span>(<span class="kw">async</span> {
-            <span class="ident">conn</span>.<span class="ident">query_raw</span>(<span class="string">&quot;SELECT 1&quot;</span>, <span class="kw-2">&amp;</span>[]).<span class="kw">await</span><span class="question-mark">?</span>;
-            <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="ident">conn</span>))
-        })
+    <span class="kw">fn</span> <span class="ident">has_broken</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span>::<span class="ident">Connection</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+        <span class="bool-val">false</span>
     }
 }
 
@@ -333,68 +333,68 @@
     <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">Quaint</span>;
     <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">env</span>;
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="attribute">#[<span class="ident">tokio</span>::<span class="ident">test</span>]</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mysql&quot;</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">mysql_default_connection_limit</span>() {
+    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">mysql_default_connection_limit</span>() {
         <span class="kw">let</span> <span class="ident">conn_string</span> <span class="op">=</span> <span class="ident">env</span>::<span class="ident">var</span>(<span class="string">&quot;TEST_MYSQL&quot;</span>).<span class="ident">expect</span>(<span class="string">&quot;TEST_MYSQL connection string not set.&quot;</span>);
 
-        <span class="kw">let</span> <span class="ident">pool</span> <span class="op">=</span> <span class="ident">Quaint</span>::<span class="ident">new</span>(<span class="kw-2">&amp;</span><span class="ident">conn_string</span>).<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">pool</span> <span class="op">=</span> <span class="ident">Quaint</span>::<span class="ident">new</span>(<span class="kw-2">&amp;</span><span class="ident">conn_string</span>).<span class="kw">await</span>.<span class="ident">unwrap</span>();
 
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">num_cpus</span>::<span class="ident">get_physical</span>() <span class="op">*</span> <span class="number">2</span> <span class="op">+</span> <span class="number">1</span>, <span class="ident">pool</span>.<span class="ident">capacity</span>());
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">num_cpus</span>::<span class="ident">get_physical</span>() <span class="op">*</span> <span class="number">2</span> <span class="op">+</span> <span class="number">1</span>, <span class="ident">pool</span>.<span class="ident">capacity</span>().<span class="kw">await</span> <span class="kw">as</span> <span class="ident">usize</span>);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="attribute">#[<span class="ident">tokio</span>::<span class="ident">test</span>]</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mysql&quot;</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">mysql_custom_connection_limit</span>() {
+    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">mysql_custom_connection_limit</span>() {
         <span class="kw">let</span> <span class="ident">conn_string</span> <span class="op">=</span> <span class="macro">format</span><span class="macro">!</span>(
             <span class="string">&quot;{}?connection_limit=10&quot;</span>,
             <span class="ident">env</span>::<span class="ident">var</span>(<span class="string">&quot;TEST_MYSQL&quot;</span>).<span class="ident">expect</span>(<span class="string">&quot;TEST_MYSQL connection string not set.&quot;</span>)
         );
 
-        <span class="kw">let</span> <span class="ident">pool</span> <span class="op">=</span> <span class="ident">Quaint</span>::<span class="ident">new</span>(<span class="kw-2">&amp;</span><span class="ident">conn_string</span>).<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">pool</span> <span class="op">=</span> <span class="ident">Quaint</span>::<span class="ident">new</span>(<span class="kw-2">&amp;</span><span class="ident">conn_string</span>).<span class="kw">await</span>.<span class="ident">unwrap</span>();
 
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="number">10</span>, <span class="ident">pool</span>.<span class="ident">capacity</span>());
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="number">10</span>, <span class="ident">pool</span>.<span class="ident">capacity</span>().<span class="kw">await</span> <span class="kw">as</span> <span class="ident">usize</span>);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="attribute">#[<span class="ident">tokio</span>::<span class="ident">test</span>]</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;postgresql&quot;</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">psql_default_connection_limit</span>() {
+    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">psql_default_connection_limit</span>() {
         <span class="kw">let</span> <span class="ident">conn_string</span> <span class="op">=</span> <span class="ident">env</span>::<span class="ident">var</span>(<span class="string">&quot;TEST_PSQL&quot;</span>).<span class="ident">expect</span>(<span class="string">&quot;TEST_PSQL connection string not set.&quot;</span>);
 
-        <span class="kw">let</span> <span class="ident">pool</span> <span class="op">=</span> <span class="ident">Quaint</span>::<span class="ident">new</span>(<span class="kw-2">&amp;</span><span class="ident">conn_string</span>).<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">pool</span> <span class="op">=</span> <span class="ident">Quaint</span>::<span class="ident">new</span>(<span class="kw-2">&amp;</span><span class="ident">conn_string</span>).<span class="kw">await</span>.<span class="ident">unwrap</span>();
 
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">num_cpus</span>::<span class="ident">get_physical</span>() <span class="op">*</span> <span class="number">2</span> <span class="op">+</span> <span class="number">1</span>, <span class="ident">pool</span>.<span class="ident">capacity</span>());
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">num_cpus</span>::<span class="ident">get_physical</span>() <span class="op">*</span> <span class="number">2</span> <span class="op">+</span> <span class="number">1</span>, <span class="ident">pool</span>.<span class="ident">capacity</span>().<span class="kw">await</span> <span class="kw">as</span> <span class="ident">usize</span>);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="attribute">#[<span class="ident">tokio</span>::<span class="ident">test</span>]</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;postgresql&quot;</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">psql_custom_connection_limit</span>() {
+    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">psql_custom_connection_limit</span>() {
         <span class="kw">let</span> <span class="ident">conn_string</span> <span class="op">=</span> <span class="macro">format</span><span class="macro">!</span>(
             <span class="string">&quot;{}?connection_limit=10&quot;</span>,
             <span class="ident">env</span>::<span class="ident">var</span>(<span class="string">&quot;TEST_PSQL&quot;</span>).<span class="ident">expect</span>(<span class="string">&quot;TEST_PSQL connection string not set.&quot;</span>)
         );
 
-        <span class="kw">let</span> <span class="ident">pool</span> <span class="op">=</span> <span class="ident">Quaint</span>::<span class="ident">new</span>(<span class="kw-2">&amp;</span><span class="ident">conn_string</span>).<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">pool</span> <span class="op">=</span> <span class="ident">Quaint</span>::<span class="ident">new</span>(<span class="kw-2">&amp;</span><span class="ident">conn_string</span>).<span class="kw">await</span>.<span class="ident">unwrap</span>();
 
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="number">10</span>, <span class="ident">pool</span>.<span class="ident">capacity</span>());
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="number">10</span>, <span class="ident">pool</span>.<span class="ident">capacity</span>().<span class="kw">await</span> <span class="kw">as</span> <span class="ident">usize</span>);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="attribute">#[<span class="ident">tokio</span>::<span class="ident">test</span>]</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sqlite&quot;</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">test_default_connection_limit</span>() {
+    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">test_default_connection_limit</span>() {
         <span class="kw">let</span> <span class="ident">conn_string</span> <span class="op">=</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;file:db/test.db&quot;</span>,);
-        <span class="kw">let</span> <span class="ident">pool</span> <span class="op">=</span> <span class="ident">Quaint</span>::<span class="ident">new</span>(<span class="kw-2">&amp;</span><span class="ident">conn_string</span>).<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">pool</span> <span class="op">=</span> <span class="ident">Quaint</span>::<span class="ident">new</span>(<span class="kw-2">&amp;</span><span class="ident">conn_string</span>).<span class="kw">await</span>.<span class="ident">unwrap</span>();
 
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">num_cpus</span>::<span class="ident">get_physical</span>() <span class="op">*</span> <span class="number">2</span> <span class="op">+</span> <span class="number">1</span>, <span class="ident">pool</span>.<span class="ident">capacity</span>());
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">num_cpus</span>::<span class="ident">get_physical</span>() <span class="op">*</span> <span class="number">2</span> <span class="op">+</span> <span class="number">1</span>, <span class="ident">pool</span>.<span class="ident">capacity</span>().<span class="kw">await</span> <span class="kw">as</span> <span class="ident">usize</span>);
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="attribute">#[<span class="ident">tokio</span>::<span class="ident">test</span>]</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sqlite&quot;</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">test_custom_connection_limit</span>() {
+    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">test_custom_connection_limit</span>() {
         <span class="kw">let</span> <span class="ident">conn_string</span> <span class="op">=</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;file:db/test.db?connection_limit=10&quot;</span>,);
-        <span class="kw">let</span> <span class="ident">pool</span> <span class="op">=</span> <span class="ident">Quaint</span>::<span class="ident">new</span>(<span class="kw-2">&amp;</span><span class="ident">conn_string</span>).<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">pool</span> <span class="op">=</span> <span class="ident">Quaint</span>::<span class="ident">new</span>(<span class="kw-2">&amp;</span><span class="ident">conn_string</span>).<span class="kw">await</span>.<span class="ident">unwrap</span>();
 
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="number">10</span>, <span class="ident">pool</span>.<span class="ident">capacity</span>());
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="number">10</span>, <span class="ident">pool</span>.<span class="ident">capacity</span>().<span class="kw">await</span> <span class="kw">as</span> <span class="ident">usize</span>);
     }
 }
 </pre></div>

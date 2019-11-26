@@ -235,19 +235,6 @@
 <span id="235">235</span>
 <span id="236">236</span>
 <span id="237">237</span>
-<span id="238">238</span>
-<span id="239">239</span>
-<span id="240">240</span>
-<span id="241">241</span>
-<span id="242">242</span>
-<span id="243">243</span>
-<span id="244">244</span>
-<span id="245">245</span>
-<span id="246">246</span>
-<span id="247">247</span>
-<span id="248">248</span>
-<span id="249">249</span>
-<span id="250">250</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">ast</span>::<span class="kw-2">*</span>, <span class="ident">visitor</span>::<span class="ident">Visitor</span>};
 <span class="kw">use</span> <span class="ident">mysql_async</span>::<span class="ident">Value</span> <span class="kw">as</span> <span class="ident">MyValue</span>;
@@ -385,9 +372,7 @@
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;array&quot;</span>)]</span>
             <span class="ident">ParameterizedValue</span>::<span class="ident">Array</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unimplemented</span><span class="macro">!</span>(<span class="string">&quot;Arrays are not supported for mysql.&quot;</span>),
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;uuid-0_7&quot;</span>)]</span>
-            <span class="ident">ParameterizedValue</span>::<span class="ident">Uuid</span>(<span class="ident">u</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="ident">MyValue</span>::<span class="ident">Bytes</span>(<span class="ident">u</span>.<span class="ident">to_hyphenated</span>().<span class="ident">to_string</span>().<span class="ident">into_bytes</span>())
-            }
+            <span class="ident">ParameterizedValue</span>::<span class="ident">Uuid</span>(<span class="ident">u</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">MyValue</span>::<span class="ident">Bytes</span>(<span class="ident">u</span>.<span class="ident">to_hyphenated</span>().<span class="ident">to_string</span>().<span class="ident">into_bytes</span>()),
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;chrono-0_4&quot;</span>)]</span>
             <span class="ident">ParameterizedValue</span>::<span class="ident">DateTime</span>(<span class="ident">dt</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">MyValue</span>::<span class="ident">Date</span>(
                 <span class="ident">dt</span>.<span class="ident">year</span>() <span class="kw">as</span> <span class="ident">u16</span>,
@@ -406,22 +391,14 @@
 <span class="kw">mod</span> <span class="ident">tests</span> {
     <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">visitor</span>::<span class="kw-2">*</span>;
 
-    <span class="kw">fn</span> <span class="ident">expected_values</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span>(
-        <span class="ident">sql</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>,
-        <span class="ident">params</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">String</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ParameterizedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>)
+    <span class="kw">fn</span> <span class="ident">expected_values</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">sql</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>, <span class="ident">params</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">String</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ParameterizedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>)
     <span class="kw">where</span>
         <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">ParameterizedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     {
-        (
-            <span class="ident">String</span>::<span class="ident">from</span>(<span class="ident">sql</span>),
-            <span class="ident">params</span>.<span class="ident">into_iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">p</span><span class="op">|</span> <span class="ident">p</span>.<span class="ident">into</span>()).<span class="ident">collect</span>(),
-        )
+        (<span class="ident">String</span>::<span class="ident">from</span>(<span class="ident">sql</span>), <span class="ident">params</span>.<span class="ident">into_iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">p</span><span class="op">|</span> <span class="ident">p</span>.<span class="ident">into</span>()).<span class="ident">collect</span>())
     }
 
-    <span class="kw">fn</span> <span class="ident">default_params</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(
-        <span class="kw-2">mut</span> <span class="ident">additional</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ParameterizedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ParameterizedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">default_params</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="ident">additional</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ParameterizedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ParameterizedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
 
         <span class="kw">for</span> <span class="ident">param</span> <span class="kw">in</span> <span class="ident">additional</span>.<span class="ident">drain</span>(<span class="number">0</span>..) {
@@ -464,10 +441,7 @@
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_limit_and_offset_when_both_are_set</span>() {
-        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="ident">expected_values</span>(
-            <span class="string">&quot;SELECT `users`.* FROM `users` LIMIT ? OFFSET ?&quot;</span>,
-            <span class="macro">vec</span><span class="macro">!</span>[<span class="number">10</span>, <span class="number">2</span>],
-        );
+        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="ident">expected_values</span>(<span class="string">&quot;SELECT `users`.* FROM `users` LIMIT ? OFFSET ?&quot;</span>, <span class="macro">vec</span><span class="macro">!</span>[<span class="number">10</span>, <span class="number">2</span>]);
         <span class="kw">let</span> <span class="ident">query</span> <span class="op">=</span> <span class="ident">Select</span>::<span class="ident">from_table</span>(<span class="string">&quot;users&quot;</span>).<span class="ident">limit</span>(<span class="number">10</span>).<span class="ident">offset</span>(<span class="number">2</span>);
         <span class="kw">let</span> (<span class="ident">sql</span>, <span class="ident">params</span>) <span class="op">=</span> <span class="ident">Mysql</span>::<span class="ident">build</span>(<span class="ident">query</span>);
 
