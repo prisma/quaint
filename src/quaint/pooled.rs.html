@@ -192,14 +192,16 @@
 <span id="192">192</span>
 <span id="193">193</span>
 <span id="194">194</span>
+<span id="195">195</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">mod</span> <span class="ident">manager</span>;
+
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">manager</span>::{<span class="ident">PooledConnection</span>, <span class="ident">QuaintManager</span>};
 
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">ast</span>,
     <span class="ident">connector</span>::{<span class="self">self</span>, <span class="ident">ConnectionInfo</span>, <span class="ident">Queryable</span>, <span class="ident">SqlFamily</span>, <span class="ident">DBIO</span>},
 };
-<span class="kw">use</span> <span class="ident">manager</span>::{<span class="ident">PooledConnection</span>, <span class="ident">QuaintManager</span>};
 <span class="kw">use</span> <span class="ident">mobc</span>::<span class="ident">Pool</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">convert</span>::<span class="ident">TryFrom</span>;
 <span class="kw">use</span> <span class="ident">url</span>::<span class="ident">Url</span>;
