@@ -46,12 +46,45 @@
 <span id="46">46</span>
 <span id="47">47</span>
 <span id="48">48</span>
+<span id="49">49</span>
+<span id="50">50</span>
+<span id="51">51</span>
+<span id="52">52</span>
+<span id="53">53</span>
+<span id="54">54</span>
+<span id="55">55</span>
+<span id="56">56</span>
+<span id="57">57</span>
+<span id="58">58</span>
+<span id="59">59</span>
+<span id="60">60</span>
+<span id="61">61</span>
+<span id="62">62</span>
+<span id="63">63</span>
+<span id="64">64</span>
+<span id="65">65</span>
+<span id="66">66</span>
+<span id="67">67</span>
+<span id="68">68</span>
+<span id="69">69</span>
+<span id="70">70</span>
+<span id="71">71</span>
+<span id="72">72</span>
+<span id="73">73</span>
+<span id="74">74</span>
+<span id="75">75</span>
+<span id="76">76</span>
+<span id="77">77</span>
+<span id="78">78</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">ast</span>::<span class="ident">ParameterizedValue</span>,
     <span class="ident">connector</span>::<span class="ident">queryable</span>::{<span class="ident">GetRow</span>, <span class="ident">ToColumnNames</span>},
 };
-<span class="kw">use</span> <span class="ident">rusqlite</span>::{<span class="ident">types</span>::<span class="ident">ValueRef</span>, <span class="ident">Row</span> <span class="kw">as</span> <span class="ident">SqliteRow</span>, <span class="ident">Rows</span> <span class="kw">as</span> <span class="ident">SqliteRows</span>};
+<span class="kw">use</span> <span class="ident">rusqlite</span>::{
+    <span class="ident">types</span>::{<span class="ident">Null</span>, <span class="ident">ToSql</span>, <span class="ident">ToSqlOutput</span>, <span class="ident">ValueRef</span>},
+    <span class="ident">Error</span> <span class="kw">as</span> <span class="ident">RusqlError</span>, <span class="ident">Row</span> <span class="kw">as</span> <span class="ident">SqliteRow</span>, <span class="ident">Rows</span> <span class="kw">as</span> <span class="ident">SqliteRows</span>,
+};
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">GetRow</span> <span class="kw">for</span> <span class="ident">SqliteRow</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="kw">fn</span> <span class="ident">get_result_row</span><span class="op">&lt;</span><span class="lifetime">&#39;b</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;b</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">crate</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ParameterizedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
@@ -93,6 +126,33 @@
         }
 
         <span class="ident">names</span>
+    }
+}
+
+<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">ToSql</span> <span class="kw">for</span> <span class="ident">ParameterizedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">to_sql</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ToSqlOutput</span>, <span class="ident">RusqlError</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">value</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span> {
+            <span class="ident">ParameterizedValue</span>::<span class="ident">Null</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ToSqlOutput</span>::<span class="ident">from</span>(<span class="ident">Null</span>),
+            <span class="ident">ParameterizedValue</span>::<span class="ident">Integer</span>(<span class="ident">integer</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ToSqlOutput</span>::<span class="ident">from</span>(<span class="kw-2">*</span><span class="ident">integer</span>),
+            <span class="ident">ParameterizedValue</span>::<span class="ident">Real</span>(<span class="ident">float</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ToSqlOutput</span>::<span class="ident">from</span>(<span class="kw-2">*</span><span class="ident">float</span>),
+            <span class="ident">ParameterizedValue</span>::<span class="ident">Text</span>(<span class="ident">cow</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ToSqlOutput</span>::<span class="ident">from</span>(<span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="kw-2">*</span><span class="ident">cow</span>),
+            <span class="ident">ParameterizedValue</span>::<span class="ident">Boolean</span>(<span class="ident">boo</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ToSqlOutput</span>::<span class="ident">from</span>(<span class="kw-2">*</span><span class="ident">boo</span>),
+            <span class="ident">ParameterizedValue</span>::<span class="ident">Char</span>(<span class="ident">c</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ToSqlOutput</span>::<span class="ident">from</span>(<span class="kw-2">*</span><span class="ident">c</span> <span class="kw">as</span> <span class="ident">u8</span>),
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;array&quot;</span>)]</span>
+            <span class="ident">ParameterizedValue</span>::<span class="ident">Array</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unimplemented</span><span class="macro">!</span>(<span class="string">&quot;Arrays are not supported for sqlite.&quot;</span>),
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;json-1&quot;</span>)]</span>
+            <span class="ident">ParameterizedValue</span>::<span class="ident">Json</span>(<span class="ident">value</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="kw">let</span> <span class="ident">stringified</span> <span class="op">=</span>
+                    <span class="ident">serde_json</span>::<span class="ident">to_string</span>(<span class="ident">value</span>).<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> <span class="ident">RusqlError</span>::<span class="ident">ToSqlConversionFailure</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">err</span>)))<span class="question-mark">?</span>;
+                <span class="ident">ToSqlOutput</span>::<span class="ident">from</span>(<span class="ident">stringified</span>)
+            }
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;uuid-0_7&quot;</span>)]</span>
+            <span class="ident">ParameterizedValue</span>::<span class="ident">Uuid</span>(<span class="ident">value</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ToSqlOutput</span>::<span class="ident">from</span>(<span class="ident">value</span>.<span class="ident">to_hyphenated</span>().<span class="ident">to_string</span>()),
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;chrono-0_4&quot;</span>)]</span>
+            <span class="ident">ParameterizedValue</span>::<span class="ident">DateTime</span>(<span class="ident">value</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ToSqlOutput</span>::<span class="ident">from</span>(<span class="ident">value</span>.<span class="ident">timestamp_millis</span>()),
+        };
+
+        <span class="prelude-val">Ok</span>(<span class="ident">value</span>)
     }
 }
 </pre></div>

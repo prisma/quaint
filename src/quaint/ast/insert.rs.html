@@ -212,6 +212,7 @@
 <span id="212">212</span>
 <span id="213">213</span>
 <span id="214">214</span>
+<span id="215">215</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">ast</span>::<span class="kw-2">*</span>;
 
@@ -348,7 +349,7 @@
         <span class="self">self</span>
     }
 
-    <span class="doccomment">/// Sets the returned columns. Works only with PostgreSQL.</span>
+    <span class="doccomment">/// Sets the returned columns.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// ```rust</span>
     <span class="doccomment">/// # use quaint::{ast::*, visitor::{Visitor, Postgres}};</span>
@@ -358,6 +359,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// assert_eq!(&quot;INSERT INTO \&quot;users\&quot; DEFAULT VALUES RETURNING \&quot;id\&quot;&quot;, sql);</span>
     <span class="doccomment">/// ```</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;postgresql&quot;</span>)]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">returning</span><span class="op">&lt;</span><span class="ident">K</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">columns</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">K</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>
     <span class="kw">where</span>
         <span class="ident">K</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Column</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,

@@ -1,1 +1,0 @@
-initSidebarItems({"enum":[["ConnectionInfo","General information about a SQL connection."],["SqlFamily","One of the supported SQL variants."]],"struct":[["PooledConnection","A connection from the pool. Implements Queryable."]]});
