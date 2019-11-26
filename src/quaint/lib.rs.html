@@ -126,6 +126,7 @@
 <span id="126">126</span>
 <span id="127">127</span>
 <span id="128">128</span>
+<span id="129">129</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! # quaint</span>
 <span class="doccomment">//!</span>
@@ -170,7 +171,8 @@
 <span class="doccomment">//!</span>
 <span class="doccomment">//! #[tokio::main]</span>
 <span class="doccomment">//! async fn main() -&gt; Result&lt;(), quaint::error::Error&gt; {</span>
-<span class="doccomment">//!     let conn = Quaint::new(&quot;file:///tmp/example.db&quot;).await?;</span>
+<span class="doccomment">//!     let quaint = Quaint::new(&quot;file:///tmp/example.db&quot;).await?;</span>
+<span class="doccomment">//!     let conn = quaint.check_out().await?;</span>
 <span class="doccomment">//!     let result = conn.select(Select::default().value(1)).await?;</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//!     assert_eq!(</span>
