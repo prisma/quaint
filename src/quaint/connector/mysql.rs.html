@@ -370,24 +370,6 @@
 <span id="370">370</span>
 <span id="371">371</span>
 <span id="372">372</span>
-<span id="373">373</span>
-<span id="374">374</span>
-<span id="375">375</span>
-<span id="376">376</span>
-<span id="377">377</span>
-<span id="378">378</span>
-<span id="379">379</span>
-<span id="380">380</span>
-<span id="381">381</span>
-<span id="382">382</span>
-<span id="383">383</span>
-<span id="384">384</span>
-<span id="385">385</span>
-<span id="386">386</span>
-<span id="387">387</span>
-<span id="388">388</span>
-<span id="389">389</span>
-<span id="390">390</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">mod</span> <span class="ident">conversion</span>;
 <span class="kw">mod</span> <span class="ident">error</span>;
@@ -661,24 +643,6 @@
 
                 <span class="prelude-val">Ok</span>(<span class="ident">result</span>.<span class="ident">affected_rows</span>())
             }
-        })
-    }
-
-    <span class="kw">fn</span> <span class="ident">turn_off_fk_constraints</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">DBIO</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="ident">DBIO</span>::<span class="ident">new</span>(<span class="kw">async</span> <span class="kw">move</span> {
-            <span class="kw">let</span> <span class="ident">conn</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">pool</span>.<span class="ident">get_conn</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-            <span class="ident">conn</span>.<span class="ident">query</span>(<span class="string">&quot;SET FOREIGN_KEY_CHECKS=0&quot;</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-
-            <span class="prelude-val">Ok</span>(())
-        })
-    }
-
-    <span class="kw">fn</span> <span class="ident">turn_on_fk_constraints</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">DBIO</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="ident">DBIO</span>::<span class="ident">new</span>(<span class="kw">async</span> <span class="kw">move</span> {
-            <span class="kw">let</span> <span class="ident">conn</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">pool</span>.<span class="ident">get_conn</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-            <span class="ident">conn</span>.<span class="ident">query</span>(<span class="string">&quot;SET FOREIGN_KEY_CHECKS=1&quot;</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-
-            <span class="prelude-val">Ok</span>(())
         })
     }
 

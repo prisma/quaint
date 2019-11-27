@@ -285,20 +285,6 @@
 <span id="285">285</span>
 <span id="286">286</span>
 <span id="287">287</span>
-<span id="288">288</span>
-<span id="289">289</span>
-<span id="290">290</span>
-<span id="291">291</span>
-<span id="292">292</span>
-<span id="293">293</span>
-<span id="294">294</span>
-<span id="295">295</span>
-<span id="296">296</span>
-<span id="297">297</span>
-<span id="298">298</span>
-<span id="299">299</span>
-<span id="300">300</span>
-<span id="301">301</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">mod</span> <span class="ident">conversion</span>;
 <span class="kw">mod</span> <span class="ident">error</span>;
@@ -496,20 +482,6 @@
                 <span class="prelude-val">Ok</span>(<span class="ident">res</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">future</span>::<span class="ident">ok</span>(<span class="ident">res</span>),
                 <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">future</span>::<span class="ident">err</span>(<span class="ident">e</span>),
             }
-        })
-    }
-
-    <span class="kw">fn</span> <span class="ident">turn_off_fk_constraints</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">DBIO</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="ident">DBIO</span>::<span class="ident">new</span>(<span class="kw">async</span> <span class="kw">move</span> {
-            <span class="self">self</span>.<span class="ident">query_raw</span>(<span class="string">&quot;PRAGMA foreign_keys = OFF&quot;</span>, <span class="kw-2">&amp;</span>[]).<span class="kw">await</span><span class="question-mark">?</span>;
-            <span class="prelude-val">Ok</span>(())
-        })
-    }
-
-    <span class="kw">fn</span> <span class="ident">turn_on_fk_constraints</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">DBIO</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="ident">DBIO</span>::<span class="ident">new</span>(<span class="kw">async</span> <span class="kw">move</span> {
-            <span class="self">self</span>.<span class="ident">query_raw</span>(<span class="string">&quot;PRAGMA foreign_keys = ON&quot;</span>, <span class="kw-2">&amp;</span>[]).<span class="kw">await</span><span class="question-mark">?</span>;
-            <span class="prelude-val">Ok</span>(())
         })
     }
 

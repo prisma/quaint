@@ -73,27 +73,6 @@
 <span id="73">73</span>
 <span id="74">74</span>
 <span id="75">75</span>
-<span id="76">76</span>
-<span id="77">77</span>
-<span id="78">78</span>
-<span id="79">79</span>
-<span id="80">80</span>
-<span id="81">81</span>
-<span id="82">82</span>
-<span id="83">83</span>
-<span id="84">84</span>
-<span id="85">85</span>
-<span id="86">86</span>
-<span id="87">87</span>
-<span id="88">88</span>
-<span id="89">89</span>
-<span id="90">90</span>
-<span id="91">91</span>
-<span id="92">92</span>
-<span id="93">93</span>
-<span id="94">94</span>
-<span id="95">95</span>
-<span id="96">96</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">super</span>::{<span class="ident">ResultSet</span>, <span class="ident">Transaction</span>, <span class="ident">DBIO</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">ast</span>::<span class="kw-2">*</span>;
@@ -129,30 +108,9 @@
     <span class="doccomment">/// returning the number of affected rows.</span>
     <span class="kw">fn</span> <span class="ident">execute_raw</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="self">self</span>, <span class="ident">sql</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>, <span class="ident">params</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">ParameterizedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">DBIO</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">u64</span><span class="op">&gt;</span>;
 
-    <span class="doccomment">/// Turns off all foreign key constraints.</span>
-    <span class="kw">fn</span> <span class="ident">turn_off_fk_constraints</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">DBIO</span><span class="op">&lt;</span>()<span class="op">&gt;</span>;
-
-    <span class="doccomment">/// Turns on all foreign key constraints.</span>
-    <span class="kw">fn</span> <span class="ident">turn_on_fk_constraints</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">DBIO</span><span class="op">&lt;</span>()<span class="op">&gt;</span>;
-
     <span class="doccomment">/// Runs a command in the database, for queries that can&#39;t be run using</span>
     <span class="doccomment">/// prepared statements.</span>
     <span class="kw">fn</span> <span class="ident">raw_cmd</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="self">self</span>, <span class="ident">cmd</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">DBIO</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, ()<span class="op">&gt;</span>;
-
-    <span class="doccomment">/// Empties the given set of tables.</span>
-    <span class="kw">fn</span> <span class="ident">empty_tables</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="self">self</span>, <span class="ident">tables</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Table</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">DBIO</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, ()<span class="op">&gt;</span> {
-        <span class="ident">DBIO</span>::<span class="ident">new</span>(<span class="kw">async</span> <span class="kw">move</span> {
-            <span class="self">self</span>.<span class="ident">turn_off_fk_constraints</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-
-            <span class="kw">for</span> <span class="ident">table</span> <span class="kw">in</span> <span class="ident">tables</span>.<span class="ident">into_iter</span>() {
-                <span class="self">self</span>.<span class="ident">query</span>(<span class="ident">Delete</span>::<span class="ident">from_table</span>(<span class="ident">table</span>).<span class="ident">into</span>()).<span class="kw">await</span><span class="question-mark">?</span>;
-            }
-
-            <span class="self">self</span>.<span class="ident">turn_on_fk_constraints</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-
-            <span class="prelude-val">Ok</span>(())
-        })
-    }
 
     <span class="comment">// For selecting data returning the results.</span>
     <span class="kw">fn</span> <span class="ident">select</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="self">self</span>, <span class="ident">q</span>: <span class="ident">Select</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">DBIO</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">ResultSet</span><span class="op">&gt;</span> {
