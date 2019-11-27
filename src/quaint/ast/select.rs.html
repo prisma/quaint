@@ -355,6 +355,8 @@
 <span id="355">355</span>
 <span id="356">356</span>
 <span id="357">357</span>
+<span id="358">358</span>
+<span id="359">359</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">ast</span>::<span class="kw-2">*</span>;
 
@@ -442,20 +444,22 @@
     <span class="doccomment">/// Creating a qualified asterisk to a joined table:</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// ```rust</span>
-    <span class="doccomment">/// # use quaint::{ast::*, visitor::{Visitor, Sqlite}};</span>
+    <span class="doccomment">/// # use quaint::{col, val, ast::*, visitor::{Visitor, Sqlite}};</span>
     <span class="doccomment">/// let join = &quot;dogs&quot;.on((&quot;dogs&quot;, &quot;slave_id&quot;).equals(Column::from((&quot;cats&quot;, &quot;master_id&quot;))));</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// let query = Select::from_table(&quot;cats&quot;)</span>
     <span class="doccomment">///     .value(Table::from(&quot;cats&quot;).asterisk())</span>
-    <span class="doccomment">///     .value(Table::from(&quot;dogs&quot;).asterisk())</span>
+    <span class="doccomment">///     .value(col!(&quot;dogs&quot;, &quot;age&quot;) - val!(4))</span>
     <span class="doccomment">///     .inner_join(join);</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// let (sql, _) = Sqlite::build(query);</span>
+    <span class="doccomment">/// let (sql, params) = Sqlite::build(query);</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// assert_eq!(</span>
-    <span class="doccomment">///     &quot;SELECT `cats`.*, `dogs`.* FROM `cats` INNER JOIN `dogs` ON `dogs`.`slave_id` = `cats`.`master_id`&quot;,</span>
+    <span class="doccomment">///     &quot;SELECT `cats`.*, (`dogs`.`age` - ?) FROM `cats` INNER JOIN `dogs` ON `dogs`.`slave_id` = `cats`.`master_id`&quot;,</span>
     <span class="doccomment">///     sql</span>
     <span class="doccomment">/// );</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// assert_eq!(vec![ParameterizedValue::from(4)], params);</span>
     <span class="doccomment">/// ```</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">value</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">value</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>
     <span class="kw">where</span>

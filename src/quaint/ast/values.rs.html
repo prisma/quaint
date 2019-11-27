@@ -669,6 +669,22 @@
 <span id="669">669</span>
 <span id="670">670</span>
 <span id="671">671</span>
+<span id="672">672</span>
+<span id="673">673</span>
+<span id="674">674</span>
+<span id="675">675</span>
+<span id="676">676</span>
+<span id="677">677</span>
+<span id="678">678</span>
+<span id="679">679</span>
+<span id="680">680</span>
+<span id="681">681</span>
+<span id="682">682</span>
+<span id="683">683</span>
+<span id="684">684</span>
+<span id="685">685</span>
+<span id="686">686</span>
+<span id="687">687</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">ast</span>::<span class="kw-2">*</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">error</span>::<span class="ident">Error</span>;
@@ -984,6 +1000,8 @@
     <span class="ident">Function</span>(<span class="ident">Function</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>),
     <span class="doccomment">/// A qualified asterisk to a table</span>
     <span class="ident">Asterisk</span>(<span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="ident">Table</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>),
+    <span class="doccomment">/// An operation: sum, sub, mul or div.</span>
+    <span class="ident">Op</span>(<span class="ident">Box</span><span class="op">&lt;</span><span class="ident">SqlOp</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>),
 }
 
 <span class="doccomment">/// A quick alias to create an asterisk to a table.</span>
@@ -1071,6 +1089,13 @@
     }
 }
 
+<span class="attribute">#[<span class="ident">macro_export</span>]</span>
+<span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">val</span> {
+    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">val</span>:<span class="ident">expr</span>) <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="ident">DatabaseValue</span>::<span class="ident">from</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">val</span>)
+    };
+}
+
 <span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">parameterized_value</span> {
     (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">kind</span>:<span class="ident">ident</span>,<span class="macro-nonterminal">$</span><span class="macro-nonterminal">paramkind</span>:<span class="ident">ident</span>) <span class="op">=</span><span class="op">&gt;</span> {
         <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">kind</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ParameterizedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
@@ -1115,6 +1140,13 @@
 
 <span class="macro">database_value</span><span class="macro">!</span>(<span class="ident">Row</span>, <span class="ident">Row</span>);
 <span class="macro">database_value</span><span class="macro">!</span>(<span class="ident">Function</span>, <span class="ident">Function</span>);
+
+<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">SqlOp</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">DatabaseValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">p</span>: <span class="ident">SqlOp</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+        <span class="self">Self</span>::<span class="ident">Op</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">p</span>))
+    }
+}
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">DatabaseValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>
 <span class="kw">where</span>

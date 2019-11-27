@@ -3,7 +3,9 @@
 <span id="3">3</span>
 <span id="4">4</span>
 <span id="5">5</span>
+<span id="6">6</span>
 </pre><div class="example-wrap"><pre class="rust ">
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">val</span>, <span class="ident">col</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">ast</span>::<span class="kw-2">*</span>;
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sqlite&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mysql&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;postgresql&quot;</span>))]</span>
 <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">connector</span>::{
