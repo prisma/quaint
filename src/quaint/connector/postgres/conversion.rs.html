@@ -335,11 +335,6 @@
 <span id="335">335</span>
 <span id="336">336</span>
 <span id="337">337</span>
-<span id="338">338</span>
-<span id="339">339</span>
-<span id="340">340</span>
-<span id="341">341</span>
-<span id="342">342</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">ast</span>::{<span class="ident">Id</span>, <span class="ident">ParameterizedValue</span>},
@@ -348,7 +343,7 @@
 <span class="kw">use</span> <span class="ident">bytes</span>::<span class="ident">BytesMut</span>;
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;chrono-0_4&quot;</span>)]</span>
 <span class="kw">use</span> <span class="ident">chrono</span>::{<span class="ident">DateTime</span>, <span class="ident">NaiveDateTime</span>, <span class="ident">Utc</span>};
-<span class="kw">use</span> <span class="ident">rust_decimal</span>::<span class="ident">Decimal</span>;
+<span class="kw">use</span> <span class="ident">rust_decimal</span>::{<span class="ident">prelude</span>::<span class="ident">FromPrimitive</span>, <span class="ident">Decimal</span>};
 <span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">error</span>::<span class="ident">Error</span>, <span class="ident">str</span>::<span class="ident">FromStr</span>};
 <span class="kw">use</span> <span class="ident">tokio_postgres</span>::{
     <span class="ident">types</span>::{<span class="self">self</span>, <span class="ident">FromSql</span>, <span class="ident">IsNull</span>, <span class="ident">ToSql</span>, <span class="ident">Type</span> <span class="kw">as</span> <span class="ident">PostgresType</span>},
@@ -430,21 +425,20 @@
                 <span class="ident">PostgresType</span>::<span class="ident">NUMERIC</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">row</span>.<span class="ident">try_get</span>(<span class="ident">i</span>)<span class="question-mark">?</span> {
                     <span class="prelude-val">Some</span>(<span class="ident">val</span>) <span class="op">=</span><span class="op">&gt;</span> {
                         <span class="kw">let</span> <span class="ident">val</span>: <span class="ident">Decimal</span> <span class="op">=</span> <span class="ident">val</span>;
-                        <span class="kw">let</span> <span class="ident">val</span>: <span class="ident">f64</span> <span class="op">=</span> <span class="ident">val</span>.<span class="ident">to_string</span>().<span class="ident">parse</span>().<span class="ident">unwrap</span>();
                         <span class="ident">ParameterizedValue</span>::<span class="ident">Real</span>(<span class="ident">val</span>)
                     }
                     <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ParameterizedValue</span>::<span class="ident">Null</span>,
                 },
                 <span class="ident">PostgresType</span>::<span class="ident">FLOAT4</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">row</span>.<span class="ident">try_get</span>(<span class="ident">i</span>)<span class="question-mark">?</span> {
                     <span class="prelude-val">Some</span>(<span class="ident">val</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                        <span class="kw">let</span> <span class="ident">val</span>: <span class="ident">f32</span> <span class="op">=</span> <span class="ident">val</span>;
-                        <span class="ident">ParameterizedValue</span>::<span class="ident">Real</span>(<span class="ident">f64</span>::<span class="ident">from</span>(<span class="ident">val</span>))
+                        <span class="kw">let</span> <span class="ident">val</span>: <span class="ident">Decimal</span> <span class="op">=</span> <span class="ident">Decimal</span>::<span class="ident">from_f32</span>(<span class="ident">val</span>).<span class="ident">expect</span>(<span class="string">&quot;f32 is not a Decimal&quot;</span>);
+                        <span class="ident">ParameterizedValue</span>::<span class="ident">Real</span>(<span class="ident">val</span>)
                     }
                     <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ParameterizedValue</span>::<span class="ident">Null</span>,
                 },
                 <span class="ident">PostgresType</span>::<span class="ident">FLOAT8</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">row</span>.<span class="ident">try_get</span>(<span class="ident">i</span>)<span class="question-mark">?</span> {
                     <span class="prelude-val">Some</span>(<span class="ident">val</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                        <span class="kw">let</span> <span class="ident">val</span>: <span class="ident">f64</span> <span class="op">=</span> <span class="ident">val</span>;
+                        <span class="kw">let</span> <span class="ident">val</span>: <span class="ident">Decimal</span> <span class="op">=</span> <span class="ident">Decimal</span>::<span class="ident">from_f64</span>(<span class="ident">val</span>).<span class="ident">expect</span>(<span class="string">&quot;f64 is not a Decimal&quot;</span>);
                         <span class="ident">ParameterizedValue</span>::<span class="ident">Real</span>(<span class="ident">val</span>)
                     }
                     <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ParameterizedValue</span>::<span class="ident">Null</span>,
@@ -504,11 +498,7 @@
                 <span class="ident">PostgresType</span>::<span class="ident">FLOAT4_ARRAY</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">row</span>.<span class="ident">try_get</span>(<span class="ident">i</span>)<span class="question-mark">?</span> {
                     <span class="prelude-val">Some</span>(<span class="ident">val</span>) <span class="op">=</span><span class="op">&gt;</span> {
                         <span class="kw">let</span> <span class="ident">val</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">f32</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">val</span>;
-                        <span class="ident">ParameterizedValue</span>::<span class="ident">Array</span>(
-                            <span class="ident">val</span>.<span class="ident">into_iter</span>()
-                                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">ParameterizedValue</span>::<span class="ident">Real</span>(<span class="ident">f64</span>::<span class="ident">from</span>(<span class="ident">x</span>)))
-                                .<span class="ident">collect</span>(),
-                        )
+                        <span class="ident">ParameterizedValue</span>::<span class="ident">Array</span>(<span class="ident">val</span>.<span class="ident">into_iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">ParameterizedValue</span>::<span class="ident">from</span>(<span class="ident">x</span>)).<span class="ident">collect</span>())
                     }
                     <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ParameterizedValue</span>::<span class="ident">Null</span>,
                 },
@@ -516,7 +506,7 @@
                 <span class="ident">PostgresType</span>::<span class="ident">FLOAT8_ARRAY</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">row</span>.<span class="ident">try_get</span>(<span class="ident">i</span>)<span class="question-mark">?</span> {
                     <span class="prelude-val">Some</span>(<span class="ident">val</span>) <span class="op">=</span><span class="op">&gt;</span> {
                         <span class="kw">let</span> <span class="ident">val</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">val</span>;
-                        <span class="ident">ParameterizedValue</span>::<span class="ident">Array</span>(<span class="ident">val</span>.<span class="ident">into_iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">ParameterizedValue</span>::<span class="ident">Real</span>(<span class="ident">x</span> <span class="kw">as</span> <span class="ident">f64</span>)).<span class="ident">collect</span>())
+                        <span class="ident">ParameterizedValue</span>::<span class="ident">Array</span>(<span class="ident">val</span>.<span class="ident">into_iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">ParameterizedValue</span>::<span class="ident">from</span>(<span class="ident">x</span>)).<span class="ident">collect</span>())
                     }
                     <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ParameterizedValue</span>::<span class="ident">Null</span>,
                 },
