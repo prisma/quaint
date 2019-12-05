@@ -115,6 +115,10 @@
 <span id="115">115</span>
 <span id="116">116</span>
 <span id="117">117</span>
+<span id="118">118</span>
+<span id="119">119</span>
+<span id="120">120</span>
+<span id="121">121</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">error</span>::<span class="ident">Error</span>;
 <span class="kw">use</span> <span class="ident">failure</span>::<span class="ident">format_err</span>;
@@ -197,6 +201,10 @@
 
                 <span class="kw">match</span> <span class="ident">reason</span>.<span class="ident">as_str</span>() {
                     <span class="string">&quot;error connecting to server: timed out&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Error</span>::<span class="ident">ConnectTimeout</span>, <span class="comment">// sigh...</span>
+                    <span class="comment">// https://github.com/sfackler/rust-postgres/blob/0c84ed9f8201f4e5b4803199a24afa2c9f3723b2/tokio-postgres/src/connect_tls.rs#L37</span>
+                    <span class="string">&quot;error performing TLS handshake: server does not support TLS&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="ident">Error</span>::<span class="ident">TlsError</span> { <span class="ident">message</span>: <span class="ident">reason</span> }
+                    } <span class="comment">// double sigh</span>
                     <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Error</span>::<span class="ident">QueryError</span>(<span class="ident">e</span>.<span class="ident">into</span>()),
                 }
             }
