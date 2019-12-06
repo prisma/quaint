@@ -140,6 +140,8 @@
 <span id="140">140</span>
 <span id="141">141</span>
 <span id="142">142</span>
+<span id="143">143</span>
+<span id="144">144</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! A connection pool to a SQL database.</span>
 <span class="kw">mod</span> <span class="ident">manager</span>;
@@ -148,8 +150,10 @@
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">connector</span>::{<span class="ident">ConnectionInfo</span>, <span class="ident">SqlFamily</span>};
 <span class="kw">use</span> <span class="ident">mobc</span>::<span class="ident">Pool</span>;
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">convert</span>::<span class="ident">TryFrom</span>;
 <span class="kw">use</span> <span class="ident">url</span>::<span class="ident">Url</span>;
+
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sqlite&quot;</span>)]</span>
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">convert</span>::<span class="ident">TryFrom</span>;
 
 <span class="doccomment">/// The main entry point and an abstraction over database connections and</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Quaint</span> {

@@ -141,36 +141,6 @@
 <span id="141">141</span>
 <span id="142">142</span>
 <span id="143">143</span>
-<span id="144">144</span>
-<span id="145">145</span>
-<span id="146">146</span>
-<span id="147">147</span>
-<span id="148">148</span>
-<span id="149">149</span>
-<span id="150">150</span>
-<span id="151">151</span>
-<span id="152">152</span>
-<span id="153">153</span>
-<span id="154">154</span>
-<span id="155">155</span>
-<span id="156">156</span>
-<span id="157">157</span>
-<span id="158">158</span>
-<span id="159">159</span>
-<span id="160">160</span>
-<span id="161">161</span>
-<span id="162">162</span>
-<span id="163">163</span>
-<span id="164">164</span>
-<span id="165">165</span>
-<span id="166">166</span>
-<span id="167">167</span>
-<span id="168">168</span>
-<span id="169">169</span>
-<span id="170">170</span>
-<span id="171">171</span>
-<span id="172">172</span>
-<span id="173">173</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! # quaint</span>
 <span class="doccomment">//!</span>
@@ -231,36 +201,6 @@
 <span class="doccomment">//! async fn main() -&gt; Result&lt;(), quaint::error::Error&gt; {</span>
 <span class="doccomment">//!     let pool = Quaint::new(&quot;file:///tmp/example.db&quot;).await?;</span>
 <span class="doccomment">//!     let conn = pool.check_out().await?;</span>
-<span class="doccomment">//!     let result = conn.select(Select::default().value(1)).await?;</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//!     assert_eq!(</span>
-<span class="doccomment">//!         Some(1),</span>
-<span class="doccomment">//!         result.into_iter().nth(0).and_then(|row| row[0].as_i64()),</span>
-<span class="doccomment">//!     );</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//!     Ok(())</span>
-<span class="doccomment">//! }</span>
-<span class="doccomment">//! ```</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ## Examples</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ### Querying a database with an AST object</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! The [Quaint](struct.Quaint.html) abstracts a generic pooling and connection</span>
-<span class="doccomment">//! interface over different databases. It offers querying with the</span>
-<span class="doccomment">//! [ast](ast/index.html) module or directly using raw strings. See</span>
-<span class="doccomment">//! documentation for [Queryable](connector/trait.Queryable.html) for details.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! When querying with an ast object the queries are paremeterized</span>
-<span class="doccomment">//! automatically.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! ```</span>
-<span class="doccomment">//! use quaint::{prelude::*, pooled::Quaint};</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! #[tokio::main]</span>
-<span class="doccomment">//! async fn main() -&gt; Result&lt;(), quaint::error::Error&gt; {</span>
-<span class="doccomment">//!     let quaint = Quaint::new(&quot;file:///tmp/example.db&quot;).await?;</span>
-<span class="doccomment">//!     let conn = quaint.check_out().await?;</span>
 <span class="doccomment">//!     let result = conn.select(Select::default().value(1)).await?;</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//!     assert_eq!(</span>
