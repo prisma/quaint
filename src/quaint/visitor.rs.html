@@ -649,6 +649,10 @@
 <span id="649">649</span>
 <span id="650">650</span>
 <span id="651">651</span>
+<span id="652">652</span>
+<span id="653">653</span>
+<span id="654">654</span>
+<span id="655">655</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Visitors for reading an abstract SQL syntax tree, generating the query and</span>
 <span class="doccomment">//! gathering parameters in the right order.</span>
@@ -810,6 +814,10 @@
             <span class="kw">if</span> <span class="op">!</span><span class="ident">select</span>.<span class="ident">grouping</span>.<span class="ident">is_empty</span>() {
                 <span class="self">self</span>.<span class="ident">write</span>(<span class="string">&quot; GROUP BY &quot;</span>)<span class="question-mark">?</span>;
                 <span class="self">self</span>.<span class="ident">visit_grouping</span>(<span class="ident">select</span>.<span class="ident">grouping</span>)<span class="question-mark">?</span>;
+            }
+            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">conditions</span>) <span class="op">=</span> <span class="ident">select</span>.<span class="ident">having</span> {
+                <span class="self">self</span>.<span class="ident">write</span>(<span class="string">&quot; HAVING &quot;</span>)<span class="question-mark">?</span>;
+                <span class="self">self</span>.<span class="ident">visit_conditions</span>(<span class="ident">conditions</span>)<span class="question-mark">?</span>;
             }
 
             <span class="self">self</span>.<span class="ident">visit_limit_and_offset</span>(<span class="ident">select</span>.<span class="ident">limit</span>, <span class="ident">select</span>.<span class="ident">offset</span>)<span class="question-mark">?</span>;
