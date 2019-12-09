@@ -661,6 +661,11 @@
 <span id="661">661</span>
 <span id="662">662</span>
 <span id="663">663</span>
+<span id="664">664</span>
+<span id="665">665</span>
+<span id="666">666</span>
+<span id="667">667</span>
+<span id="668">668</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Visitors for reading an abstract SQL syntax tree, generating the query and</span>
 <span class="doccomment">//! gathering parameters in the right order.</span>
@@ -911,20 +916,25 @@
             <span class="ident">Query</span>::<span class="ident">Insert</span>(<span class="ident">insert</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">visit_insert</span>(<span class="kw-2">*</span><span class="ident">insert</span>).<span class="ident">unwrap</span>(),
             <span class="ident">Query</span>::<span class="ident">Update</span>(<span class="ident">update</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">visit_update</span>(<span class="kw-2">*</span><span class="ident">update</span>).<span class="ident">unwrap</span>(),
             <span class="ident">Query</span>::<span class="ident">Delete</span>(<span class="ident">delete</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">visit_delete</span>(<span class="kw-2">*</span><span class="ident">delete</span>).<span class="ident">unwrap</span>(),
-            <span class="ident">Query</span>::<span class="ident">UnionAll</span>(<span class="ident">union</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">visit_union_all</span>(<span class="ident">union</span>).<span class="ident">unwrap</span>(),
+            <span class="ident">Query</span>::<span class="ident">Union</span>(<span class="ident">union</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">visit_union</span>(<span class="ident">union</span>).<span class="ident">unwrap</span>(),
             <span class="ident">Query</span>::<span class="ident">Raw</span>(<span class="ident">string</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">write</span>(<span class="ident">string</span>).<span class="ident">unwrap</span>(),
         }
     }
 
     <span class="doccomment">/// A walk through a union of `SELECT` statements</span>
-    <span class="kw">fn</span> <span class="ident">visit_union_all</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ua</span>: <span class="ident">UnionAll</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
-        <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">ua</span>.<span class="number">0</span>.<span class="ident">len</span>();
+    <span class="kw">fn</span> <span class="ident">visit_union</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="kw-2">mut</span> <span class="ident">ua</span>: <span class="ident">Union</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
+        <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">ua</span>.<span class="ident">selects</span>.<span class="ident">len</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">types</span> <span class="op">=</span> <span class="ident">ua</span>.<span class="ident">types</span>.<span class="ident">drain</span>(<span class="number">0</span>..);
 
-        <span class="kw">for</span> (<span class="ident">i</span>, <span class="ident">s</span>) <span class="kw">in</span> <span class="ident">ua</span>.<span class="number">0</span>.<span class="ident">into_iter</span>().<span class="ident">enumerate</span>() {
-            <span class="self">self</span>.<span class="ident">surround_with</span>(<span class="string">&quot;(&quot;</span>, <span class="string">&quot;)&quot;</span>, <span class="op">|</span><span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">se</span><span class="op">|</span> <span class="ident">se</span>.<span class="ident">visit_select</span>(<span class="ident">s</span>))<span class="question-mark">?</span>;
+        <span class="kw">for</span> (<span class="ident">i</span>, <span class="ident">sel</span>) <span class="kw">in</span> <span class="ident">ua</span>.<span class="ident">selects</span>.<span class="ident">into_iter</span>().<span class="ident">enumerate</span>() {
+            <span class="self">self</span>.<span class="ident">surround_with</span>(<span class="string">&quot;(&quot;</span>, <span class="string">&quot;)&quot;</span>, <span class="op">|</span><span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">se</span><span class="op">|</span> <span class="ident">se</span>.<span class="ident">visit_select</span>(<span class="ident">sel</span>))<span class="question-mark">?</span>;
 
             <span class="kw">if</span> <span class="ident">i</span> <span class="op">&lt;</span> (<span class="ident">len</span> <span class="op">-</span> <span class="number">1</span>) {
-                <span class="self">self</span>.<span class="ident">write</span>(<span class="string">&quot; UNION ALL &quot;</span>)<span class="question-mark">?</span>;
+                <span class="kw">let</span> <span class="ident">typ</span> <span class="op">=</span> <span class="ident">types</span>.<span class="ident">next</span>().<span class="ident">unwrap</span>();
+
+                <span class="self">self</span>.<span class="ident">write</span>(<span class="string">&quot; &quot;</span>)<span class="question-mark">?</span>;
+                <span class="self">self</span>.<span class="ident">write</span>(<span class="ident">typ</span>)<span class="question-mark">?</span>;
+                <span class="self">self</span>.<span class="ident">write</span>(<span class="string">&quot; &quot;</span>)<span class="question-mark">?</span>;
             }
         }
 
