@@ -653,6 +653,14 @@
 <span id="653">653</span>
 <span id="654">654</span>
 <span id="655">655</span>
+<span id="656">656</span>
+<span id="657">657</span>
+<span id="658">658</span>
+<span id="659">659</span>
+<span id="660">660</span>
+<span id="661">661</span>
+<span id="662">662</span>
+<span id="663">663</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Visitors for reading an abstract SQL syntax tree, generating the query and</span>
 <span class="doccomment">//! gathering parameters in the right order.</span>
@@ -751,8 +759,16 @@
                     <span class="self">self</span>.<span class="ident">write</span>(<span class="string">&quot; INNER JOIN &quot;</span>)<span class="question-mark">?</span>;
                     <span class="self">self</span>.<span class="ident">visit_join_data</span>(<span class="ident">data</span>)<span class="question-mark">?</span>;
                 }
-                <span class="ident">Join</span>::<span class="ident">LeftOuter</span>(<span class="ident">data</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="self">self</span>.<span class="ident">write</span>(<span class="string">&quot; LEFT OUTER JOIN &quot;</span>)<span class="question-mark">?</span>;
+                <span class="ident">Join</span>::<span class="ident">Left</span>(<span class="ident">data</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="self">self</span>.<span class="ident">write</span>(<span class="string">&quot; LEFT JOIN &quot;</span>)<span class="question-mark">?</span>;
+                    <span class="self">self</span>.<span class="ident">visit_join_data</span>(<span class="ident">data</span>)<span class="question-mark">?</span>;
+                }
+                <span class="ident">Join</span>::<span class="ident">Right</span>(<span class="ident">data</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="self">self</span>.<span class="ident">write</span>(<span class="string">&quot; RIGHT JOIN &quot;</span>)<span class="question-mark">?</span>;
+                    <span class="self">self</span>.<span class="ident">visit_join_data</span>(<span class="ident">data</span>)<span class="question-mark">?</span>;
+                }
+                <span class="ident">Join</span>::<span class="ident">Full</span>(<span class="ident">data</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="self">self</span>.<span class="ident">write</span>(<span class="string">&quot; FULL JOIN &quot;</span>)<span class="question-mark">?</span>;
                     <span class="self">self</span>.<span class="ident">visit_join_data</span>(<span class="ident">data</span>)<span class="question-mark">?</span>;
                 }
             }

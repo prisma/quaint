@@ -51,6 +51,10 @@
 <span id="51">51</span>
 <span id="52">52</span>
 <span id="53">53</span>
+<span id="54">54</span>
+<span id="55">55</span>
+<span id="56">56</span>
+<span id="57">57</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">ast</span>::{<span class="ident">ConditionTree</span>, <span class="ident">Table</span>};
 
@@ -66,8 +70,12 @@
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Join</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="doccomment">/// Implements an `INNER JOIN` with given `JoinData`.</span>
     <span class="ident">Inner</span>(<span class="ident">JoinData</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>),
-    <span class="doccomment">/// Implements an `LEFT OUTER JOIN` with given `JoinData`.</span>
-    <span class="ident">LeftOuter</span>(<span class="ident">JoinData</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>),
+    <span class="doccomment">/// Implements an `LEFT JOIN` with given `JoinData`.</span>
+    <span class="ident">Left</span>(<span class="ident">JoinData</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>),
+    <span class="doccomment">/// Implements an `RIGHT JOIN` with given `JoinData`.</span>
+    <span class="ident">Right</span>(<span class="ident">JoinData</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>),
+    <span class="doccomment">/// Implements an `FULL JOIN` with given `JoinData`.</span>
+    <span class="ident">Full</span>(<span class="ident">JoinData</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>),
 }
 
 <span class="doccomment">/// An item that can be joined.</span>
