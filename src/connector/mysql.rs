@@ -22,7 +22,7 @@ pub struct Mysql {
 
 impl Drop for Mysql {
     fn drop(&mut self) {
-        let fut = pool.disconnect();
+        let fut = self.pool.disconnect();
         tokio::spawn(fut);
     }
 }
