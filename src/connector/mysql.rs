@@ -20,13 +20,6 @@ pub struct Mysql {
     pub(crate) url: MysqlUrl,
 }
 
-impl Drop for Mysql {
-    fn drop(&mut self) {
-        let fut = self.pool.disconnect();
-        tokio::spawn(fut);
-    }
-}
-
 /// Wraps a connection url and exposes the parsing logic used by quaint, including default values.
 #[derive(Debug, Clone)]
 pub struct MysqlUrl {
