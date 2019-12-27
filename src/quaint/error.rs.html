@@ -92,77 +92,77 @@
 <span id="92">92</span>
 <span id="93">93</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="kw">use</span> <span class="ident">failure</span>::{<span class="ident">Error</span> <span class="kw">as</span> <span class="ident">FError</span>, <span class="ident">Fail</span>};
+<span class="kw">use</span> <span class="ident">thiserror</span>::<span class="ident">Error</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">io</span>;
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Fail</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Error</span>)]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Error</span> {
-    <span class="attribute">#[<span class="ident">fail</span>(<span class="ident">display</span> <span class="op">=</span> <span class="string">&quot;Error querying the database: {}&quot;</span>, <span class="ident">_0</span>)]</span>
-    <span class="ident">QueryError</span>(<span class="ident">FError</span>),
+    <span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;Error querying the database: {}&quot;</span>, <span class="ident">_0</span>)]</span>
+    <span class="ident">QueryError</span>(<span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">std</span>::<span class="ident">error</span>::<span class="ident">Error</span> <span class="op">+</span> <span class="ident">Send</span> <span class="op">+</span> <span class="ident">Sync</span> <span class="op">+</span> <span class="lifetime">&#39;static</span><span class="op">&gt;</span>),
 
-    <span class="attribute">#[<span class="ident">fail</span>(<span class="ident">display</span> <span class="op">=</span> <span class="string">&quot;Database &#39;{}&#39; does not exist.&quot;</span>, <span class="ident">db_name</span>)]</span>
+    <span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;Database &#39;{}&#39; does not exist.&quot;</span>, <span class="ident">db_name</span>)]</span>
     <span class="ident">DatabaseDoesNotExist</span> { <span class="ident">db_name</span>: <span class="ident">String</span> },
 
-    <span class="attribute">#[<span class="ident">fail</span>(<span class="ident">display</span> <span class="op">=</span> <span class="string">&quot;Access denied to database &#39;{}&#39;&quot;</span>, <span class="ident">db_name</span>)]</span>
+    <span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;Access denied to database &#39;{}&#39;&quot;</span>, <span class="ident">db_name</span>)]</span>
     <span class="ident">DatabaseAccessDenied</span> { <span class="ident">db_name</span>: <span class="ident">String</span> },
 
-    <span class="attribute">#[<span class="ident">fail</span>(<span class="ident">display</span> <span class="op">=</span> <span class="string">&quot;Database &#39;{}&#39; already exists&quot;</span>, <span class="ident">db_name</span>)]</span>
+    <span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;Database &#39;{}&#39; already exists&quot;</span>, <span class="ident">db_name</span>)]</span>
     <span class="ident">DatabaseAlreadyExists</span> { <span class="ident">db_name</span>: <span class="ident">String</span> },
 
-    <span class="attribute">#[<span class="ident">fail</span>(<span class="ident">display</span> <span class="op">=</span> <span class="string">&quot;Authentication failed for user &#39;{}&#39;&quot;</span>, <span class="ident">user</span>)]</span>
+    <span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;Authentication failed for user &#39;{}&#39;&quot;</span>, <span class="ident">user</span>)]</span>
     <span class="ident">AuthenticationFailed</span> { <span class="ident">user</span>: <span class="ident">String</span> },
 
-    <span class="attribute">#[<span class="ident">fail</span>(<span class="ident">display</span> <span class="op">=</span> <span class="string">&quot;Query returned no data&quot;</span>)]</span>
+    <span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;Query returned no data&quot;</span>)]</span>
     <span class="ident">NotFound</span>,
 
-    <span class="attribute">#[<span class="ident">fail</span>(<span class="ident">display</span> <span class="op">=</span> <span class="string">&quot;Unique constraint failed: {}&quot;</span>, <span class="ident">field_name</span>)]</span>
+    <span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;Unique constraint failed: {}&quot;</span>, <span class="ident">field_name</span>)]</span>
     <span class="ident">UniqueConstraintViolation</span> { <span class="ident">field_name</span>: <span class="ident">String</span> },
 
-    <span class="attribute">#[<span class="ident">fail</span>(<span class="ident">display</span> <span class="op">=</span> <span class="string">&quot;Null constraint failed: {}&quot;</span>, <span class="ident">field_name</span>)]</span>
+    <span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;Null constraint failed: {}&quot;</span>, <span class="ident">field_name</span>)]</span>
     <span class="ident">NullConstraintViolation</span> { <span class="ident">field_name</span>: <span class="ident">String</span> },
 
-    <span class="attribute">#[<span class="ident">fail</span>(<span class="ident">display</span> <span class="op">=</span> <span class="string">&quot;Error creating a database connection.&quot;</span>)]</span>
-    <span class="ident">ConnectionError</span>(<span class="ident">FError</span>),
+    <span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;Error creating a database connection.&quot;</span>)]</span>
+    <span class="ident">ConnectionError</span>(<span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">std</span>::<span class="ident">error</span>::<span class="ident">Error</span> <span class="op">+</span> <span class="ident">Send</span> <span class="op">+</span> <span class="ident">Sync</span> <span class="op">+</span> <span class="lifetime">&#39;static</span><span class="op">&gt;</span>),
 
-    <span class="attribute">#[<span class="ident">fail</span>(<span class="ident">display</span> <span class="op">=</span> <span class="string">&quot;Error reading the column value: {}&quot;</span>, <span class="ident">_0</span>)]</span>
-    <span class="ident">ColumnReadFailure</span>(<span class="ident">FError</span>),
+    <span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;Error reading the column value: {}&quot;</span>, <span class="ident">_0</span>)]</span>
+    <span class="ident">ColumnReadFailure</span>(<span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">std</span>::<span class="ident">error</span>::<span class="ident">Error</span> <span class="op">+</span> <span class="ident">Send</span> <span class="op">+</span> <span class="ident">Sync</span> <span class="op">+</span> <span class="lifetime">&#39;static</span><span class="op">&gt;</span>),
 
-    <span class="attribute">#[<span class="ident">fail</span>(<span class="ident">display</span> <span class="op">=</span> <span class="string">&quot;Error accessing result set, index out of bounds: {}&quot;</span>, <span class="ident">_0</span>)]</span>
+    <span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;Error accessing result set, index out of bounds: {}&quot;</span>, <span class="ident">_0</span>)]</span>
     <span class="ident">ResultIndexOutOfBounds</span>(<span class="ident">usize</span>),
 
-    <span class="attribute">#[<span class="ident">fail</span>(<span class="ident">display</span> <span class="op">=</span> <span class="string">&quot;Error accessing result set, column not found: {}&quot;</span>, <span class="ident">_0</span>)]</span>
+    <span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;Error accessing result set, column not found: {}&quot;</span>, <span class="ident">_0</span>)]</span>
     <span class="ident">ColumnNotFound</span>(<span class="ident">String</span>),
 
-    <span class="attribute">#[<span class="ident">fail</span>(<span class="ident">display</span> <span class="op">=</span> <span class="string">&quot;Error accessing result set, type mismatch, expected: {}&quot;</span>, <span class="ident">_0</span>)]</span>
+    <span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;Error accessing result set, type mismatch, expected: {}&quot;</span>, <span class="ident">_0</span>)]</span>
     <span class="ident">ResultTypeMismatch</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>),
 
-    <span class="attribute">#[<span class="ident">fail</span>(<span class="ident">display</span> <span class="op">=</span> <span class="string">&quot;The specified database url {} is invalid&quot;</span>, <span class="ident">_0</span>)]</span>
+    <span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;The specified database url {} is invalid&quot;</span>, <span class="ident">_0</span>)]</span>
     <span class="ident">DatabaseUrlIsInvalid</span>(<span class="ident">String</span>),
 
-    <span class="attribute">#[<span class="ident">fail</span>(<span class="ident">display</span> <span class="op">=</span> <span class="string">&quot;Conversion failed: {}&quot;</span>, <span class="ident">_0</span>)]</span>
+    <span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;Conversion failed: {}&quot;</span>, <span class="ident">_0</span>)]</span>
     <span class="ident">ConversionError</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>),
 
-    <span class="attribute">#[<span class="ident">fail</span>(<span class="ident">display</span> <span class="op">=</span> <span class="string">&quot;The provided arguments are not supported&quot;</span>)]</span>
+    <span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;The provided arguments are not supported&quot;</span>)]</span>
     <span class="ident">InvalidConnectionArguments</span>,
 
-    <span class="attribute">#[<span class="ident">fail</span>(<span class="ident">display</span> <span class="op">=</span> <span class="string">&quot;Error in an I/O operation&quot;</span>)]</span>
-    <span class="ident">IoError</span>(<span class="ident">FError</span>),
+    <span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;Error in an I/O operation&quot;</span>)]</span>
+    <span class="ident">IoError</span>(<span class="ident">io</span>::<span class="ident">Error</span>),
 
-    <span class="attribute">#[<span class="ident">fail</span>(<span class="ident">display</span> <span class="op">=</span> <span class="string">&quot;Connect timed out&quot;</span>)]</span>
+    <span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;Connect timed out&quot;</span>)]</span>
     <span class="ident">ConnectTimeout</span>,
 
-    <span class="attribute">#[<span class="ident">fail</span>(<span class="ident">display</span> <span class="op">=</span> <span class="string">&quot;Operation timed out&quot;</span>)]</span>
+    <span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;Operation timed out&quot;</span>)]</span>
     <span class="ident">Timeout</span>,
 
-    <span class="attribute">#[<span class="ident">fail</span>(<span class="ident">display</span> <span class="op">=</span> <span class="string">&quot;Error opening a TLS connection. {}&quot;</span>, <span class="ident">message</span>)]</span>
+    <span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;Error opening a TLS connection. {}&quot;</span>, <span class="ident">message</span>)]</span>
     <span class="ident">TlsError</span> { <span class="ident">message</span>: <span class="ident">String</span> },
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;pooled&quot;</span>)]</span>
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">mobc</span>::<span class="ident">Error</span><span class="op">&lt;</span><span class="ident">failure</span>::<span class="ident">Compat</span><span class="op">&lt;</span><span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Error</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">e</span>: <span class="ident">mobc</span>::<span class="ident">Error</span><span class="op">&lt;</span><span class="ident">failure</span>::<span class="ident">Compat</span><span class="op">&lt;</span><span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">mobc</span>::<span class="ident">Error</span><span class="op">&lt;</span><span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Error</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">e</span>: <span class="ident">mobc</span>::<span class="ident">Error</span><span class="op">&lt;</span><span class="ident">Error</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="kw">match</span> <span class="ident">e</span> {
-            <span class="ident">mobc</span>::<span class="ident">Error</span>::<span class="ident">Inner</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">e</span>.<span class="ident">into_inner</span>(),
+            <span class="ident">mobc</span>::<span class="ident">Error</span>::<span class="ident">Inner</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">e</span>,
             <span class="ident">mobc</span>::<span class="ident">Error</span>::<span class="ident">Timeout</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">Self</span>::<span class="ident">Timeout</span>,
         }
     }
@@ -176,13 +176,13 @@
 
 <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">io</span>::<span class="ident">Error</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Error</span> {
     <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">e</span>: <span class="ident">io</span>::<span class="ident">Error</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Error</span> {
-        <span class="ident">Error</span>::<span class="ident">IoError</span>(<span class="ident">e</span>.<span class="ident">into</span>())
+        <span class="ident">Error</span>::<span class="ident">IoError</span>(<span class="ident">e</span>)
     }
 }
 
 <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">std</span>::<span class="ident">string</span>::<span class="ident">FromUtf8Error</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Error</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">e</span>: <span class="ident">std</span>::<span class="ident">string</span>::<span class="ident">FromUtf8Error</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Error</span> {
-        <span class="ident">Error</span>::<span class="ident">QueryError</span>(<span class="ident">e</span>.<span class="ident">into</span>())
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="kw">_</span>: <span class="ident">std</span>::<span class="ident">string</span>::<span class="ident">FromUtf8Error</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Error</span> {
+        <span class="ident">Error</span>::<span class="ident">ConversionError</span>(<span class="string">&quot;Couldn&#39;t convert data to UTF-8&quot;</span>)
     }
 }
 </pre></div>
