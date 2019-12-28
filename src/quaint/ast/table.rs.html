@@ -118,6 +118,7 @@
 <span id="118">118</span>
 <span id="119">119</span>
 <span id="120">120</span>
+<span id="121">121</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">ast</span>::{<span class="ident">DatabaseValue</span>, <span class="ident">Select</span>};
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">borrow</span>::<span class="ident">Cow</span>;
@@ -131,6 +132,7 @@
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>)]</span>
+<span class="doccomment">/// Either an identifier or a nested query.</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">TableType</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="ident">Table</span>(<span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">str</span><span class="op">&gt;</span>),
     <span class="ident">Query</span>(<span class="ident">Select</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>),

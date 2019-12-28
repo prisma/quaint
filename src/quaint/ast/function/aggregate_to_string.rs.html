@@ -24,10 +24,14 @@
 <span id="24">24</span>
 <span id="25">25</span>
 <span id="26">26</span>
+<span id="27">27</span>
+<span id="28">28</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">ast</span>::<span class="ident">DatabaseValue</span>;
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">PartialEq</span>)]</span>
+<span class="doccomment">/// An aggregate function that concatenates strings from a group into a single</span>
+<span class="doccomment">/// string with various options.</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">AggregateToString</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">value</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
 }

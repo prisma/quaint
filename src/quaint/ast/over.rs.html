@@ -11,10 +11,14 @@
 <span id="11">11</span>
 <span id="12">12</span>
 <span id="13">13</span>
+<span id="14">14</span>
+<span id="15">15</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">ast</span>::{<span class="ident">Column</span>, <span class="ident">Ordering</span>};
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Default</span>, <span class="ident">Clone</span>, <span class="ident">PartialEq</span>)]</span>
+<span class="doccomment">/// Determines the partitioning and ordering of a rowset before the associated</span>
+<span class="doccomment">/// window function is applied.</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Over</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">ordering</span>: <span class="ident">Ordering</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">partitioning</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Column</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,

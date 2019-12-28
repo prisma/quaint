@@ -213,6 +213,8 @@
 <span id="213">213</span>
 <span id="214">214</span>
 <span id="215">215</span>
+<span id="216">216</span>
+<span id="217">217</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">ast</span>::<span class="kw-2">*</span>;
 
@@ -226,12 +228,14 @@
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">returning</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Column</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>,
 }
 
+<span class="doccomment">/// A builder for an `INSERT` statement for a single row.</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">SingleRowInsert</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">table</span>: <span class="ident">Table</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">columns</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Column</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">values</span>: <span class="ident">Row</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
 }
 
+<span class="doccomment">/// A builder for an `INSERT` statement for multiple rows.</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">MultiRowInsert</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">table</span>: <span class="ident">Table</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">columns</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Column</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,

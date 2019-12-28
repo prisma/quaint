@@ -46,10 +46,14 @@
 <span id="46">46</span>
 <span id="47">47</span>
 <span id="48">48</span>
+<span id="49">49</span>
+<span id="50">50</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">ast</span>::{<span class="ident">Column</span>, <span class="ident">IntoOrderDefinition</span>, <span class="ident">Over</span>};
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Default</span>, <span class="ident">Clone</span>, <span class="ident">PartialEq</span>)]</span>
+<span class="doccomment">/// A window function that assigns a sequential integer</span>
+<span class="doccomment">/// number to each row in the query’s result set.</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">RowNumber</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">over</span>: <span class="ident">Over</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
 }
