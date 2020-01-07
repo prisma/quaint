@@ -430,11 +430,6 @@
 <span id="430">430</span>
 <span id="431">431</span>
 <span id="432">432</span>
-<span id="433">433</span>
-<span id="434">434</span>
-<span id="435">435</span>
-<span id="436">436</span>
-<span id="437">437</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">ast</span>::<span class="kw-2">*</span>;
 
@@ -574,20 +569,15 @@
     <span class="doccomment">/// ```rust</span>
     <span class="doccomment">/// # use quaint::{ast::*, visitor::{Visitor, Sqlite}};</span>
     <span class="doccomment">/// let query = Select::from_table(&quot;users&quot;).columns(vec![&quot;foo&quot;, &quot;bar&quot;]);</span>
-    <span class="doccomment">/// let (sql, params) = Sqlite::build(query);</span>
+    <span class="doccomment">/// let (sql, _) = Sqlite::build(query);</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// assert_eq!(&quot;SELECT ?, ? FROM `users`&quot;, sql);</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// assert_eq!(vec![</span>
-    <span class="doccomment">///    ParameterizedValue::from(&quot;foo&quot;),</span>
-    <span class="doccomment">///    ParameterizedValue::from(&quot;bar&quot;),</span>
-    <span class="doccomment">/// ], params);</span>
+    <span class="doccomment">/// assert_eq!(&quot;SELECT `foo`, `bar` FROM `users`&quot;, sql);</span>
     <span class="doccomment">/// ```</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">columns</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">columns</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>
     <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+        <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Column</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     {
-        <span class="self">self</span>.<span class="ident">columns</span> <span class="op">=</span> <span class="ident">columns</span>.<span class="ident">into_iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">c</span><span class="op">|</span> <span class="ident">c</span>.<span class="ident">into</span>()).<span class="ident">collect</span>();
+        <span class="self">self</span>.<span class="ident">columns</span> <span class="op">=</span> <span class="ident">columns</span>.<span class="ident">into_iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">c</span><span class="op">|</span> <span class="ident">c</span>.<span class="ident">into</span>().<span class="ident">into</span>()).<span class="ident">collect</span>();
         <span class="self">self</span>
     }
 
