@@ -1065,7 +1065,7 @@
     <span class="doccomment">/// Data in a row form, e.g. (1, 2, 3)</span>
     <span class="ident">Row</span>(<span class="ident">Row</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>),
     <span class="doccomment">/// A nested `SELECT` statement</span>
-    <span class="ident">Select</span>(<span class="ident">Select</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>),
+    <span class="ident">Select</span>(<span class="ident">Box</span><span class="op">&lt;</span><span class="ident">Select</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>),
     <span class="doccomment">/// A database function call</span>
     <span class="ident">Function</span>(<span class="ident">Function</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>),
     <span class="doccomment">/// A qualified asterisk to a table</span>

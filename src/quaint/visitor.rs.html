@@ -663,9 +663,6 @@
 <span id="663">663</span>
 <span id="664">664</span>
 <span id="665">665</span>
-<span id="666">666</span>
-<span id="667">667</span>
-<span id="668">668</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Visitors for reading an abstract SQL syntax tree, generating the query and</span>
 <span class="doccomment">//! gathering parameters in the right order.</span>
@@ -701,18 +698,15 @@
     <span class="doccomment">/// The point of entry for visiting query ASTs.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// use quaint::{ast::*, visitor::*};</span>
+    <span class="doccomment">/// # use quaint::{ast::*, visitor::*};</span>
+    <span class="doccomment">/// let query = Select::from_table(&quot;cats&quot;);</span>
+    <span class="doccomment">/// let (sqlite, _) = Sqlite::build(query.clone());</span>
+    <span class="doccomment">/// let (psql, _) = Postgres::build(query.clone());</span>
+    <span class="doccomment">/// let (mysql, _) = Mysql::build(query.clone());</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// fn main() {</span>
-    <span class="doccomment">///     let query = Select::from_table(&quot;cats&quot;);</span>
-    <span class="doccomment">///     let (sqlite, _) = Sqlite::build(query.clone());</span>
-    <span class="doccomment">///     let (psql, _) = Postgres::build(query.clone());</span>
-    <span class="doccomment">///     let (mysql, _) = Mysql::build(query.clone());</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">///     assert_eq!(&quot;SELECT `cats`.* FROM `cats`&quot;, sqlite);</span>
-    <span class="doccomment">///     assert_eq!(&quot;SELECT \&quot;cats\&quot;.* FROM \&quot;cats\&quot;&quot;, psql);</span>
-    <span class="doccomment">///     assert_eq!(&quot;SELECT `cats`.* FROM `cats`&quot;, mysql);</span>
-    <span class="doccomment">/// }</span>
+    <span class="doccomment">/// assert_eq!(&quot;SELECT `cats`.* FROM `cats`&quot;, sqlite);</span>
+    <span class="doccomment">/// assert_eq!(&quot;SELECT \&quot;cats\&quot;.* FROM \&quot;cats\&quot;&quot;, psql);</span>
+    <span class="doccomment">/// assert_eq!(&quot;SELECT `cats`.* FROM `cats`&quot;, mysql);</span>
     <span class="doccomment">/// ```</span>
     <span class="kw">fn</span> <span class="ident">build</span><span class="op">&lt;</span><span class="ident">Q</span><span class="op">&gt;</span>(<span class="ident">query</span>: <span class="ident">Q</span>) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">String</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ParameterizedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>)
     <span class="kw">where</span>
@@ -912,7 +906,7 @@
     <span class="doccomment">/// A walk through a complete `Query` statement</span>
     <span class="kw">fn</span> <span class="ident">visit_query</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">query</span>: <span class="ident">Query</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) {
         <span class="kw">match</span> <span class="ident">query</span> {
-            <span class="ident">Query</span>::<span class="ident">Select</span>(<span class="ident">select</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">visit_select</span>(<span class="ident">select</span>).<span class="ident">unwrap</span>(),
+            <span class="ident">Query</span>::<span class="ident">Select</span>(<span class="ident">select</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">visit_select</span>(<span class="kw-2">*</span><span class="ident">select</span>).<span class="ident">unwrap</span>(),
             <span class="ident">Query</span>::<span class="ident">Insert</span>(<span class="ident">insert</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">visit_insert</span>(<span class="kw-2">*</span><span class="ident">insert</span>).<span class="ident">unwrap</span>(),
             <span class="ident">Query</span>::<span class="ident">Update</span>(<span class="ident">update</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">visit_update</span>(<span class="kw-2">*</span><span class="ident">update</span>).<span class="ident">unwrap</span>(),
             <span class="ident">Query</span>::<span class="ident">Delete</span>(<span class="ident">delete</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">visit_delete</span>(<span class="kw-2">*</span><span class="ident">delete</span>).<span class="ident">unwrap</span>(),
@@ -992,7 +986,7 @@
             <span class="ident">DatabaseValue</span>::<span class="ident">Parameterized</span>(<span class="ident">val</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">visit_parameterized</span>(<span class="ident">val</span>),
             <span class="ident">DatabaseValue</span>::<span class="ident">Column</span>(<span class="ident">column</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">visit_column</span>(<span class="kw-2">*</span><span class="ident">column</span>),
             <span class="ident">DatabaseValue</span>::<span class="ident">Row</span>(<span class="ident">row</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">visit_row</span>(<span class="ident">row</span>),
-            <span class="ident">DatabaseValue</span>::<span class="ident">Select</span>(<span class="ident">select</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">surround_with</span>(<span class="string">&quot;(&quot;</span>, <span class="string">&quot;)&quot;</span>, <span class="op">|</span><span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">s</span><span class="op">|</span> <span class="ident">s</span>.<span class="ident">visit_select</span>(<span class="ident">select</span>)),
+            <span class="ident">DatabaseValue</span>::<span class="ident">Select</span>(<span class="ident">select</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">surround_with</span>(<span class="string">&quot;(&quot;</span>, <span class="string">&quot;)&quot;</span>, <span class="op">|</span><span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">s</span><span class="op">|</span> <span class="ident">s</span>.<span class="ident">visit_select</span>(<span class="kw-2">*</span><span class="ident">select</span>)),
             <span class="ident">DatabaseValue</span>::<span class="ident">Function</span>(<span class="ident">function</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">visit_function</span>(<span class="ident">function</span>),
             <span class="ident">DatabaseValue</span>::<span class="ident">Op</span>(<span class="ident">op</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">visit_operation</span>(<span class="kw-2">*</span><span class="ident">op</span>),
             <span class="ident">DatabaseValue</span>::<span class="ident">Asterisk</span>(<span class="ident">table</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">table</span> {

@@ -71,7 +71,7 @@
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">PartialEq</span>)]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Query</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="doccomment">/// Query for fetching data. E.g. the `SELECT` query.</span>
-    <span class="ident">Select</span>(<span class="ident">Select</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>),
+    <span class="ident">Select</span>(<span class="ident">Box</span><span class="op">&lt;</span><span class="ident">Select</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>),
     <span class="ident">Insert</span>(<span class="ident">Box</span><span class="op">&lt;</span><span class="ident">Insert</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>),
     <span class="ident">Update</span>(<span class="ident">Box</span><span class="op">&lt;</span><span class="ident">Update</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>),
     <span class="ident">Delete</span>(<span class="ident">Box</span><span class="op">&lt;</span><span class="ident">Delete</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>),

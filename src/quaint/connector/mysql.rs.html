@@ -415,7 +415,7 @@
     }
 
     <span class="doccomment">/// The percent-decoded database username.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">username</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">str</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">username</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Cow</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="ident">percent_decode</span>(<span class="self">self</span>.<span class="ident">url</span>.<span class="ident">username</span>().<span class="ident">as_bytes</span>()).<span class="ident">decode_utf8</span>() {
             <span class="prelude-val">Ok</span>(<span class="ident">username</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">username</span>,
             <span class="prelude-val">Err</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {

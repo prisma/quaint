@@ -357,7 +357,7 @@
     }
 
     <span class="doccomment">/// The provided database user name. This will be `None` on SQLite.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">username</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">str</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">username</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Cow</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="self">self</span> {
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;postgresql&quot;</span>)]</span>
             <span class="ident">ConnectionInfo</span>::<span class="ident">Postgres</span>(<span class="ident">url</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">url</span>.<span class="ident">username</span>()),
@@ -431,7 +431,7 @@
 
 <span class="kw">impl</span> <span class="ident">SqlFamily</span> {
     <span class="doccomment">/// Get a string representation of the family.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">as_str</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">as_str</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span> {
         <span class="kw">match</span> <span class="self">self</span> {
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;postgresql&quot;</span>)]</span>
             <span class="ident">SqlFamily</span>::<span class="ident">Postgres</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;postgresql&quot;</span>,
