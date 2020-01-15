@@ -122,6 +122,22 @@
 <span id="122">122</span>
 <span id="123">123</span>
 <span id="124">124</span>
+<span id="125">125</span>
+<span id="126">126</span>
+<span id="127">127</span>
+<span id="128">128</span>
+<span id="129">129</span>
+<span id="130">130</span>
+<span id="131">131</span>
+<span id="132">132</span>
+<span id="133">133</span>
+<span id="134">134</span>
+<span id="135">135</span>
+<span id="136">136</span>
+<span id="137">137</span>
+<span id="138">138</span>
+<span id="139">139</span>
+<span id="140">140</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">mod</span> <span class="ident">index</span>;
 <span class="kw">mod</span> <span class="ident">result_row</span>;
@@ -139,19 +155,35 @@
 <span class="kw">use</span> <span class="ident">serde_json</span>::{<span class="ident">Map</span>, <span class="ident">Value</span>};
 
 <span class="doccomment">/// Encapsulates a set of results and their respective column names.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Default</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ResultSet</span> {
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">rows</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ParameterizedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">name_to_index</span>: <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">usize</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">last_insert_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u64</span><span class="op">&gt;</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">ResultSet</span> {
     <span class="doccomment">/// Creates a new instance, bound to the given column names and result rows.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">names</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>, <span class="ident">rows</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ParameterizedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ResultSet</span> {
-        <span class="ident">ResultSet</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(
+        <span class="ident">names</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
+        <span class="ident">rows</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ParameterizedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>
+    {
+        <span class="self">Self</span> {
             <span class="ident">name_to_index</span>: <span class="ident">Arc</span>::<span class="ident">new</span>(<span class="self">Self</span>::<span class="ident">build_name_map</span>(<span class="ident">names</span>)),
             <span class="ident">rows</span>,
+            <span class="ident">last_insert_id</span>: <span class="prelude-val">None</span>,
         }
+    }
+
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">set_last_insert_id</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">id</span>: <span class="ident">u64</span>) {
+        <span class="self">self</span>.<span class="ident">last_insert_id</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">id</span>);
+    }
+
+    <span class="doccomment">/// The last id inserted, if available. Only works on certain databases and</span>
+    <span class="doccomment">/// if using an auto-increment ids.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">last_insert_id</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u64</span><span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">last_insert_id</span>
     }
 
     <span class="doccomment">/// An iterator of column names.</span>
