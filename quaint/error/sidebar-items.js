@@ -1,1 +1,1 @@
-initSidebarItems({"enum":[["Error",""]]});
+initSidebarItems({"enum":[["DatabaseConstraint",""],["Error",""]]});

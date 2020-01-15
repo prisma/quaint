@@ -347,6 +347,58 @@
 <span id="347">347</span>
 <span id="348">348</span>
 <span id="349">349</span>
+<span id="350">350</span>
+<span id="351">351</span>
+<span id="352">352</span>
+<span id="353">353</span>
+<span id="354">354</span>
+<span id="355">355</span>
+<span id="356">356</span>
+<span id="357">357</span>
+<span id="358">358</span>
+<span id="359">359</span>
+<span id="360">360</span>
+<span id="361">361</span>
+<span id="362">362</span>
+<span id="363">363</span>
+<span id="364">364</span>
+<span id="365">365</span>
+<span id="366">366</span>
+<span id="367">367</span>
+<span id="368">368</span>
+<span id="369">369</span>
+<span id="370">370</span>
+<span id="371">371</span>
+<span id="372">372</span>
+<span id="373">373</span>
+<span id="374">374</span>
+<span id="375">375</span>
+<span id="376">376</span>
+<span id="377">377</span>
+<span id="378">378</span>
+<span id="379">379</span>
+<span id="380">380</span>
+<span id="381">381</span>
+<span id="382">382</span>
+<span id="383">383</span>
+<span id="384">384</span>
+<span id="385">385</span>
+<span id="386">386</span>
+<span id="387">387</span>
+<span id="388">388</span>
+<span id="389">389</span>
+<span id="390">390</span>
+<span id="391">391</span>
+<span id="392">392</span>
+<span id="393">393</span>
+<span id="394">394</span>
+<span id="395">395</span>
+<span id="396">396</span>
+<span id="397">397</span>
+<span id="398">398</span>
+<span id="399">399</span>
+<span id="400">400</span>
+<span id="401">401</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">mod</span> <span class="ident">conversion</span>;
 <span class="kw">mod</span> <span class="ident">error</span>;
@@ -614,7 +666,7 @@
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
 <span class="kw">mod</span> <span class="ident">tests</span> {
     <span class="kw">use</span> <span class="kw">super</span>::<span class="ident">MysqlUrl</span>;
-    <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">connector</span>::<span class="ident">Queryable</span>, <span class="ident">error</span>::<span class="ident">Error</span>, <span class="ident">single</span>::<span class="ident">Quaint</span>};
+    <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">connector</span>::<span class="ident">Queryable</span>, <span class="ident">error</span>::<span class="kw-2">*</span>, <span class="ident">single</span>::<span class="ident">Quaint</span>};
     <span class="kw">use</span> <span class="ident">lazy_static</span>::<span class="ident">lazy_static</span>;
     <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">env</span>;
     <span class="kw">use</span> <span class="ident">url</span>::<span class="ident">Url</span>;
@@ -694,6 +746,58 @@ VALUES (1, &#39;Joe&#39;, 27, 20000.00 );
         <span class="kw">match</span> <span class="ident">res</span>.<span class="ident">unwrap_err</span>() {
             <span class="ident">Error</span>::<span class="ident">DatabaseDoesNotExist</span> { <span class="ident">db_name</span> } <span class="op">=</span><span class="op">&gt;</span> <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="string">&quot;this_does_not_exist&quot;</span>, <span class="ident">db_name</span>.<span class="ident">as_str</span>()),
             <span class="ident">e</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;Expected `DatabaseDoesNotExist`, got {:?}&quot;</span>, <span class="ident">e</span>),
+        }
+    }
+
+    <span class="attribute">#[<span class="ident">tokio</span>::<span class="ident">test</span>]</span>
+    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">test_uniq_constraint_violation</span>() {
+        <span class="kw">let</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">Quaint</span>::<span class="ident">new</span>(<span class="kw-2">&amp;</span><span class="ident">CONN_STR</span>).<span class="kw">await</span>.<span class="ident">unwrap</span>();
+
+        <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">conn</span>.<span class="ident">raw_cmd</span>(<span class="string">&quot;DROP TABLE test_uniq_constraint_violation&quot;</span>).<span class="kw">await</span>;
+        <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">conn</span>.<span class="ident">raw_cmd</span>(<span class="string">&quot;DROP INDEX idx_uniq_constraint_violation&quot;</span>).<span class="kw">await</span>;
+
+        <span class="ident">conn</span>.<span class="ident">raw_cmd</span>(<span class="string">&quot;CREATE TABLE test_uniq_constraint_violation (id1 int, id2 int)&quot;</span>).<span class="kw">await</span>.<span class="ident">unwrap</span>();
+        <span class="ident">conn</span>.<span class="ident">raw_cmd</span>(<span class="string">&quot;CREATE UNIQUE INDEX idx_uniq_constraint_violation ON test_uniq_constraint_violation (id1, id2) USING btree&quot;</span>).<span class="kw">await</span>.<span class="ident">unwrap</span>();
+
+        <span class="ident">conn</span>.<span class="ident">query_raw</span>(
+            <span class="string">&quot;INSERT INTO test_uniq_constraint_violation (id1, id2) VALUES (1, 2)&quot;</span>,
+            <span class="kw-2">&amp;</span>[]
+        ).<span class="kw">await</span>.<span class="ident">unwrap</span>();
+
+        <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">conn</span>.<span class="ident">query_raw</span>(
+            <span class="string">&quot;INSERT INTO test_uniq_constraint_violation (id1, id2) VALUES (1, 2)&quot;</span>,
+            <span class="kw-2">&amp;</span>[]
+        ).<span class="kw">await</span>;
+
+        <span class="kw">match</span> <span class="ident">res</span>.<span class="ident">unwrap_err</span>() {
+            <span class="ident">Error</span>::<span class="ident">UniqueConstraintViolation</span> { <span class="ident">constraint</span> } <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="macro">assert_eq</span><span class="macro">!</span>(
+                    <span class="ident">DatabaseConstraint</span>::<span class="ident">Index</span>(<span class="ident">String</span>::<span class="ident">from</span>(<span class="string">&quot;idx_uniq_constraint_violation&quot;</span>)),
+                    <span class="ident">constraint</span>,
+                )
+            },
+            <span class="ident">e</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">panic</span><span class="macro">!</span>(<span class="ident">e</span>)
+        }
+    }
+
+    <span class="attribute">#[<span class="ident">tokio</span>::<span class="ident">test</span>]</span>
+    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">test_null_constraint_violation</span>() {
+        <span class="kw">let</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">Quaint</span>::<span class="ident">new</span>(<span class="kw-2">&amp;</span><span class="ident">CONN_STR</span>).<span class="kw">await</span>.<span class="ident">unwrap</span>();
+
+        <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">conn</span>.<span class="ident">raw_cmd</span>(<span class="string">&quot;DROP TABLE test_null_constraint_violation&quot;</span>).<span class="kw">await</span>;
+
+        <span class="ident">conn</span>.<span class="ident">raw_cmd</span>(<span class="string">&quot;CREATE TABLE test_null_constraint_violation (id1 int not null, id2 int not null)&quot;</span>).<span class="kw">await</span>.<span class="ident">unwrap</span>();
+
+        <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">conn</span>.<span class="ident">query_raw</span>(
+            <span class="string">&quot;INSERT INTO test_null_constraint_violation () VALUES ()&quot;</span>,
+            <span class="kw-2">&amp;</span>[]
+        ).<span class="kw">await</span>;
+
+        <span class="kw">match</span> <span class="ident">res</span>.<span class="ident">unwrap_err</span>() {
+            <span class="ident">Error</span>::<span class="ident">NullConstraintViolation</span> { <span class="ident">constraint</span> } <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">DatabaseConstraint</span>::<span class="ident">Fields</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="ident">String</span>::<span class="ident">from</span>(<span class="string">&quot;id1&quot;</span>)]), <span class="ident">constraint</span>)
+            },
+            <span class="ident">e</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">panic</span><span class="macro">!</span>(<span class="ident">e</span>)
         }
     }
 }
