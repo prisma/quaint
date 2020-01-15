@@ -131,7 +131,7 @@ pub mod prelude;
 pub mod single;
 pub mod visitor;
 
-#[cfg(feature = "serde_support")]
+#[cfg(feature = "serde-support")]
 pub mod serde;
 
 pub type Result<T> = std::result::Result<T, error::Error>;

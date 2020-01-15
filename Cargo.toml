@@ -42,7 +42,7 @@ chrono-0_4 = ["chrono"]
 mysql = ["mysql_async"]
 tracing-log = ["tracing", "tracing-core"]
 array = []
-serde_support = ["serde", "chrono/serde"]
+serde-support = ["serde", "chrono/serde"]
 
 [dependencies]
 url = "1.7"

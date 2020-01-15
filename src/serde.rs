@@ -111,14 +111,20 @@ impl<'de> Deserializer<'de> for ParameterizedValueDeserializer<'de> {
             ParameterizedValue::Integer(i) => visitor.visit_i64(i),
             ParameterizedValue::Boolean(b) => visitor.visit_bool(b),
             ParameterizedValue::Char(c) => visitor.visit_char(c),
-            ParameterizedValue::DateTime(dt) => visitor.visit_string(dt.to_rfc3339()),
             ParameterizedValue::Null => visitor.visit_none(),
             ParameterizedValue::Real(real) => visitor.visit_f64(real.to_f64().unwrap()),
+
+            #[cfg(feature = "uuid-0_8")]
             ParameterizedValue::Uuid(uuid) => visitor.visit_string(uuid.to_string()),
+
+            #[cfg(feature = "json-1")]
             ParameterizedValue::Json(value) => value
                 .into_deserializer()
                 .deserialize_any(visitor)
                 .map_err(|err| serde::de::value::Error::custom(format!("Error deserializing JSON value: {}", err))),
+
+            #[cfg(feature = "chrono-0_4")]
+            ParameterizedValue::DateTime(dt) => visitor.visit_string(dt.to_rfc3339()),
 
             #[cfg(all(feature = "array", feature = "postgresql"))]
             ParameterizedValue::Array(values) => {
