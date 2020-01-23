@@ -144,6 +144,19 @@
 <span id="144">144</span>
 <span id="145">145</span>
 <span id="146">146</span>
+<span id="147">147</span>
+<span id="148">148</span>
+<span id="149">149</span>
+<span id="150">150</span>
+<span id="151">151</span>
+<span id="152">152</span>
+<span id="153">153</span>
+<span id="154">154</span>
+<span id="155">155</span>
+<span id="156">156</span>
+<span id="157">157</span>
+<span id="158">158</span>
+<span id="159">159</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! A connection pool to a SQL database.</span>
 <span class="kw">mod</span> <span class="ident">manager</span>;
@@ -193,6 +206,9 @@
     <span class="doccomment">/// - `host` should point to the database file.</span>
     <span class="doccomment">/// - `db_name` parameter should give a name to the database attached for</span>
     <span class="doccomment">///   query namespacing.</span>
+    <span class="doccomment">/// - `socket_timeout` defined in seconds. Acts as the busy timeout in</span>
+    <span class="doccomment">///   SQLite. When set, queries that are waiting for a lock to be released</span>
+    <span class="doccomment">///   will return the `Timeout` error after the defined value.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// PostgreSQL:</span>
     <span class="doccomment">///</span>
@@ -209,6 +225,11 @@
     <span class="doccomment">///   cases when connectiong to the database through a unix socket to</span>
     <span class="doccomment">///   separate the database name from the database path, such as</span>
     <span class="doccomment">///   `postgresql:///dbname?host=/var/run/postgresql`.</span>
+    <span class="doccomment">/// - `socket_timeout` defined in seconds. If set, a query will return a</span>
+    <span class="doccomment">///   `Timeout` error if it fails to resolve before given time.</span>
+    <span class="doccomment">/// - `connect_timeout` defined in seconds (default: 5). Connecting to a</span>
+    <span class="doccomment">///   database will return a `ConnectTimeout` error if taking more than the</span>
+    <span class="doccomment">///   defined value.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// MySQL:</span>
     <span class="doccomment">///</span>
@@ -221,6 +242,11 @@
     <span class="doccomment">///   lead to weakened security. Defaults to `strict`.</span>
     <span class="doccomment">/// - `socket` needed when connecting to MySQL database through a unix</span>
     <span class="doccomment">///   socket. When set, the host parameter is dismissed.</span>
+    <span class="doccomment">/// - `socket_timeout` defined in seconds. If set, a query will return a</span>
+    <span class="doccomment">///   `Timeout` error if it fails to resolve before given time.</span>
+    <span class="doccomment">/// - `connect_timeout` defined in seconds (default: 5). Connecting to a</span>
+    <span class="doccomment">///   database will return a `ConnectTimeout` error if taking more than the</span>
+    <span class="doccomment">///   defined value.</span>
     <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">url_str</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">crate</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="ident">Url</span>::<span class="ident">parse</span>(<span class="ident">url_str</span>)<span class="question-mark">?</span>;
 

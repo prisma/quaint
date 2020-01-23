@@ -426,13 +426,25 @@
 <span id="426">426</span>
 <span id="427">427</span>
 <span id="428">428</span>
+<span id="429">429</span>
+<span id="430">430</span>
+<span id="431">431</span>
+<span id="432">432</span>
+<span id="433">433</span>
+<span id="434">434</span>
+<span id="435">435</span>
+<span id="436">436</span>
+<span id="437">437</span>
+<span id="438">438</span>
+<span id="439">439</span>
+<span id="440">440</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">mod</span> <span class="ident">conversion</span>;
 <span class="kw">mod</span> <span class="ident">error</span>;
 
 <span class="kw">use</span> <span class="ident">mysql_async</span>::{<span class="self">self</span> <span class="kw">as</span> <span class="ident">my</span>, <span class="ident">prelude</span>::<span class="ident">Queryable</span> <span class="kw">as</span> <span class="kw">_</span>};
 <span class="kw">use</span> <span class="ident">percent_encoding</span>::<span class="ident">percent_decode</span>;
-<span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">borrow</span>::<span class="ident">Cow</span>, <span class="ident">path</span>::<span class="ident">Path</span>, <span class="ident">time</span>::<span class="ident">Duration</span>};
+<span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">borrow</span>::<span class="ident">Cow</span>, <span class="ident">path</span>::<span class="ident">Path</span>, <span class="ident">time</span>::<span class="ident">Duration</span>, <span class="ident">future</span>::<span class="ident">Future</span>};
 <span class="kw">use</span> <span class="ident">url</span>::<span class="ident">Url</span>;
 <span class="kw">use</span> <span class="ident">tokio</span>::<span class="ident">time</span>::<span class="ident">timeout</span>;
 
@@ -448,7 +460,7 @@
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Mysql</span> {
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">pool</span>: <span class="ident">my</span>::<span class="ident">Pool</span>,
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">url</span>: <span class="ident">MysqlUrl</span>,
-    <span class="ident">socket_timeout</span>: <span class="ident">Duration</span>,
+    <span class="ident">socket_timeout</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span>,
     <span class="ident">connect_timeout</span>: <span class="ident">Duration</span>,
 }
 
@@ -532,7 +544,7 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ssl_opts</span> <span class="op">=</span> <span class="ident">my</span>::<span class="ident">SslOpts</span>::<span class="ident">default</span>();
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">use_ssl</span> <span class="op">=</span> <span class="bool-val">false</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">socket</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">socket_timeout</span> <span class="op">=</span> <span class="ident">Duration</span>::<span class="ident">from_secs</span>(<span class="number">5</span>);
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">socket_timeout</span> <span class="op">=</span> <span class="prelude-val">None</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">connect_timeout</span> <span class="op">=</span> <span class="ident">Duration</span>::<span class="ident">from_secs</span>(<span class="number">5</span>);
 
         <span class="kw">for</span> (<span class="ident">k</span>, <span class="ident">v</span>) <span class="kw">in</span> <span class="ident">url</span>.<span class="ident">query_pairs</span>() {
@@ -558,7 +570,7 @@
                 }
                 <span class="string">&quot;socket_timeout&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">let</span> <span class="ident">as_int</span> <span class="op">=</span> <span class="ident">v</span>.<span class="ident">parse</span>().<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">Error</span>::<span class="ident">InvalidConnectionArguments</span>)<span class="question-mark">?</span>;
-                    <span class="ident">socket_timeout</span> <span class="op">=</span> <span class="ident">Duration</span>::<span class="ident">from_secs</span>(<span class="ident">as_int</span>);
+                    <span class="ident">socket_timeout</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Duration</span>::<span class="ident">from_secs</span>(<span class="ident">as_int</span>));
                 }
                 <span class="string">&quot;connect_timeout&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">let</span> <span class="ident">as_int</span> <span class="op">=</span> <span class="ident">v</span>.<span class="ident">parse</span>().<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">Error</span>::<span class="ident">InvalidConnectionArguments</span>)<span class="question-mark">?</span>;
@@ -639,7 +651,7 @@
     <span class="ident">connection_limit</span>: <span class="ident">usize</span>,
     <span class="ident">use_ssl</span>: <span class="ident">bool</span>,
     <span class="ident">socket</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="ident">socket_timeout</span>: <span class="ident">Duration</span>,
+    <span class="ident">socket_timeout</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span>,
     <span class="ident">connect_timeout</span>: <span class="ident">Duration</span>,
 }
 
@@ -657,6 +669,24 @@
             <span class="ident">url</span>,
         })
     }
+
+    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">timeout</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">F</span>, <span class="ident">E</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="ident">F</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">crate</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
+    <span class="kw">where</span>
+        <span class="ident">F</span>: <span class="ident">Future</span><span class="op">&lt;</span><span class="ident">Output</span> <span class="op">=</span> <span class="ident">std</span>::<span class="ident">result</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">E</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+        <span class="ident">E</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Error</span><span class="op">&gt;</span>
+    {
+        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">socket_timeout</span> {
+            <span class="prelude-val">Some</span>(<span class="ident">duration</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">timeout</span>(<span class="ident">duration</span>, <span class="ident">f</span>).<span class="kw">await</span> {
+                <span class="prelude-val">Ok</span>(<span class="prelude-val">Ok</span>(<span class="ident">result</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">result</span>),
+                <span class="prelude-val">Ok</span>(<span class="prelude-val">Err</span>(<span class="ident">err</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">err</span>.<span class="ident">into</span>()),
+                <span class="prelude-val">Err</span>(<span class="ident">to</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">to</span>.<span class="ident">into</span>()),
+            }
+            <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">f</span>.<span class="kw">await</span> {
+                <span class="prelude-val">Ok</span>(<span class="ident">result</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">result</span>),
+                <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">err</span>.<span class="ident">into</span>()),
+            }
+        }
+    }
 }
 
 <span class="kw">impl</span> <span class="ident">TransactionCapable</span> <span class="kw">for</span> <span class="ident">Mysql</span> {}
@@ -673,11 +703,7 @@
         <span class="ident">metrics</span>::<span class="ident">query</span>(<span class="string">&quot;mysql.query_raw&quot;</span>, <span class="ident">sql</span>, <span class="ident">params</span>, <span class="kw">move</span> <span class="op">|</span><span class="op">|</span> {
             <span class="kw">async</span> <span class="kw">move</span> {
                 <span class="kw">let</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">timeout</span>(<span class="self">self</span>.<span class="ident">connect_timeout</span>, <span class="self">self</span>.<span class="ident">pool</span>.<span class="ident">get_conn</span>()).<span class="kw">await</span><span class="question-mark">?</span><span class="question-mark">?</span>;
-
-                <span class="kw">let</span> <span class="ident">results</span> <span class="op">=</span> <span class="ident">timeout</span>(
-                    <span class="self">self</span>.<span class="ident">socket_timeout</span>,
-                    <span class="ident">conn</span>.<span class="ident">prep_exec</span>(<span class="ident">sql</span>, <span class="ident">conversion</span>::<span class="ident">conv_params</span>(<span class="ident">params</span>)),
-                ).<span class="kw">await</span><span class="question-mark">?</span><span class="question-mark">?</span>;
+                <span class="kw">let</span> <span class="ident">results</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">timeout</span>(<span class="ident">conn</span>.<span class="ident">prep_exec</span>(<span class="ident">sql</span>, <span class="ident">conversion</span>::<span class="ident">conv_params</span>(<span class="ident">params</span>))).<span class="kw">await</span><span class="question-mark">?</span>;
 
                 <span class="kw">let</span> <span class="ident">columns</span> <span class="op">=</span> <span class="ident">results</span>
                     .<span class="ident">columns_ref</span>()
@@ -688,10 +714,7 @@
                 <span class="kw">let</span> <span class="ident">last_id</span> <span class="op">=</span> <span class="ident">results</span>.<span class="ident">last_insert_id</span>();
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">result_set</span> <span class="op">=</span> <span class="ident">ResultSet</span>::<span class="ident">new</span>(<span class="ident">columns</span>, <span class="ident">Vec</span>::<span class="ident">new</span>());
 
-                <span class="kw">let</span> (<span class="kw">_</span>, <span class="ident">rows</span>) <span class="op">=</span> <span class="ident">timeout</span>(
-                    <span class="self">self</span>.<span class="ident">socket_timeout</span>,
-                    <span class="ident">results</span>.<span class="ident">map_and_drop</span>(<span class="op">|</span><span class="kw-2">mut</span> <span class="ident">row</span><span class="op">|</span> <span class="ident">row</span>.<span class="ident">take_result_row</span>()),
-                ).<span class="kw">await</span><span class="question-mark">?</span><span class="question-mark">?</span>;
+                <span class="kw">let</span> (<span class="kw">_</span>, <span class="ident">rows</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">timeout</span>(<span class="ident">results</span>.<span class="ident">map_and_drop</span>(<span class="op">|</span><span class="kw-2">mut</span> <span class="ident">row</span><span class="op">|</span> <span class="ident">row</span>.<span class="ident">take_result_row</span>())).<span class="kw">await</span><span class="question-mark">?</span>;
 
                 <span class="kw">for</span> <span class="ident">row</span> <span class="kw">in</span> <span class="ident">rows</span>.<span class="ident">into_iter</span>() {
                     <span class="ident">result_set</span>.<span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">row</span><span class="question-mark">?</span>);
@@ -710,7 +733,8 @@
         <span class="ident">metrics</span>::<span class="ident">query</span>(<span class="string">&quot;mysql.raw_cmd&quot;</span>, <span class="ident">cmd</span>, <span class="kw-2">&amp;</span>[], <span class="kw">move</span> <span class="op">|</span><span class="op">|</span> {
             <span class="kw">async</span> <span class="kw">move</span> {
                 <span class="kw">let</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">timeout</span>(<span class="self">self</span>.<span class="ident">connect_timeout</span>, <span class="self">self</span>.<span class="ident">pool</span>.<span class="ident">get_conn</span>()).<span class="kw">await</span><span class="question-mark">?</span><span class="question-mark">?</span>;
-                <span class="ident">timeout</span>(<span class="self">self</span>.<span class="ident">socket_timeout</span>, <span class="ident">conn</span>.<span class="ident">query</span>(<span class="ident">cmd</span>)).<span class="kw">await</span><span class="question-mark">?</span><span class="question-mark">?</span>;
+                <span class="self">self</span>.<span class="ident">timeout</span>(<span class="ident">conn</span>.<span class="ident">query</span>(<span class="ident">cmd</span>)).<span class="kw">await</span><span class="question-mark">?</span>;
+
                 <span class="prelude-val">Ok</span>(())
             }
         })
