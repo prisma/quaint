@@ -254,6 +254,8 @@
 <span id="254">254</span>
 <span id="255">255</span>
 <span id="256">256</span>
+<span id="257">257</span>
+<span id="258">258</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Convert results from the database into any type implementing `serde::Deserialize`.</span>
 
@@ -262,12 +264,18 @@
     <span class="ident">connector</span>::{<span class="ident">ResultRow</span>, <span class="ident">ResultSet</span>},
 };
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">de</span>::<span class="ident">Error</span> <span class="kw">as</span> <span class="ident">SerdeError</span>, <span class="ident">de</span>::<span class="kw-2">*</span>};
-<span class="kw">use</span> <span class="ident">thiserror</span>::<span class="ident">Error</span>;
+
+<span class="kw">impl</span> <span class="ident">ResultSet</span> {
+    <span class="doccomment">/// Takes the first row and deserializes it.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_first</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">DeserializeOwned</span><span class="op">&gt;</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">crate</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
+        <span class="prelude-val">Ok</span>(<span class="ident">from_row</span>(<span class="self">self</span>.<span class="ident">into_single</span>()<span class="question-mark">?</span>)<span class="question-mark">?</span>)
+    }
+}
 
 <span class="doccomment">/// Deserialize each row of a [`ResultSet`](../connector/struct.ResultSet.html).</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// For an example, see the docs for [`from_row`](fn.from_row.html).</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_rows</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">DeserializeOwned</span><span class="op">&gt;</span>(<span class="ident">result_set</span>: <span class="ident">ResultSet</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>, <span class="ident">FromRowError</span><span class="op">&gt;</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_rows</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">DeserializeOwned</span><span class="op">&gt;</span>(<span class="ident">result_set</span>: <span class="ident">ResultSet</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">crate</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">deserialized_rows</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">with_capacity</span>(<span class="ident">result_set</span>.<span class="ident">len</span>());
 
     <span class="kw">for</span> <span class="ident">row</span> <span class="kw">in</span> <span class="ident">result_set</span> {
@@ -303,15 +311,11 @@
 <span class="doccomment">/// # Ok(())</span>
 <span class="doccomment">/// # }</span>
 <span class="doccomment">/// ```</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_row</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">DeserializeOwned</span><span class="op">&gt;</span>(<span class="ident">row</span>: <span class="ident">ResultRow</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">FromRowError</span><span class="op">&gt;</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_row</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">DeserializeOwned</span><span class="op">&gt;</span>(<span class="ident">row</span>: <span class="ident">ResultRow</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">crate</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">deserializer</span> <span class="op">=</span> <span class="ident">RowDeserializer</span>(<span class="ident">row</span>);
 
-    <span class="ident">T</span>::<span class="ident">deserialize</span>(<span class="ident">deserializer</span>).<span class="ident">map_err</span>(<span class="ident">FromRowError</span>)
+    <span class="ident">T</span>::<span class="ident">deserialize</span>(<span class="ident">deserializer</span>).<span class="ident">map_err</span>(<span class="kw">crate</span>::<span class="ident">error</span>::<span class="ident">Error</span>::<span class="ident">FromRowError</span>)
 }
-
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Error</span>)]</span>
-<span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;{0}&quot;</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">FromRowError</span>(<span class="ident">DeserializeError</span>);
 
 <span class="kw">type</span> <span class="ident">DeserializeError</span> <span class="op">=</span> <span class="ident">serde</span>::<span class="ident">de</span>::<span class="ident">value</span>::<span class="ident">Error</span>;
 
