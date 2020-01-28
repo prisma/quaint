@@ -118,6 +118,7 @@
 <span id="118">118</span>
 <span id="119">119</span>
 <span id="120">120</span>
+<span id="121">121</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Error module</span>
 <span class="kw">use</span> <span class="ident">thiserror</span>::<span class="ident">Error</span>;
@@ -211,6 +212,7 @@
         <span class="kw">match</span> <span class="ident">e</span> {
             <span class="ident">mobc</span>::<span class="ident">Error</span>::<span class="ident">Inner</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">e</span>,
             <span class="ident">mobc</span>::<span class="ident">Error</span>::<span class="ident">Timeout</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">Self</span>::<span class="ident">Timeout</span>,
+            <span class="ident">e</span> @ <span class="ident">mobc</span>::<span class="ident">Error</span>::<span class="ident">BadConn</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">Self</span>::<span class="ident">ConnectionError</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">e</span>)),
         }
     }
 }

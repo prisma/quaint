@@ -157,6 +157,9 @@
 <span id="157">157</span>
 <span id="158">158</span>
 <span id="159">159</span>
+<span id="160">160</span>
+<span id="161">161</span>
+<span id="162">162</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! A connection pool to a SQL database.</span>
 <span class="kw">mod</span> <span class="ident">manager</span>;
@@ -284,14 +287,17 @@
         <span class="kw">let</span> <span class="ident">connection_info</span> <span class="op">=</span> <span class="ident">Arc</span>::<span class="ident">new</span>(<span class="ident">ConnectionInfo</span>::<span class="ident">from_url</span>(<span class="ident">url_str</span>)<span class="question-mark">?</span>);
         <span class="self">Self</span>::<span class="ident">log_start</span>(<span class="ident">connection_info</span>.<span class="ident">sql_family</span>(), <span class="ident">connection_limit</span>);
 
-        <span class="kw">let</span> <span class="ident">inner</span> <span class="op">=</span> <span class="ident">Pool</span>::<span class="ident">builder</span>().<span class="ident">max_size</span>(<span class="ident">connection_limit</span>).<span class="ident">build</span>(<span class="ident">manager</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="kw">let</span> <span class="ident">inner</span> <span class="op">=</span> <span class="ident">Pool</span>::<span class="ident">builder</span>()
+            .<span class="ident">max_open</span>(<span class="ident">connection_limit</span>.<span class="ident">into</span>())
+            .<span class="ident">test_on_check_out</span>(<span class="bool-val">false</span>)
+            .<span class="ident">build</span>(<span class="ident">manager</span>);
 
         <span class="prelude-val">Ok</span>(<span class="self">Self</span> { <span class="ident">inner</span>, <span class="ident">connection_info</span> })
     }
 
     <span class="doccomment">/// The number of connections in the pool.</span>
     <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">capacity</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">u32</span> {
-        <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">state</span>().<span class="kw">await</span>.<span class="ident">connections</span>
+        <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">state</span>().<span class="kw">await</span>.<span class="ident">max_open</span> <span class="kw">as</span> <span class="ident">u32</span>
     }
 
     <span class="doccomment">/// Reserve a connection from the pool.</span>
