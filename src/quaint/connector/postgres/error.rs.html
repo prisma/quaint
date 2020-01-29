@@ -125,9 +125,8 @@
 <span id="125">125</span>
 <span id="126">126</span>
 <span id="127">127</span>
-<span id="128">128</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">error</span>::{<span class="ident">Error</span>, <span class="ident">DatabaseConstraint</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">error</span>::{<span class="ident">DatabaseConstraint</span>, <span class="ident">Error</span>};
 
 <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">tokio_postgres</span>::<span class="ident">error</span>::<span class="ident">Error</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Error</span> {
     <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">e</span>: <span class="ident">tokio_postgres</span>::<span class="ident">error</span>::<span class="ident">Error</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Error</span> {
@@ -147,7 +146,7 @@
                 <span class="kw">let</span> <span class="ident">field_names</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">field_names</span>.<span class="ident">split</span>(<span class="string">&quot;, &quot;</span>).<span class="ident">map</span>(<span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="ident">s</span>.<span class="ident">to_string</span>()).<span class="ident">collect</span>();
 
                 <span class="ident">Error</span>::<span class="ident">UniqueConstraintViolation</span> {
-                    <span class="ident">constraint</span>: <span class="ident">DatabaseConstraint</span>::<span class="ident">Fields</span>(<span class="ident">field_names</span>)
+                    <span class="ident">constraint</span>: <span class="ident">DatabaseConstraint</span>::<span class="ident">Fields</span>(<span class="ident">field_names</span>),
                 }
             }
             <span class="comment">// Even lipstick will not save this...</span>
@@ -160,7 +159,7 @@
                 <span class="kw">let</span> <span class="ident">field_name</span> <span class="op">=</span> <span class="ident">splitted</span>[<span class="number">4</span>].<span class="ident">replace</span>(<span class="string">&quot;\&quot;&quot;</span>, <span class="string">&quot;&quot;</span>);
 
                 <span class="ident">Error</span>::<span class="ident">NullConstraintViolation</span> {
-                    <span class="ident">constraint</span>: <span class="ident">DatabaseConstraint</span>::<span class="ident">Fields</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="ident">field_name</span>])
+                    <span class="ident">constraint</span>: <span class="ident">DatabaseConstraint</span>::<span class="ident">Fields</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="ident">field_name</span>]),
                 }
             }
             <span class="prelude-val">Some</span>(<span class="string">&quot;3D000&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
@@ -211,7 +210,9 @@
                 <span class="kw">let</span> <span class="ident">reason</span> <span class="op">=</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">e</span>);
 
                 <span class="kw">match</span> <span class="ident">reason</span>.<span class="ident">as_str</span>() {
-                    <span class="string">&quot;error connecting to server: timed out&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Error</span>::<span class="ident">ConnectTimeout</span>, <span class="comment">// sigh...</span>
+                    <span class="string">&quot;error connecting to server: timed out&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="ident">Error</span>::<span class="ident">ConnectTimeout</span>(<span class="string">&quot;tokio-postgres timeout connecting to server&quot;</span>.<span class="ident">into</span>())
+                    } <span class="comment">// sigh...</span>
                     <span class="comment">// https://github.com/sfackler/rust-postgres/blob/0c84ed9f8201f4e5b4803199a24afa2c9f3723b2/tokio-postgres/src/connect_tls.rs#L37</span>
                     <span class="string">&quot;error performing TLS handshake: server does not support TLS&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                         <span class="ident">Error</span>::<span class="ident">TlsError</span> { <span class="ident">message</span>: <span class="ident">reason</span> }
@@ -236,10 +237,7 @@
 
     <span class="ident">err</span>.<span class="ident">source</span>()
         .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> <span class="ident">err</span>.<span class="ident">downcast_ref</span>::<span class="op">&lt;</span><span class="ident">std</span>::<span class="ident">io</span>::<span class="ident">Error</span><span class="op">&gt;</span>())
-        .<span class="ident">map</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> <span class="ident">Error</span>::<span class="ident">ConnectionError</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">std</span>::<span class="ident">io</span>::<span class="ident">Error</span>::<span class="ident">new</span>(
-            <span class="ident">err</span>.<span class="ident">kind</span>(),
-            <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">err</span>),
-        ))))
+        .<span class="ident">map</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> <span class="ident">Error</span>::<span class="ident">ConnectionError</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">std</span>::<span class="ident">io</span>::<span class="ident">Error</span>::<span class="ident">new</span>(<span class="ident">err</span>.<span class="ident">kind</span>(), <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">err</span>)))))
 }
 
 <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">native_tls</span>::<span class="ident">Error</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Error</span> {
