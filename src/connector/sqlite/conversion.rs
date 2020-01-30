@@ -58,6 +58,7 @@ impl<'a> ToSql for ParameterizedValue<'a> {
             ParameterizedValue::Integer(integer) => ToSqlOutput::from(*integer),
             ParameterizedValue::Real(d) => ToSqlOutput::from((*d).to_f64().expect("Decimal is not a f64.")),
             ParameterizedValue::Text(cow) => ToSqlOutput::from(&**cow),
+            ParameterizedValue::Enum(cow) => ToSqlOutput::from(&**cow),
             ParameterizedValue::Boolean(boo) => ToSqlOutput::from(*boo),
             ParameterizedValue::Char(c) => ToSqlOutput::from(*c as u8),
             #[cfg(feature = "array")]

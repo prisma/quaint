@@ -8,10 +8,11 @@ use chrono::{DateTime, NaiveDateTime, Utc};
 use rust_decimal::{prelude::FromPrimitive, Decimal};
 use std::{error::Error, str::FromStr};
 use tokio_postgres::{
-    types::{self, FromSql, IsNull, ToSql, Type as PostgresType},
+    types::{self, FromSql, IsNull, Kind, ToSql, Type as PostgresType},
     Row as PostgresRow, Statement as PostgresStatement,
 };
 
+use std::borrow::Cow;
 #[cfg(feature = "uuid-0_8")]
 use uuid::Uuid;
 
@@ -52,6 +53,22 @@ impl<'a> FromSql<'a> for Id {
 
     fn accepts(ty: &PostgresType) -> bool {
         accepts(ty)
+    }
+}
+
+struct EnumString {
+    value: String,
+}
+
+impl<'a> FromSql<'a> for EnumString {
+    fn from_sql(ty: &PostgresType, raw: &'a [u8]) -> Result<EnumString, Box<dyn std::error::Error + Sync + Send>> {
+        Ok(EnumString {
+            value: String::from_utf8(raw.to_owned()).unwrap().into(),
+        })
+    }
+
+    fn accepts(ty: &PostgresType) -> bool {
+        true
     }
 }
 
@@ -232,21 +249,28 @@ impl GetRow for PostgresRow {
                     }
                     None => ParameterizedValue::Null,
                 },
-                _ => match row.try_get(i)? {
-                    Some(val) => {
-                        let val: String = val;
-                        ParameterizedValue::Text(val.into())
+                ref x => match x.kind() {
+                    Kind::Enum(_) => {
+                        let val: EnumString = row.try_get(i)?;
+                        ParameterizedValue::Enum(val.value.into())
                     }
-                    None => ParameterizedValue::Null,
+                    _ => match row.try_get(i)? {
+                        Some(val) => {
+                            let val: String = val;
+                            ParameterizedValue::Text(val.into())
+                        }
+                        None => ParameterizedValue::Null,
+                    },
                 },
             };
 
             Ok(result)
         }
 
-        let mut row = Vec::new();
+        let num_rows = self.columns().len();
+        let mut row = Vec::with_capacity(num_rows);
 
-        for i in 0..self.columns().len() {
+        for i in 0..num_rows {
             row.push(convert(self, i)?);
         }
 
@@ -256,7 +280,7 @@ impl GetRow for PostgresRow {
 
 impl ToColumnNames for PostgresStatement {
     fn to_column_names(&self) -> Vec<String> {
-        let mut names = Vec::new();
+        let mut names = Vec::with_capacity(self.columns().len());
 
         for column in self.columns() {
             names.push(String::from(column.name()));
@@ -283,6 +307,10 @@ impl<'a> ToSql for ParameterizedValue<'a> {
                 }
                 _ => float.to_sql(ty, out),
             },
+            ParameterizedValue::Enum(string) => {
+                out.extend_from_slice(format!("{}", string).as_bytes());
+                Ok(IsNull::No)
+            }
             ParameterizedValue::Text(string) => string.to_sql(ty, out),
             ParameterizedValue::Boolean(boo) => boo.to_sql(ty, out),
             ParameterizedValue::Char(c) => (*c as i8).to_sql(ty, out),
@@ -322,6 +350,10 @@ impl<'a> ToSql for ParameterizedValue<'a> {
                 _ => float.to_sql(ty, out),
             },
             ParameterizedValue::Text(string) => string.to_sql_checked(ty, out),
+            ParameterizedValue::Enum(string) => {
+                out.extend_from_slice(format!("{}", string).as_bytes());
+                Ok(IsNull::No)
+            }
             ParameterizedValue::Boolean(boo) => boo.to_sql_checked(ty, out),
             ParameterizedValue::Char(c) => (*c as i8).to_sql_checked(ty, out),
             #[cfg(feature = "array")]
