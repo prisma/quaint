@@ -93,7 +93,7 @@ impl GetRow for PostgresRow {
                         ParameterizedValue::Json(val)
                     }
                     None => ParameterizedValue::Null,
-                }
+                },
                 #[cfg(feature = "array")]
                 PostgresType::INT2_ARRAY => match row.try_get(i)? {
                     Some(val) => {
