@@ -1,1 +1,1 @@
-initSidebarItems({"enum":[["DatabaseConstraint",""],["Error",""]]});
+initSidebarItems({"enum":[["DatabaseConstraint",""],["ErrorKind",""]],"struct":[["Error","The error types for database I/O, connection and query parameter construction."]]});
