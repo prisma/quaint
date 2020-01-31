@@ -26,6 +26,7 @@ pub enum ParameterizedValue<'a> {
     Integer(i64),
     Real(Decimal),
     Text(Cow<'a, str>),
+    Enum(Cow<'a, str>),
     Boolean(bool),
     Char(char),
     #[cfg(all(feature = "array", feature = "postgresql"))]
@@ -63,6 +64,7 @@ impl<'a> fmt::Display for ParameterizedValue<'a> {
             ParameterizedValue::Integer(val) => write!(f, "{}", val),
             ParameterizedValue::Real(val) => write!(f, "{}", val),
             ParameterizedValue::Text(val) => write!(f, "\"{}\"", val),
+            ParameterizedValue::Enum(val) => write!(f, "\"{}\"", val),
             ParameterizedValue::Boolean(val) => write!(f, "{}", val),
             ParameterizedValue::Char(val) => write!(f, "'{}'", val),
             #[cfg(feature = "array")]
@@ -97,6 +99,7 @@ impl<'a> From<ParameterizedValue<'a>> for Value {
             ParameterizedValue::Integer(i) => Value::Number(Number::from(i)),
             ParameterizedValue::Real(d) => serde_json::to_value(d).unwrap(),
             ParameterizedValue::Text(cow) => Value::String(cow.into_owned()),
+            ParameterizedValue::Enum(cow) => Value::String(cow.into_owned()),
             ParameterizedValue::Boolean(b) => Value::Bool(b),
             ParameterizedValue::Char(c) => {
                 let bytes = [c as u8];
