@@ -266,10 +266,10 @@ impl GetRow for PostgresRow {
             Ok(result)
         }
 
-        let num_rows = self.columns().len();
-        let mut row = Vec::with_capacity(num_rows);
+        let num_columns = self.columns().len();
+        let mut row = Vec::with_capacity(num_columns);
 
-        for i in 0..num_rows {
+        for i in 0..num_columns {
             row.push(convert(self, i)?);
         }
 
@@ -279,13 +279,7 @@ impl GetRow for PostgresRow {
 
 impl ToColumnNames for PostgresStatement {
     fn to_column_names(&self) -> Vec<String> {
-        let mut names = Vec::with_capacity(self.columns().len());
-
-        for column in self.columns() {
-            names.push(String::from(column.name()));
-        }
-
-        names
+        self.columns().into_iter().map(|c| c.name().into()).collect()
     }
 }
 

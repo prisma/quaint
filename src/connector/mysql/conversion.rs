@@ -65,7 +65,7 @@ impl TakeRow for my::Row {
             Ok(res)
         }
 
-        let mut row = Vec::new();
+        let mut row = Vec::with_capacity(self.len());
 
         for i in 0..self.len() {
             row.push(convert(self, i)?);
