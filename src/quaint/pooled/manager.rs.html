@@ -151,6 +151,14 @@
 <span id="151">151</span>
 <span id="152">152</span>
 <span id="153">153</span>
+<span id="154">154</span>
+<span id="155">155</span>
+<span id="156">156</span>
+<span id="157">157</span>
+<span id="158">158</span>
+<span id="159">159</span>
+<span id="160">160</span>
+<span id="161">161</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">async_trait</span>::<span class="ident">async_trait</span>;
 
@@ -164,7 +172,7 @@
     <span class="ident">connector</span>::{<span class="self">self</span>, <span class="ident">Queryable</span>, <span class="ident">TransactionCapable</span>, <span class="ident">DBIO</span>},
     <span class="ident">error</span>::<span class="ident">Error</span>,
 };
-<span class="kw">use</span> <span class="ident">mobc</span>::{<span class="ident">Manager</span>, <span class="ident">Connection</span> <span class="kw">as</span> <span class="ident">MobcPooled</span>};
+<span class="kw">use</span> <span class="ident">mobc</span>::{<span class="ident">Connection</span> <span class="kw">as</span> <span class="ident">MobcPooled</span>, <span class="ident">Manager</span>};
 
 <span class="doccomment">/// A connection from the pool. Implements</span>
 <span class="doccomment">/// [Queryable](connector/trait.Queryable.html).</span>
@@ -179,8 +187,16 @@
         <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">query</span>(<span class="ident">q</span>)
     }
 
+    <span class="kw">fn</span> <span class="ident">execute</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="self">self</span>, <span class="ident">q</span>: <span class="ident">ast</span>::<span class="ident">Query</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">DBIO</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">u64</span><span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">execute</span>(<span class="ident">q</span>)
+    }
+
     <span class="kw">fn</span> <span class="ident">query_raw</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="self">self</span>, <span class="ident">sql</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>, <span class="ident">params</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">ast</span>::<span class="ident">ParameterizedValue</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">DBIO</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">connector</span>::<span class="ident">ResultSet</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">query_raw</span>(<span class="ident">sql</span>, <span class="ident">params</span>)
+    }
+
+    <span class="kw">fn</span> <span class="ident">execute_raw</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="self">self</span>, <span class="ident">sql</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>, <span class="ident">params</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">ast</span>::<span class="ident">ParameterizedValue</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">DBIO</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">u64</span><span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">execute_raw</span>(<span class="ident">sql</span>, <span class="ident">params</span>)
     }
 
     <span class="kw">fn</span> <span class="ident">raw_cmd</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="self">self</span>, <span class="ident">cmd</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">DBIO</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, ()<span class="op">&gt;</span> {
