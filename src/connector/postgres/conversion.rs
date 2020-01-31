@@ -12,7 +12,6 @@ use tokio_postgres::{
     Row as PostgresRow, Statement as PostgresStatement,
 };
 
-use std::borrow::Cow;
 #[cfg(feature = "uuid-0_8")]
 use uuid::Uuid;
 
@@ -61,13 +60,13 @@ struct EnumString {
 }
 
 impl<'a> FromSql<'a> for EnumString {
-    fn from_sql(ty: &PostgresType, raw: &'a [u8]) -> Result<EnumString, Box<dyn std::error::Error + Sync + Send>> {
+    fn from_sql(_ty: &PostgresType, raw: &'a [u8]) -> Result<EnumString, Box<dyn std::error::Error + Sync + Send>> {
         Ok(EnumString {
             value: String::from_utf8(raw.to_owned()).unwrap().into(),
         })
     }
 
-    fn accepts(ty: &PostgresType) -> bool {
+    fn accepts(_ty: &PostgresType) -> bool {
         true
     }
 }
