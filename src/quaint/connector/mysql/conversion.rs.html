@@ -107,6 +107,7 @@
 <span id="107">107</span>
 <span id="108">108</span>
 <span id="109">109</span>
+<span id="110">110</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">ast</span>::<span class="ident">ParameterizedValue</span>, <span class="ident">connector</span>::<span class="ident">queryable</span>::<span class="ident">TakeRow</span>};
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;chrono-0_4&quot;</span>)]</span>
@@ -175,7 +176,7 @@
             <span class="prelude-val">Ok</span>(<span class="ident">res</span>)
         }
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">row</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">row</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">with_capacity</span>(<span class="self">self</span>.<span class="ident">len</span>());
 
         <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span>..<span class="self">self</span>.<span class="ident">len</span>() {
             <span class="ident">row</span>.<span class="ident">push</span>(<span class="ident">convert</span>(<span class="self">self</span>, <span class="ident">i</span>)<span class="question-mark">?</span>);
@@ -192,6 +193,7 @@
             <span class="ident">ParameterizedValue</span>::<span class="ident">Integer</span>(<span class="ident">i</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">MyValue</span>::<span class="ident">Int</span>(<span class="ident">i</span>),
             <span class="ident">ParameterizedValue</span>::<span class="ident">Real</span>(<span class="ident">f</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">MyValue</span>::<span class="ident">Float</span>(<span class="ident">f</span>.<span class="ident">to_f64</span>().<span class="ident">expect</span>(<span class="string">&quot;Decimal is not a f64.&quot;</span>)),
             <span class="ident">ParameterizedValue</span>::<span class="ident">Text</span>(<span class="ident">s</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">MyValue</span>::<span class="ident">Bytes</span>((<span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">s</span>).<span class="ident">as_bytes</span>().<span class="ident">to_vec</span>()),
+            <span class="ident">ParameterizedValue</span>::<span class="ident">Enum</span>(<span class="ident">s</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">MyValue</span>::<span class="ident">Bytes</span>((<span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">s</span>).<span class="ident">as_bytes</span>().<span class="ident">to_vec</span>()),
             <span class="ident">ParameterizedValue</span>::<span class="ident">Boolean</span>(<span class="ident">b</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">MyValue</span>::<span class="ident">Int</span>(<span class="ident">b</span> <span class="kw">as</span> <span class="ident">i64</span>),
             <span class="ident">ParameterizedValue</span>::<span class="ident">Char</span>(<span class="ident">c</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">MyValue</span>::<span class="ident">Bytes</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="ident">c</span> <span class="kw">as</span> <span class="ident">u8</span>]),
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;json-1&quot;</span>)]</span>

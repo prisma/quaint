@@ -73,10 +73,6 @@
 <span id="73">73</span>
 <span id="74">74</span>
 <span id="75">75</span>
-<span id="76">76</span>
-<span id="77">77</span>
-<span id="78">78</span>
-<span id="79">79</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">ast</span>::<span class="ident">ParameterizedValue</span>,
@@ -90,7 +86,7 @@
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">GetRow</span> <span class="kw">for</span> <span class="ident">SqliteRow</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="kw">fn</span> <span class="ident">get_result_row</span><span class="op">&lt;</span><span class="lifetime">&#39;b</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;b</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">crate</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ParameterizedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">row</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">row</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">with_capacity</span>(<span class="self">self</span>.<span class="ident">columns</span>().<span class="ident">len</span>());
 
         <span class="kw">for</span> (<span class="ident">i</span>, <span class="ident">column</span>) <span class="kw">in</span> <span class="self">self</span>.<span class="ident">columns</span>().<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
             <span class="kw">let</span> <span class="ident">pv</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">get_raw</span>(<span class="ident">i</span>) {
@@ -107,7 +103,7 @@
                 },
                 <span class="ident">ValueRef</span>::<span class="ident">Real</span>(<span class="ident">f</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ParameterizedValue</span>::<span class="ident">from</span>(<span class="ident">f</span>),
                 <span class="ident">ValueRef</span>::<span class="ident">Text</span>(<span class="ident">bytes</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ParameterizedValue</span>::<span class="ident">Text</span>(<span class="ident">String</span>::<span class="ident">from_utf8</span>(<span class="ident">bytes</span>.<span class="ident">to_vec</span>())<span class="question-mark">?</span>.<span class="ident">into</span>()),
-                <span class="ident">ValueRef</span>::<span class="ident">Blob</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;Blobs not supprted, yet&quot;</span>),
+                <span class="ident">ValueRef</span>::<span class="ident">Blob</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;Blobs not supported, yet&quot;</span>),
             };
 
             <span class="ident">row</span>.<span class="ident">push</span>(<span class="ident">pv</span>);
@@ -119,15 +115,10 @@
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">ToColumnNames</span> <span class="kw">for</span> <span class="ident">SqliteRows</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="kw">fn</span> <span class="ident">to_column_names</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">names</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
-
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">columns</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">column_names</span>() {
-            <span class="kw">for</span> <span class="ident">column</span> <span class="kw">in</span> <span class="ident">columns</span> {
-                <span class="ident">names</span>.<span class="ident">push</span>(<span class="ident">String</span>::<span class="ident">from</span>(<span class="ident">column</span>));
-            }
+        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">column_names</span>() {
+            <span class="prelude-val">Some</span>(<span class="ident">columns</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">columns</span>.<span class="ident">into_iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">c</span><span class="op">|</span> <span class="ident">c</span>.<span class="ident">into</span>()).<span class="ident">collect</span>(),
+            <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">vec</span><span class="macro">!</span>[],
         }
-
-        <span class="ident">names</span>
     }
 }
 
@@ -138,6 +129,7 @@
             <span class="ident">ParameterizedValue</span>::<span class="ident">Integer</span>(<span class="ident">integer</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ToSqlOutput</span>::<span class="ident">from</span>(<span class="kw-2">*</span><span class="ident">integer</span>),
             <span class="ident">ParameterizedValue</span>::<span class="ident">Real</span>(<span class="ident">d</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ToSqlOutput</span>::<span class="ident">from</span>((<span class="kw-2">*</span><span class="ident">d</span>).<span class="ident">to_f64</span>().<span class="ident">expect</span>(<span class="string">&quot;Decimal is not a f64.&quot;</span>)),
             <span class="ident">ParameterizedValue</span>::<span class="ident">Text</span>(<span class="ident">cow</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ToSqlOutput</span>::<span class="ident">from</span>(<span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="kw-2">*</span><span class="ident">cow</span>),
+            <span class="ident">ParameterizedValue</span>::<span class="ident">Enum</span>(<span class="ident">cow</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ToSqlOutput</span>::<span class="ident">from</span>(<span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="kw-2">*</span><span class="ident">cow</span>),
             <span class="ident">ParameterizedValue</span>::<span class="ident">Boolean</span>(<span class="ident">boo</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ToSqlOutput</span>::<span class="ident">from</span>(<span class="kw-2">*</span><span class="ident">boo</span>),
             <span class="ident">ParameterizedValue</span>::<span class="ident">Char</span>(<span class="ident">c</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ToSqlOutput</span>::<span class="ident">from</span>(<span class="kw-2">*</span><span class="ident">c</span> <span class="kw">as</span> <span class="ident">u8</span>),
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;array&quot;</span>)]</span>

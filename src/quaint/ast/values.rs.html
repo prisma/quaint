@@ -755,6 +755,7 @@
 <span id="755">755</span>
 <span id="756">756</span>
 <span id="757">757</span>
+<span id="758">758</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">ast</span>::<span class="kw-2">*</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">error</span>::{<span class="ident">Error</span>, <span class="ident">ErrorKind</span>};
@@ -784,6 +785,7 @@
     <span class="ident">Integer</span>(<span class="ident">i64</span>),
     <span class="ident">Real</span>(<span class="ident">Decimal</span>),
     <span class="ident">Text</span>(<span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">str</span><span class="op">&gt;</span>),
+    <span class="ident">Enum</span>(<span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">str</span><span class="op">&gt;</span>),
     <span class="ident">Boolean</span>(<span class="ident">bool</span>),
     <span class="ident">Char</span>(<span class="ident">char</span>),
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;array&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;postgresql&quot;</span>))]</span>
@@ -821,6 +823,7 @@
             <span class="ident">ParameterizedValue</span>::<span class="ident">Integer</span>(<span class="ident">val</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">val</span>),
             <span class="ident">ParameterizedValue</span>::<span class="ident">Real</span>(<span class="ident">val</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">val</span>),
             <span class="ident">ParameterizedValue</span>::<span class="ident">Text</span>(<span class="ident">val</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;\&quot;{}\&quot;&quot;</span>, <span class="ident">val</span>),
+            <span class="ident">ParameterizedValue</span>::<span class="ident">Enum</span>(<span class="ident">val</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;\&quot;{}\&quot;&quot;</span>, <span class="ident">val</span>),
             <span class="ident">ParameterizedValue</span>::<span class="ident">Boolean</span>(<span class="ident">val</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">val</span>),
             <span class="ident">ParameterizedValue</span>::<span class="ident">Char</span>(<span class="ident">val</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;&#39;{}&#39;&quot;</span>, <span class="ident">val</span>),
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;array&quot;</span>)]</span>
@@ -855,6 +858,7 @@
             <span class="ident">ParameterizedValue</span>::<span class="ident">Integer</span>(<span class="ident">i</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Value</span>::<span class="ident">Number</span>(<span class="ident">Number</span>::<span class="ident">from</span>(<span class="ident">i</span>)),
             <span class="ident">ParameterizedValue</span>::<span class="ident">Real</span>(<span class="ident">d</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">serde_json</span>::<span class="ident">to_value</span>(<span class="ident">d</span>).<span class="ident">unwrap</span>(),
             <span class="ident">ParameterizedValue</span>::<span class="ident">Text</span>(<span class="ident">cow</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Value</span>::<span class="ident">String</span>(<span class="ident">cow</span>.<span class="ident">into_owned</span>()),
+            <span class="ident">ParameterizedValue</span>::<span class="ident">Enum</span>(<span class="ident">cow</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Value</span>::<span class="ident">String</span>(<span class="ident">cow</span>.<span class="ident">into_owned</span>()),
             <span class="ident">ParameterizedValue</span>::<span class="ident">Boolean</span>(<span class="ident">b</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Value</span>::<span class="ident">Bool</span>(<span class="ident">b</span>),
             <span class="ident">ParameterizedValue</span>::<span class="ident">Char</span>(<span class="ident">c</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">let</span> <span class="ident">bytes</span> <span class="op">=</span> [<span class="ident">c</span> <span class="kw">as</span> <span class="ident">u8</span>];
@@ -1134,9 +1138,9 @@
     <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">Error</span>;
 
     <span class="kw">fn</span> <span class="ident">try_from</span>(<span class="ident">value</span>: <span class="ident">ParameterizedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">i64</span>, <span class="self">Self</span>::<span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="ident">value</span>.<span class="ident">as_i64</span>().<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> {
-            <span class="ident">Error</span>::<span class="ident">builder</span>(<span class="ident">ErrorKind</span>::<span class="ident">ConversionError</span>(<span class="string">&quot;Not an i64&quot;</span>)).<span class="ident">build</span>()
-        })
+        <span class="ident">value</span>
+            .<span class="ident">as_i64</span>()
+            .<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">Error</span>::<span class="ident">builder</span>(<span class="ident">ErrorKind</span>::<span class="ident">ConversionError</span>(<span class="string">&quot;Not an i64&quot;</span>)).<span class="ident">build</span>())
     }
 }
 
@@ -1144,9 +1148,9 @@
     <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">Error</span>;
 
     <span class="kw">fn</span> <span class="ident">try_from</span>(<span class="ident">value</span>: <span class="ident">ParameterizedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Decimal</span>, <span class="self">Self</span>::<span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="ident">value</span>.<span class="ident">as_decimal</span>().<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> {
-            <span class="ident">Error</span>::<span class="ident">builder</span>(<span class="ident">ErrorKind</span>::<span class="ident">ConversionError</span>(<span class="string">&quot;Not a decimal&quot;</span>)).<span class="ident">build</span>()
-        })
+        <span class="ident">value</span>
+            .<span class="ident">as_decimal</span>()
+            .<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">Error</span>::<span class="ident">builder</span>(<span class="ident">ErrorKind</span>::<span class="ident">ConversionError</span>(<span class="string">&quot;Not a decimal&quot;</span>)).<span class="ident">build</span>())
     }
 }
 
@@ -1157,9 +1161,7 @@
         <span class="ident">value</span>
             .<span class="ident">as_decimal</span>()
             .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">d</span><span class="op">|</span> <span class="ident">d</span>.<span class="ident">to_f64</span>())
-            .<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> {
-                <span class="ident">Error</span>::<span class="ident">builder</span>(<span class="ident">ErrorKind</span>::<span class="ident">ConversionError</span>(<span class="string">&quot;Not a f64&quot;</span>)).<span class="ident">build</span>()
-            })
+            .<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">Error</span>::<span class="ident">builder</span>(<span class="ident">ErrorKind</span>::<span class="ident">ConversionError</span>(<span class="string">&quot;Not a f64&quot;</span>)).<span class="ident">build</span>())
     }
 }
 
@@ -1167,9 +1169,9 @@
     <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">Error</span>;
 
     <span class="kw">fn</span> <span class="ident">try_from</span>(<span class="ident">value</span>: <span class="ident">ParameterizedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="self">Self</span>::<span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="ident">value</span>.<span class="ident">into_string</span>().<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> {
-            <span class="ident">Error</span>::<span class="ident">builder</span>(<span class="ident">ErrorKind</span>::<span class="ident">ConversionError</span>(<span class="string">&quot;Not a string&quot;</span>)).<span class="ident">build</span>()
-        })
+        <span class="ident">value</span>
+            .<span class="ident">into_string</span>()
+            .<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">Error</span>::<span class="ident">builder</span>(<span class="ident">ErrorKind</span>::<span class="ident">ConversionError</span>(<span class="string">&quot;Not a string&quot;</span>)).<span class="ident">build</span>())
     }
 }
 
@@ -1177,9 +1179,9 @@
     <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">Error</span>;
 
     <span class="kw">fn</span> <span class="ident">try_from</span>(<span class="ident">value</span>: <span class="ident">ParameterizedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">bool</span>, <span class="self">Self</span>::<span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="ident">value</span>.<span class="ident">as_bool</span>().<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> {
-            <span class="ident">Error</span>::<span class="ident">builder</span>(<span class="ident">ErrorKind</span>::<span class="ident">ConversionError</span>(<span class="string">&quot;Not a bool&quot;</span>)).<span class="ident">build</span>()
-        })
+        <span class="ident">value</span>
+            .<span class="ident">as_bool</span>()
+            .<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">Error</span>::<span class="ident">builder</span>(<span class="ident">ErrorKind</span>::<span class="ident">ConversionError</span>(<span class="string">&quot;Not a bool&quot;</span>)).<span class="ident">build</span>())
     }
 }
 
@@ -1188,9 +1190,9 @@
     <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">Error</span>;
 
     <span class="kw">fn</span> <span class="ident">try_from</span>(<span class="ident">value</span>: <span class="ident">ParameterizedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span>, <span class="self">Self</span>::<span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="ident">value</span>.<span class="ident">as_datetime</span>().<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> {
-            <span class="ident">Error</span>::<span class="ident">builder</span>(<span class="ident">ErrorKind</span>::<span class="ident">ConversionError</span>(<span class="string">&quot;Not a datetime&quot;</span>)).<span class="ident">build</span>()
-        })
+        <span class="ident">value</span>
+            .<span class="ident">as_datetime</span>()
+            .<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">Error</span>::<span class="ident">builder</span>(<span class="ident">ErrorKind</span>::<span class="ident">ConversionError</span>(<span class="string">&quot;Not a datetime&quot;</span>)).<span class="ident">build</span>())
     }
 }
 
