@@ -663,6 +663,22 @@
 <span id="663">663</span>
 <span id="664">664</span>
 <span id="665">665</span>
+<span id="666">666</span>
+<span id="667">667</span>
+<span id="668">668</span>
+<span id="669">669</span>
+<span id="670">670</span>
+<span id="671">671</span>
+<span id="672">672</span>
+<span id="673">673</span>
+<span id="674">674</span>
+<span id="675">675</span>
+<span id="676">676</span>
+<span id="677">677</span>
+<span id="678">678</span>
+<span id="679">679</span>
+<span id="680">680</span>
+<span id="681">681</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Visitors for reading an abstract SQL syntax tree, generating the query and</span>
 <span class="doccomment">//! gathering parameters in the right order.</span>
@@ -789,7 +805,7 @@
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">table</span>) <span class="op">=</span> <span class="ident">select</span>.<span class="ident">table</span> {
             <span class="kw">if</span> <span class="ident">select</span>.<span class="ident">columns</span>.<span class="ident">is_empty</span>() {
                 <span class="kw">match</span> <span class="ident">table</span>.<span class="ident">typ</span> {
-                    <span class="ident">TableType</span>::<span class="ident">Query</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">table</span>.<span class="ident">alias</span> {
+                    <span class="ident">TableType</span>::<span class="ident">Query</span>(<span class="kw">_</span>) <span class="op">|</span> <span class="ident">TableType</span>::<span class="ident">Values</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">table</span>.<span class="ident">alias</span> {
                         <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">alias</span>) <span class="op">=</span><span class="op">&gt;</span> {
                             <span class="self">self</span>.<span class="ident">surround_with</span>(<span class="self">Self</span>::<span class="ident">C_BACKTICK</span>, <span class="self">Self</span>::<span class="ident">C_BACKTICK</span>, <span class="op">|</span><span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">s</span><span class="op">|</span> <span class="ident">s</span>.<span class="ident">write</span>(<span class="ident">alias</span>))<span class="question-mark">?</span>;
                             <span class="self">self</span>.<span class="ident">write</span>(<span class="string">&quot;.*&quot;</span>)<span class="question-mark">?</span>;
@@ -989,6 +1005,7 @@
             <span class="ident">DatabaseValue</span>::<span class="ident">Select</span>(<span class="ident">select</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">surround_with</span>(<span class="string">&quot;(&quot;</span>, <span class="string">&quot;)&quot;</span>, <span class="op">|</span><span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">s</span><span class="op">|</span> <span class="ident">s</span>.<span class="ident">visit_select</span>(<span class="kw-2">*</span><span class="ident">select</span>)),
             <span class="ident">DatabaseValue</span>::<span class="ident">Function</span>(<span class="ident">function</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">visit_function</span>(<span class="ident">function</span>),
             <span class="ident">DatabaseValue</span>::<span class="ident">Op</span>(<span class="ident">op</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">visit_operation</span>(<span class="kw-2">*</span><span class="ident">op</span>),
+            <span class="ident">DatabaseValue</span>::<span class="ident">Values</span>(<span class="ident">values</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">visit_values</span>(<span class="kw-2">*</span><span class="ident">values</span>),
             <span class="ident">DatabaseValue</span>::<span class="ident">Asterisk</span>(<span class="ident">table</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">table</span> {
                 <span class="prelude-val">Some</span>(<span class="ident">table</span>) <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="self">self</span>.<span class="ident">visit_table</span>(<span class="kw-2">*</span><span class="ident">table</span>, <span class="bool-val">false</span>)<span class="question-mark">?</span>;
@@ -999,6 +1016,20 @@
         }
     }
 
+    <span class="kw">fn</span> <span class="ident">visit_values</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">values</span>: <span class="ident">Values</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
+        <span class="self">self</span>.<span class="ident">surround_with</span>(<span class="string">&quot;(VALUES &quot;</span>, <span class="string">&quot;)&quot;</span>, <span class="op">|</span><span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">s</span><span class="op">|</span> {
+            <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">values</span>.<span class="ident">len</span>();
+            <span class="kw">for</span> (<span class="ident">i</span>, <span class="ident">row</span>) <span class="kw">in</span> <span class="ident">values</span>.<span class="ident">into_iter</span>().<span class="ident">enumerate</span>() {
+                <span class="ident">s</span>.<span class="ident">visit_row</span>(<span class="ident">row</span>)<span class="question-mark">?</span>;
+
+                <span class="kw">if</span> <span class="ident">i</span> <span class="op">&lt;</span> (<span class="ident">len</span> <span class="op">-</span> <span class="number">1</span>) {
+                    <span class="ident">s</span>.<span class="ident">write</span>(<span class="string">&quot;,&quot;</span>)<span class="question-mark">?</span>;
+                }
+            }
+            <span class="prelude-val">Ok</span>(())
+        })
+    }
+
     <span class="doccomment">/// A database table identifier</span>
     <span class="kw">fn</span> <span class="ident">visit_table</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">table</span>: <span class="ident">Table</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>, <span class="ident">include_alias</span>: <span class="ident">bool</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
         <span class="kw">match</span> <span class="ident">table</span>.<span class="ident">typ</span> {
@@ -1006,6 +1037,7 @@
                 <span class="prelude-val">Some</span>(<span class="ident">database</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">delimited_identifiers</span>(<span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">database</span>, <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">table_name</span>])<span class="question-mark">?</span>,
                 <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">delimited_identifiers</span>(<span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">table_name</span>])<span class="question-mark">?</span>,
             },
+            <span class="ident">TableType</span>::<span class="ident">Values</span>(<span class="ident">values</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">visit_values</span>(<span class="ident">values</span>)<span class="question-mark">?</span>,
             <span class="ident">TableType</span>::<span class="ident">Query</span>(<span class="ident">select</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">surround_with</span>(<span class="string">&quot;(&quot;</span>, <span class="string">&quot;)&quot;</span>, <span class="op">|</span><span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">s</span><span class="op">|</span> <span class="ident">s</span>.<span class="ident">visit_select</span>(<span class="ident">select</span>))<span class="question-mark">?</span>,
         };
 

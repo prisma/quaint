@@ -7,11 +7,11 @@
 <span id="7">7</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! A &quot;prelude&quot; for users of the `quaint` crate.</span>
-<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">val</span>, <span class="ident">col</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">ast</span>::<span class="kw-2">*</span>;
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sqlite&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mysql&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;postgresql&quot;</span>))]</span>
 <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">connector</span>::{
     <span class="ident">ConnectionInfo</span>, <span class="ident">Queryable</span>, <span class="ident">ResultRow</span>, <span class="ident">ResultSet</span>, <span class="ident">SqlFamily</span>, <span class="ident">Transaction</span>, <span class="ident">TransactionCapable</span>, <span class="ident">DBIO</span>,
 };
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">col</span>, <span class="ident">val</span>, <span class="ident">values</span>};
 </pre></div>
 </section><section id="search" class="content hidden"></section><section class="footer"></section><script>window.rootPath = "../../";window.currentCrate = "quaint";</script><script src="../../aliases.js"></script><script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script><script defer src="../../search-index.js"></script></body></html>

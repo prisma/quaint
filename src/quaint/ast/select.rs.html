@@ -431,6 +431,28 @@
 <span id="431">431</span>
 <span id="432">432</span>
 <span id="433">433</span>
+<span id="434">434</span>
+<span id="435">435</span>
+<span id="436">436</span>
+<span id="437">437</span>
+<span id="438">438</span>
+<span id="439">439</span>
+<span id="440">440</span>
+<span id="441">441</span>
+<span id="442">442</span>
+<span id="443">443</span>
+<span id="444">444</span>
+<span id="445">445</span>
+<span id="446">446</span>
+<span id="447">447</span>
+<span id="448">448</span>
+<span id="449">449</span>
+<span id="450">450</span>
+<span id="451">451</span>
+<span id="452">452</span>
+<span id="453">453</span>
+<span id="454">454</span>
+<span id="455">455</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">ast</span>::<span class="kw-2">*</span>;
 
@@ -483,7 +505,7 @@
     <span class="doccomment">/// assert_eq!(&quot;SELECT `crm`.`users`.* FROM `crm`.`users`&quot;, sql);</span>
     <span class="doccomment">/// ```</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// It is also possible to use a nested `SELECT`.</span>
+    <span class="doccomment">/// Selecting from a nested `SELECT`.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// ```rust</span>
     <span class="doccomment">/// # use quaint::{ast::*, visitor::{Visitor, Sqlite}};</span>
@@ -493,6 +515,28 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// assert_eq!(&quot;SELECT `num`.* FROM (SELECT ?) AS `num`&quot;, sql);</span>
     <span class="doccomment">/// assert_eq!(vec![ParameterizedValue::from(1)], params);</span>
+    <span class="doccomment">/// ```</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Selecting from a set of values.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// ```rust</span>
+    <span class="doccomment">/// # use quaint::{ast::*, visitor::{Visitor, Sqlite}};</span>
+    <span class="doccomment">/// # use quaint::values;</span>
+    <span class="doccomment">/// let expected_sql = &quot;SELECT `vals`.* FROM (VALUES (?,?),(?,?)) AS `vals`&quot;;</span>
+    <span class="doccomment">/// let values = Table::from(values!((1, 2), (3, 4))).alias(&quot;vals&quot;);</span>
+    <span class="doccomment">/// let query = Select::from_table(values);</span>
+    <span class="doccomment">/// let (sql, params) = Sqlite::build(query);</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// assert_eq!(expected_sql, sql);</span>
+    <span class="doccomment">/// assert_eq!(</span>
+    <span class="doccomment">///     vec![</span>
+    <span class="doccomment">///         ParameterizedValue::Integer(1),</span>
+    <span class="doccomment">///         ParameterizedValue::Integer(2),</span>
+    <span class="doccomment">///         ParameterizedValue::Integer(3),</span>
+    <span class="doccomment">///         ParameterizedValue::Integer(4),</span>
+    <span class="doccomment">///     ],</span>
+    <span class="doccomment">///     params</span>
+    <span class="doccomment">/// );</span>
     <span class="doccomment">/// ```</span>
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_table</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">table</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>
