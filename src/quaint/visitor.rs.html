@@ -695,6 +695,20 @@
 <span id="695">695</span>
 <span id="696">696</span>
 <span id="697">697</span>
+<span id="698">698</span>
+<span id="699">699</span>
+<span id="700">700</span>
+<span id="701">701</span>
+<span id="702">702</span>
+<span id="703">703</span>
+<span id="704">704</span>
+<span id="705">705</span>
+<span id="706">706</span>
+<span id="707">707</span>
+<span id="708">708</span>
+<span id="709">709</span>
+<span id="710">710</span>
+<span id="711">711</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Visitors for reading an abstract SQL syntax tree, generating the query and</span>
 <span class="doccomment">//! gathering parameters in the right order.</span>
@@ -1187,19 +1201,33 @@
             }
             <span class="ident">Compare</span>::<span class="ident">In</span>(<span class="ident">left</span>, <span class="ident">right</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="kw-2">*</span><span class="ident">right</span> {
                 <span class="ident">DatabaseValue</span>::<span class="ident">Row</span>(<span class="kw-2">ref</span> <span class="ident">row</span>) <span class="kw">if</span> <span class="ident">row</span>.<span class="ident">is_empty</span>() <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">write</span>(<span class="string">&quot;1=0&quot;</span>),
-                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="self">self</span>.<span class="ident">visit_database_value</span>(<span class="kw-2">*</span><span class="ident">left</span>)<span class="question-mark">?</span>;
-                    <span class="self">self</span>.<span class="ident">write</span>(<span class="string">&quot; IN &quot;</span>)<span class="question-mark">?</span>;
-                    <span class="self">self</span>.<span class="ident">visit_database_value</span>(<span class="kw-2">*</span><span class="ident">right</span>)
-                }
+                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="kw-2">*</span><span class="ident">right</span> {
+                    <span class="ident">DatabaseValue</span>::<span class="ident">Parameterized</span>(<span class="ident">pv</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="self">self</span>.<span class="ident">visit_database_value</span>(<span class="kw-2">*</span><span class="ident">left</span>)<span class="question-mark">?</span>;
+                        <span class="self">self</span>.<span class="ident">write</span>(<span class="string">&quot; = &quot;</span>)<span class="question-mark">?</span>;
+                        <span class="self">self</span>.<span class="ident">visit_parameterized</span>(<span class="ident">pv</span>)
+                    }
+                    <span class="ident">dbv</span> <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="self">self</span>.<span class="ident">visit_database_value</span>(<span class="kw-2">*</span><span class="ident">left</span>)<span class="question-mark">?</span>;
+                        <span class="self">self</span>.<span class="ident">write</span>(<span class="string">&quot; IN &quot;</span>)<span class="question-mark">?</span>;
+                        <span class="self">self</span>.<span class="ident">visit_database_value</span>(<span class="ident">dbv</span>)
+                    }
+                },
             },
             <span class="ident">Compare</span>::<span class="ident">NotIn</span>(<span class="ident">left</span>, <span class="ident">right</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="kw-2">*</span><span class="ident">right</span> {
                 <span class="ident">DatabaseValue</span>::<span class="ident">Row</span>(<span class="kw-2">ref</span> <span class="ident">row</span>) <span class="kw">if</span> <span class="ident">row</span>.<span class="ident">is_empty</span>() <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">write</span>(<span class="string">&quot;1=1&quot;</span>),
-                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="self">self</span>.<span class="ident">visit_database_value</span>(<span class="kw-2">*</span><span class="ident">left</span>)<span class="question-mark">?</span>;
-                    <span class="self">self</span>.<span class="ident">write</span>(<span class="string">&quot; NOT IN &quot;</span>)<span class="question-mark">?</span>;
-                    <span class="self">self</span>.<span class="ident">visit_database_value</span>(<span class="kw-2">*</span><span class="ident">right</span>)
-                }
+                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="kw-2">*</span><span class="ident">right</span> {
+                    <span class="ident">DatabaseValue</span>::<span class="ident">Parameterized</span>(<span class="ident">pv</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="self">self</span>.<span class="ident">visit_database_value</span>(<span class="kw-2">*</span><span class="ident">left</span>)<span class="question-mark">?</span>;
+                        <span class="self">self</span>.<span class="ident">write</span>(<span class="string">&quot; &lt;&gt; &quot;</span>)<span class="question-mark">?</span>;
+                        <span class="self">self</span>.<span class="ident">visit_parameterized</span>(<span class="ident">pv</span>)
+                    }
+                    <span class="ident">dbv</span> <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="self">self</span>.<span class="ident">visit_database_value</span>(<span class="kw-2">*</span><span class="ident">left</span>)<span class="question-mark">?</span>;
+                        <span class="self">self</span>.<span class="ident">write</span>(<span class="string">&quot; NOT IN &quot;</span>)<span class="question-mark">?</span>;
+                        <span class="self">self</span>.<span class="ident">visit_database_value</span>(<span class="ident">dbv</span>)
+                    }
+                },
             },
             <span class="ident">Compare</span>::<span class="ident">Like</span>(<span class="ident">left</span>, <span class="ident">right</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="self">self</span>.<span class="ident">visit_database_value</span>(<span class="kw-2">*</span><span class="ident">left</span>)<span class="question-mark">?</span>;
