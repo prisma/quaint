@@ -76,7 +76,7 @@ syntax for the database.</p>
 <span class="kw">let</span> (<span class="ident">sql_str</span>, <span class="ident">params</span>) <span class="op">=</span> <span class="ident">Sqlite</span>::<span class="ident">build</span>(<span class="ident">query</span>);
 
 <span class="macro">assert_eq</span><span class="macro">!</span>(
-    <span class="string">&quot;SELECT `naukio`.* FROM `naukio` WHERE ((`word` = ? AND `age` &lt; ?) AND `paw` = ?)&quot;</span>,
+    <span class="string">&quot;SELECT `naukio`.* FROM `naukio` WHERE (`word` = ? AND `age` &lt; ? AND `paw` = ?)&quot;</span>,
     <span class="ident">sql_str</span>,
 );
 

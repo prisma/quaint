@@ -267,8 +267,6 @@
 <span id="267">267</span>
 <span id="268">268</span>
 <span id="269">269</span>
-<span id="270">270</span>
-<span id="271">271</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">error</span>::{<span class="ident">Error</span>, <span class="ident">ErrorKind</span>};
 <span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">borrow</span>::<span class="ident">Cow</span>, <span class="ident">fmt</span>};
@@ -325,10 +323,8 @@
         <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="ident">url_result</span><span class="question-mark">?</span>;
 
         <span class="kw">let</span> <span class="ident">sql_family</span> <span class="op">=</span> <span class="ident">SqlFamily</span>::<span class="ident">from_scheme</span>(<span class="ident">url</span>.<span class="ident">scheme</span>()).<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> {
-            <span class="kw">let</span> <span class="ident">kind</span> <span class="op">=</span> <span class="ident">ErrorKind</span>::<span class="ident">DatabaseUrlIsInvalid</span>(<span class="macro">format</span><span class="macro">!</span>(
-                <span class="string">&quot;{} is not a supported database URL scheme.&quot;</span>,
-                <span class="ident">url</span>.<span class="ident">scheme</span>())
-            );
+            <span class="kw">let</span> <span class="ident">kind</span> <span class="op">=</span>
+                <span class="ident">ErrorKind</span>::<span class="ident">DatabaseUrlIsInvalid</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{} is not a supported database URL scheme.&quot;</span>, <span class="ident">url</span>.<span class="ident">scheme</span>()));
 
             <span class="ident">Error</span>::<span class="ident">builder</span>(<span class="ident">kind</span>).<span class="ident">build</span>()
         })<span class="question-mark">?</span>;

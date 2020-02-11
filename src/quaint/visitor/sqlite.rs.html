@@ -529,10 +529,6 @@
 <span id="529">529</span>
 <span id="530">530</span>
 <span id="531">531</span>
-<span id="532">532</span>
-<span id="533">533</span>
-<span id="534">534</span>
-<span id="535">535</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">ast</span>::<span class="kw-2">*</span>, <span class="ident">visitor</span>::<span class="ident">Visitor</span>};
 
@@ -843,7 +839,7 @@
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_select_and</span>() {
-        <span class="kw">let</span> <span class="ident">expected_sql</span> <span class="op">=</span> <span class="string">&quot;SELECT `naukio`.* FROM `naukio` WHERE ((`word` = ? AND `age` &lt; ?) AND `paw` = ?)&quot;</span>;
+        <span class="kw">let</span> <span class="ident">expected_sql</span> <span class="op">=</span> <span class="string">&quot;SELECT `naukio`.* FROM `naukio` WHERE (`word` = ? AND `age` &lt; ? AND `paw` = ?)&quot;</span>;
 
         <span class="kw">let</span> <span class="ident">expected_params</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[
             <span class="ident">ParameterizedValue</span>::<span class="ident">Text</span>(<span class="ident">Cow</span>::<span class="ident">from</span>(<span class="string">&quot;meow&quot;</span>)),
@@ -935,11 +931,7 @@
             <span class="ident">ParameterizedValue</span>::<span class="ident">Text</span>(<span class="ident">Cow</span>::<span class="ident">from</span>(<span class="string">&quot;warm&quot;</span>)),
         ];
 
-        <span class="kw">let</span> <span class="ident">conditions</span> <span class="op">=</span> <span class="ident">ConditionTree</span>::<span class="ident">not</span>(<span class="ident">ConditionTree</span>::<span class="ident">and</span>(
-            <span class="ident">ConditionTree</span>::<span class="ident">or</span>(<span class="string">&quot;word&quot;</span>.<span class="ident">equals</span>(<span class="string">&quot;meow&quot;</span>), <span class="string">&quot;age&quot;</span>.<span class="ident">less_than</span>(<span class="number">10</span>)),
-            <span class="string">&quot;paw&quot;</span>.<span class="ident">equals</span>(<span class="string">&quot;warm&quot;</span>),
-        ));
-
+        <span class="kw">let</span> <span class="ident">conditions</span> <span class="op">=</span> <span class="ident">ConditionTree</span>::<span class="ident">not</span>(<span class="string">&quot;word&quot;</span>.<span class="ident">equals</span>(<span class="string">&quot;meow&quot;</span>).<span class="ident">or</span>(<span class="string">&quot;age&quot;</span>.<span class="ident">less_than</span>(<span class="number">10</span>)).<span class="ident">and</span>(<span class="string">&quot;paw&quot;</span>.<span class="ident">equals</span>(<span class="string">&quot;warm&quot;</span>)));
         <span class="kw">let</span> <span class="ident">query</span> <span class="op">=</span> <span class="ident">Select</span>::<span class="ident">from_table</span>(<span class="string">&quot;naukio&quot;</span>).<span class="ident">so_that</span>(<span class="ident">conditions</span>);
 
         <span class="kw">let</span> (<span class="ident">sql</span>, <span class="ident">params</span>) <span class="op">=</span> <span class="ident">Sqlite</span>::<span class="ident">build</span>(<span class="ident">query</span>);

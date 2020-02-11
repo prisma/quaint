@@ -679,6 +679,22 @@
 <span id="679">679</span>
 <span id="680">680</span>
 <span id="681">681</span>
+<span id="682">682</span>
+<span id="683">683</span>
+<span id="684">684</span>
+<span id="685">685</span>
+<span id="686">686</span>
+<span id="687">687</span>
+<span id="688">688</span>
+<span id="689">689</span>
+<span id="690">690</span>
+<span id="691">691</span>
+<span id="692">692</span>
+<span id="693">693</span>
+<span id="694">694</span>
+<span id="695">695</span>
+<span id="696">696</span>
+<span id="697">697</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Visitors for reading an abstract SQL syntax tree, generating the query and</span>
 <span class="doccomment">//! gathering parameters in the right order.</span>
@@ -1090,15 +1106,31 @@
     <span class="doccomment">/// A walk through the query conditions</span>
     <span class="kw">fn</span> <span class="ident">visit_conditions</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">tree</span>: <span class="ident">ConditionTree</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
         <span class="kw">match</span> <span class="ident">tree</span> {
-            <span class="ident">ConditionTree</span>::<span class="ident">And</span>(<span class="ident">left</span>, <span class="ident">right</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">surround_with</span>(<span class="string">&quot;(&quot;</span>, <span class="string">&quot;)&quot;</span>, <span class="op">|</span><span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">s</span><span class="op">|</span> {
-                <span class="ident">s</span>.<span class="ident">visit_expression</span>(<span class="kw-2">*</span><span class="ident">left</span>)<span class="question-mark">?</span>;
-                <span class="ident">s</span>.<span class="ident">write</span>(<span class="string">&quot; AND &quot;</span>)<span class="question-mark">?</span>;
-                <span class="ident">s</span>.<span class="ident">visit_expression</span>(<span class="kw-2">*</span><span class="ident">right</span>)
+            <span class="ident">ConditionTree</span>::<span class="ident">And</span>(<span class="ident">expressions</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">surround_with</span>(<span class="string">&quot;(&quot;</span>, <span class="string">&quot;)&quot;</span>, <span class="op">|</span><span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">s</span><span class="op">|</span> {
+                <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">expressions</span>.<span class="ident">len</span>();
+
+                <span class="kw">for</span> (<span class="ident">i</span>, <span class="ident">expr</span>) <span class="kw">in</span> <span class="ident">expressions</span>.<span class="ident">into_iter</span>().<span class="ident">enumerate</span>() {
+                    <span class="ident">s</span>.<span class="ident">visit_expression</span>(<span class="ident">expr</span>)<span class="question-mark">?</span>;
+
+                    <span class="kw">if</span> <span class="ident">i</span> <span class="op">&lt;</span> (<span class="ident">len</span> <span class="op">-</span> <span class="number">1</span>) {
+                        <span class="ident">s</span>.<span class="ident">write</span>(<span class="string">&quot; AND &quot;</span>)<span class="question-mark">?</span>;
+                    }
+                }
+
+                <span class="prelude-val">Ok</span>(())
             }),
-            <span class="ident">ConditionTree</span>::<span class="ident">Or</span>(<span class="ident">left</span>, <span class="ident">right</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">surround_with</span>(<span class="string">&quot;(&quot;</span>, <span class="string">&quot;)&quot;</span>, <span class="op">|</span><span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">s</span><span class="op">|</span> {
-                <span class="ident">s</span>.<span class="ident">visit_expression</span>(<span class="kw-2">*</span><span class="ident">left</span>)<span class="question-mark">?</span>;
-                <span class="ident">s</span>.<span class="ident">write</span>(<span class="string">&quot; OR &quot;</span>)<span class="question-mark">?</span>;
-                <span class="ident">s</span>.<span class="ident">visit_expression</span>(<span class="kw-2">*</span><span class="ident">right</span>)
+            <span class="ident">ConditionTree</span>::<span class="ident">Or</span>(<span class="ident">expressions</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">surround_with</span>(<span class="string">&quot;(&quot;</span>, <span class="string">&quot;)&quot;</span>, <span class="op">|</span><span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">s</span><span class="op">|</span> {
+                <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">expressions</span>.<span class="ident">len</span>();
+
+                <span class="kw">for</span> (<span class="ident">i</span>, <span class="ident">expr</span>) <span class="kw">in</span> <span class="ident">expressions</span>.<span class="ident">into_iter</span>().<span class="ident">enumerate</span>() {
+                    <span class="ident">s</span>.<span class="ident">visit_expression</span>(<span class="ident">expr</span>)<span class="question-mark">?</span>;
+
+                    <span class="kw">if</span> <span class="ident">i</span> <span class="op">&lt;</span> (<span class="ident">len</span> <span class="op">-</span> <span class="number">1</span>) {
+                        <span class="ident">s</span>.<span class="ident">write</span>(<span class="string">&quot; OR &quot;</span>)<span class="question-mark">?</span>;
+                    }
+                }
+
+                <span class="prelude-val">Ok</span>(())
             }),
             <span class="ident">ConditionTree</span>::<span class="ident">Not</span>(<span class="ident">expression</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">surround_with</span>(<span class="string">&quot;(&quot;</span>, <span class="string">&quot;)&quot;</span>, <span class="op">|</span><span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">s</span><span class="op">|</span> {
                 <span class="ident">s</span>.<span class="ident">write</span>(<span class="string">&quot;NOT &quot;</span>)<span class="question-mark">?</span>;
