@@ -201,6 +201,11 @@
 <span id="201">201</span>
 <span id="202">202</span>
 <span id="203">203</span>
+<span id="204">204</span>
+<span id="205">205</span>
+<span id="206">206</span>
+<span id="207">207</span>
+<span id="208">208</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Error module</span>
 <span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">fmt</span>, <span class="ident">io</span>, <span class="ident">num</span>};
@@ -210,6 +215,7 @@
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">DatabaseConstraint</span> {
     <span class="ident">Fields</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>),
     <span class="ident">Index</span>(<span class="ident">String</span>),
+    <span class="ident">ForeignKey</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">fmt</span>::<span class="ident">Display</span> <span class="kw">for</span> <span class="ident">DatabaseConstraint</span> {
@@ -217,6 +223,7 @@
         <span class="kw">match</span> <span class="self">self</span> {
             <span class="self">Self</span>::<span class="ident">Fields</span>(<span class="ident">fields</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;({})&quot;</span>, <span class="ident">fields</span>.<span class="ident">join</span>(<span class="string">&quot;,&quot;</span>)),
             <span class="self">Self</span>::<span class="ident">Index</span>(<span class="ident">index</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">index</span>.<span class="ident">fmt</span>(<span class="ident">f</span>),
+            <span class="self">Self</span>::<span class="ident">ForeignKey</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;FOREIGN KEY&quot;</span>.<span class="ident">fmt</span>(<span class="ident">f</span>),
         }
     }
 }
@@ -312,6 +319,9 @@
 
     <span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;Null constraint failed: {}&quot;</span>, <span class="ident">constraint</span>)]</span>
     <span class="ident">NullConstraintViolation</span> { <span class="ident">constraint</span>: <span class="ident">DatabaseConstraint</span> },
+
+    <span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;Foreign key constraint failed: {}&quot;</span>, <span class="ident">constraint</span>)]</span>
+    <span class="ident">ForeignKeyConstraintViolation</span> { <span class="ident">constraint</span>: <span class="ident">DatabaseConstraint</span> },
 
     <span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;Error creating a database connection.&quot;</span>)]</span>
     <span class="ident">ConnectionError</span>(<span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">std</span>::<span class="ident">error</span>::<span class="ident">Error</span> <span class="op">+</span> <span class="ident">Send</span> <span class="op">+</span> <span class="ident">Sync</span> <span class="op">+</span> <span class="lifetime">&#39;static</span><span class="op">&gt;</span>),
