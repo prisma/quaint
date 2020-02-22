@@ -731,8 +731,6 @@
 <span id="731">731</span>
 <span id="732">732</span>
 <span id="733">733</span>
-<span id="734">734</span>
-<span id="735">735</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">mod</span> <span class="ident">conversion</span>;
 <span class="kw">mod</span> <span class="ident">error</span>;
@@ -1192,13 +1190,11 @@
 <span class="kw">mod</span> <span class="ident">tests</span> {
     <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
     <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">connector</span>::<span class="ident">Queryable</span>, <span class="ident">error</span>::<span class="kw-2">*</span>, <span class="ident">single</span>::<span class="ident">Quaint</span>};
-    <span class="kw">use</span> <span class="ident">lazy_static</span>::<span class="ident">lazy_static</span>;
+    <span class="kw">use</span> <span class="ident">once_cell</span>::<span class="ident">sync</span>::<span class="ident">Lazy</span>;
     <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">env</span>;
     <span class="kw">use</span> <span class="ident">url</span>::<span class="ident">Url</span>;
 
-    <span class="macro">lazy_static</span><span class="macro">!</span> {
-        <span class="kw">static</span> <span class="kw-2">ref</span> <span class="ident">CONN_STR</span>: <span class="ident">String</span> <span class="op">=</span> <span class="ident">env</span>::<span class="ident">var</span>(<span class="string">&quot;TEST_PSQL&quot;</span>).<span class="ident">expect</span>(<span class="string">&quot;TEST_PSQL env var&quot;</span>);
-    }
+    <span class="kw">static</span> <span class="ident">CONN_STR</span>: <span class="ident">Lazy</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Lazy</span>::<span class="ident">new</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">env</span>::<span class="ident">var</span>(<span class="string">&quot;TEST_PSQL&quot;</span>).<span class="ident">expect</span>(<span class="string">&quot;TEST_PSQL env var&quot;</span>));
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">should_parse_socket_url</span>() {

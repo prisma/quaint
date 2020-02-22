@@ -507,8 +507,6 @@
 <span id="507">507</span>
 <span id="508">508</span>
 <span id="509">509</span>
-<span id="510">510</span>
-<span id="511">511</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">mod</span> <span class="ident">conversion</span>;
 <span class="kw">mod</span> <span class="ident">error</span>;
@@ -836,13 +834,11 @@
 <span class="kw">mod</span> <span class="ident">tests</span> {
     <span class="kw">use</span> <span class="kw">super</span>::<span class="ident">MysqlUrl</span>;
     <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">connector</span>::<span class="ident">Queryable</span>, <span class="ident">error</span>::<span class="kw-2">*</span>, <span class="ident">single</span>::<span class="ident">Quaint</span>};
-    <span class="kw">use</span> <span class="ident">lazy_static</span>::<span class="ident">lazy_static</span>;
+    <span class="kw">use</span> <span class="ident">once_cell</span>::<span class="ident">sync</span>::<span class="ident">Lazy</span>;
     <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">env</span>;
     <span class="kw">use</span> <span class="ident">url</span>::<span class="ident">Url</span>;
 
-    <span class="macro">lazy_static</span><span class="macro">!</span> {
-        <span class="kw">static</span> <span class="kw-2">ref</span> <span class="ident">CONN_STR</span>: <span class="ident">String</span> <span class="op">=</span> <span class="ident">env</span>::<span class="ident">var</span>(<span class="string">&quot;TEST_MYSQL&quot;</span>).<span class="ident">expect</span>(<span class="string">&quot;TEST_MYSQL env var&quot;</span>);
-    }
+    <span class="kw">static</span> <span class="ident">CONN_STR</span>: <span class="ident">Lazy</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Lazy</span>::<span class="ident">new</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">env</span>::<span class="ident">var</span>(<span class="string">&quot;TEST_MYSQL&quot;</span>).<span class="ident">expect</span>(<span class="string">&quot;TEST_MYSQL env var&quot;</span>));
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">should_parse_socket_url</span>() {
