@@ -514,14 +514,16 @@ mod tests {
         id       int4    PRIMARY KEY     NOT NULL,
         name     text    NOT NULL,
         age      int4    NOT NULL,
-        salary   float4
+        salary   float4,
+        ip6      inet,
+        prev_ips inet[]
     );
     "#;
 
     #[allow(unused)]
     const CREATE_USER: &str = r#"
-    INSERT INTO "user" (id, name, age, salary)
-    VALUES (1, 'Joe', 27, 20000.00 );
+    INSERT INTO "user" (id, name, age, salary, ip6, prev_ips)
+    VALUES (1, 'Joe', 27, 20000.00, 'fe80::31b0:b58:3df3:558b', '{127.0.0.1, 127.0.0.2}' );
     "#;
 
     #[allow(unused)]
@@ -546,6 +548,18 @@ mod tests {
         assert_eq!(row["age"].as_i64(), Some(27));
 
         assert_eq!(row["salary"].as_f64(), Some(20000.0));
+
+        assert_eq!(
+            row["ip6"],
+            ParameterizedValue::IpAddress("fe80::31b0:b58:3df3:558b".parse().unwrap())
+        );
+        assert_eq!(
+            row["prev_ips"],
+            ParameterizedValue::Array(vec![
+                ParameterizedValue::IpAddress("127.0.0.1".parse().unwrap()),
+                ParameterizedValue::IpAddress("127.0.0.2".parse().unwrap())
+            ])
+        );
     }
 
     #[tokio::test]

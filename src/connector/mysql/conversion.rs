@@ -105,6 +105,8 @@ impl<'a> From<ParameterizedValue<'a>> for MyValue {
                 dt.second() as u8,
                 dt.timestamp_subsec_micros(),
             ),
+            #[cfg(feature = "postgresql")]
+            ParameterizedValue::IpAddress(ip_addr) => MyValue::Bytes(ip_addr.to_string().into_bytes()),
         }
     }
 }

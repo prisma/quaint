@@ -37,6 +37,8 @@ pub enum ParameterizedValue<'a> {
     Uuid(Uuid),
     #[cfg(feature = "chrono-0_4")]
     DateTime(DateTime<Utc>),
+    #[cfg(feature = "postgresql")]
+    IpAddress(std::net::IpAddr),
 }
 
 pub(crate) struct Params<'a>(pub(crate) &'a [ParameterizedValue<'a>]);
@@ -87,6 +89,8 @@ impl<'a> fmt::Display for ParameterizedValue<'a> {
             ParameterizedValue::Uuid(val) => write!(f, "{}", val),
             #[cfg(feature = "chrono-0_4")]
             ParameterizedValue::DateTime(val) => write!(f, "{}", val),
+            #[cfg(feature = "postgresql")]
+            ParameterizedValue::IpAddress(ip_addr) => ip_addr.fmt(f),
         }
     }
 }
@@ -115,6 +119,8 @@ impl<'a> From<ParameterizedValue<'a>> for Value {
             ParameterizedValue::Uuid(u) => Value::String(u.to_hyphenated().to_string()),
             #[cfg(feature = "chrono-0_4")]
             ParameterizedValue::DateTime(dt) => Value::String(dt.to_rfc3339()),
+            #[cfg(feature = "postgresql")]
+            ParameterizedValue::IpAddress(ip_addr) => Value::String(ip_addr.to_string()),
         }
     }
 }
@@ -261,6 +267,19 @@ impl<'a> ParameterizedValue<'a> {
     pub fn as_datetime(&self) -> Option<DateTime<Utc>> {
         match self {
             ParameterizedValue::DateTime(dt) => Some(*dt),
+            _ => None,
+        }
+    }
+
+    #[cfg(feature = "postgresql")]
+    pub fn is_ip_address(&self) -> bool {
+        self.as_ip_address().is_some()
+    }
+
+    #[cfg(feature = "postgresql")]
+    pub fn as_ip_address(&self) -> Option<std::net::IpAddr> {
+        match self {
+            ParameterizedValue::IpAddress(ip_addr) => Some(*ip_addr),
             _ => None,
         }
     }

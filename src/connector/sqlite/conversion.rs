@@ -68,6 +68,9 @@ impl<'a> ToSql for ParameterizedValue<'a> {
             ParameterizedValue::Uuid(value) => ToSqlOutput::from(value.to_hyphenated().to_string()),
             #[cfg(feature = "chrono-0_4")]
             ParameterizedValue::DateTime(value) => ToSqlOutput::from(value.timestamp_millis()),
+
+            #[cfg(feature = "postgresql")]
+            ParameterizedValue::IpAddress(ip_addr) => ToSqlOutput::from(ip_addr.to_string().into_bytes()),
         };
 
         Ok(value)

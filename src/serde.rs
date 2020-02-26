@@ -132,6 +132,9 @@ impl<'de> Deserializer<'de> for ParameterizedValueDeserializer<'de> {
                 let deserializer = serde::de::value::SeqDeserializer::new(values.into_iter());
                 visitor.visit_seq(deserializer)
             }
+
+            #[cfg(feature = "postgresql")]
+            ParameterizedValue::IpAddress(ip_addr) => visitor.visit_string(format!("{}", ip_addr)),
         }
     }
 

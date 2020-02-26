@@ -85,6 +85,10 @@ impl GetRow for PostgresRow {
                     }
                     None => ParameterizedValue::Null,
                 },
+                PostgresType::INET => match row.try_get(i)? {
+                    Some(val) => ParameterizedValue::IpAddress(val),
+                    None => ParameterizedValue::Null,
+                },
                 #[cfg(feature = "chrono-0_4")]
                 PostgresType::TIMESTAMP => match row.try_get(i)? {
                     Some(val) => {
@@ -206,6 +210,13 @@ impl GetRow for PostgresRow {
                         None => ParameterizedValue::Null,
                     }
                 }
+                #[cfg(feature = "array")]
+                PostgresType::INET_ARRAY => match row.try_get::<_, Option<Vec<std::net::IpAddr>>>(i)? {
+                    Some(vals) => {
+                        ParameterizedValue::Array(vals.into_iter().map(ParameterizedValue::IpAddress).collect())
+                    }
+                    None => ParameterizedValue::Null,
+                },
                 PostgresType::OID => match row.try_get(i)? {
                     Some(val) => {
                         let val: u32 = val;
@@ -312,6 +323,8 @@ impl<'a> ToSql for ParameterizedValue<'a> {
             ParameterizedValue::Uuid(value) => value.to_sql(ty, out),
             #[cfg(feature = "chrono-0_4")]
             ParameterizedValue::DateTime(value) => value.naive_utc().to_sql(ty, out),
+            #[cfg(feature = "postgresql")]
+            ParameterizedValue::IpAddress(ip_addr) => ip_addr.to_sql(ty, out),
         }
     }
 
@@ -346,6 +359,7 @@ impl<'a> ToSql for ParameterizedValue<'a> {
             }
             ParameterizedValue::Boolean(boo) => boo.to_sql_checked(ty, out),
             ParameterizedValue::Char(c) => (*c as i8).to_sql_checked(ty, out),
+            ParameterizedValue::IpAddress(ip_addr) => ip_addr.to_sql_checked(ty, out),
             #[cfg(feature = "array")]
             ParameterizedValue::Array(vec) => vec.to_sql_checked(ty, out),
             #[cfg(feature = "json-1")]
