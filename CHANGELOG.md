@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.1.13
+
+- Correct position for GROUP BY if having ORDER BY in the same clause
+
 ## v0.1.12
 
 - Add a ParameterizedValue::Enum in order to support writing to native enum columns in Postgres
