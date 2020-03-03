@@ -275,6 +275,7 @@
 <span id="275">275</span>
 <span id="276">276</span>
 <span id="277">277</span>
+<span id="278">278</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Convert results from the database into any type implementing `serde::Deserialize`.</span>
 
@@ -386,6 +387,7 @@
 
         <span class="kw">match</span> <span class="self">self</span>.<span class="number">0</span> {
             <span class="ident">ParameterizedValue</span>::<span class="ident">Text</span>(<span class="ident">s</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">visitor</span>.<span class="ident">visit_string</span>(<span class="ident">s</span>.<span class="ident">into_owned</span>()),
+            <span class="ident">ParameterizedValue</span>::<span class="ident">Bytes</span>(<span class="ident">bytes</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">visitor</span>.<span class="ident">visit_bytes</span>(<span class="ident">bytes</span>.<span class="ident">as_ref</span>()),
             <span class="ident">ParameterizedValue</span>::<span class="ident">Enum</span>(<span class="ident">s</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">visitor</span>.<span class="ident">visit_string</span>(<span class="ident">s</span>.<span class="ident">into_owned</span>()),
             <span class="ident">ParameterizedValue</span>::<span class="ident">Integer</span>(<span class="ident">i</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">visitor</span>.<span class="ident">visit_i64</span>(<span class="ident">i</span>),
             <span class="ident">ParameterizedValue</span>::<span class="ident">Boolean</span>(<span class="ident">b</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">visitor</span>.<span class="ident">visit_bool</span>(<span class="ident">b</span>),
