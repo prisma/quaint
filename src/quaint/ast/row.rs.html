@@ -260,6 +260,10 @@
 <span id="260">260</span>
 <span id="261">261</span>
 <span id="262">262</span>
+<span id="263">263</span>
+<span id="264">264</span>
+<span id="265">265</span>
+<span id="266">266</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">ast</span>::{<span class="ident">Comparable</span>, <span class="ident">Compare</span>, <span class="ident">DatabaseValue</span>};
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">borrow</span>::<span class="ident">Cow</span>;
@@ -274,6 +278,10 @@
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="ident">Row</span> { <span class="ident">values</span>: <span class="ident">Vec</span>::<span class="ident">new</span>() }
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with_capacity</span>(<span class="ident">capacity</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+        <span class="ident">Row</span> { <span class="ident">values</span>: <span class="ident">Vec</span>::<span class="ident">with_capacity</span>(<span class="ident">capacity</span>) }
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">push</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">value</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>
@@ -305,7 +313,7 @@
 {
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">from</span>((<span class="ident">val</span>,): (<span class="ident">A</span>,)) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-        <span class="ident">Row</span>::<span class="ident">new</span>().<span class="ident">push</span>(<span class="ident">val</span>)
+        <span class="ident">Row</span>::<span class="ident">with_capacity</span>(<span class="number">1</span>).<span class="ident">push</span>(<span class="ident">val</span>)
     }
 }
 
@@ -316,7 +324,7 @@
 {
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">vals</span>: (<span class="ident">A</span>, <span class="ident">B</span>)) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-        <span class="ident">Row</span>::<span class="ident">new</span>().<span class="ident">push</span>(<span class="ident">vals</span>.<span class="number">0</span>).<span class="ident">push</span>(<span class="ident">vals</span>.<span class="number">1</span>)
+        <span class="ident">Row</span>::<span class="ident">with_capacity</span>(<span class="number">2</span>).<span class="ident">push</span>(<span class="ident">vals</span>.<span class="number">0</span>).<span class="ident">push</span>(<span class="ident">vals</span>.<span class="number">1</span>)
     }
 }
 
@@ -328,7 +336,7 @@
 {
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">vals</span>: (<span class="ident">A</span>, <span class="ident">B</span>, <span class="ident">C</span>)) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-        <span class="ident">Row</span>::<span class="ident">new</span>().<span class="ident">push</span>(<span class="ident">vals</span>.<span class="number">0</span>).<span class="ident">push</span>(<span class="ident">vals</span>.<span class="number">1</span>).<span class="ident">push</span>(<span class="ident">vals</span>.<span class="number">2</span>)
+        <span class="ident">Row</span>::<span class="ident">with_capacity</span>(<span class="number">3</span>).<span class="ident">push</span>(<span class="ident">vals</span>.<span class="number">0</span>).<span class="ident">push</span>(<span class="ident">vals</span>.<span class="number">1</span>).<span class="ident">push</span>(<span class="ident">vals</span>.<span class="number">2</span>)
     }
 }
 
@@ -341,7 +349,7 @@
 {
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">vals</span>: (<span class="ident">A</span>, <span class="ident">B</span>, <span class="ident">C</span>, <span class="ident">D</span>)) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-        <span class="ident">Row</span>::<span class="ident">new</span>().<span class="ident">push</span>(<span class="ident">vals</span>.<span class="number">0</span>).<span class="ident">push</span>(<span class="ident">vals</span>.<span class="number">1</span>).<span class="ident">push</span>(<span class="ident">vals</span>.<span class="number">2</span>).<span class="ident">push</span>(<span class="ident">vals</span>.<span class="number">3</span>)
+        <span class="ident">Row</span>::<span class="ident">with_capacity</span>(<span class="number">4</span>).<span class="ident">push</span>(<span class="ident">vals</span>.<span class="number">0</span>).<span class="ident">push</span>(<span class="ident">vals</span>.<span class="number">1</span>).<span class="ident">push</span>(<span class="ident">vals</span>.<span class="number">2</span>).<span class="ident">push</span>(<span class="ident">vals</span>.<span class="number">3</span>)
     }
 }
 
@@ -355,7 +363,7 @@
 {
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">vals</span>: (<span class="ident">A</span>, <span class="ident">B</span>, <span class="ident">C</span>, <span class="ident">D</span>, <span class="ident">E</span>)) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-        <span class="ident">Row</span>::<span class="ident">new</span>()
+        <span class="ident">Row</span>::<span class="ident">with_capacity</span>(<span class="number">5</span>)
             .<span class="ident">push</span>(<span class="ident">vals</span>.<span class="number">0</span>)
             .<span class="ident">push</span>(<span class="ident">vals</span>.<span class="number">1</span>)
             .<span class="ident">push</span>(<span class="ident">vals</span>.<span class="number">2</span>)
