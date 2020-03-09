@@ -460,6 +460,35 @@
 <span id="460">460</span>
 <span id="461">461</span>
 <span id="462">462</span>
+<span id="463">463</span>
+<span id="464">464</span>
+<span id="465">465</span>
+<span id="466">466</span>
+<span id="467">467</span>
+<span id="468">468</span>
+<span id="469">469</span>
+<span id="470">470</span>
+<span id="471">471</span>
+<span id="472">472</span>
+<span id="473">473</span>
+<span id="474">474</span>
+<span id="475">475</span>
+<span id="476">476</span>
+<span id="477">477</span>
+<span id="478">478</span>
+<span id="479">479</span>
+<span id="480">480</span>
+<span id="481">481</span>
+<span id="482">482</span>
+<span id="483">483</span>
+<span id="484">484</span>
+<span id="485">485</span>
+<span id="486">486</span>
+<span id="487">487</span>
+<span id="488">488</span>
+<span id="489">489</span>
+<span id="490">490</span>
+<span id="491">491</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">ast</span>::<span class="ident">ParameterizedValue</span>,
@@ -515,6 +544,24 @@
     }
 }
 
+<span class="doccomment">/// This implementation of FromSql assumes that the precision for money fields is configured to the default</span>
+<span class="doccomment">/// of 2 decimals.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// Postgres docs: https://www.postgresql.org/docs/current/datatype-money.html</span>
+<span class="kw">struct</span> <span class="ident">NaiveMoney</span>(<span class="ident">Decimal</span>);
+
+<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">FromSql</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">NaiveMoney</span> {
+    <span class="kw">fn</span> <span class="ident">from_sql</span>(<span class="ident">_ty</span>: <span class="kw-2">&amp;</span><span class="ident">PostgresType</span>, <span class="ident">raw</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">NaiveMoney</span>, <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">std</span>::<span class="ident">error</span>::<span class="ident">Error</span> <span class="op">+</span> <span class="ident">Sync</span> <span class="op">+</span> <span class="ident">Send</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">cents</span> <span class="op">=</span> <span class="ident">i64</span>::<span class="ident">from_sql</span>(<span class="kw-2">&amp;</span><span class="ident">PostgresType</span>::<span class="ident">INT8</span>, <span class="ident">raw</span>)<span class="question-mark">?</span>;
+
+        <span class="prelude-val">Ok</span>(<span class="ident">NaiveMoney</span>(<span class="ident">Decimal</span>::<span class="ident">new</span>(<span class="ident">cents</span>, <span class="number">2</span>)))
+    }
+
+    <span class="kw">fn</span> <span class="ident">accepts</span>(<span class="ident">ty</span>: <span class="kw-2">&amp;</span><span class="ident">PostgresType</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+        <span class="ident">ty</span> <span class="op">=</span><span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">PostgresType</span>::<span class="ident">MONEY</span>
+    }
+}
+
 <span class="kw">impl</span> <span class="ident">GetRow</span> <span class="kw">for</span> <span class="ident">PostgresRow</span> {
     <span class="kw">fn</span> <span class="ident">get_result_row</span><span class="op">&lt;</span><span class="lifetime">&#39;b</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;b</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">crate</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ParameterizedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">fn</span> <span class="ident">convert</span>(<span class="ident">row</span>: <span class="kw-2">&amp;</span><span class="ident">PostgresRow</span>, <span class="ident">i</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">crate</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ParameterizedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span><span class="op">&gt;</span><span class="op">&gt;</span> {
@@ -562,6 +609,13 @@
                     <span class="prelude-val">Some</span>(<span class="ident">val</span>) <span class="op">=</span><span class="op">&gt;</span> {
                         <span class="kw">let</span> <span class="ident">val</span>: <span class="ident">Decimal</span> <span class="op">=</span> <span class="ident">Decimal</span>::<span class="ident">from_f64</span>(<span class="ident">val</span>).<span class="ident">expect</span>(<span class="string">&quot;f64 is not a Decimal&quot;</span>);
                         <span class="ident">ParameterizedValue</span>::<span class="ident">Real</span>(<span class="ident">val</span>)
+                    }
+                    <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ParameterizedValue</span>::<span class="ident">Null</span>,
+                },
+                <span class="ident">PostgresType</span>::<span class="ident">MONEY</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">row</span>.<span class="ident">try_get</span>(<span class="ident">i</span>)<span class="question-mark">?</span> {
+                    <span class="prelude-val">Some</span>(<span class="ident">val</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="kw">let</span> <span class="ident">val</span>: <span class="ident">NaiveMoney</span> <span class="op">=</span> <span class="ident">val</span>;
+                        <span class="ident">ParameterizedValue</span>::<span class="ident">Real</span>(<span class="ident">val</span>.<span class="number">0</span>)
                     }
                     <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ParameterizedValue</span>::<span class="ident">Null</span>,
                 },
@@ -854,9 +908,13 @@
                 <span class="ident">f</span>.<span class="ident">to_sql</span>(<span class="ident">ty</span>, <span class="ident">out</span>)
             }
             (<span class="ident">ParameterizedValue</span>::<span class="ident">Real</span>(<span class="ident">decimal</span>), <span class="kw-2">&amp;</span><span class="ident">PostgresType</span>::<span class="ident">MONEY</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="kw">let</span> <span class="ident">f</span> <span class="op">=</span> <span class="ident">decimal</span>.<span class="ident">to_f64</span>().<span class="ident">expect</span>(<span class="string">&quot;decimal to f64 conversion&quot;</span>);
-                <span class="ident">f</span>.<span class="ident">to_sql</span>(<span class="ident">ty</span>, <span class="ident">out</span>)
+                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">i64_bytes</span>: [<span class="ident">u8</span>; <span class="number">8</span>] <span class="op">=</span> [<span class="number">0</span>; <span class="number">8</span>];
+                <span class="kw">let</span> <span class="ident">decimal</span> <span class="op">=</span> (<span class="ident">decimal</span> <span class="op">*</span> <span class="ident">Decimal</span>::<span class="ident">new</span>(<span class="number">100</span>, <span class="number">0</span>)).<span class="ident">round</span>();
+                <span class="ident">i64_bytes</span>.<span class="ident">copy_from_slice</span>(<span class="kw-2">&amp;</span><span class="ident">decimal</span>.<span class="ident">serialize</span>()[<span class="number">4</span>..<span class="number">12</span>]);
+                <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> <span class="ident">i64</span>::<span class="ident">from_le_bytes</span>(<span class="ident">i64_bytes</span>);
+                <span class="ident">i</span>.<span class="ident">to_sql</span>(<span class="ident">ty</span>, <span class="ident">out</span>)
             }
+            (<span class="ident">ParameterizedValue</span>::<span class="ident">Real</span>(<span class="ident">decimal</span>), <span class="kw-2">&amp;</span><span class="ident">PostgresType</span>::<span class="ident">NUMERIC</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">decimal</span>.<span class="ident">to_sql</span>(<span class="ident">ty</span>, <span class="ident">out</span>),
             (<span class="ident">ParameterizedValue</span>::<span class="ident">Real</span>(<span class="ident">float</span>), <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">float</span>.<span class="ident">to_sql</span>(<span class="ident">ty</span>, <span class="ident">out</span>),
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;uuid-0_8&quot;</span>)]</span>
             (<span class="ident">ParameterizedValue</span>::<span class="ident">Text</span>(<span class="ident">string</span>), <span class="kw-2">&amp;</span><span class="ident">PostgresType</span>::<span class="ident">UUID</span>) <span class="op">=</span><span class="op">&gt;</span> {
