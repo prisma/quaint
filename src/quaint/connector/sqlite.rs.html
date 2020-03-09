@@ -505,6 +505,9 @@
 <span id="505">505</span>
 <span id="506">506</span>
 <span id="507">507</span>
+<span id="508">508</span>
+<span id="509">509</span>
+<span id="510">510</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">mod</span> <span class="ident">conversion</span>;
 <span class="kw">mod</span> <span class="ident">error</span>;
@@ -782,8 +785,11 @@
 
         <span class="comment">// 1-tuple</span>
         {
-            <span class="kw">let</span> <span class="ident">cols</span> <span class="op">=</span> <span class="ident">Row</span>::<span class="ident">new</span>().<span class="ident">push</span>(<span class="ident">Column</span>::<span class="ident">from</span>(<span class="string">&quot;age&quot;</span>));
-            <span class="kw">let</span> <span class="ident">vals</span> <span class="op">=</span> <span class="ident">Row</span>::<span class="ident">new</span>().<span class="ident">push</span>(<span class="number">35</span>);
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cols</span> <span class="op">=</span> <span class="ident">Row</span>::<span class="ident">new</span>();
+            <span class="ident">cols</span>.<span class="ident">push</span>(<span class="ident">Column</span>::<span class="ident">from</span>(<span class="string">&quot;age&quot;</span>));
+
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">vals</span> <span class="op">=</span> <span class="ident">Row</span>::<span class="ident">new</span>();
+            <span class="ident">vals</span>.<span class="ident">push</span>(<span class="number">35</span>);
 
             <span class="kw">let</span> <span class="ident">select</span> <span class="op">=</span> <span class="ident">Select</span>::<span class="ident">from_table</span>(<span class="string">&quot;tuples&quot;</span>).<span class="ident">so_that</span>(<span class="ident">cols</span>.<span class="ident">in_selection</span>(<span class="ident">vals</span>));
             <span class="kw">let</span> <span class="ident">rows</span> <span class="op">=</span> <span class="ident">connection</span>.<span class="ident">select</span>(<span class="ident">select</span>).<span class="kw">await</span>.<span class="ident">unwrap</span>();

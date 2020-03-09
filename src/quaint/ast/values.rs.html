@@ -864,6 +864,32 @@
 <span id="864">864</span>
 <span id="865">865</span>
 <span id="866">866</span>
+<span id="867">867</span>
+<span id="868">868</span>
+<span id="869">869</span>
+<span id="870">870</span>
+<span id="871">871</span>
+<span id="872">872</span>
+<span id="873">873</span>
+<span id="874">874</span>
+<span id="875">875</span>
+<span id="876">876</span>
+<span id="877">877</span>
+<span id="878">878</span>
+<span id="879">879</span>
+<span id="880">880</span>
+<span id="881">881</span>
+<span id="882">882</span>
+<span id="883">883</span>
+<span id="884">884</span>
+<span id="885">885</span>
+<span id="886">886</span>
+<span id="887">887</span>
+<span id="888">888</span>
+<span id="889">889</span>
+<span id="890">890</span>
+<span id="891">891</span>
+<span id="892">892</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">ast</span>::<span class="kw-2">*</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">error</span>::{<span class="ident">Error</span>, <span class="ident">ErrorKind</span>};
@@ -1684,13 +1710,19 @@
         <span class="self">Self</span>::<span class="ident">default</span>()
     }
 
+    <span class="doccomment">/// Create a new in-memory set of values with an allocated capacity.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with_capacity</span>(<span class="ident">capacity</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+        <span class="self">Self</span> {
+            <span class="ident">rows</span>: <span class="ident">Vec</span>::<span class="ident">with_capacity</span>(<span class="ident">capacity</span>)
+        }
+    }
+
     <span class="doccomment">/// Add value to the temporary table.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">push</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">row</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">push</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">row</span>: <span class="ident">T</span>)
     <span class="kw">where</span>
         <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Row</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     {
         <span class="self">self</span>.<span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">row</span>.<span class="ident">into</span>());
-        <span class="self">self</span>
     }
 
     <span class="doccomment">/// The number of rows in the in-memory table.</span>
@@ -1701,6 +1733,26 @@
     <span class="doccomment">/// True if has no rows.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_empty</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
         <span class="self">self</span>.<span class="ident">len</span>() <span class="op">=</span><span class="op">=</span> <span class="number">0</span>
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">row_len</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
+        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">rows</span>.<span class="ident">split_first</span>() {
+            <span class="prelude-val">Some</span>((<span class="ident">row</span>, <span class="kw">_</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">row</span>.<span class="ident">len</span>(),
+            <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="number">0</span>,
+        }
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">flatten_row</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Row</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">Row</span>::<span class="ident">with_capacity</span>(<span class="self">self</span>.<span class="ident">len</span>());
+
+        <span class="kw">for</span> <span class="kw-2">mut</span> <span class="ident">row</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">rows</span>.<span class="ident">into_iter</span>() {
+            <span class="kw">match</span> <span class="ident">row</span>.<span class="ident">pop</span>() {
+                <span class="prelude-val">Some</span>(<span class="ident">value</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">result</span>.<span class="ident">push</span>(<span class="ident">value</span>),
+                <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">None</span>
+            }
+        }
+
+        <span class="prelude-val">Some</span>(<span class="ident">result</span>)
     }
 }
 

@@ -540,6 +540,38 @@
 <span id="540">540</span>
 <span id="541">541</span>
 <span id="542">542</span>
+<span id="543">543</span>
+<span id="544">544</span>
+<span id="545">545</span>
+<span id="546">546</span>
+<span id="547">547</span>
+<span id="548">548</span>
+<span id="549">549</span>
+<span id="550">550</span>
+<span id="551">551</span>
+<span id="552">552</span>
+<span id="553">553</span>
+<span id="554">554</span>
+<span id="555">555</span>
+<span id="556">556</span>
+<span id="557">557</span>
+<span id="558">558</span>
+<span id="559">559</span>
+<span id="560">560</span>
+<span id="561">561</span>
+<span id="562">562</span>
+<span id="563">563</span>
+<span id="564">564</span>
+<span id="565">565</span>
+<span id="566">566</span>
+<span id="567">567</span>
+<span id="568">568</span>
+<span id="569">569</span>
+<span id="570">570</span>
+<span id="571">571</span>
+<span id="572">572</span>
+<span id="573">573</span>
+<span id="574">574</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">ast</span>::<span class="kw-2">*</span>, <span class="ident">visitor</span>::<span class="ident">Visitor</span>};
 
@@ -754,6 +786,38 @@
             ],
             <span class="ident">params</span>
         );
+    }
+
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="kw">fn</span> <span class="ident">test_in_values_singular</span>() {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cols</span> <span class="op">=</span> <span class="ident">Row</span>::<span class="ident">new</span>();
+        <span class="ident">cols</span>.<span class="ident">push</span>(<span class="ident">Column</span>::<span class="ident">from</span>(<span class="string">&quot;id1&quot;</span>));
+
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">vals</span> <span class="op">=</span> <span class="ident">Values</span>::<span class="ident">new</span>();
+
+        {
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">row1</span> <span class="op">=</span> <span class="ident">Row</span>::<span class="ident">new</span>();
+            <span class="ident">row1</span>.<span class="ident">push</span>(<span class="number">1</span>);
+
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">row2</span> <span class="op">=</span> <span class="ident">Row</span>::<span class="ident">new</span>();
+            <span class="ident">row2</span>.<span class="ident">push</span>(<span class="number">2</span>);
+
+            <span class="ident">vals</span>.<span class="ident">push</span>(<span class="ident">row1</span>);
+            <span class="ident">vals</span>.<span class="ident">push</span>(<span class="ident">row2</span>);
+        }
+
+        <span class="kw">let</span> <span class="ident">query</span> <span class="op">=</span> <span class="ident">Select</span>::<span class="ident">from_table</span>(<span class="string">&quot;test&quot;</span>).<span class="ident">so_that</span>(<span class="ident">cols</span>.<span class="ident">in_selection</span>(<span class="ident">vals</span>));
+        <span class="kw">let</span> (<span class="ident">sql</span>, <span class="ident">params</span>) <span class="op">=</span> <span class="ident">Sqlite</span>::<span class="ident">build</span>(<span class="ident">query</span>);
+        <span class="kw">let</span> <span class="ident">expected_sql</span> <span class="op">=</span> <span class="string">&quot;SELECT `test`.* FROM `test` WHERE `id1` IN (?,?)&quot;</span>;
+
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">expected_sql</span>, <span class="ident">sql</span>);
+        <span class="macro">assert_eq</span><span class="macro">!</span>(
+            <span class="macro">vec</span><span class="macro">!</span>[
+                <span class="ident">ParameterizedValue</span>::<span class="ident">Integer</span>(<span class="number">1</span>),
+                <span class="ident">ParameterizedValue</span>::<span class="ident">Integer</span>(<span class="number">2</span>),
+            ],
+            <span class="ident">params</span>
+        )
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
