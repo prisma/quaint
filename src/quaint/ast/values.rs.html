@@ -1713,7 +1713,7 @@
     <span class="doccomment">/// Create a new in-memory set of values with an allocated capacity.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with_capacity</span>(<span class="ident">capacity</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="self">Self</span> {
-            <span class="ident">rows</span>: <span class="ident">Vec</span>::<span class="ident">with_capacity</span>(<span class="ident">capacity</span>)
+            <span class="ident">rows</span>: <span class="ident">Vec</span>::<span class="ident">with_capacity</span>(<span class="ident">capacity</span>),
         }
     }
 
@@ -1748,7 +1748,7 @@
         <span class="kw">for</span> <span class="kw-2">mut</span> <span class="ident">row</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">rows</span>.<span class="ident">into_iter</span>() {
             <span class="kw">match</span> <span class="ident">row</span>.<span class="ident">pop</span>() {
                 <span class="prelude-val">Some</span>(<span class="ident">value</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">result</span>.<span class="ident">push</span>(<span class="ident">value</span>),
-                <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">None</span>
+                <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">None</span>,
             }
         }
 

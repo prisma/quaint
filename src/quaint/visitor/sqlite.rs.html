@@ -569,9 +569,6 @@
 <span id="569">569</span>
 <span id="570">570</span>
 <span id="571">571</span>
-<span id="572">572</span>
-<span id="573">573</span>
-<span id="574">574</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">ast</span>::<span class="kw-2">*</span>, <span class="ident">visitor</span>::<span class="ident">Visitor</span>};
 
@@ -812,10 +809,7 @@
 
         <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">expected_sql</span>, <span class="ident">sql</span>);
         <span class="macro">assert_eq</span><span class="macro">!</span>(
-            <span class="macro">vec</span><span class="macro">!</span>[
-                <span class="ident">ParameterizedValue</span>::<span class="ident">Integer</span>(<span class="number">1</span>),
-                <span class="ident">ParameterizedValue</span>::<span class="ident">Integer</span>(<span class="number">2</span>),
-            ],
+            <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">ParameterizedValue</span>::<span class="ident">Integer</span>(<span class="number">1</span>), <span class="ident">ParameterizedValue</span>::<span class="ident">Integer</span>(<span class="number">2</span>),],
             <span class="ident">params</span>
         )
     }
