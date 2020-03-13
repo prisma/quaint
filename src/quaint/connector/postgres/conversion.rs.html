@@ -576,6 +576,8 @@
 <span id="576">576</span>
 <span id="577">577</span>
 <span id="578">578</span>
+<span id="579">579</span>
+<span id="580">580</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">ast</span>::<span class="ident">ParameterizedValue</span>,
@@ -588,7 +590,7 @@
     <span class="ident">prelude</span>::{<span class="ident">FromPrimitive</span>, <span class="ident">ToPrimitive</span>},
     <span class="ident">Decimal</span>,
 };
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">error</span>::<span class="ident">Error</span>;
+<span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">error</span>::<span class="ident">Error</span>, <span class="ident">str</span>::<span class="ident">FromStr</span>};
 <span class="kw">use</span> <span class="ident">tokio_postgres</span>::{
     <span class="ident">types</span>::{<span class="self">self</span>, <span class="ident">FromSql</span>, <span class="ident">IsNull</span>, <span class="ident">Kind</span>, <span class="ident">ToSql</span>, <span class="ident">Type</span> <span class="kw">as</span> <span class="ident">PostgresType</span>},
     <span class="ident">Row</span> <span class="kw">as</span> <span class="ident">PostgresRow</span>, <span class="ident">Statement</span> <span class="kw">as</span> <span class="ident">PostgresStatement</span>,
@@ -694,7 +696,9 @@
                 },
                 <span class="ident">PostgresType</span>::<span class="ident">FLOAT8</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">row</span>.<span class="ident">try_get</span>(<span class="ident">i</span>)<span class="question-mark">?</span> {
                     <span class="prelude-val">Some</span>(<span class="ident">val</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                        <span class="kw">let</span> <span class="ident">val</span>: <span class="ident">Decimal</span> <span class="op">=</span> <span class="ident">Decimal</span>::<span class="ident">from_f64</span>(<span class="ident">val</span>).<span class="ident">expect</span>(<span class="string">&quot;f64 is not a Decimal&quot;</span>);
+                        <span class="kw">let</span> <span class="ident">val</span>: <span class="ident">f64</span> <span class="op">=</span> <span class="ident">val</span>;
+                        <span class="comment">// Decimal::from_f64 is buggy. Issue: https://github.com/paupino/rust-decimal/issues/228</span>
+                        <span class="kw">let</span> <span class="ident">val</span>: <span class="ident">Decimal</span> <span class="op">=</span> <span class="ident">Decimal</span>::<span class="ident">from_str</span>(<span class="kw-2">&amp;</span><span class="ident">val</span>.<span class="ident">to_string</span>()).<span class="ident">expect</span>(<span class="string">&quot;f64 is not a Decimal&quot;</span>);
                         <span class="ident">ParameterizedValue</span>::<span class="ident">Real</span>(<span class="ident">val</span>)
                     }
                     <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ParameterizedValue</span>::<span class="ident">Null</span>,
