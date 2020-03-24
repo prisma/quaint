@@ -31,7 +31,14 @@ impl TakeRow for my::Row {
                 my::Value::Int(i) => ParameterizedValue::Integer(i),
                 // TOOD: This is unsafe
                 my::Value::UInt(i) => ParameterizedValue::Integer(i as i64),
-                my::Value::Float(f) => ParameterizedValue::from(f),
+                my::Value::Float(f) => {
+                    let single_precision = f as f32;
+                    if f == single_precision as f64 {
+                        ParameterizedValue::from(single_precision)
+                    } else {
+                        ParameterizedValue::from(f)
+                    }
+                }
                 #[cfg(feature = "chrono-0_4")]
                 my::Value::Date(year, month, day, hour, min, sec, micro) => {
                     let time = NaiveTime::from_hms_micro(hour.into(), min.into(), sec.into(), micro);

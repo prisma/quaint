@@ -364,7 +364,7 @@ CREATE TABLE `user`(
 
     const CREATE_USER: &str = r#"
 INSERT INTO `user` (id, name, age, salary)
-VALUES (1, 'Joe', 27, 20000.00 );
+VALUES (1, 'Joe', 27, 20000.006 );
 "#;
 
     const DROP_TABLE: &str = "DROP TABLE IF EXISTS `user`;";
@@ -387,7 +387,7 @@ VALUES (1, 'Joe', 27, 20000.00 );
         assert_eq!(row["name"].as_str(), Some("Joe"));
         assert!(row["name"].is_text());
         assert_eq!(row["age"].as_i64(), Some(27));
-        assert_eq!(row["salary"].as_f64(), Some(20000.0));
+        assert_eq!(row["salary"].as_f64(), Some(20000.01));
     }
 
     #[tokio::test]
