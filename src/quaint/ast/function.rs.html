@@ -63,8 +63,6 @@
 <span id="63">63</span>
 <span id="64">64</span>
 <span id="65">65</span>
-<span id="66">66</span>
-<span id="67">67</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">mod</span> <span class="ident">aggregate_to_string</span>;
 <span class="kw">mod</span> <span class="ident">average</span>;
@@ -113,7 +111,6 @@
     ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">kind</span>:<span class="ident">ident</span>),<span class="kw-2">*</span>) <span class="op">=</span><span class="op">&gt;</span> (
         $(
             <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">kind</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Function</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-                <span class="attribute">#[<span class="ident">inline</span>]</span>
                 <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">f</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">kind</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
                     <span class="ident">Function</span> {
                         <span class="ident">typ_</span>: <span class="ident">FunctionType</span>::<span class="macro-nonterminal">$</span><span class="macro-nonterminal">kind</span>(<span class="ident">f</span>),
@@ -123,7 +120,6 @@
             }
 
             <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">kind</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">DatabaseValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-                <span class="attribute">#[<span class="ident">inline</span>]</span>
                 <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">f</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">kind</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
                     <span class="ident">Function</span>::<span class="ident">from</span>(<span class="ident">f</span>).<span class="ident">into</span>()
                 }

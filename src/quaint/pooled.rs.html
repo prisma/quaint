@@ -160,6 +160,7 @@
 <span id="160">160</span>
 <span id="161">161</span>
 <span id="162">162</span>
+<span id="163">163</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! A connection pool to a SQL database.</span>
 <span class="kw">mod</span> <span class="ident">manager</span>;
@@ -168,7 +169,7 @@
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">connector</span>::{<span class="ident">ConnectionInfo</span>, <span class="ident">SqlFamily</span>};
 <span class="kw">use</span> <span class="ident">mobc</span>::<span class="ident">Pool</span>;
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">sync</span>::<span class="ident">Arc</span>;
+<span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">sync</span>::<span class="ident">Arc</span>, <span class="ident">time</span>::<span class="ident">Duration</span>};
 <span class="kw">use</span> <span class="ident">url</span>::<span class="ident">Url</span>;
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sqlite&quot;</span>)]</span>
@@ -289,6 +290,7 @@
 
         <span class="kw">let</span> <span class="ident">inner</span> <span class="op">=</span> <span class="ident">Pool</span>::<span class="ident">builder</span>()
             .<span class="ident">max_open</span>(<span class="ident">connection_limit</span>.<span class="ident">into</span>())
+            .<span class="ident">max_lifetime</span>(<span class="prelude-val">Some</span>(<span class="ident">Duration</span>::<span class="ident">from_secs</span>(<span class="number">300</span>)))
             .<span class="ident">test_on_check_out</span>(<span class="bool-val">false</span>)
             .<span class="ident">build</span>(<span class="ident">manager</span>);
 
