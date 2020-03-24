@@ -290,7 +290,7 @@
 
         <span class="kw">let</span> <span class="ident">inner</span> <span class="op">=</span> <span class="ident">Pool</span>::<span class="ident">builder</span>()
             .<span class="ident">max_open</span>(<span class="ident">connection_limit</span>.<span class="ident">into</span>())
-            .<span class="ident">max_lifetime</span>(<span class="prelude-val">Some</span>(<span class="ident">Duration</span>::<span class="ident">from_secs</span>(<span class="number">300</span>)))
+            .<span class="ident">max_idle_lifetime</span>(<span class="prelude-val">Some</span>(<span class="ident">Duration</span>::<span class="ident">from_secs</span>(<span class="number">300</span>)))
             .<span class="ident">test_on_check_out</span>(<span class="bool-val">false</span>)
             .<span class="ident">build</span>(<span class="ident">manager</span>);
 
