@@ -16,7 +16,7 @@ replaced with a new one. The reconnect happens in the next
 <h1 id="panics-1" class="section-header"><a href="#panics-1">Panics</a></h1>
 <p>Panics if <code>max_idle_lifetime</code> is zero.</p>
 </div><h4 id='method.test_on_check_out' class="method"><code id='test_on_check_out.v'>pub fn <a href='#method.test_on_check_out' class='fnname'>test_on_check_out</a>(&amp;mut self, test_on_check_out: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a>)</code><a class='srclink' href='../../src/quaint/pooled.rs.html#200-202' title='goto source code'>[src]</a></h4><div class='docblock'><p>Perform a health check before returning a connection from the
-<a href="struct.Quaint.html#method.check_out"><code>check_out</code></a>. If the health check fails, the a few reconnects are tried
+<a href="struct.Quaint.html#method.check_out"><code>check_out</code></a>. If the health check fails, a few reconnects are tried
 before returning the error and dropping the broken connection from the
 pool.</p>
 <ul>
