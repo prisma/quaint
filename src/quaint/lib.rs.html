@@ -131,17 +131,11 @@
 <span id="131">131</span>
 <span id="132">132</span>
 <span id="133">133</span>
-<span id="134">134</span>
-<span id="135">135</span>
-<span id="136">136</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! # quaint</span>
 <span class="doccomment">//!</span>
-<span class="doccomment">//! A database client abstraction for reading and writing to a SQL database in a</span>
+<span class="doccomment">//! A database client abstraction for reading and writing to an SQL database in a</span>
 <span class="doccomment">//! safe manner.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! Under construction and will go through several rounds of changes. Not meant</span>
-<span class="doccomment">//! for production use in the current form.</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! ### Goals</span>
 <span class="doccomment">//!</span>
@@ -192,7 +186,7 @@
 <span class="doccomment">//!</span>
 <span class="doccomment">//! #[tokio::main]</span>
 <span class="doccomment">//! async fn main() -&gt; Result&lt;(), quaint::error::Error&gt; {</span>
-<span class="doccomment">//!     let pool = Quaint::new(&quot;file:///tmp/example.db&quot;).await?;</span>
+<span class="doccomment">//!     let pool = Quaint::builder(&quot;file:///tmp/example.db&quot;)?.build();</span>
 <span class="doccomment">//!     let conn = pool.check_out().await?;</span>
 <span class="doccomment">//!     let result = conn.select(Select::default().value(1)).await?;</span>
 <span class="doccomment">//!</span>
