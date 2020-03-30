@@ -1008,6 +1008,19 @@
 <span id="1008">1008</span>
 <span id="1009">1009</span>
 <span id="1010">1010</span>
+<span id="1011">1011</span>
+<span id="1012">1012</span>
+<span id="1013">1013</span>
+<span id="1014">1014</span>
+<span id="1015">1015</span>
+<span id="1016">1016</span>
+<span id="1017">1017</span>
+<span id="1018">1018</span>
+<span id="1019">1019</span>
+<span id="1020">1020</span>
+<span id="1021">1021</span>
+<span id="1022">1022</span>
+<span id="1023">1023</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">mod</span> <span class="ident">conversion</span>;
 <span class="kw">mod</span> <span class="ident">error</span>;
@@ -1392,7 +1405,20 @@
 
         <span class="kw">let</span> <span class="ident">tls</span> <span class="op">=</span> <span class="ident">MakeTlsConnector</span>::<span class="ident">new</span>(<span class="ident">tls_builder</span>.<span class="ident">build</span>()<span class="question-mark">?</span>);
         <span class="kw">let</span> (<span class="ident">client</span>, <span class="ident">conn</span>) <span class="op">=</span> <span class="ident">config</span>.<span class="ident">connect</span>(<span class="ident">tls</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-        <span class="ident">tokio</span>::<span class="ident">spawn</span>(<span class="ident">conn</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">r</span><span class="op">|</span> <span class="ident">r</span>.<span class="ident">unwrap</span>()));
+
+        <span class="ident">tokio</span>::<span class="ident">spawn</span>(<span class="ident">conn</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">r</span><span class="op">|</span> <span class="kw">match</span> <span class="ident">r</span> {
+            <span class="prelude-val">Ok</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> (),
+            <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;tracing-log&quot;</span>))]</span>
+                {
+                    <span class="macro">error</span><span class="macro">!</span>(<span class="string">&quot;Error in PostgreSQL connection: {:?}&quot;</span>, <span class="ident">e</span>);
+                }
+                <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;tracing-log&quot;</span>)]</span>
+                {
+                    <span class="ident">tracing</span>::<span class="macro">error</span><span class="macro">!</span>(<span class="string">&quot;Error in PostgreSQL connection: {:?}&quot;</span>, <span class="ident">e</span>);
+                }
+            }
+        }));
 
         <span class="kw">let</span> <span class="ident">schema</span> <span class="op">=</span> <span class="ident">url</span>.<span class="ident">schema</span>();
 
