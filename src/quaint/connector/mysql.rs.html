@@ -745,6 +745,31 @@
 <span id="745">745</span>
 <span id="746">746</span>
 <span id="747">747</span>
+<span id="748">748</span>
+<span id="749">749</span>
+<span id="750">750</span>
+<span id="751">751</span>
+<span id="752">752</span>
+<span id="753">753</span>
+<span id="754">754</span>
+<span id="755">755</span>
+<span id="756">756</span>
+<span id="757">757</span>
+<span id="758">758</span>
+<span id="759">759</span>
+<span id="760">760</span>
+<span id="761">761</span>
+<span id="762">762</span>
+<span id="763">763</span>
+<span id="764">764</span>
+<span id="765">765</span>
+<span id="766">766</span>
+<span id="767">767</span>
+<span id="768">768</span>
+<span id="769">769</span>
+<span id="770">770</span>
+<span id="771">771</span>
+<span id="772">772</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">mod</span> <span class="ident">conversion</span>;
 <span class="kw">mod</span> <span class="ident">error</span>;
@@ -1491,6 +1516,31 @@ VALUES (1, &#39;Joe&#39;, 27, 20000.00 );
         <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">conn</span>.<span class="ident">query</span>(<span class="ident">select</span>.<span class="ident">into</span>()).<span class="kw">await</span>.<span class="ident">unwrap</span>();
 
         <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">result</span>.<span class="ident">is_empty</span>());
+    }
+
+    <span class="attribute">#[<span class="ident">tokio</span>::<span class="ident">test</span>]</span>
+    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">mysql_float_columns_cast_to_f32</span>() {
+        <span class="kw">let</span> <span class="ident">create_table</span> <span class="op">=</span> <span class="string">r#&quot;
+            CREATE TABLE `float_precision_test` (
+                id int4 AUTO_INCREMENT PRIMARY KEY,
+                f  float NOT NULL
+            )
+        &quot;#</span>;
+
+        <span class="kw">let</span> <span class="ident">drop_table</span> <span class="op">=</span> <span class="string">&quot;DROP TABLE IF EXISTS `float_precision_test`&quot;</span>;
+
+        <span class="kw">let</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">Quaint</span>::<span class="ident">new</span>(<span class="kw-2">&amp;</span><span class="ident">CONN_STR</span>).<span class="kw">await</span>.<span class="ident">unwrap</span>();
+
+        <span class="ident">conn</span>.<span class="ident">query_raw</span>(<span class="ident">drop_table</span>, <span class="kw-2">&amp;</span>[]).<span class="kw">await</span>.<span class="ident">unwrap</span>();
+        <span class="ident">conn</span>.<span class="ident">query_raw</span>(<span class="ident">create_table</span>, <span class="kw-2">&amp;</span>[]).<span class="kw">await</span>.<span class="ident">unwrap</span>();
+
+        <span class="kw">let</span> <span class="ident">insert</span> <span class="op">=</span> <span class="ident">Insert</span>::<span class="ident">single_into</span>(<span class="string">&quot;float_precision_test&quot;</span>).<span class="ident">value</span>(<span class="string">&quot;f&quot;</span>, <span class="number">6.4123456</span>);
+        <span class="kw">let</span> <span class="ident">select</span> <span class="op">=</span> <span class="ident">Select</span>::<span class="ident">from_table</span>(<span class="string">&quot;float_precision_test&quot;</span>).<span class="ident">column</span>(<span class="string">&quot;f&quot;</span>);
+
+        <span class="ident">conn</span>.<span class="ident">query</span>(<span class="ident">insert</span>.<span class="ident">into</span>()).<span class="kw">await</span>.<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">conn</span>.<span class="ident">query</span>(<span class="ident">select</span>.<span class="ident">into</span>()).<span class="kw">await</span>.<span class="ident">unwrap</span>();
+
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">result</span>.<span class="ident">into_single</span>().<span class="ident">unwrap</span>().<span class="ident">at</span>(<span class="number">0</span>).<span class="ident">unwrap</span>().<span class="ident">as_f64</span>().<span class="ident">unwrap</span>(), <span class="number">6.412345</span>);
     }
 }
 </pre></div>
