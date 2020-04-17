@@ -4,7 +4,7 @@ mod error;
 use mysql_async::{self as my, prelude::Queryable as _, Conn};
 use percent_encoding::percent_decode;
 use std::{borrow::Cow, future::Future, path::Path, time::Duration};
-use tokio::time::timeout;
+use tokio::{sync::Mutex, time::timeout};
 use url::Url;
 
 use crate::{
@@ -17,7 +17,7 @@ use crate::{
 /// A connector interface for the MySQL database.
 #[derive(Debug)]
 pub struct Mysql {
-    pub(crate) pool: my::Pool,
+    pub(crate) conn: Mutex<my::Conn>,
     pub(crate) url: MysqlUrl,
     socket_timeout: Option<Duration>,
     connect_timeout: Option<Duration>,
@@ -225,13 +225,11 @@ impl Mysql {
     /// Create a new MySQL connection using `OptsBuilder` from the `mysql` crate.
     pub fn new(url: MysqlUrl) -> crate::Result<Self> {
         let mut opts = url.to_opts_builder();
-        let pool_opts = my::PoolOptions::with_constraints(my::PoolConstraints::new(1, 1).unwrap());
-        opts.pool_options(pool_opts);
 
         Ok(Self {
             socket_timeout: url.query_params.socket_timeout,
             connect_timeout: url.query_params.connect_timeout,
-            pool: my::Pool::new(opts),
+            conn: my::Conn::new(opts),
             url,
         })
     }
@@ -254,10 +252,10 @@ impl Mysql {
         }
     }
 
-    async fn get_conn(&self) -> crate::Result<Conn> {
+    async fn get_conn(&self) -> crate::Result<impl my::prelude::Queryable> {
         match self.connect_timeout {
-            Some(duration) => Ok(timeout(duration, self.pool.get_conn()).await??),
-            None => Ok(self.pool.get_conn().await?),
+            Some(duration) => Ok(timeout(duration, self.conn.lock()).await??),
+            None => Ok(self.conn.lock().await?),
         }
     }
 }
