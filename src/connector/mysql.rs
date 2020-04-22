@@ -802,6 +802,9 @@ VALUES (1, 'Joe', 27, 20000.00 );
         conn.query(insert.into()).await.unwrap();
         let result = conn.query(select.into()).await.unwrap();
 
-        assert_eq!(result.into_single().unwrap().at(0).unwrap().as_json().unwrap(), "");
+        assert_eq!(
+            result.into_single().unwrap().at(0).unwrap().to_string().unwrap(),
+            r#"{"some":"json"}"#
+        );
     }
 }
