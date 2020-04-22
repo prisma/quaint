@@ -25,6 +25,11 @@ impl TakeRow for my::Row {
             };
             let res = match value {
                 my::Value::NULL => ParameterizedValue::Null,
+                // JSON is returned as bytes.
+                #[cfg(feature = "json-1")]
+                my::Value::Bytes(b) if column.column_type() == mysql_async::consts::ColumnType::MYSQL_TYPE_JSON => {
+                    ParameterizedValue::Json(serde_json::from_slice(&b)?)
+                }
                 // NEWDECIMAL returned as bytes. See https://mariadb.com/kb/en/resultset-row/#decimal-binary-encoding
                 my::Value::Bytes(b)
                     if column.column_type() == mysql_async::consts::ColumnType::MYSQL_TYPE_NEWDECIMAL =>
