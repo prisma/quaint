@@ -28,7 +28,12 @@ impl TakeRow for my::Row {
                 // JSON is returned as bytes.
                 #[cfg(feature = "json-1")]
                 my::Value::Bytes(b) if column.column_type() == mysql_async::consts::ColumnType::MYSQL_TYPE_JSON => {
-                    ParameterizedValue::Json(serde_json::from_slice(&b)?)
+                    serde_json::from_slice(&b)
+                        .map(|val| ParameterizedValue::Json(val))
+                        .map_err(|e| {
+                            crate::error::Error::builder(ErrorKind::ConversionError("Unable to convert bytes to JSON"))
+                                .build()
+                        })?
                 }
                 // NEWDECIMAL returned as bytes. See https://mariadb.com/kb/en/resultset-row/#decimal-binary-encoding
                 my::Value::Bytes(b)
