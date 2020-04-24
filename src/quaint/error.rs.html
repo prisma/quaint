@@ -209,6 +209,9 @@
 <span id="209">209</span>
 <span id="210">210</span>
 <span id="211">211</span>
+<span id="212">212</span>
+<span id="213">213</span>
+<span id="214">214</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Error module</span>
 <span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">fmt</span>, <span class="ident">io</span>, <span class="ident">num</span>};
@@ -364,6 +367,9 @@
 
     <span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;Error opening a TLS connection. {}&quot;</span>, <span class="ident">message</span>)]</span>
     <span class="ident">TlsError</span> { <span class="ident">message</span>: <span class="ident">String</span> },
+
+    <span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;Value out of range error. {}&quot;</span>, <span class="ident">message</span>)]</span>
+    <span class="ident">ValueOutOfRange</span> { <span class="ident">message</span>: <span class="ident">String</span> },
 
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;serde-support&quot;</span>)]</span>
     <span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;Deserializing a ResultRow {:?}&quot;</span>, <span class="ident">_0</span>)]</span>
