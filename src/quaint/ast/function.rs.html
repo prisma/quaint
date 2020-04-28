@@ -77,7 +77,7 @@
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">row_number</span>::<span class="kw-2">*</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">sum</span>::<span class="kw-2">*</span>;
 
-<span class="kw">use</span> <span class="kw">super</span>::{<span class="ident">Aliasable</span>, <span class="ident">DatabaseValue</span>};
+<span class="kw">use</span> <span class="kw">super</span>::{<span class="ident">Aliasable</span>, <span class="ident">Expression</span>};
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">borrow</span>::<span class="ident">Cow</span>;
 
 <span class="doccomment">/// A database function definition</span>
@@ -121,7 +121,7 @@
                 }
             }
 
-            <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">kind</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">DatabaseValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+            <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">kind</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Expression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
                 <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">f</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">kind</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
                     <span class="ident">Function</span>::<span class="ident">from</span>(<span class="ident">f</span>).<span class="ident">into</span>()
                 }

@@ -457,19 +457,19 @@
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Clone</span>, <span class="ident">Default</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Select</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">table</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="ident">Table</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">columns</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">columns</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">conditions</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ConditionTree</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">ordering</span>: <span class="ident">Ordering</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">grouping</span>: <span class="ident">Grouping</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">having</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ConditionTree</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">limit</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ParameterizedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">offset</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ParameterizedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">limit</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Value</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">offset</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Value</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">joins</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Join</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">Select</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">DatabaseValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">sel</span>: <span class="ident">Select</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">DatabaseValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-        <span class="ident">DatabaseValue</span>::<span class="ident">Select</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">sel</span>))
+<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">Select</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Expression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">sel</span>: <span class="ident">Select</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Expression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+        <span class="ident">Expression</span>::<span class="ident">Select</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">sel</span>))
     }
 }
 
@@ -509,7 +509,7 @@
     <span class="doccomment">/// let (sql, params) = Sqlite::build(query);</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// assert_eq!(&quot;SELECT `num`.* FROM (SELECT ?) AS `num`&quot;, sql);</span>
-    <span class="doccomment">/// assert_eq!(vec![ParameterizedValue::from(1)], params);</span>
+    <span class="doccomment">/// assert_eq!(vec![Value::from(1)], params);</span>
     <span class="doccomment">/// ```</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// Selecting from a set of values.</span>
@@ -525,10 +525,10 @@
     <span class="doccomment">/// assert_eq!(expected_sql, sql);</span>
     <span class="doccomment">/// assert_eq!(</span>
     <span class="doccomment">///     vec![</span>
-    <span class="doccomment">///         ParameterizedValue::Integer(1),</span>
-    <span class="doccomment">///         ParameterizedValue::Integer(2),</span>
-    <span class="doccomment">///         ParameterizedValue::Integer(3),</span>
-    <span class="doccomment">///         ParameterizedValue::Integer(4),</span>
+    <span class="doccomment">///         Value::Integer(1),</span>
+    <span class="doccomment">///         Value::Integer(2),</span>
+    <span class="doccomment">///         Value::Integer(3),</span>
+    <span class="doccomment">///         Value::Integer(4),</span>
     <span class="doccomment">///     ],</span>
     <span class="doccomment">///     params</span>
     <span class="doccomment">/// );</span>
@@ -551,7 +551,7 @@
     <span class="doccomment">/// let (sql, params) = Sqlite::build(query);</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// assert_eq!(&quot;SELECT ?&quot;, sql);</span>
-    <span class="doccomment">/// assert_eq!(vec![ParameterizedValue::from(1)], params);</span>
+    <span class="doccomment">/// assert_eq!(vec![Value::from(1)], params);</span>
     <span class="doccomment">/// ```</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// Creating a qualified asterisk to a joined table:</span>
@@ -572,11 +572,11 @@
     <span class="doccomment">///     sql</span>
     <span class="doccomment">/// );</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// assert_eq!(vec![ParameterizedValue::from(4)], params);</span>
+    <span class="doccomment">/// assert_eq!(vec![Value::from(4)], params);</span>
     <span class="doccomment">/// ```</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">value</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">value</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>
     <span class="kw">where</span>
-        <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+        <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     {
         <span class="self">self</span>.<span class="ident">columns</span>.<span class="ident">push</span>(<span class="ident">value</span>.<span class="ident">into</span>());
         <span class="self">self</span>
@@ -633,7 +633,7 @@
     <span class="doccomment">/// assert_eq!(&quot;SELECT `users`.* FROM `users` WHERE `foo` = ?&quot;, sql);</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// assert_eq!(vec![</span>
-    <span class="doccomment">///    ParameterizedValue::from(&quot;bar&quot;),</span>
+    <span class="doccomment">///    Value::from(&quot;bar&quot;),</span>
     <span class="doccomment">/// ], params);</span>
     <span class="doccomment">/// ```</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">so_that</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">conditions</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>
@@ -659,8 +659,8 @@
     <span class="doccomment">/// assert_eq!(&quot;SELECT `users`.* FROM `users` WHERE (`foo` = ? AND `lol` = ?)&quot;, sql);</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// assert_eq!(vec![</span>
-    <span class="doccomment">///    ParameterizedValue::from(&quot;bar&quot;),</span>
-    <span class="doccomment">///    ParameterizedValue::from(&quot;wtf&quot;),</span>
+    <span class="doccomment">///    Value::from(&quot;bar&quot;),</span>
+    <span class="doccomment">///    Value::from(&quot;wtf&quot;),</span>
     <span class="doccomment">/// ], params);</span>
     <span class="doccomment">/// ```</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">and_where</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">conditions</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>
@@ -691,8 +691,8 @@
     <span class="doccomment">/// assert_eq!(&quot;SELECT `users`.* FROM `users` WHERE (`foo` = ? OR `lol` = ?)&quot;, sql);</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// assert_eq!(vec![</span>
-    <span class="doccomment">///    ParameterizedValue::from(&quot;bar&quot;),</span>
-    <span class="doccomment">///    ParameterizedValue::from(&quot;wtf&quot;),</span>
+    <span class="doccomment">///    Value::from(&quot;bar&quot;),</span>
+    <span class="doccomment">///    Value::from(&quot;wtf&quot;),</span>
     <span class="doccomment">/// ], params);</span>
     <span class="doccomment">/// ```</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">or_where</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">conditions</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>
@@ -744,7 +744,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// assert_eq!(</span>
     <span class="doccomment">///     vec![</span>
-    <span class="doccomment">///         ParameterizedValue::from(true),</span>
+    <span class="doccomment">///         Value::from(true),</span>
     <span class="doccomment">///     ],</span>
     <span class="doccomment">///     params</span>
     <span class="doccomment">/// );</span>
@@ -772,7 +772,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// assert_eq!(</span>
     <span class="doccomment">///     vec![</span>
-    <span class="doccomment">///         ParameterizedValue::from(true),</span>
+    <span class="doccomment">///         Value::from(true),</span>
     <span class="doccomment">///     ],</span>
     <span class="doccomment">///     params</span>
     <span class="doccomment">/// );</span>
@@ -800,7 +800,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// assert_eq!(</span>
     <span class="doccomment">///     vec![</span>
-    <span class="doccomment">///         ParameterizedValue::from(true),</span>
+    <span class="doccomment">///         Value::from(true),</span>
     <span class="doccomment">///     ],</span>
     <span class="doccomment">///     params</span>
     <span class="doccomment">/// );</span>
@@ -866,7 +866,7 @@
     <span class="doccomment">/// let (sql, params) = Sqlite::build(query);</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// assert_eq!(&quot;SELECT `foo`, `bar` FROM `users` GROUP BY `foo` HAVING `foo` &gt; ?&quot;, sql);</span>
-    <span class="doccomment">/// assert_eq!(vec![ParameterizedValue::from(100)], params);</span>
+    <span class="doccomment">/// assert_eq!(vec![Value::from(100)], params);</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">having</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">conditions</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>
     <span class="kw">where</span>
         <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">ConditionTree</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
@@ -883,9 +883,9 @@
     <span class="doccomment">/// let (sql, params) = Sqlite::build(query);</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// assert_eq!(&quot;SELECT `users`.* FROM `users` LIMIT ?&quot;, sql);</span>
-    <span class="doccomment">/// assert_eq!(vec![ParameterizedValue::from(10)], params);</span>
+    <span class="doccomment">/// assert_eq!(vec![Value::from(10)], params);</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">limit</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">limit</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">limit</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">ParameterizedValue</span>::<span class="ident">from</span>(<span class="ident">limit</span>));
+        <span class="self">self</span>.<span class="ident">limit</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Value</span>::<span class="ident">from</span>(<span class="ident">limit</span>));
         <span class="self">self</span>
     }
 
@@ -897,9 +897,9 @@
     <span class="doccomment">/// let (sql, params) = Sqlite::build(query);</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// assert_eq!(&quot;SELECT `users`.* FROM `users` LIMIT ? OFFSET ?&quot;, sql);</span>
-    <span class="doccomment">/// assert_eq!(vec![ParameterizedValue::from(-1), ParameterizedValue::from(10)], params);</span>
+    <span class="doccomment">/// assert_eq!(vec![Value::from(-1), Value::from(10)], params);</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">offset</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">offset</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">offset</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">ParameterizedValue</span>::<span class="ident">from</span>(<span class="ident">offset</span>));
+        <span class="self">self</span>.<span class="ident">offset</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Value</span>::<span class="ident">from</span>(<span class="ident">offset</span>));
         <span class="self">self</span>
     }
 }

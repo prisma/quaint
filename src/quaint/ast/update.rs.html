@@ -113,7 +113,7 @@
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Update</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">table</span>: <span class="ident">Table</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">columns</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Column</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">values</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">values</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">conditions</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ConditionTree</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
 }
 
@@ -148,8 +148,8 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// assert_eq!(</span>
     <span class="doccomment">///     vec![</span>
-    <span class="doccomment">///         ParameterizedValue::Integer(10),</span>
-    <span class="doccomment">///         ParameterizedValue::Boolean(false),</span>
+    <span class="doccomment">///         Value::Integer(10),</span>
+    <span class="doccomment">///         Value::Boolean(false),</span>
     <span class="doccomment">///     ],</span>
     <span class="doccomment">///     params,</span>
     <span class="doccomment">/// );</span>
@@ -157,7 +157,7 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">column</span>: <span class="ident">K</span>, <span class="ident">value</span>: <span class="ident">V</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Update</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="ident">K</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Column</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-        <span class="ident">V</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">DatabaseValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+        <span class="ident">V</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     {
         <span class="self">self</span>.<span class="ident">columns</span>.<span class="ident">push</span>(<span class="ident">column</span>.<span class="ident">into</span>());
         <span class="self">self</span>.<span class="ident">values</span>.<span class="ident">push</span>(<span class="ident">value</span>.<span class="ident">into</span>());
@@ -177,8 +177,8 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// assert_eq!(</span>
     <span class="doccomment">///     vec![</span>
-    <span class="doccomment">///         ParameterizedValue::Integer(1),</span>
-    <span class="doccomment">///         ParameterizedValue::Boolean(false),</span>
+    <span class="doccomment">///         Value::Integer(1),</span>
+    <span class="doccomment">///         Value::Boolean(false),</span>
     <span class="doccomment">///     ],</span>
     <span class="doccomment">///     params,</span>
     <span class="doccomment">/// );</span>
@@ -199,8 +199,8 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// assert_eq!(</span>
     <span class="doccomment">///     vec![</span>
-    <span class="doccomment">///         ParameterizedValue::Integer(1),</span>
-    <span class="doccomment">///         ParameterizedValue::Integer(3),</span>
+    <span class="doccomment">///         Value::Integer(1),</span>
+    <span class="doccomment">///         Value::Integer(3),</span>
     <span class="doccomment">///     ],</span>
     <span class="doccomment">///     params,</span>
     <span class="doccomment">/// );</span>

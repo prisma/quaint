@@ -135,23 +135,23 @@
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">index</span>::<span class="kw-2">*</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">result_row</span>::<span class="kw-2">*</span>;
 
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">ast</span>::<span class="ident">ParameterizedValue</span>, <span class="ident">error</span>::<span class="kw-2">*</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">ast</span>::<span class="ident">Value</span>, <span class="ident">error</span>::<span class="kw-2">*</span>};
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">sync</span>::<span class="ident">Arc</span>;
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;json-1&quot;</span>)]</span>
-<span class="kw">use</span> <span class="ident">serde_json</span>::{<span class="ident">Map</span>, <span class="ident">Value</span>};
+<span class="kw">use</span> <span class="ident">serde_json</span>::<span class="ident">Map</span>;
 
 <span class="doccomment">/// Encapsulates a set of results and their respective column names.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Default</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ResultSet</span> {
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">columns</span>: <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">rows</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ParameterizedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">rows</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Value</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">last_insert_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u64</span><span class="op">&gt;</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">ResultSet</span> {
     <span class="doccomment">/// Creates a new instance, bound to the given column names and result rows.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">names</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>, <span class="ident">rows</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ParameterizedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">names</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>, <span class="ident">rows</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Value</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="self">Self</span> {
             <span class="ident">columns</span>: <span class="ident">Arc</span>::<span class="ident">new</span>(<span class="ident">names</span>),
             <span class="ident">rows</span>,
@@ -222,7 +222,7 @@
 <span class="doccomment">/// Might become lazy one day.</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ResultSetIterator</span> {
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">columns</span>: <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">internal_iterator</span>: <span class="ident">std</span>::<span class="ident">vec</span>::<span class="ident">IntoIter</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ParameterizedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">internal_iterator</span>: <span class="ident">std</span>::<span class="ident">vec</span>::<span class="ident">IntoIter</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Value</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">Iterator</span> <span class="kw">for</span> <span class="ident">ResultSetIterator</span> {
@@ -240,7 +240,7 @@
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;json-1&quot;</span>)]</span>
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">ResultSet</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Value</span> {
+<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">ResultSet</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">serde_json</span>::<span class="ident">Value</span> {
     <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">result_set</span>: <span class="ident">ResultSet</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="kw">let</span> <span class="ident">columns</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">result_set</span>.<span class="ident">columns</span>().<span class="ident">iter</span>().<span class="ident">map</span>(<span class="ident">ToString</span>::<span class="ident">to_string</span>).<span class="ident">collect</span>();
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
@@ -250,13 +250,13 @@
 
             <span class="kw">for</span> (<span class="ident">idx</span>, <span class="ident">p_value</span>) <span class="kw">in</span> <span class="ident">row</span>.<span class="ident">into_iter</span>().<span class="ident">enumerate</span>() {
                 <span class="kw">let</span> <span class="ident">column_name</span>: <span class="ident">String</span> <span class="op">=</span> <span class="ident">columns</span>[<span class="ident">idx</span>].<span class="ident">clone</span>();
-                <span class="ident">object</span>.<span class="ident">insert</span>(<span class="ident">column_name</span>, <span class="ident">Value</span>::<span class="ident">from</span>(<span class="ident">p_value</span>));
+                <span class="ident">object</span>.<span class="ident">insert</span>(<span class="ident">column_name</span>, <span class="ident">serde_json</span>::<span class="ident">Value</span>::<span class="ident">from</span>(<span class="ident">p_value</span>));
             }
 
-            <span class="ident">result</span>.<span class="ident">push</span>(<span class="ident">Value</span>::<span class="ident">Object</span>(<span class="ident">object</span>));
+            <span class="ident">result</span>.<span class="ident">push</span>(<span class="ident">serde_json</span>::<span class="ident">Value</span>::<span class="ident">Object</span>(<span class="ident">object</span>));
         }
 
-        <span class="ident">Value</span>::<span class="ident">Array</span>(<span class="ident">result</span>)
+        <span class="ident">serde_json</span>::<span class="ident">Value</span>::<span class="ident">Array</span>(<span class="ident">result</span>)
     }
 }
 </pre></div>

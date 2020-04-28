@@ -270,17 +270,11 @@
 <span id="270">270</span>
 <span id="271">271</span>
 <span id="272">272</span>
-<span id="273">273</span>
-<span id="274">274</span>
-<span id="275">275</span>
-<span id="276">276</span>
-<span id="277">277</span>
-<span id="278">278</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Convert results from the database into any type implementing `serde::Deserialize`.</span>
 
 <span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">ast</span>::<span class="ident">ParameterizedValue</span>,
+    <span class="ident">ast</span>::<span class="ident">Value</span>,
     <span class="ident">connector</span>::{<span class="ident">ResultRow</span>, <span class="ident">ResultSet</span>},
     <span class="ident">error</span>::{<span class="ident">Error</span>, <span class="ident">ErrorKind</span>},
 };
@@ -310,7 +304,7 @@
 <span class="doccomment">///</span>
 <span class="doccomment">/// ```</span>
 <span class="doccomment">/// # use serde::Deserialize;</span>
-<span class="doccomment">/// # use quaint::ast::ParameterizedValue;</span>
+<span class="doccomment">/// # use quaint::ast::Value;</span>
 <span class="doccomment">/// #</span>
 <span class="doccomment">/// # #[derive(Deserialize, Debug, PartialEq)]</span>
 <span class="doccomment">/// # struct User {</span>
@@ -321,7 +315,7 @@
 <span class="doccomment">/// # fn main() -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {</span>
 <span class="doccomment">/// #</span>
 <span class="doccomment">/// #   let row = quaint::serde::make_row(vec![</span>
-<span class="doccomment">/// #       (&quot;id&quot;, ParameterizedValue::Integer(12)),</span>
+<span class="doccomment">/// #       (&quot;id&quot;, Value::Integer(12)),</span>
 <span class="doccomment">/// #       (&quot;name&quot;, &quot;Georgina&quot;.into()),</span>
 <span class="doccomment">/// #   ]);</span>
 <span class="doccomment">/// #</span>
@@ -352,7 +346,7 @@
         <span class="kw">let</span> <span class="ident">kvs</span> <span class="op">=</span> <span class="ident">columns</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>().<span class="ident">map</span>(<span class="kw">move</span> <span class="op">|</span>(<span class="ident">v</span>, <span class="ident">k</span>)<span class="op">|</span> {
             <span class="comment">// The unwrap is safe if `columns` is correct.</span>
             <span class="kw">let</span> <span class="ident">value</span> <span class="op">=</span> <span class="ident">values</span>.<span class="ident">get_mut</span>(<span class="ident">v</span>).<span class="ident">unwrap</span>();
-            <span class="kw">let</span> <span class="ident">taken_value</span> <span class="op">=</span> <span class="ident">std</span>::<span class="ident">mem</span>::<span class="ident">replace</span>(<span class="ident">value</span>, <span class="ident">ParameterizedValue</span>::<span class="ident">Null</span>);
+            <span class="kw">let</span> <span class="ident">taken_value</span> <span class="op">=</span> <span class="ident">std</span>::<span class="ident">mem</span>::<span class="ident">replace</span>(<span class="ident">value</span>, <span class="ident">Value</span>::<span class="ident">Null</span>);
             (<span class="ident">k</span>.<span class="ident">as_str</span>(), <span class="ident">taken_value</span>)
         });
 
@@ -368,47 +362,47 @@
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span> <span class="ident">IntoDeserializer</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span>, <span class="ident">DeserializeError</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ParameterizedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span> {
-    <span class="kw">type</span> <span class="ident">Deserializer</span> <span class="op">=</span> <span class="ident">ParameterizedValueDeserializer</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span>;
+<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span> <span class="ident">IntoDeserializer</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span>, <span class="ident">DeserializeError</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Value</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span> {
+    <span class="kw">type</span> <span class="ident">Deserializer</span> <span class="op">=</span> <span class="ident">ValueDeserializer</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span>;
 
     <span class="kw">fn</span> <span class="ident">into_deserializer</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>::<span class="ident">Deserializer</span> {
-        <span class="ident">ParameterizedValueDeserializer</span>(<span class="self">self</span>)
+        <span class="ident">ValueDeserializer</span>(<span class="self">self</span>)
     }
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ParameterizedValueDeserializer</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="ident">ParameterizedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>);
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ValueDeserializer</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="ident">Value</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>);
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span> <span class="ident">Deserializer</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ParameterizedValueDeserializer</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span> {
+<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span> <span class="ident">Deserializer</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ValueDeserializer</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span> {
     <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">DeserializeError</span>;
 
     <span class="kw">fn</span> <span class="ident">deserialize_any</span><span class="op">&lt;</span><span class="ident">V</span>: <span class="ident">Visitor</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">visitor</span>: <span class="ident">V</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">V</span>::<span class="ident">Value</span>, <span class="self">Self</span>::<span class="ident">Error</span><span class="op">&gt;</span> {
         <span class="kw">use</span> <span class="ident">rust_decimal</span>::<span class="ident">prelude</span>::<span class="ident">ToPrimitive</span>;
 
         <span class="kw">match</span> <span class="self">self</span>.<span class="number">0</span> {
-            <span class="ident">ParameterizedValue</span>::<span class="ident">Text</span>(<span class="ident">s</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">visitor</span>.<span class="ident">visit_string</span>(<span class="ident">s</span>.<span class="ident">into_owned</span>()),
-            <span class="ident">ParameterizedValue</span>::<span class="ident">Bytes</span>(<span class="ident">bytes</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">visitor</span>.<span class="ident">visit_bytes</span>(<span class="ident">bytes</span>.<span class="ident">as_ref</span>()),
-            <span class="ident">ParameterizedValue</span>::<span class="ident">Enum</span>(<span class="ident">s</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">visitor</span>.<span class="ident">visit_string</span>(<span class="ident">s</span>.<span class="ident">into_owned</span>()),
-            <span class="ident">ParameterizedValue</span>::<span class="ident">Integer</span>(<span class="ident">i</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">visitor</span>.<span class="ident">visit_i64</span>(<span class="ident">i</span>),
-            <span class="ident">ParameterizedValue</span>::<span class="ident">Boolean</span>(<span class="ident">b</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">visitor</span>.<span class="ident">visit_bool</span>(<span class="ident">b</span>),
-            <span class="ident">ParameterizedValue</span>::<span class="ident">Char</span>(<span class="ident">c</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">visitor</span>.<span class="ident">visit_char</span>(<span class="ident">c</span>),
-            <span class="ident">ParameterizedValue</span>::<span class="ident">Null</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">visitor</span>.<span class="ident">visit_none</span>(),
-            <span class="ident">ParameterizedValue</span>::<span class="ident">Real</span>(<span class="ident">real</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">visitor</span>.<span class="ident">visit_f64</span>(<span class="ident">real</span>.<span class="ident">to_f64</span>().<span class="ident">unwrap</span>()),
+            <span class="ident">Value</span>::<span class="ident">Text</span>(<span class="ident">s</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">visitor</span>.<span class="ident">visit_string</span>(<span class="ident">s</span>.<span class="ident">into_owned</span>()),
+            <span class="ident">Value</span>::<span class="ident">Bytes</span>(<span class="ident">bytes</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">visitor</span>.<span class="ident">visit_bytes</span>(<span class="ident">bytes</span>.<span class="ident">as_ref</span>()),
+            <span class="ident">Value</span>::<span class="ident">Enum</span>(<span class="ident">s</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">visitor</span>.<span class="ident">visit_string</span>(<span class="ident">s</span>.<span class="ident">into_owned</span>()),
+            <span class="ident">Value</span>::<span class="ident">Integer</span>(<span class="ident">i</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">visitor</span>.<span class="ident">visit_i64</span>(<span class="ident">i</span>),
+            <span class="ident">Value</span>::<span class="ident">Boolean</span>(<span class="ident">b</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">visitor</span>.<span class="ident">visit_bool</span>(<span class="ident">b</span>),
+            <span class="ident">Value</span>::<span class="ident">Char</span>(<span class="ident">c</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">visitor</span>.<span class="ident">visit_char</span>(<span class="ident">c</span>),
+            <span class="ident">Value</span>::<span class="ident">Null</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">visitor</span>.<span class="ident">visit_none</span>(),
+            <span class="ident">Value</span>::<span class="ident">Real</span>(<span class="ident">real</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">visitor</span>.<span class="ident">visit_f64</span>(<span class="ident">real</span>.<span class="ident">to_f64</span>().<span class="ident">unwrap</span>()),
 
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;uuid-0_8&quot;</span>)]</span>
-            <span class="ident">ParameterizedValue</span>::<span class="ident">Uuid</span>(<span class="ident">uuid</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">visitor</span>.<span class="ident">visit_string</span>(<span class="ident">uuid</span>.<span class="ident">to_string</span>()),
+            <span class="ident">Value</span>::<span class="ident">Uuid</span>(<span class="ident">uuid</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">visitor</span>.<span class="ident">visit_string</span>(<span class="ident">uuid</span>.<span class="ident">to_string</span>()),
 
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;json-1&quot;</span>)]</span>
-            <span class="ident">ParameterizedValue</span>::<span class="ident">Json</span>(<span class="ident">value</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">value</span>
+            <span class="ident">Value</span>::<span class="ident">Json</span>(<span class="ident">value</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">value</span>
                 .<span class="ident">into_deserializer</span>()
                 .<span class="ident">deserialize_any</span>(<span class="ident">visitor</span>)
                 .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> <span class="ident">serde</span>::<span class="ident">de</span>::<span class="ident">value</span>::<span class="ident">Error</span>::<span class="ident">custom</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Error deserializing JSON value: {}&quot;</span>, <span class="ident">err</span>))),
 
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;chrono-0_4&quot;</span>)]</span>
-            <span class="ident">ParameterizedValue</span>::<span class="ident">DateTime</span>(<span class="ident">dt</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">visitor</span>.<span class="ident">visit_string</span>(<span class="ident">dt</span>.<span class="ident">to_rfc3339</span>()),
+            <span class="ident">Value</span>::<span class="ident">DateTime</span>(<span class="ident">dt</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">visitor</span>.<span class="ident">visit_string</span>(<span class="ident">dt</span>.<span class="ident">to_rfc3339</span>()),
 
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;array&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;postgresql&quot;</span>))]</span>
-            <span class="ident">ParameterizedValue</span>::<span class="ident">Array</span>(<span class="ident">values</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">Value</span>::<span class="ident">Array</span>(<span class="ident">values</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">let</span> <span class="ident">deserializer</span> <span class="op">=</span> <span class="ident">serde</span>::<span class="ident">de</span>::<span class="ident">value</span>::<span class="ident">SeqDeserializer</span>::<span class="ident">new</span>(<span class="ident">values</span>.<span class="ident">into_iter</span>());
                 <span class="ident">visitor</span>.<span class="ident">visit_seq</span>(<span class="ident">deserializer</span>)
             }
@@ -417,7 +411,7 @@
 
     <span class="kw">fn</span> <span class="ident">deserialize_option</span><span class="op">&lt;</span><span class="ident">V</span>: <span class="ident">Visitor</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">visitor</span>: <span class="ident">V</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">V</span>::<span class="ident">Value</span>, <span class="self">Self</span>::<span class="ident">Error</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span> {
-            <span class="ident">ParameterizedValue</span>::<span class="ident">Null</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">visitor</span>.<span class="ident">visit_none</span>(),
+            <span class="ident">Value</span>::<span class="ident">Null</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">visitor</span>.<span class="ident">visit_none</span>(),
             <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">visitor</span>.<span class="ident">visit_some</span>(<span class="self">self</span>),
         }
     }
@@ -430,7 +424,7 @@
 }
 
 <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">make_row</span>(<span class="ident">cols</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>, <span class="ident">ParameterizedValue</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span><span class="op">&gt;</span>)<span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ResultRow</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">make_row</span>(<span class="ident">cols</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>, <span class="ident">Value</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span><span class="op">&gt;</span>)<span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ResultRow</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">columns</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">with_capacity</span>(<span class="ident">cols</span>.<span class="ident">len</span>());
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">values</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">with_capacity</span>(<span class="ident">cols</span>.<span class="ident">len</span>());
 
@@ -467,10 +461,7 @@
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">deserialize_user</span>() {
-        <span class="kw">let</span> <span class="ident">row</span> <span class="op">=</span> <span class="ident">make_row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-            (<span class="string">&quot;id&quot;</span>, <span class="ident">ParameterizedValue</span>::<span class="ident">Integer</span>(<span class="number">12</span>)),
-            (<span class="string">&quot;name&quot;</span>, <span class="string">&quot;Georgina&quot;</span>.<span class="ident">into</span>()),
-        ]);
+        <span class="kw">let</span> <span class="ident">row</span> <span class="op">=</span> <span class="ident">make_row</span>(<span class="macro">vec</span><span class="macro">!</span>[(<span class="string">&quot;id&quot;</span>, <span class="ident">Value</span>::<span class="ident">Integer</span>(<span class="number">12</span>)), (<span class="string">&quot;name&quot;</span>, <span class="string">&quot;Georgina&quot;</span>.<span class="ident">into</span>())]);
         <span class="kw">let</span> <span class="ident">user</span>: <span class="ident">User</span> <span class="op">=</span> <span class="ident">from_row</span>(<span class="ident">row</span>).<span class="ident">unwrap</span>();
 
         <span class="macro">assert_eq</span><span class="macro">!</span>(
@@ -486,9 +477,9 @@
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">from_rows_works</span>() {
         <span class="kw">let</span> <span class="ident">first_row</span> <span class="op">=</span> <span class="ident">make_row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-            (<span class="string">&quot;id&quot;</span>, <span class="ident">ParameterizedValue</span>::<span class="ident">Integer</span>(<span class="number">12</span>)),
+            (<span class="string">&quot;id&quot;</span>, <span class="ident">Value</span>::<span class="ident">Integer</span>(<span class="number">12</span>)),
             (<span class="string">&quot;name&quot;</span>, <span class="string">&quot;Georgina&quot;</span>.<span class="ident">into</span>()),
-            (<span class="string">&quot;bio&quot;</span>, <span class="ident">ParameterizedValue</span>::<span class="ident">Null</span>.<span class="ident">into</span>()),
+            (<span class="string">&quot;bio&quot;</span>, <span class="ident">Value</span>::<span class="ident">Null</span>.<span class="ident">into</span>()),
         ]);
         <span class="kw">let</span> <span class="ident">second_row</span> <span class="op">=</span> <span class="ident">make_row</span>(<span class="macro">vec</span><span class="macro">!</span>[
             (<span class="string">&quot;id&quot;</span>, <span class="number">33</span>.<span class="ident">into</span>()),
@@ -527,14 +518,11 @@
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">deserialize_cat</span>() {
         <span class="kw">let</span> <span class="ident">row</span> <span class="op">=</span> <span class="ident">make_row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-            (<span class="string">&quot;age&quot;</span>, <span class="ident">ParameterizedValue</span>::<span class="ident">Real</span>(<span class="string">&quot;18.800001&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>())),
-            (
-                <span class="string">&quot;birthday&quot;</span>,
-                <span class="ident">ParameterizedValue</span>::<span class="ident">DateTime</span>(<span class="string">&quot;2019-08-01T20:00:00Z&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>()),
-            ),
+            (<span class="string">&quot;age&quot;</span>, <span class="ident">Value</span>::<span class="ident">Real</span>(<span class="string">&quot;18.800001&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>())),
+            (<span class="string">&quot;birthday&quot;</span>, <span class="ident">Value</span>::<span class="ident">DateTime</span>(<span class="string">&quot;2019-08-01T20:00:00Z&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>())),
             (
                 <span class="string">&quot;human&quot;</span>,
-                <span class="ident">ParameterizedValue</span>::<span class="ident">Json</span>(<span class="ident">serde_json</span>::<span class="macro">json</span><span class="macro">!</span>({
+                <span class="ident">Value</span>::<span class="ident">Json</span>(<span class="ident">serde_json</span>::<span class="macro">json</span><span class="macro">!</span>({
                     <span class="string">&quot;id&quot;</span>: <span class="number">19</span>,
                     <span class="string">&quot;name&quot;</span>: <span class="string">&quot;Georgina&quot;</span>
                 })),
