@@ -135,7 +135,12 @@
 <span id="135">135</span>
 <span id="136">136</span>
 <span id="137">137</span>
+<span id="138">138</span>
+<span id="139">139</span>
+<span id="140">140</span>
+<span id="141">141</span>
 </pre><div class="example-wrap"><pre class="rust ">
+<span class="kw">use</span> <span class="kw">super</span>::<span class="ident">ExpressionKind</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">ast</span>::{<span class="ident">Expression</span>, <span class="ident">Row</span>, <span class="ident">Select</span>, <span class="ident">Values</span>};
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">borrow</span>::<span class="ident">Cow</span>;
 
@@ -177,7 +182,10 @@
 
     <span class="doccomment">/// A qualified asterisk to this table</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">asterisk</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Expression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-        <span class="ident">Expression</span>::<span class="ident">Asterisk</span>(<span class="prelude-val">Some</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="self">self</span>)))
+        <span class="ident">Expression</span> {
+            <span class="ident">kind</span>: <span class="ident">ExpressionKind</span>::<span class="ident">Asterisk</span>(<span class="prelude-val">Some</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="self">self</span>))),
+            <span class="ident">alias</span>: <span class="prelude-val">None</span>,
+        }
     }
 }
 
