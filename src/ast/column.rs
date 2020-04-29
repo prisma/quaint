@@ -1,4 +1,4 @@
-use super::Aliasable;
+use super::{cast::Castable, Aliasable, Cast};
 use crate::ast::{Expression, ExpressionKind, Table};
 use std::borrow::Cow;
 
@@ -129,5 +129,17 @@ where
         column = column.table(t.0);
 
         column
+    }
+}
+
+impl<'a> Castable<'a> for Column<'a> {
+    fn cast(self, to: impl Into<Cow<'a, str>>) -> Expression<'a> {
+        Expression {
+            kind: ExpressionKind::Cast(Cast {
+                to: to.into(),
+                expression: Box::new(self.into()),
+            }),
+            alias: None,
+        }
     }
 }

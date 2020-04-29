@@ -118,6 +118,12 @@ impl<'a> Visitor<'a> for Postgres<'a> {
         self.write("','")?;
         self.write(")")
     }
+
+    fn visit_cast(&mut self, cast: Cast<'a>) -> fmt::Result {
+        self.visit_expression(*cast.expression)?;
+        self.write("::")?;
+        self.write(cast.to)
+    }
 }
 
 #[cfg(test)]
@@ -196,6 +202,44 @@ mod tests {
     fn test_limit_and_offset_when_only_limit_is_set() {
         let expected = expected_values("SELECT \"users\".* FROM \"users\" LIMIT $1", vec![10]);
         let query = Select::from_table("users").limit(10);
+        let (sql, params) = Postgres::build(query);
+
+        assert_eq!(expected.0, sql);
+        assert_eq!(expected.1, params);
+    }
+
+    #[cfg(feature = "json-1")]
+    #[test]
+    fn test_cast_column() {
+        let expected = expected_values(
+            r#"SELECT * FROM "mytable" WHERE "json_field"::jsonb = $1"#,
+            vec![serde_json::json!({ "a": true })],
+        );
+
+        let query = Select::from_table("mytable").value(asterisk()).so_that(
+            Column::from("json_field")
+                .cast("jsonb")
+                .equals(serde_json::json!({ "a": true })),
+        );
+
+        let (sql, params) = Postgres::build(query);
+
+        assert_eq!(expected.0, sql);
+        assert_eq!(expected.1, params);
+    }
+
+    #[cfg(feature = "json-1")]
+    #[test]
+    fn test_cast_expression() {
+        let expected = expected_values(
+            r#"SELECT * FROM "mytable" WHERE "json_field" = $1::jsonb"#,
+            vec![serde_json::json!({ "a": true })],
+        );
+
+        let query = Select::from_table("mytable").value(asterisk()).so_that(
+            Column::from("json_field").equals(Expression::from(serde_json::json!({ "a": true })).cast("jsonb")),
+        );
+
         let (sql, params) = Postgres::build(query);
 
         assert_eq!(expected.0, sql);

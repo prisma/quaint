@@ -122,6 +122,15 @@ impl<'a> Visitor<'a> for Sqlite<'a> {
             Ok(())
         })
     }
+
+    fn visit_cast(&mut self, cast: Cast<'a>) -> fmt::Result {
+        self.write("CAST")?;
+        self.surround_with("(", ")", |ref mut s| {
+            s.visit_expression(*cast.expression)?;
+            s.write(" AS ")?;
+            s.write(cast.to)
+        })
+    }
 }
 
 #[cfg(test)]

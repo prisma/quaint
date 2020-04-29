@@ -5,6 +5,7 @@
 //! actual query building is in the [visitor](../visitor/index.html) module.
 //!
 //! For prelude, all important imports are in `quaint::ast::*`.
+mod cast;
 mod column;
 mod compare;
 mod conditions;
@@ -26,6 +27,7 @@ mod union;
 mod update;
 mod values;
 
+pub use cast::{Cast, Castable};
 pub use column::Column;
 pub use compare::{Comparable, Compare};
 pub use conditions::ConditionTree;

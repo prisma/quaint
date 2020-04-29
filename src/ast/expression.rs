@@ -1,4 +1,5 @@
 use crate::ast::*;
+use cast::{Cast, Castable};
 use std::borrow::Cow;
 
 #[derive(Debug, Clone, PartialEq)]
@@ -12,6 +13,8 @@ pub struct Expression<'a> {
 pub enum ExpressionKind<'a> {
     /// Anything that we must parameterize before querying
     Parameterized(Value<'a>),
+    /// Cast the expression to another type
+    Cast(Cast<'a>),
     /// A database column
     Column(Box<Column<'a>>),
     /// Data in a row form, e.g. (1, 2, 3)
@@ -257,5 +260,17 @@ impl<'a> Comparable<'a> for Expression<'a> {
         V: Into<Expression<'a>>,
     {
         Compare::NotBetween(Box::new(self), Box::new(left.into()), Box::new(right.into()))
+    }
+}
+
+impl<'a> Castable<'a> for Expression<'a> {
+    fn cast(self, to: impl Into<Cow<'a, str>>) -> Expression<'a> {
+        Expression {
+            kind: ExpressionKind::Cast(Cast {
+                to: to.into(),
+                expression: Box::new(self),
+            }),
+            alias: None,
+        }
     }
 }
