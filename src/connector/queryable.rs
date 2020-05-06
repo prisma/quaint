@@ -71,7 +71,7 @@ pub trait Queryable: Send + Sync {
 #[async_trait]
 pub trait TransactionCapable: Queryable
 where
-    Self: Sized + Sync,
+    Self: Sized,
 {
     /// Starts a new transaction
     async fn start_transaction(&self) -> crate::Result<Transaction<'_>> {

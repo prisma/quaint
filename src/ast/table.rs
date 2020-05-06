@@ -1,5 +1,8 @@
-use super::ExpressionKind;
-use crate::ast::{Expression, Row, Select, Values};
+use super::{Column, Comparable, ConditionTree, ExpressionKind, IndexDefinition};
+use crate::{
+    ast::{Expression, Row, Select, Values},
+    error::{Error, ErrorKind},
+};
 use std::borrow::Cow;
 
 /// An object that can be aliased.
@@ -21,11 +24,18 @@ pub enum TableType<'a> {
 }
 
 /// A table definition
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug)]
 pub struct Table<'a> {
     pub typ: TableType<'a>,
     pub alias: Option<Cow<'a, str>>,
     pub database: Option<Cow<'a, str>>,
+    pub(crate) index_definitions: Vec<IndexDefinition<'a>>,
+}
+
+impl<'a> PartialEq for Table<'a> {
+    fn eq(&self, other: &Table) -> bool {
+        self.typ == other.typ && self.database == other.database
+    }
 }
 
 impl<'a> Table<'a> {
@@ -45,6 +55,70 @@ impl<'a> Table<'a> {
             alias: None,
         }
     }
+
+    /// Add unique index definition.
+    pub fn add_unique_index(mut self, i: impl Into<IndexDefinition<'a>>) -> Self {
+        let definition = i.into();
+        self.index_definitions.push(definition.set_table(self.clone()));
+        self
+    }
+
+    /// Conditions for Microsoft T-SQL MERGE using the table metadata.
+    ///
+    /// - Find the unique indices from the table that matches the inserted columns
+    /// - Create a join from the virtual table with the uniques
+    /// - Combine joins with `OR`
+    /// - If the the index is a compound with other columns, combine them with `AND`
+    /// - If the column is not provided and index exists, try inserting a default value.
+    /// - Otherwise the function will return an error.
+    pub(crate) fn join_conditions(&self, inserted_columns: &[Column<'a>]) -> crate::Result<ConditionTree<'a>> {
+        let mut result = ConditionTree::NoCondition;
+
+        let join_cond = |column: &Column<'a>| {
+            let res = if !inserted_columns.contains(&column) {
+                let val = column.default.clone().ok_or_else(|| {
+                    Error::builder(ErrorKind::ConversionError(
+                        "A unique column missing from insert and table has no default.",
+                    ))
+                    .build()
+                })?;
+
+                column.clone().equals(val).into()
+            } else {
+                let dual_col = column.clone().table("dual");
+                dual_col.equals(column.clone()).into()
+            };
+
+            Ok::<ConditionTree, Error>(res)
+        };
+
+        for index in self.index_definitions.iter() {
+            let right_cond = match index {
+                IndexDefinition::Single(column) => join_cond(&column)?,
+                IndexDefinition::Compound(cols) => {
+                    let mut result = ConditionTree::NoCondition;
+
+                    for right in cols.iter() {
+                        let right_cond = join_cond(&right)?;
+
+                        match result {
+                            ConditionTree::NoCondition => result = right_cond,
+                            left_cond => result = left_cond.and(right_cond),
+                        }
+                    }
+
+                    result
+                }
+            };
+
+            match result {
+                ConditionTree::NoCondition => result = right_cond.into(),
+                left_cond => result = left_cond.or(right_cond),
+            }
+        }
+
+        Ok(result)
+    }
 }
 
 impl<'a> From<&'a str> for Table<'a> {
@@ -53,6 +127,18 @@ impl<'a> From<&'a str> for Table<'a> {
             typ: TableType::Table(s.into()),
             alias: None,
             database: None,
+            index_definitions: Vec::new(),
+        }
+    }
+}
+
+impl<'a> From<&'a String> for Table<'a> {
+    fn from(s: &'a String) -> Table<'a> {
+        Table {
+            typ: TableType::Table(s.into()),
+            alias: None,
+            database: None,
+            index_definitions: Vec::new(),
         }
     }
 }
@@ -64,12 +150,34 @@ impl<'a> From<(&'a str, &'a str)> for Table<'a> {
     }
 }
 
+impl<'a> From<(&'a str, &'a String)> for Table<'a> {
+    fn from(s: (&'a str, &'a String)) -> Table<'a> {
+        let table: Table<'a> = s.1.into();
+        table.database(s.0)
+    }
+}
+
+impl<'a> From<(&'a String, &'a str)> for Table<'a> {
+    fn from(s: (&'a String, &'a str)) -> Table<'a> {
+        let table: Table<'a> = s.1.into();
+        table.database(s.0)
+    }
+}
+
+impl<'a> From<(&'a String, &'a String)> for Table<'a> {
+    fn from(s: (&'a String, &'a String)) -> Table<'a> {
+        let table: Table<'a> = s.1.into();
+        table.database(s.0)
+    }
+}
+
 impl<'a> From<String> for Table<'a> {
     fn from(s: String) -> Self {
         Table {
             typ: TableType::Table(s.into()),
             alias: None,
             database: None,
+            index_definitions: Vec::new(),
         }
     }
 }
@@ -86,6 +194,7 @@ impl<'a> From<Values<'a>> for Table<'a> {
             typ: TableType::Values(values),
             alias: None,
             database: None,
+            index_definitions: Vec::new(),
         }
     }
 }
@@ -103,6 +212,7 @@ impl<'a> From<Select<'a>> for Table<'a> {
             typ: TableType::Query(select),
             alias: None,
             database: None,
+            index_definitions: Vec::new(),
         }
     }
 }
@@ -117,24 +227,6 @@ impl<'a> Aliasable<'a> for Table<'a> {
         self.alias = Some(alias.into());
         self
     }
-}
-
-macro_rules! aliasable {
-    ($($kind:ty),*) => (
-        $(
-            impl<'a> Aliasable<'a> for $kind {
-                type Target = Table<'a>;
-
-                fn alias<T>(self, alias: T) -> Self::Target
-                where
-                    T: Into<Cow<'a, str>>,
-                {
-                    let table: Table = self.into();
-                    table.alias(alias)
-                }
-            }
-        )*
-    );
 }
 
 aliasable!(String, (String, String));

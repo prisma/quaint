@@ -2,6 +2,8 @@ use crate::error::{Error, ErrorKind};
 use std::{borrow::Cow, fmt};
 use url::Url;
 
+#[cfg(feature = "mssql")]
+use crate::connector::MssqlUrl;
 #[cfg(feature = "mysql")]
 use crate::connector::MysqlUrl;
 #[cfg(feature = "postgresql")]
@@ -20,6 +22,9 @@ pub enum ConnectionInfo {
     /// A MySQL connection URL.
     #[cfg(feature = "mysql")]
     Mysql(MysqlUrl),
+    /// A SQL Server connection URL.
+    #[cfg(feature = "mssql")]
+    Mssql(MssqlUrl),
     /// A SQLite connection URL.
     #[cfg(feature = "sqlite")]
     Sqlite {
@@ -39,14 +44,22 @@ impl ConnectionInfo {
         let url_result: Result<Url, _> = url_str.parse();
 
         // Non-URL database strings are interpreted as SQLite file paths.
-        #[cfg(feature = "sqlite")]
+        #[cfg(any(feature = "sqlite", feature = "mssql"))]
         {
-            if url_result.is_err() {
-                let params = SqliteParams::try_from(url_str)?;
-                return Ok(ConnectionInfo::Sqlite {
-                    file_path: params.file_path,
-                    db_name: params.db_name.clone(),
-                });
+            match url_str {
+                s if s.starts_with("file") || s.starts_with("sqlite") => {
+                    if url_result.is_err() {
+                        let params = SqliteParams::try_from(s)?;
+
+                        return Ok(ConnectionInfo::Sqlite {
+                            file_path: params.file_path,
+                            db_name: params.db_name.clone(),
+                        });
+                    }
+                }
+                _ => {
+                    return Ok(ConnectionInfo::Mssql(MssqlUrl::new(url_str)?));
+                }
             }
         }
 
@@ -73,6 +86,7 @@ impl ConnectionInfo {
             }
             #[cfg(feature = "postgresql")]
             SqlFamily::Postgres => Ok(ConnectionInfo::Postgres(PostgresUrl::new(url)?)),
+            _ => unreachable!(),
         }
     }
 
@@ -83,6 +97,8 @@ impl ConnectionInfo {
             ConnectionInfo::Postgres(url) => Some(url.dbname()),
             #[cfg(feature = "mysql")]
             ConnectionInfo::Mysql(url) => Some(url.dbname()),
+            #[cfg(feature = "mssql")]
+            ConnectionInfo::Mssql(url) => Some(url.dbname()),
             #[cfg(feature = "sqlite")]
             ConnectionInfo::Sqlite { .. } => None,
         }
@@ -99,6 +115,8 @@ impl ConnectionInfo {
             ConnectionInfo::Postgres(url) => url.schema(),
             #[cfg(feature = "mysql")]
             ConnectionInfo::Mysql(url) => url.dbname(),
+            #[cfg(feature = "mssql")]
+            ConnectionInfo::Mssql(url) => url.dbname(),
             #[cfg(feature = "sqlite")]
             ConnectionInfo::Sqlite { db_name, .. } => db_name,
         }
@@ -111,6 +129,8 @@ impl ConnectionInfo {
             ConnectionInfo::Postgres(url) => url.host(),
             #[cfg(feature = "mysql")]
             ConnectionInfo::Mysql(url) => url.host(),
+            #[cfg(feature = "mssql")]
+            ConnectionInfo::Mssql(url) => url.host(),
             #[cfg(feature = "sqlite")]
             ConnectionInfo::Sqlite { .. } => "localhost",
         }
@@ -123,6 +143,8 @@ impl ConnectionInfo {
             ConnectionInfo::Postgres(url) => Some(url.username()),
             #[cfg(feature = "mysql")]
             ConnectionInfo::Mysql(url) => Some(url.username()),
+            #[cfg(feature = "mssql")]
+            ConnectionInfo::Mssql(url) => url.username().map(Cow::from),
             #[cfg(feature = "sqlite")]
             ConnectionInfo::Sqlite { .. } => None,
         }
@@ -135,6 +157,8 @@ impl ConnectionInfo {
             ConnectionInfo::Postgres(_) => None,
             #[cfg(feature = "mysql")]
             ConnectionInfo::Mysql(_) => None,
+            #[cfg(feature = "mssql")]
+            ConnectionInfo::Mssql(_) => None,
             #[cfg(feature = "sqlite")]
             ConnectionInfo::Sqlite { file_path, .. } => Some(file_path),
         }
@@ -147,6 +171,8 @@ impl ConnectionInfo {
             ConnectionInfo::Postgres(_) => SqlFamily::Postgres,
             #[cfg(feature = "mysql")]
             ConnectionInfo::Mysql(_) => SqlFamily::Mysql,
+            #[cfg(feature = "mssql")]
+            ConnectionInfo::Mssql(_) => SqlFamily::Mssql,
             #[cfg(feature = "sqlite")]
             ConnectionInfo::Sqlite { .. } => SqlFamily::Sqlite,
         }
@@ -159,6 +185,8 @@ impl ConnectionInfo {
             ConnectionInfo::Postgres(url) => Some(url.port()),
             #[cfg(feature = "mysql")]
             ConnectionInfo::Mysql(url) => Some(url.port()),
+            #[cfg(feature = "mssql")]
+            ConnectionInfo::Mssql(url) => Some(url.port()),
             #[cfg(feature = "sqlite")]
             ConnectionInfo::Sqlite { .. } => None,
         }
@@ -172,6 +200,8 @@ impl ConnectionInfo {
             ConnectionInfo::Postgres(url) => format!("{}:{}", url.host(), url.port()),
             #[cfg(feature = "mysql")]
             ConnectionInfo::Mysql(url) => format!("{}:{}", url.host(), url.port()),
+            #[cfg(feature = "mssql")]
+            ConnectionInfo::Mssql(url) => format!("{}:{}", url.host(), url.port()),
             #[cfg(feature = "sqlite")]
             ConnectionInfo::Sqlite { file_path, .. } => file_path.clone(),
         }
@@ -187,6 +217,8 @@ pub enum SqlFamily {
     Mysql,
     #[cfg(feature = "sqlite")]
     Sqlite,
+    #[cfg(feature = "mssql")]
+    Mssql,
 }
 
 impl SqlFamily {
@@ -199,6 +231,8 @@ impl SqlFamily {
             SqlFamily::Mysql => "mysql",
             #[cfg(feature = "sqlite")]
             SqlFamily::Sqlite => "sqlite",
+            #[cfg(feature = "mssql")]
+            SqlFamily::Mssql => "mssql",
         }
     }
 
@@ -240,6 +274,14 @@ impl SqlFamily {
     pub fn is_sqlite(&self) -> bool {
         match self {
             SqlFamily::Sqlite => true,
+            _ => false,
+        }
+    }
+
+    #[cfg(feature = "mssql")]
+    pub fn is_mssql(&self) -> bool {
+        match self {
+            SqlFamily::Mssql => true,
             _ => false,
         }
     }
