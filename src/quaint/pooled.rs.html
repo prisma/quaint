@@ -333,6 +333,19 @@
 <span id="333">333</span>
 <span id="334">334</span>
 <span id="335">335</span>
+<span id="336">336</span>
+<span id="337">337</span>
+<span id="338">338</span>
+<span id="339">339</span>
+<span id="340">340</span>
+<span id="341">341</span>
+<span id="342">342</span>
+<span id="343">343</span>
+<span id="344">344</span>
+<span id="345">345</span>
+<span id="346">346</span>
+<span id="347">347</span>
+<span id="348">348</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! # A connection pool to a SQL database.</span>
 <span class="doccomment">//!</span>
@@ -462,6 +475,7 @@
     <span class="ident">manager</span>: <span class="ident">QuaintManager</span>,
     <span class="ident">connection_info</span>: <span class="ident">ConnectionInfo</span>,
     <span class="ident">connection_limit</span>: <span class="ident">usize</span>,
+    <span class="ident">max_idle</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u64</span><span class="op">&gt;</span>,
     <span class="ident">max_idle_lifetime</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span>,
     <span class="ident">health_check_interval</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span>,
     <span class="ident">test_on_check_out</span>: <span class="ident">bool</span>,
@@ -477,6 +491,7 @@
             <span class="ident">manager</span>,
             <span class="ident">connection_info</span>,
             <span class="ident">connection_limit</span>,
+            <span class="ident">max_idle</span>: <span class="prelude-val">None</span>,
             <span class="ident">max_idle_lifetime</span>: <span class="prelude-val">None</span>,
             <span class="ident">health_check_interval</span>: <span class="prelude-val">None</span>,
             <span class="ident">test_on_check_out</span>: <span class="bool-val">false</span>,
@@ -489,6 +504,16 @@
     <span class="doccomment">/// - Defaults to two times the number of physical cores plus one.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">connection_limit</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">connection_limit</span>: <span class="ident">usize</span>) {
         <span class="self">self</span>.<span class="ident">connection_limit</span> <span class="op">=</span> <span class="ident">connection_limit</span>;
+    }
+
+    <span class="doccomment">/// The maximum number of idle connections the pool can contain at the same time. If a</span>
+    <span class="doccomment">/// connection goes idle (a query returns) and there are already this number of idle connections</span>
+    <span class="doccomment">/// in the pool, a connection will be closed immediately. Consider using `max_idle_lifetime` to</span>
+    <span class="doccomment">/// close idle connections less aggressively.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// - Defaults to the same value as `connection_limit`.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">max_idle</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">max_idle</span>: <span class="ident">u64</span>) {
+        <span class="self">self</span>.<span class="ident">max_idle</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">max_idle</span>);
     }
 
     <span class="doccomment">/// A timeout for acquiring a connection with the [`check_out`] method. If</span>
@@ -568,6 +593,7 @@
 
         <span class="kw">let</span> <span class="ident">inner</span> <span class="op">=</span> <span class="ident">Pool</span>::<span class="ident">builder</span>()
             .<span class="ident">max_open</span>(<span class="self">self</span>.<span class="ident">connection_limit</span> <span class="kw">as</span> <span class="ident">u64</span>)
+            .<span class="ident">max_idle</span>(<span class="self">self</span>.<span class="ident">max_idle</span>.<span class="ident">unwrap_or</span>(<span class="self">self</span>.<span class="ident">connection_limit</span> <span class="kw">as</span> <span class="ident">u64</span>))
             .<span class="ident">max_idle_lifetime</span>(<span class="self">self</span>.<span class="ident">max_idle_lifetime</span>)
             .<span class="ident">health_check_interval</span>(<span class="self">self</span>.<span class="ident">health_check_interval</span>)
             .<span class="ident">test_on_check_out</span>(<span class="self">self</span>.<span class="ident">test_on_check_out</span>)
