@@ -69,6 +69,11 @@
 <span id="69">69</span>
 <span id="70">70</span>
 <span id="71">71</span>
+<span id="72">72</span>
+<span id="73">73</span>
+<span id="74">74</span>
+<span id="75">75</span>
+<span id="76">76</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">super</span>::{<span class="ident">ResultSet</span>, <span class="ident">Transaction</span>, <span class="ident">DBIO</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">ast</span>::<span class="kw-2">*</span>;
@@ -129,6 +134,11 @@
             <span class="prelude-val">Ok</span>(())
         })
     }
+
+    <span class="doccomment">/// Return the version of the underlying database, queried directly from the source. This</span>
+    <span class="doccomment">/// corresponds to the `version()` function on PostgreSQL for example. The version string is</span>
+    <span class="doccomment">/// returned directly without any form of parsing or normalization.</span>
+    <span class="kw">fn</span> <span class="ident">version</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">DBIO</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span>;
 }
 
 <span class="doccomment">/// A thing that can start a new transaction.</span>
