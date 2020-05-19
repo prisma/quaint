@@ -790,6 +790,10 @@
 <span id="790">790</span>
 <span id="791">791</span>
 <span id="792">792</span>
+<span id="793">793</span>
+<span id="794">794</span>
+<span id="795">795</span>
+<span id="796">796</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Visitors for reading an abstract SQL syntax tree, generating the query and</span>
 <span class="doccomment">//! gathering parameters in the right order.</span>
@@ -1247,16 +1251,8 @@
     <span class="doccomment">/// A comparison expression</span>
     <span class="kw">fn</span> <span class="ident">visit_compare</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">compare</span>: <span class="ident">Compare</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
         <span class="kw">match</span> <span class="ident">compare</span> {
-            <span class="ident">Compare</span>::<span class="ident">Equals</span>(<span class="ident">left</span>, <span class="ident">right</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="kw-2">*</span><span class="ident">left</span>)<span class="question-mark">?</span>;
-                <span class="self">self</span>.<span class="ident">write</span>(<span class="string">&quot; = &quot;</span>)<span class="question-mark">?</span>;
-                <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="kw-2">*</span><span class="ident">right</span>)
-            }
-            <span class="ident">Compare</span>::<span class="ident">NotEquals</span>(<span class="ident">left</span>, <span class="ident">right</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="kw-2">*</span><span class="ident">left</span>)<span class="question-mark">?</span>;
-                <span class="self">self</span>.<span class="ident">write</span>(<span class="string">&quot; &lt;&gt; &quot;</span>)<span class="question-mark">?</span>;
-                <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="kw-2">*</span><span class="ident">right</span>)
-            }
+            <span class="ident">Compare</span>::<span class="ident">Equals</span>(<span class="ident">left</span>, <span class="ident">right</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">visit_condition_equals</span>(<span class="kw-2">*</span><span class="ident">left</span>, <span class="kw-2">*</span><span class="ident">right</span>),
+            <span class="ident">Compare</span>::<span class="ident">NotEquals</span>(<span class="ident">left</span>, <span class="ident">right</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">visit_condition_not_equals</span>(<span class="kw-2">*</span><span class="ident">left</span>, <span class="kw-2">*</span><span class="ident">right</span>),
             <span class="ident">Compare</span>::<span class="ident">LessThan</span>(<span class="ident">left</span>, <span class="ident">right</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="kw-2">*</span><span class="ident">left</span>)<span class="question-mark">?</span>;
                 <span class="self">self</span>.<span class="ident">write</span>(<span class="string">&quot; &lt; &quot;</span>)<span class="question-mark">?</span>;
@@ -1480,6 +1476,18 @@
                 <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="kw-2">*</span><span class="ident">right</span>)
             }
         }
+    }
+
+    <span class="kw">fn</span> <span class="ident">visit_condition_equals</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">left</span>: <span class="ident">Expression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>, <span class="ident">right</span>: <span class="ident">Expression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
+        <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="ident">left</span>)<span class="question-mark">?</span>;
+        <span class="self">self</span>.<span class="ident">write</span>(<span class="string">&quot; = &quot;</span>)<span class="question-mark">?</span>;
+        <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="ident">right</span>)
+    }
+
+    <span class="kw">fn</span> <span class="ident">visit_condition_not_equals</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">left</span>: <span class="ident">Expression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>, <span class="ident">right</span>: <span class="ident">Expression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
+        <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="ident">left</span>)<span class="question-mark">?</span>;
+        <span class="self">self</span>.<span class="ident">write</span>(<span class="string">&quot; &lt;&gt; &quot;</span>)<span class="question-mark">?</span>;
+        <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="ident">right</span>)
     }
 
     <span class="doccomment">/// A visit in the `ORDER BY` section of the query</span>

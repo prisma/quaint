@@ -918,6 +918,52 @@
 <span id="918">918</span>
 <span id="919">919</span>
 <span id="920">920</span>
+<span id="921">921</span>
+<span id="922">922</span>
+<span id="923">923</span>
+<span id="924">924</span>
+<span id="925">925</span>
+<span id="926">926</span>
+<span id="927">927</span>
+<span id="928">928</span>
+<span id="929">929</span>
+<span id="930">930</span>
+<span id="931">931</span>
+<span id="932">932</span>
+<span id="933">933</span>
+<span id="934">934</span>
+<span id="935">935</span>
+<span id="936">936</span>
+<span id="937">937</span>
+<span id="938">938</span>
+<span id="939">939</span>
+<span id="940">940</span>
+<span id="941">941</span>
+<span id="942">942</span>
+<span id="943">943</span>
+<span id="944">944</span>
+<span id="945">945</span>
+<span id="946">946</span>
+<span id="947">947</span>
+<span id="948">948</span>
+<span id="949">949</span>
+<span id="950">950</span>
+<span id="951">951</span>
+<span id="952">952</span>
+<span id="953">953</span>
+<span id="954">954</span>
+<span id="955">955</span>
+<span id="956">956</span>
+<span id="957">957</span>
+<span id="958">958</span>
+<span id="959">959</span>
+<span id="960">960</span>
+<span id="961">961</span>
+<span id="962">962</span>
+<span id="963">963</span>
+<span id="964">964</span>
+<span id="965">965</span>
+<span id="966">966</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">mod</span> <span class="ident">conversion</span>;
 <span class="kw">mod</span> <span class="ident">error</span>;
@@ -1837,6 +1883,52 @@ VALUES (1, &#39;Joe&#39;, 27, 20000.00 );
         <span class="macro">assert</span><span class="macro">!</span>(
             <span class="macro">matches</span><span class="macro">!</span>(<span class="ident">result</span>.<span class="ident">unwrap_err</span>().<span class="ident">kind</span>(), <span class="ident">ErrorKind</span>::<span class="ident">ValueOutOfRange</span> { <span class="ident">message</span> } <span class="kw">if</span> <span class="ident">message</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;Unsigned integers larger than 9_223_372_036_854_775_807 are currently not handled.&quot;</span>)
         );
+    }
+
+    <span class="attribute">#[<span class="ident">tokio</span>::<span class="ident">test</span>]</span>
+    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">json_filtering_works</span>() {
+        <span class="kw">let</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">Quaint</span>::<span class="ident">new</span>(<span class="kw-2">&amp;</span><span class="ident">CONN_STR</span>).<span class="kw">await</span>.<span class="ident">unwrap</span>();
+
+        <span class="kw">let</span> <span class="ident">create_table</span> <span class="op">=</span> <span class="string">r#&quot;
+            CREATE TABLE `table_with_json` (
+                id int4 AUTO_INCREMENT PRIMARY KEY,
+                obj json
+            )
+        &quot;#</span>;
+
+        <span class="kw">let</span> <span class="ident">drop_table</span> <span class="op">=</span> <span class="string">r#&quot;DROP TABLE IF EXISTS `table_with_json`&quot;#</span>;
+
+        <span class="kw">let</span> <span class="ident">insert</span> <span class="op">=</span> <span class="ident">Insert</span>::<span class="ident">single_into</span>(<span class="string">&quot;table_with_json&quot;</span>).<span class="ident">value</span>(<span class="string">&quot;obj&quot;</span>, <span class="ident">serde_json</span>::<span class="macro">json</span><span class="macro">!</span>({ <span class="string">&quot;a&quot;</span>: <span class="string">&quot;a&quot;</span> }));
+        <span class="kw">let</span> <span class="ident">second_insert</span> <span class="op">=</span> <span class="ident">Insert</span>::<span class="ident">single_into</span>(<span class="string">&quot;table_with_json&quot;</span>).<span class="ident">value</span>(<span class="string">&quot;obj&quot;</span>, <span class="ident">serde_json</span>::<span class="macro">json</span><span class="macro">!</span>({ <span class="string">&quot;a&quot;</span>: <span class="string">&quot;b&quot;</span> }));
+
+        <span class="ident">conn</span>.<span class="ident">query_raw</span>(<span class="ident">drop_table</span>, <span class="kw-2">&amp;</span>[]).<span class="kw">await</span>.<span class="ident">unwrap</span>();
+        <span class="ident">conn</span>.<span class="ident">query_raw</span>(<span class="ident">create_table</span>, <span class="kw-2">&amp;</span>[]).<span class="kw">await</span>.<span class="ident">unwrap</span>();
+        <span class="ident">conn</span>.<span class="ident">query</span>(<span class="ident">insert</span>.<span class="ident">into</span>()).<span class="kw">await</span>.<span class="ident">unwrap</span>();
+        <span class="ident">conn</span>.<span class="ident">query</span>(<span class="ident">second_insert</span>.<span class="ident">into</span>()).<span class="kw">await</span>.<span class="ident">unwrap</span>();
+
+        <span class="comment">// Equals</span>
+        {
+            <span class="kw">let</span> <span class="ident">select</span> <span class="op">=</span> <span class="ident">Select</span>::<span class="ident">from_table</span>(<span class="string">&quot;table_with_json&quot;</span>)
+                .<span class="ident">value</span>(<span class="ident">asterisk</span>())
+                .<span class="ident">so_that</span>(<span class="ident">Column</span>::<span class="ident">from</span>(<span class="string">&quot;obj&quot;</span>).<span class="ident">equals</span>(<span class="ident">Value</span>::<span class="ident">Json</span>(<span class="ident">serde_json</span>::<span class="macro">json</span><span class="macro">!</span>({ <span class="string">&quot;a&quot;</span>: <span class="string">&quot;b&quot;</span> }))));
+
+            <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">conn</span>.<span class="ident">query</span>(<span class="ident">select</span>.<span class="ident">into</span>()).<span class="kw">await</span>.<span class="ident">unwrap</span>();
+
+            <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">result</span>.<span class="ident">len</span>(), <span class="number">1</span>);
+            <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">result</span>.<span class="ident">get</span>(<span class="number">0</span>).<span class="ident">unwrap</span>().<span class="ident">get</span>(<span class="string">&quot;id&quot;</span>).<span class="ident">unwrap</span>(), <span class="kw-2">&amp;</span><span class="ident">Value</span>::<span class="ident">Integer</span>(<span class="number">2</span>))
+        }
+
+        <span class="comment">// Not equals</span>
+        {
+            <span class="kw">let</span> <span class="ident">select</span> <span class="op">=</span> <span class="ident">Select</span>::<span class="ident">from_table</span>(<span class="string">&quot;table_with_json&quot;</span>)
+                .<span class="ident">value</span>(<span class="ident">asterisk</span>())
+                .<span class="ident">so_that</span>(<span class="ident">Column</span>::<span class="ident">from</span>(<span class="string">&quot;obj&quot;</span>).<span class="ident">not_equals</span>(<span class="ident">Value</span>::<span class="ident">Json</span>(<span class="ident">serde_json</span>::<span class="macro">json</span><span class="macro">!</span>({ <span class="string">&quot;a&quot;</span>: <span class="string">&quot;a&quot;</span> }))));
+
+            <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">conn</span>.<span class="ident">query</span>(<span class="ident">select</span>.<span class="ident">into</span>()).<span class="kw">await</span>.<span class="ident">unwrap</span>();
+
+            <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">result</span>.<span class="ident">len</span>(), <span class="number">1</span>);
+            <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">result</span>.<span class="ident">get</span>(<span class="number">0</span>).<span class="ident">unwrap</span>().<span class="ident">get</span>(<span class="string">&quot;id&quot;</span>).<span class="ident">unwrap</span>(), <span class="kw-2">&amp;</span><span class="ident">Value</span>::<span class="ident">Integer</span>(<span class="number">2</span>))
+        }
     }
 }
 </pre></div>
