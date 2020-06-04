@@ -14,6 +14,7 @@ use percent_encoding::percent_decode;
 use postgres_native_tls::MakeTlsConnector;
 use std::{
     borrow::{Borrow, Cow},
+    collections::HashMap,
     fs,
     future::Future,
     time::Duration,
@@ -42,11 +43,17 @@ impl std::fmt::Debug for PostgresClient {
 }
 
 /// A connector interface for the PostgreSQL database.
-#[derive(Debug)]
 pub struct PostgreSql {
     client: PostgresClient,
     pg_bouncer: bool,
     socket_timeout: Option<Duration>,
+    prepared_statements_cache: tokio::sync::RwLock<HashMap<String, tokio_postgres::Statement>>,
+}
+
+impl std::fmt::Debug for PostgreSql {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str("Just a postgres client, nothing to see here.")
+    }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -426,6 +433,7 @@ impl PostgreSql {
             client: PostgresClient(Mutex::new(client)),
             socket_timeout: url.query_params.socket_timeout,
             pg_bouncer: url.query_params.pg_bouncer,
+            prepared_statements_cache: tokio::sync::RwLock::new(HashMap::new()),
         })
     }
 
@@ -465,7 +473,22 @@ impl Queryable for PostgreSql {
     async fn query_raw(&self, sql: &str, params: &[Value<'_>]) -> crate::Result<ResultSet> {
         metrics::query("postgres.query_raw", sql, params, move || async move {
             let client = self.client.0.lock().await;
-            let stmt = self.timeout(client.prepare(sql)).await?;
+            let stmt = {
+                let cache = self.prepared_statements_cache.read().await;
+                match cache.get(sql) {
+                    Some(stmt) => stmt.clone(),
+                    None => {
+                        drop(cache);
+
+                        let stmt = self.timeout(client.prepare(sql)).await?;
+                        let mut cache = self.prepared_statements_cache.write().await;
+
+                        cache.insert(sql.to_owned(), stmt.clone());
+
+                        stmt
+                    }
+                }
+            };
 
             let rows = self
                 .timeout(client.query(&stmt, conversion::conv_params(params).as_slice()))
