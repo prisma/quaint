@@ -494,6 +494,8 @@ impl Queryable for PostgreSql {
                 .timeout(client.query(&stmt, conversion::conv_params(params).as_slice()))
                 .await?;
 
+            tokio::time::delay_for(std::time::Duration::from_millis(1)).await;
+
             let mut result = ResultSet::new(stmt.to_column_names(), Vec::new());
 
             for row in rows {
@@ -508,11 +510,28 @@ impl Queryable for PostgreSql {
     async fn execute_raw(&self, sql: &str, params: &[Value<'_>]) -> crate::Result<u64> {
         metrics::query("postgres.execute_raw", sql, params, move || async move {
             let client = self.client.0.lock().await;
-            let stmt = self.timeout(client.prepare(sql)).await?;
+            let stmt = {
+                let cache = self.prepared_statements_cache.read().await;
+                match cache.get(sql) {
+                    Some(stmt) => stmt.clone(),
+                    None => {
+                        drop(cache);
+
+                        let stmt = self.timeout(client.prepare(sql)).await?;
+                        let mut cache = self.prepared_statements_cache.write().await;
+
+                        cache.insert(sql.to_owned(), stmt.clone());
+
+                        stmt
+                    }
+                }
+            };
 
             let changes = self
                 .timeout(client.execute(&stmt, conversion::conv_params(params).as_slice()))
                 .await?;
+
+            tokio::time::delay_for(std::time::Duration::from_millis(1)).await;
 
             Ok(changes)
         })
