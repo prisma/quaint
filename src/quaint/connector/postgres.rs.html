@@ -1081,6 +1081,18 @@
 <span id="1081">1081</span>
 <span id="1082">1082</span>
 <span id="1083">1083</span>
+<span id="1084">1084</span>
+<span id="1085">1085</span>
+<span id="1086">1086</span>
+<span id="1087">1087</span>
+<span id="1088">1088</span>
+<span id="1089">1089</span>
+<span id="1090">1090</span>
+<span id="1091">1091</span>
+<span id="1092">1092</span>
+<span id="1093">1093</span>
+<span id="1094">1094</span>
+<span id="1095">1095</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">mod</span> <span class="ident">conversion</span>;
 <span class="kw">mod</span> <span class="ident">error</span>;
@@ -1607,6 +1619,10 @@
         } <span class="kw">else</span> {
             <span class="prelude-val">Ok</span>(())
         }
+    }
+
+    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">ping</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">crate</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">raw_cmd</span>(<span class="string">&quot;/* PING */&quot;</span>).<span class="kw">await</span>
     }
 }
 
@@ -2163,6 +2179,14 @@
             <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">result</span>.<span class="ident">len</span>(), <span class="number">1</span>);
             <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">result</span>.<span class="ident">get</span>(<span class="number">0</span>).<span class="ident">unwrap</span>().<span class="ident">get</span>(<span class="string">&quot;id&quot;</span>).<span class="ident">unwrap</span>(), <span class="kw-2">&amp;</span><span class="ident">Value</span>::<span class="ident">Integer</span>(<span class="number">2</span>))
         }
+    }
+
+    <span class="attribute">#[<span class="ident">tokio</span>::<span class="ident">test</span>]</span>
+    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">pinging</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="kw">crate</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">Quaint</span>::<span class="ident">new</span>(<span class="kw-2">&amp;</span><span class="ident">CONN_STR</span>).<span class="kw">await</span>.<span class="ident">unwrap</span>();
+        <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">conn</span>.<span class="ident">ping</span>().<span class="kw">await</span>.<span class="ident">is_ok</span>());
+
+        <span class="prelude-val">Ok</span>(())
     }
 }
 </pre></div>

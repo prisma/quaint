@@ -167,6 +167,10 @@
 <span id="167">167</span>
 <span id="168">168</span>
 <span id="169">169</span>
+<span id="170">170</span>
+<span id="171">171</span>
+<span id="172">172</span>
+<span id="173">173</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! A single connection abstraction to a SQL database.</span>
 
@@ -274,7 +278,7 @@
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mysql&quot;</span>)]</span>
             <span class="string">&quot;mysql&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="ident">connector</span>::<span class="ident">MysqlUrl</span>::<span class="ident">new</span>(<span class="ident">url</span>)<span class="question-mark">?</span>;
-                <span class="kw">let</span> <span class="ident">mysql</span> <span class="op">=</span> <span class="ident">connector</span>::<span class="ident">Mysql</span>::<span class="ident">new</span>(<span class="ident">url</span>)<span class="question-mark">?</span>;
+                <span class="kw">let</span> <span class="ident">mysql</span> <span class="op">=</span> <span class="ident">connector</span>::<span class="ident">Mysql</span>::<span class="ident">new</span>(<span class="ident">url</span>).<span class="kw">await</span><span class="question-mark">?</span>;
 
                 <span class="ident">Arc</span>::<span class="ident">new</span>(<span class="ident">mysql</span>) <span class="kw">as</span> <span class="ident">Arc</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Queryable</span> <span class="op">+</span> <span class="ident">Send</span> <span class="op">+</span> <span class="ident">Sync</span><span class="op">&gt;</span>
             }
@@ -335,6 +339,10 @@
 
     <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">version</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">crate</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">version</span>().<span class="kw">await</span>
+    }
+
+    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">ping</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">crate</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">ping</span>().<span class="kw">await</span>
     }
 }
 </pre></div>
