@@ -1,7 +1,8 @@
 use super::Visitor;
 use crate::{
     ast::{
-        Column, Expression, ExpressionKind, Insert, IntoRaw, Merge, OnConflict, Order, Ordering, Row, Using, Values,
+        Column, Expression, ExpressionKind, Insert, IntoRaw, Merge, OnConflict, Order, Ordering, Row, Table, TableType,
+        Using, Values,
     },
     visitor, Value,
 };
@@ -311,6 +312,25 @@ impl<'a> Visitor<'a> for Mssql<'a> {
         }
 
         self.order_by_set = true;
+
+        Ok(())
+    }
+
+    /// A database table identifier
+    fn visit_table(&mut self, table: Table<'a>, include_alias: bool) -> visitor::Result {
+        match table.typ {
+            TableType::Table(table_name) => self.delimited_identifiers(&[&*table_name])?,
+            TableType::Values(values) => self.visit_values(values)?,
+            TableType::Query(select) => self.surround_with("(", ")", |ref mut s| s.visit_select(select))?,
+        };
+
+        if include_alias {
+            if let Some(alias) = table.alias {
+                self.write(" AS ")?;
+
+                self.delimited_identifiers(&[&*alias])?;
+            };
+        }
 
         Ok(())
     }
