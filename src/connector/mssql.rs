@@ -3,7 +3,7 @@ mod error;
 
 use crate::{
     ast::{Query, Value},
-    connector::{metrics, queryable::*, ResultSet},
+    connector::{metrics, queryable::*, ResultSet, Transaction},
     error::{Error, ErrorKind},
     visitor::{self, Visitor},
 };
@@ -33,6 +33,15 @@ pub(crate) struct MssqlQueryParams {
     connection_limit: Option<usize>,
     socket_timeout: Option<Duration>,
     connect_timeout: Option<Duration>,
+}
+
+/// A thing that can start a new transaction.
+#[async_trait]
+impl TransactionCapable for Mssql {
+    /// Starts a new transaction
+    async fn start_transaction(&self) -> crate::Result<Transaction<'_>> {
+        Transaction::new(self, "BEGIN TRAN").await
+    }
 }
 
 impl MssqlUrl {

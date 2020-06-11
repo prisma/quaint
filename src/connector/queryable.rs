@@ -75,6 +75,6 @@ where
 {
     /// Starts a new transaction
     async fn start_transaction(&self) -> crate::Result<Transaction<'_>> {
-        Transaction::new(self).await
+        Transaction::new(self, "BEGIN").await
     }
 }
