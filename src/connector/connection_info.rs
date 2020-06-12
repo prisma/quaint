@@ -44,23 +44,23 @@ impl ConnectionInfo {
         let url_result: Result<Url, _> = url_str.parse();
 
         // Non-URL database strings are interpreted as SQLite file paths.
-        #[cfg(any(feature = "sqlite", feature = "mssql"))]
-        {
-            match url_str {
-                s if s.starts_with("file") || s.starts_with("sqlite") => {
-                    if url_result.is_err() {
-                        let params = SqliteParams::try_from(s)?;
+        match url_str {
+            #[cfg(feature = "sqlite")]
+            s if s.starts_with("file") || s.starts_with("sqlite") => {
+                if url_result.is_err() {
+                    let params = SqliteParams::try_from(s)?;
 
-                        return Ok(ConnectionInfo::Sqlite {
-                            file_path: params.file_path,
-                            db_name: params.db_name.clone(),
-                        });
-                    }
-                }
-                _ => {
-                    return Ok(ConnectionInfo::Mssql(MssqlUrl::new(url_str)?));
+                    return Ok(ConnectionInfo::Sqlite {
+                        file_path: params.file_path,
+                        db_name: params.db_name.clone(),
+                    });
                 }
             }
+            #[cfg(feature = "mssql")]
+            s if s.starts_with("jdbc:sqlserver") || s.starts_with("sqlserver") => {
+                return Ok(ConnectionInfo::Mssql(MssqlUrl::new(url_str)?));
+            }
+            _ => (),
         }
 
         let url = url_result?;
