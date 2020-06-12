@@ -1045,6 +1045,33 @@ mod tests {
     }
 
     #[test]
+    fn generated_unique_defaults_should_not_be_part_of_the_join() {
+        let unique_column = Column::from("bar").default("purr");
+        let default_column = Column::from("lol").default(DefaultValue::Generated);
+
+        let table = Table::from("foo")
+            .add_unique_index(unique_column)
+            .add_unique_index(default_column)
+            .add_unique_index("wtf");
+
+        let insert: Insert<'_> = Insert::single_into(table).value(("foo", "wtf"), "meow").into();
+        let (sql, params) = Mssql::build(insert.on_conflict(OnConflict::DoNothing)).unwrap();
+
+        let expected_sql = indoc!(
+            "
+            MERGE INTO [foo]
+            USING (SELECT @P1 AS [wtf]) AS [dual] ([wtf])
+            ON ([foo].[bar] = @P2 OR [dual].[wtf] = [foo].[wtf])
+            WHEN NOT MATCHED THEN
+            INSERT ([wtf]) VALUES ([dual].[wtf]);
+        "
+        );
+
+        assert_eq!(expected_sql.replace('\n', " ").trim(), sql);
+        assert_eq!(vec![Value::from("meow"), Value::from("purr")], params);
+    }
+
+    #[test]
     fn test_single_insert_conflict_do_nothing_compound_unique() {
         let table = Table::from("foo").add_unique_index(vec!["bar", "wtf"]);
 
@@ -1090,5 +1117,41 @@ mod tests {
 
         assert_eq!(expected_sql.replace('\n', " ").trim(), sql);
         assert_eq!(vec![Value::from("meow"), Value::from("purr")], params);
+    }
+
+    #[test]
+    fn one_generated_value_in_compound_unique_removes_the_whole_index_from_the_join() {
+        let bar = Column::from("bar").default("purr");
+        let wtf = Column::from("wtf");
+
+        let omg = Column::from("omg").default(DefaultValue::Generated);
+        let lol = Column::from("lol");
+
+        let table = Table::from("foo")
+            .add_unique_index(vec![bar, wtf])
+            .add_unique_index(vec![omg, lol]);
+
+        let insert: Insert<'_> = Insert::single_into(table)
+            .value(("foo", "wtf"), "meow")
+            .value(("foo", "lol"), "hiss")
+            .into();
+
+        let (sql, params) = Mssql::build(insert.on_conflict(OnConflict::DoNothing)).unwrap();
+
+        let expected_sql = indoc!(
+            "
+            MERGE INTO [foo]
+            USING (SELECT @P1 AS [wtf], @P2 AS [lol]) AS [dual] ([wtf],[lol])
+            ON ([foo].[bar] = @P3 AND [dual].[wtf] = [foo].[wtf])
+            WHEN NOT MATCHED THEN
+            INSERT ([wtf],[lol]) VALUES ([dual].[wtf],[dual].[lol]);
+        "
+        );
+
+        assert_eq!(expected_sql.replace('\n', " ").trim(), sql);
+        assert_eq!(
+            vec![Value::from("meow"), Value::from("hiss"), Value::from("purr")],
+            params
+        );
     }
 }

@@ -1379,6 +1379,51 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn single_insert_conflict_do_nothing_unique_with_autogen() -> crate::Result<()> {
+        let connection = single::Quaint::new(&CONN_STR).await?;
+        let table_name = random_table();
+
+        connection
+            .raw_cmd(&format!(
+                "CREATE TABLE {} (id INT NOT NULL IDENTITY(1,1) PRIMARY KEY, name VARCHAR(100))",
+                table_name,
+            ))
+            .await?;
+
+        connection
+            .raw_cmd(&format!("INSERT INTO {} (name) VALUES ('Musti')", table_name))
+            .await?;
+
+        let id = Column::from("id").table(&table_name).default(DefaultValue::Generated);
+        let name = Column::from("name").table(&table_name);
+
+        let table = Table::from(&table_name).add_unique_index(vec![id.clone(), name.clone()]);
+
+        let insert: Insert<'_> = Insert::single_into(table.clone()).value(name, "Naukio").into();
+
+        let changes = connection
+            .execute(insert.on_conflict(OnConflict::DoNothing).into())
+            .await?;
+
+        assert_eq!(1, changes);
+
+        let select = Select::from_table(table).order_by("id".ascend());
+
+        let res = connection.select(select).await?;
+        assert_eq!(2, res.len());
+
+        let row = res.get(0).unwrap();
+        assert_eq!(Some(1), row["id"].as_i64());
+        assert_eq!(Some("Musti"), row["name"].as_str());
+
+        let row = res.get(1).unwrap();
+        assert_eq!(Some(2), row["id"].as_i64());
+        assert_eq!(Some("Naukio"), row["name"].as_str());
+
+        Ok(())
+    }
+
+    #[tokio::test]
     async fn updates() -> crate::Result<()> {
         let connection = single::Quaint::new(&CONN_STR).await?;
         let table_name = random_table();

@@ -11,7 +11,28 @@ pub struct Column<'a> {
     pub name: Cow<'a, str>,
     pub(crate) table: Option<Table<'a>>,
     pub(crate) alias: Option<Cow<'a, str>>,
-    pub(crate) default: Option<Value<'a>>,
+    pub(crate) default: Option<DefaultValue<'a>>,
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub enum DefaultValue<'a> {
+    Provided(Value<'a>),
+    Generated,
+}
+
+impl<'a> Default for DefaultValue<'a> {
+    fn default() -> Self {
+        Self::Generated
+    }
+}
+
+impl<'a, V> From<V> for DefaultValue<'a>
+where
+    V: Into<Value<'a>>,
+{
+    fn from(v: V) -> Self {
+        Self::Provided(v.into())
+    }
 }
 
 impl<'a> PartialEq for Column<'a> {
@@ -35,10 +56,17 @@ impl<'a> Column<'a> {
     /// Sets the default value for the column.
     pub fn default<V>(mut self, value: V) -> Self
     where
-        V: Into<Value<'a>>,
+        V: Into<DefaultValue<'a>>,
     {
         self.default = Some(value.into());
         self
+    }
+
+    pub fn default_autogen(&self) -> bool {
+        self.default
+            .as_ref()
+            .map(|d| d == &DefaultValue::Generated)
+            .unwrap_or(false)
     }
 }
 

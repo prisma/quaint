@@ -1,4 +1,4 @@
-use super::{Column, Comparable, ConditionTree, ExpressionKind, IndexDefinition};
+use super::{Column, Comparable, ConditionTree, DefaultValue, ExpressionKind, IndexDefinition};
 use crate::{
     ast::{Expression, Row, Select, Values},
     error::{Error, ErrorKind},
@@ -72,7 +72,7 @@ impl<'a> Table<'a> {
     /// - If the column is not provided and index exists, try inserting a default value.
     /// - Otherwise the function will return an error.
     pub(crate) fn join_conditions(&self, inserted_columns: &[Column<'a>]) -> crate::Result<ConditionTree<'a>> {
-        let mut result = ConditionTree::NoCondition;
+        let mut result = ConditionTree::NegativeCondition;
 
         let join_cond = |column: &Column<'a>| {
             let res = if !inserted_columns.contains(&column) {
@@ -83,7 +83,10 @@ impl<'a> Table<'a> {
                     .build()
                 })?;
 
-                column.clone().equals(val).into()
+                match val {
+                    DefaultValue::Provided(val) => column.clone().equals(val).into(),
+                    DefaultValue::Generated => ConditionTree::NegativeCondition,
+                }
             } else {
                 let dual_col = column.clone().table("dual");
                 dual_col.equals(column.clone()).into()
@@ -92,7 +95,7 @@ impl<'a> Table<'a> {
             Ok::<ConditionTree, Error>(res)
         };
 
-        for index in self.index_definitions.iter() {
+        for index in self.index_definitions.iter().filter(|id| !id.has_autogen()) {
             let right_cond = match index {
                 IndexDefinition::Single(column) => join_cond(&column)?,
                 IndexDefinition::Compound(cols) => {
@@ -112,7 +115,7 @@ impl<'a> Table<'a> {
             };
 
             match result {
-                ConditionTree::NoCondition => result = right_cond.into(),
+                ConditionTree::NegativeCondition => result = right_cond.into(),
                 left_cond => result = left_cond.or(right_cond),
             }
         }

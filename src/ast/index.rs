@@ -22,6 +22,13 @@ impl<'a> IndexDefinition<'a> {
             Self::Single(column) => Self::Single(column.table(table)),
         }
     }
+
+    pub(crate) fn has_autogen(&self) -> bool {
+        match self {
+            Self::Single(c) => c.default_autogen(),
+            Self::Compound(cols) => cols.iter().any(|c| c.default_autogen()),
+        }
+    }
 }
 
 impl<'a, T> From<T> for IndexDefinition<'a>
