@@ -30,7 +30,7 @@ full-mysql = ["pooled", "mysql", "json-1", "uuid-0_8", "chrono-0_4"]
 full-sqlite = ["pooled", "sqlite", "json-1", "uuid-0_8", "chrono-0_4"]
 full-mssql = ["pooled", "mssql"]
 
-single = ["sqlite", "json-1", "postgresql", "uuid-0_8", "chrono-0_4", "mysql"]
+single = ["sqlite", "json-1", "postgresql", "uuid-0_8", "chrono-0_4", "mysql", "mssql"]
 single-postgresql = ["postgresql", "json-1", "uuid-0_8", "chrono-0_4", "array"]
 single-mysql = ["mysql", "json-1", "uuid-0_8", "chrono-0_4"]
 single-sqlite = ["sqlite", "json-1", "uuid-0_8", "chrono-0_4"]
