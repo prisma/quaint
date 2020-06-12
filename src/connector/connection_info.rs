@@ -226,13 +226,13 @@ impl SqlFamily {
     pub fn as_str(self) -> &'static str {
         match self {
             #[cfg(feature = "postgresql")]
-            SqlFamily::Postgres => "PostgreSQL",
+            SqlFamily::Postgres => "postgresql",
             #[cfg(feature = "mysql")]
-            SqlFamily::Mysql => "MySQL",
+            SqlFamily::Mysql => "mysql",
             #[cfg(feature = "sqlite")]
-            SqlFamily::Sqlite => "SQLite",
+            SqlFamily::Sqlite => "sqlite",
             #[cfg(feature = "mssql")]
-            SqlFamily::Mssql => "SQL Server",
+            SqlFamily::Mssql => "mssql",
         }
     }
 
