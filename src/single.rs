@@ -171,4 +171,8 @@ impl Queryable for Quaint {
     async fn version(&self) -> crate::Result<Option<String>> {
         self.inner.version().await
     }
+
+    fn begin_statement(&self) -> &'static str {
+        self.inner.begin_statement()
+    }
 }

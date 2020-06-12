@@ -493,7 +493,7 @@ mod tests {
 
     #[test]
     fn test_select_fields_from() {
-        let expected_sql = "SELECT [paw], [nose] FROM [cat].[musti]";
+        let expected_sql = "SELECT [paw], [nose] FROM [musti]";
         let query = Select::from_table(("cat", "musti")).column("paw").column("nose");
         let (sql, params) = Mssql::build(query).unwrap();
 

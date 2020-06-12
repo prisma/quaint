@@ -65,6 +65,11 @@ pub trait Queryable: Send + Sync {
     async fn server_reset_query(&self, _: &Transaction<'_>) -> crate::Result<()> {
         Ok(())
     }
+
+    /// Statement to begin a transaction
+    fn begin_statement(&self) -> &'static str {
+        "BEGIN"
+    }
 }
 
 /// A thing that can start a new transaction.
@@ -75,6 +80,6 @@ where
 {
     /// Starts a new transaction
     async fn start_transaction(&self) -> crate::Result<Transaction<'_>> {
-        Transaction::new(self, "BEGIN").await
+        Transaction::new(self, self.begin_statement()).await
     }
 }

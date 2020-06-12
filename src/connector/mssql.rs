@@ -35,10 +35,8 @@ pub(crate) struct MssqlQueryParams {
     connect_timeout: Option<Duration>,
 }
 
-/// A thing that can start a new transaction.
 #[async_trait]
 impl TransactionCapable for Mssql {
-    /// Starts a new transaction
     async fn start_transaction(&self) -> crate::Result<Transaction<'_>> {
         Transaction::new(self, "BEGIN TRAN").await
     }
@@ -236,6 +234,10 @@ impl Queryable for Mssql {
 
         Ok(version_string)
     }
+
+    fn begin_statement(&self) -> &'static str {
+        "BEGIN TRAN"
+    }
 }
 
 impl MssqlUrl {
@@ -390,6 +392,23 @@ mod tests {
         let connection = pool.check_out().await?;
 
         let res = connection.query_raw("SELECT 1", &[]).await?;
+        let row = res.get(0).unwrap();
+
+        assert_eq!(row[0].as_i64(), Some(1));
+
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn transactions() -> crate::Result<()> {
+        let pool = pooled::Quaint::builder(&CONN_STR)?.build();
+        let connection = pool.check_out().await?;
+
+        let tx = connection.start_transaction().await?;
+        let res = tx.query_raw("SELECT 1", &[]).await?;
+
+        tx.commit().await?;
+
         let row = res.get(0).unwrap();
 
         assert_eq!(row[0].as_i64(), Some(1));

@@ -1,17 +1,17 @@
 /// Convert given set of tuples into `Values`.
 ///
 /// ```rust
-/// # use quaint::{values, ast::*, visitor::{Visitor, Sqlite}};
+/// # use quaint::{col, values, ast::*, visitor::{Visitor, Sqlite}};
 /// # fn main() -> Result<(), quaint::error::Error> {
 ///
-/// let condition = Row::from(("id", "name"))
+/// let condition = Row::from((col!("id"), col!("name")))
 ///     .in_selection(values!((1, "Musti"), (2, "Naukio")));
 ///
-/// let query = Select::from_table("cats").so_that(conditions);
+/// let query = Select::from_table("cats").so_that(condition);
 /// let (sql, _) = Sqlite::build(query)?;
 ///
 /// assert_eq!(
-///     "SELECT * FROM `cats` WHERE (`id`, `name`) IN ((?, ?), (?, ?))",
+///     "SELECT `cats`.* FROM `cats` WHERE (`id`,`name`) IN (VALUES (?,?),(?,?))",
 ///     sql
 /// );
 /// # Ok(())

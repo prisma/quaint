@@ -50,6 +50,10 @@ impl Queryable for PooledConnection {
     async fn server_reset_query(&self, tx: &Transaction<'_>) -> crate::Result<()> {
         self.inner.server_reset_query(tx).await
     }
+
+    fn begin_statement(&self) -> &'static str {
+        self.inner.begin_statement()
+    }
 }
 
 #[doc(hidden)]
