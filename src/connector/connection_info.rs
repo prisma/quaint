@@ -256,34 +256,22 @@ impl SqlFamily {
 
     #[cfg(feature = "postgresql")]
     pub fn is_postgres(&self) -> bool {
-        match self {
-            SqlFamily::Postgres => true,
-            _ => false,
-        }
+        matches!(self, SqlFamily::Postgres)
     }
 
     #[cfg(feature = "mysql")]
     pub fn is_mysql(&self) -> bool {
-        match self {
-            SqlFamily::Mysql => true,
-            _ => false,
-        }
+        matches!(self, SqlFamily::Mysql)
     }
 
     #[cfg(feature = "sqlite")]
     pub fn is_sqlite(&self) -> bool {
-        match self {
-            SqlFamily::Sqlite => true,
-            _ => false,
-        }
+        matches!(self, SqlFamily::Sqlite)
     }
 
     #[cfg(feature = "mssql")]
     pub fn is_mssql(&self) -> bool {
-        match self {
-            SqlFamily::Mssql => true,
-            _ => false,
-        }
+        matches!(self, SqlFamily::Mssql)
     }
 }
 
