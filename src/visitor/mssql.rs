@@ -1045,7 +1045,7 @@ mod tests {
     }
 
     #[test]
-    fn generated_unique_defaults_should_not_be_part_of_the_join() {
+    fn generated_unique_defaults_should_not_be_part_of_the_join_when_value_is_not_provided() {
         let unique_column = Column::from("bar").default("purr");
         let default_column = Column::from("lol").default(DefaultValue::Generated);
 
@@ -1069,6 +1069,41 @@ mod tests {
 
         assert_eq!(expected_sql.replace('\n', " ").trim(), sql);
         assert_eq!(vec![Value::from("meow"), Value::from("purr")], params);
+    }
+
+    #[test]
+    fn with_generated_unique_defaults_the_value_should_be_part_of_the_join() {
+        let unique_column = Column::from("bar").default("purr");
+        let default_column = Column::from("lol").default(DefaultValue::Generated);
+
+        let table = Table::from("foo")
+            .add_unique_index(unique_column)
+            .add_unique_index(default_column)
+            .add_unique_index("wtf");
+
+        let insert: Insert<'_> = Insert::single_into(table)
+            .value(("foo", "wtf"), "meow")
+            .value(("foo", "lol"), "hiss")
+            .into();
+
+        let (sql, params) = Mssql::build(insert.on_conflict(OnConflict::DoNothing)).unwrap();
+
+        let expected_sql = indoc!(
+            "
+            MERGE INTO [foo]
+            USING (SELECT @P1 AS [wtf], @P2 AS [lol]) AS [dual] ([wtf],[lol])
+            ON ([foo].[bar] = @P3 OR [dual].[lol] = [foo].[lol] OR [dual].[wtf] = [foo].[wtf])
+            WHEN NOT MATCHED THEN
+            INSERT ([wtf],[lol]) VALUES ([dual].[wtf],[dual].[lol]);
+        "
+        );
+
+        assert_eq!(expected_sql.replace('\n', " ").trim(), sql);
+
+        assert_eq!(
+            vec![Value::from("meow"), Value::from("hiss"), Value::from("purr")],
+            params
+        );
     }
 
     #[test]
@@ -1142,7 +1177,7 @@ mod tests {
             "
             MERGE INTO [foo]
             USING (SELECT @P1 AS [wtf], @P2 AS [lol]) AS [dual] ([wtf],[lol])
-            ON ([foo].[bar] = @P3 AND [dual].[wtf] = [foo].[wtf])
+            ON (([foo].[bar] = @P3 AND [dual].[wtf] = [foo].[wtf]) OR (1=0 AND [dual].[lol] = [foo].[lol]))
             WHEN NOT MATCHED THEN
             INSERT ([wtf],[lol]) VALUES ([dual].[wtf],[dual].[lol]);
         "

@@ -34,9 +34,7 @@ pub enum OnConflict {
     /// # use quaint::{ast::*, visitor::{Visitor, Sqlite}};
     /// # fn main() -> Result<(), quaint::error::Error> {
     /// let query: Insert = Insert::single_into("users").into();
-    ///
     /// let (sql, _) = Sqlite::build(query.on_conflict(OnConflict::DoNothing))?;
-    ///
     /// assert_eq!("INSERT OR IGNORE INTO `users` DEFAULT VALUES", sql);
     /// # Ok(())
     /// # }
@@ -55,7 +53,6 @@ pub enum OnConflict {
     /// let id = Column::from("id").table("users");
     /// let table = Table::from("users").add_unique_index(id.clone());
     /// let query: Insert = Insert::single_into(table).value(id, 1).into();
-    ///
     /// let (sql, _) = Mssql::build(query.on_conflict(OnConflict::DoNothing))?;
     ///
     /// let expected_sql = indoc!(
@@ -77,8 +74,13 @@ pub enum OnConflict {
     /// not have default value set, the visitor will raise a panic. For compound
     /// unique indices, the `add_unique_index` takes a vector as a parameter.
     ///
-    /// If the column has a default value, it should be added to the column if the
-    /// column misses from the insert statement.
+    /// If the [column has a default value], it should be added to the `Column`
+    /// definition to allow inserting missing unique values with the `Insert`
+    /// statement. If default is set to [`DefaultValue::Generated`], the value
+    /// is considered to be always unique and not added to the join.
+    ///
+    /// [`DefaultValue::Generated`]: enum.DefaultValue.html#variant.Generated
+    /// [column has a default value]: struct.Column.html#method.default
     DoNothing,
 }
 

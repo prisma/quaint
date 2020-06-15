@@ -14,9 +14,12 @@ pub struct Column<'a> {
     pub(crate) default: Option<DefaultValue<'a>>,
 }
 
+/// Defines a default value for a `Column`.
 #[derive(Clone, Debug, PartialEq)]
 pub enum DefaultValue<'a> {
+    /// A static value.
     Provided(Value<'a>),
+    /// Generated in the database.
     Generated,
 }
 
@@ -62,6 +65,8 @@ impl<'a> Column<'a> {
         self
     }
 
+    /// True when the default value is set and automatically generated in the
+    /// database.
     pub fn default_autogen(&self) -> bool {
         self.default
             .as_ref()

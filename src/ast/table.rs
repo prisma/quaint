@@ -75,48 +75,52 @@ impl<'a> Table<'a> {
         let mut result = ConditionTree::NegativeCondition;
 
         let join_cond = |column: &Column<'a>| {
-            let res = if !inserted_columns.contains(&column) {
-                let val = column.default.clone().ok_or_else(|| {
-                    Error::builder(ErrorKind::ConversionError(
-                        "A unique column missing from insert and table has no default.",
-                    ))
-                    .build()
-                })?;
+            let cond = if !inserted_columns.contains(&column) {
+                match column.default.clone() {
+                    Some(DefaultValue::Provided(val)) => Some(column.clone().equals(val).into()),
+                    Some(DefaultValue::Generated) => None,
+                    None => {
+                        let kind =
+                            ErrorKind::ConversionError("A unique column missing from insert and table has no default.");
 
-                match val {
-                    DefaultValue::Provided(val) => column.clone().equals(val).into(),
-                    DefaultValue::Generated => ConditionTree::NegativeCondition,
+                        return Err(Error::builder(kind).build());
+                    }
                 }
             } else {
                 let dual_col = column.clone().table("dual");
-                dual_col.equals(column.clone()).into()
+                Some(dual_col.equals(column.clone()).into())
             };
 
-            Ok::<ConditionTree, Error>(res)
+            Ok::<Option<ConditionTree>, Error>(cond)
         };
 
-        for index in self.index_definitions.iter().filter(|id| !id.has_autogen()) {
-            let right_cond = match index {
-                IndexDefinition::Single(column) => join_cond(&column)?,
+        for index in self.index_definitions.iter() {
+            match index {
+                IndexDefinition::Single(column) => {
+                    if let Some(right_cond) = join_cond(&column)? {
+                        match result {
+                            ConditionTree::NegativeCondition => result = right_cond.into(),
+                            left_cond => result = left_cond.or(right_cond),
+                        }
+                    }
+                }
                 IndexDefinition::Compound(cols) => {
-                    let mut result = ConditionTree::NoCondition;
+                    let mut sub_result = ConditionTree::NoCondition;
 
                     for right in cols.iter() {
-                        let right_cond = join_cond(&right)?;
+                        let right_cond = join_cond(&right)?.unwrap_or(ConditionTree::NegativeCondition);
 
-                        match result {
-                            ConditionTree::NoCondition => result = right_cond,
-                            left_cond => result = left_cond.and(right_cond),
+                        match sub_result {
+                            ConditionTree::NoCondition => sub_result = right_cond,
+                            left_cond => sub_result = left_cond.and(right_cond),
                         }
                     }
 
-                    result
+                    match result {
+                        ConditionTree::NegativeCondition => result = sub_result.into(),
+                        left_cond => result = left_cond.or(sub_result),
+                    }
                 }
-            };
-
-            match result {
-                ConditionTree::NegativeCondition => result = right_cond.into(),
-                left_cond => result = left_cond.or(right_cond),
             }
         }
 

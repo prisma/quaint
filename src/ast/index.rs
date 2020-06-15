@@ -23,10 +23,21 @@ impl<'a> IndexDefinition<'a> {
         }
     }
 
-    pub(crate) fn has_autogen(&self) -> bool {
+    /// At least one of the index columns has automatically generated default
+    /// value in the database.
+    pub fn has_autogen(&self) -> bool {
         match self {
             Self::Single(c) => c.default_autogen(),
             Self::Compound(cols) => cols.iter().any(|c| c.default_autogen()),
+        }
+    }
+
+    /// True if the index definition contains the given column.
+    pub fn contains(&self, column: &Column) -> bool {
+        match self {
+            Self::Single(ref c) if c == column => true,
+            Self::Compound(ref cols) if cols.iter().any(|c| c == column) => true,
+            _ => false,
         }
     }
 }
