@@ -106,8 +106,13 @@ impl TakeRow for my::Row {
                     #[cfg(feature = "json-1")]
                     MYSQL_TYPE_JSON => Value::Json(None),
                     MYSQL_TYPE_ENUM => Value::Enum(None),
-                    MYSQL_TYPE_TINY_BLOB | MYSQL_TYPE_MEDIUM_BLOB | MYSQL_TYPE_LONG_BLOB | MYSQL_TYPE_BLOB => {
+                    MYSQL_TYPE_TINY_BLOB | MYSQL_TYPE_MEDIUM_BLOB | MYSQL_TYPE_LONG_BLOB | MYSQL_TYPE_BLOB
+                        if column.character_set() == 63 =>
+                    {
                         Value::Bytes(None)
+                    }
+                    MYSQL_TYPE_TINY_BLOB | MYSQL_TYPE_MEDIUM_BLOB | MYSQL_TYPE_LONG_BLOB | MYSQL_TYPE_BLOB => {
+                        Value::Text(None)
                     }
                     typ => panic!(
                         "Value of type {:?} is not supported with the current configuration",
