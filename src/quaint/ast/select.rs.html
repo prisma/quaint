@@ -453,6 +453,66 @@
 <span id="453">453</span>
 <span id="454">454</span>
 <span id="455">455</span>
+<span id="456">456</span>
+<span id="457">457</span>
+<span id="458">458</span>
+<span id="459">459</span>
+<span id="460">460</span>
+<span id="461">461</span>
+<span id="462">462</span>
+<span id="463">463</span>
+<span id="464">464</span>
+<span id="465">465</span>
+<span id="466">466</span>
+<span id="467">467</span>
+<span id="468">468</span>
+<span id="469">469</span>
+<span id="470">470</span>
+<span id="471">471</span>
+<span id="472">472</span>
+<span id="473">473</span>
+<span id="474">474</span>
+<span id="475">475</span>
+<span id="476">476</span>
+<span id="477">477</span>
+<span id="478">478</span>
+<span id="479">479</span>
+<span id="480">480</span>
+<span id="481">481</span>
+<span id="482">482</span>
+<span id="483">483</span>
+<span id="484">484</span>
+<span id="485">485</span>
+<span id="486">486</span>
+<span id="487">487</span>
+<span id="488">488</span>
+<span id="489">489</span>
+<span id="490">490</span>
+<span id="491">491</span>
+<span id="492">492</span>
+<span id="493">493</span>
+<span id="494">494</span>
+<span id="495">495</span>
+<span id="496">496</span>
+<span id="497">497</span>
+<span id="498">498</span>
+<span id="499">499</span>
+<span id="500">500</span>
+<span id="501">501</span>
+<span id="502">502</span>
+<span id="503">503</span>
+<span id="504">504</span>
+<span id="505">505</span>
+<span id="506">506</span>
+<span id="507">507</span>
+<span id="508">508</span>
+<span id="509">509</span>
+<span id="510">510</span>
+<span id="511">511</span>
+<span id="512">512</span>
+<span id="513">513</span>
+<span id="514">514</span>
+<span id="515">515</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">ast</span>::<span class="kw-2">*</span>;
 
@@ -490,32 +550,41 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// ```rust</span>
     <span class="doccomment">/// # use quaint::{ast::*, visitor::{Visitor, Sqlite}};</span>
+    <span class="doccomment">/// # fn main() -&gt; Result&lt;(), quaint::error::Error&gt; {</span>
     <span class="doccomment">/// let query = Select::from_table(&quot;users&quot;);</span>
-    <span class="doccomment">/// let (sql, _) = Sqlite::build(query);</span>
+    <span class="doccomment">/// let (sql, _) = Sqlite::build(query)?;</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// assert_eq!(&quot;SELECT `users`.* FROM `users`&quot;, sql);</span>
+    <span class="doccomment">/// # Ok(())</span>
+    <span class="doccomment">/// # }</span>
     <span class="doccomment">/// ```</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// The table can be in multiple parts, defining the database.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// ```rust</span>
     <span class="doccomment">/// # use quaint::{ast::*, visitor::{Visitor, Sqlite}};</span>
+    <span class="doccomment">/// # fn main() -&gt; Result&lt;(), quaint::error::Error&gt; {</span>
     <span class="doccomment">/// let query = Select::from_table((&quot;crm&quot;, &quot;users&quot;));</span>
-    <span class="doccomment">/// let (sql, _) = Sqlite::build(query);</span>
+    <span class="doccomment">/// let (sql, _) = Sqlite::build(query)?;</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// assert_eq!(&quot;SELECT `crm`.`users`.* FROM `crm`.`users`&quot;, sql);</span>
+    <span class="doccomment">/// # Ok(())</span>
+    <span class="doccomment">/// # }</span>
     <span class="doccomment">/// ```</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// Selecting from a nested `SELECT`.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// ```rust</span>
     <span class="doccomment">/// # use quaint::{ast::*, visitor::{Visitor, Sqlite}};</span>
+    <span class="doccomment">/// # fn main() -&gt; Result&lt;(), quaint::error::Error&gt; {</span>
     <span class="doccomment">/// let select = Table::from(Select::default().value(1)).alias(&quot;num&quot;);</span>
     <span class="doccomment">/// let query = Select::from_table(select.alias(&quot;num&quot;));</span>
-    <span class="doccomment">/// let (sql, params) = Sqlite::build(query);</span>
+    <span class="doccomment">/// let (sql, params) = Sqlite::build(query)?;</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// assert_eq!(&quot;SELECT `num`.* FROM (SELECT ?) AS `num`&quot;, sql);</span>
     <span class="doccomment">/// assert_eq!(vec![Value::from(1)], params);</span>
+    <span class="doccomment">/// # Ok(())</span>
+    <span class="doccomment">/// # }</span>
     <span class="doccomment">/// ```</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// Selecting from a set of values.</span>
@@ -523,21 +592,24 @@
     <span class="doccomment">/// ```rust</span>
     <span class="doccomment">/// # use quaint::{ast::*, visitor::{Visitor, Sqlite}};</span>
     <span class="doccomment">/// # use quaint::values;</span>
+    <span class="doccomment">/// # fn main() -&gt; Result&lt;(), quaint::error::Error&gt; {</span>
     <span class="doccomment">/// let expected_sql = &quot;SELECT `vals`.* FROM (VALUES (?,?),(?,?)) AS `vals`&quot;;</span>
     <span class="doccomment">/// let values = Table::from(values!((1, 2), (3, 4))).alias(&quot;vals&quot;);</span>
     <span class="doccomment">/// let query = Select::from_table(values);</span>
-    <span class="doccomment">/// let (sql, params) = Sqlite::build(query);</span>
+    <span class="doccomment">/// let (sql, params) = Sqlite::build(query)?;</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// assert_eq!(expected_sql, sql);</span>
     <span class="doccomment">/// assert_eq!(</span>
     <span class="doccomment">///     vec![</span>
-    <span class="doccomment">///         Value::Integer(1),</span>
-    <span class="doccomment">///         Value::Integer(2),</span>
-    <span class="doccomment">///         Value::Integer(3),</span>
-    <span class="doccomment">///         Value::Integer(4),</span>
+    <span class="doccomment">///         Value::from(1),</span>
+    <span class="doccomment">///         Value::from(2),</span>
+    <span class="doccomment">///         Value::from(3),</span>
+    <span class="doccomment">///         Value::from(4),</span>
     <span class="doccomment">///     ],</span>
     <span class="doccomment">///     params</span>
     <span class="doccomment">/// );</span>
+    <span class="doccomment">/// # Ok(())</span>
+    <span class="doccomment">/// # }</span>
     <span class="doccomment">/// ```</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_table</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">table</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>
     <span class="kw">where</span>
@@ -553,17 +625,21 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// ```rust</span>
     <span class="doccomment">/// # use quaint::{ast::*, visitor::{Visitor, Sqlite}};</span>
+    <span class="doccomment">/// # fn main() -&gt; Result&lt;(), quaint::error::Error&gt; {</span>
     <span class="doccomment">/// let query = Select::default().value(1);</span>
-    <span class="doccomment">/// let (sql, params) = Sqlite::build(query);</span>
+    <span class="doccomment">/// let (sql, params) = Sqlite::build(query)?;</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// assert_eq!(&quot;SELECT ?&quot;, sql);</span>
     <span class="doccomment">/// assert_eq!(vec![Value::from(1)], params);</span>
+    <span class="doccomment">/// # Ok(())</span>
+    <span class="doccomment">/// # }</span>
     <span class="doccomment">/// ```</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// Creating a qualified asterisk to a joined table:</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// ```rust</span>
     <span class="doccomment">/// # use quaint::{col, val, ast::*, visitor::{Visitor, Sqlite}};</span>
+    <span class="doccomment">/// # fn main() -&gt; Result&lt;(), quaint::error::Error&gt; {</span>
     <span class="doccomment">/// let join = &quot;dogs&quot;.on((&quot;dogs&quot;, &quot;slave_id&quot;).equals(Column::from((&quot;cats&quot;, &quot;master_id&quot;))));</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// let query = Select::from_table(&quot;cats&quot;)</span>
@@ -571,7 +647,7 @@
     <span class="doccomment">///     .value(col!(&quot;dogs&quot;, &quot;age&quot;) - val!(4))</span>
     <span class="doccomment">///     .inner_join(join);</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// let (sql, params) = Sqlite::build(query);</span>
+    <span class="doccomment">/// let (sql, params) = Sqlite::build(query)?;</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// assert_eq!(</span>
     <span class="doccomment">///     &quot;SELECT `cats`.*, (`dogs`.`age` - ?) FROM `cats` INNER JOIN `dogs` ON `dogs`.`slave_id` = `cats`.`master_id`&quot;,</span>
@@ -579,6 +655,8 @@
     <span class="doccomment">/// );</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// assert_eq!(vec![Value::from(4)], params);</span>
+    <span class="doccomment">/// # Ok(())</span>
+    <span class="doccomment">/// # }</span>
     <span class="doccomment">/// ```</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">value</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">value</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>
     <span class="kw">where</span>
@@ -592,14 +670,17 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// ```rust</span>
     <span class="doccomment">/// # use quaint::{ast::*, visitor::{Visitor, Sqlite}};</span>
+    <span class="doccomment">/// # fn main() -&gt; Result&lt;(), quaint::error::Error&gt; {</span>
     <span class="doccomment">/// let query = Select::from_table(&quot;users&quot;)</span>
     <span class="doccomment">///     .column(&quot;name&quot;)</span>
     <span class="doccomment">///     .column((&quot;users&quot;, &quot;id&quot;))</span>
     <span class="doccomment">///     .column(((&quot;crm&quot;, &quot;users&quot;), &quot;foo&quot;));</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// let (sql, _) = Sqlite::build(query);</span>
+    <span class="doccomment">/// let (sql, _) = Sqlite::build(query)?;</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// assert_eq!(&quot;SELECT `name`, `users`.`id`, `crm`.`users`.`foo` FROM `users`&quot;, sql);</span>
+    <span class="doccomment">/// # Ok(())</span>
+    <span class="doccomment">/// # }</span>
     <span class="doccomment">/// ```</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">column</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">column</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>
     <span class="kw">where</span>
@@ -613,10 +694,13 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// ```rust</span>
     <span class="doccomment">/// # use quaint::{ast::*, visitor::{Visitor, Sqlite}};</span>
+    <span class="doccomment">/// # fn main() -&gt; Result&lt;(), quaint::error::Error&gt; {</span>
     <span class="doccomment">/// let query = Select::from_table(&quot;users&quot;).columns(vec![&quot;foo&quot;, &quot;bar&quot;]);</span>
-    <span class="doccomment">/// let (sql, _) = Sqlite::build(query);</span>
+    <span class="doccomment">/// let (sql, _) = Sqlite::build(query)?;</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// assert_eq!(&quot;SELECT `foo`, `bar` FROM `users`&quot;, sql);</span>
+    <span class="doccomment">/// # Ok(())</span>
+    <span class="doccomment">/// # }</span>
     <span class="doccomment">/// ```</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">columns</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">C</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">columns</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>
     <span class="kw">where</span>
@@ -633,14 +717,17 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// ```rust</span>
     <span class="doccomment">/// # use quaint::{ast::*, visitor::{Visitor, Sqlite}};</span>
+    <span class="doccomment">/// # fn main() -&gt; Result&lt;(), quaint::error::Error&gt; {</span>
     <span class="doccomment">/// let query = Select::from_table(&quot;users&quot;).so_that(&quot;foo&quot;.equals(&quot;bar&quot;));</span>
-    <span class="doccomment">/// let (sql, params) = Sqlite::build(query);</span>
+    <span class="doccomment">/// let (sql, params) = Sqlite::build(query)?;</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// assert_eq!(&quot;SELECT `users`.* FROM `users` WHERE `foo` = ?&quot;, sql);</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// assert_eq!(vec![</span>
     <span class="doccomment">///    Value::from(&quot;bar&quot;),</span>
     <span class="doccomment">/// ], params);</span>
+    <span class="doccomment">/// # Ok(())</span>
+    <span class="doccomment">/// # }</span>
     <span class="doccomment">/// ```</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">so_that</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">conditions</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>
     <span class="kw">where</span>
@@ -656,11 +743,12 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// ```rust</span>
     <span class="doccomment">/// # use quaint::{ast::*, visitor::{Visitor, Sqlite}};</span>
+    <span class="doccomment">/// # fn main() -&gt; Result&lt;(), quaint::error::Error&gt; {</span>
     <span class="doccomment">/// let query = Select::from_table(&quot;users&quot;)</span>
     <span class="doccomment">///     .so_that(&quot;foo&quot;.equals(&quot;bar&quot;))</span>
     <span class="doccomment">///     .and_where(&quot;lol&quot;.equals(&quot;wtf&quot;));</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// let (sql, params) = Sqlite::build(query);</span>
+    <span class="doccomment">/// let (sql, params) = Sqlite::build(query)?;</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// assert_eq!(&quot;SELECT `users`.* FROM `users` WHERE (`foo` = ? AND `lol` = ?)&quot;, sql);</span>
     <span class="doccomment">///</span>
@@ -668,6 +756,8 @@
     <span class="doccomment">///    Value::from(&quot;bar&quot;),</span>
     <span class="doccomment">///    Value::from(&quot;wtf&quot;),</span>
     <span class="doccomment">/// ], params);</span>
+    <span class="doccomment">/// # Ok(())</span>
+    <span class="doccomment">/// # }</span>
     <span class="doccomment">/// ```</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">and_where</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">conditions</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>
     <span class="kw">where</span>
@@ -688,11 +778,12 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// ```rust</span>
     <span class="doccomment">/// # use quaint::{ast::*, visitor::{Visitor, Sqlite}};</span>
+    <span class="doccomment">/// # fn main() -&gt; Result&lt;(), quaint::error::Error&gt; {</span>
     <span class="doccomment">/// let query = Select::from_table(&quot;users&quot;)</span>
     <span class="doccomment">///     .so_that(&quot;foo&quot;.equals(&quot;bar&quot;))</span>
     <span class="doccomment">///     .or_where(&quot;lol&quot;.equals(&quot;wtf&quot;));</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// let (sql, params) = Sqlite::build(query);</span>
+    <span class="doccomment">/// let (sql, params) = Sqlite::build(query)?;</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// assert_eq!(&quot;SELECT `users`.* FROM `users` WHERE (`foo` = ? OR `lol` = ?)&quot;, sql);</span>
     <span class="doccomment">///</span>
@@ -700,6 +791,8 @@
     <span class="doccomment">///    Value::from(&quot;bar&quot;),</span>
     <span class="doccomment">///    Value::from(&quot;wtf&quot;),</span>
     <span class="doccomment">/// ], params);</span>
+    <span class="doccomment">/// # Ok(())</span>
+    <span class="doccomment">/// # }</span>
     <span class="doccomment">/// ```</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">or_where</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">conditions</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>
     <span class="kw">where</span>
@@ -718,14 +811,17 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// ```rust</span>
     <span class="doccomment">/// # use quaint::{ast::*, visitor::{Visitor, Sqlite}};</span>
+    <span class="doccomment">/// # fn main() -&gt; Result&lt;(), quaint::error::Error&gt; {</span>
     <span class="doccomment">/// let join = &quot;posts&quot;.alias(&quot;p&quot;).on((&quot;p&quot;, &quot;user_id&quot;).equals(Column::from((&quot;users&quot;, &quot;id&quot;))));</span>
     <span class="doccomment">/// let query = Select::from_table(&quot;users&quot;).inner_join(join);</span>
-    <span class="doccomment">/// let (sql, _) = Sqlite::build(query);</span>
+    <span class="doccomment">/// let (sql, _) = Sqlite::build(query)?;</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// assert_eq!(</span>
     <span class="doccomment">///     &quot;SELECT `users`.* FROM `users` INNER JOIN `posts` AS `p` ON `p`.`user_id` = `users`.`id`&quot;,</span>
     <span class="doccomment">///     sql</span>
     <span class="doccomment">/// );</span>
+    <span class="doccomment">/// # Ok(())</span>
+    <span class="doccomment">/// # }</span>
     <span class="doccomment">/// ```</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">inner_join</span><span class="op">&lt;</span><span class="ident">J</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">join</span>: <span class="ident">J</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>
     <span class="kw">where</span>
@@ -739,9 +835,10 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// ```rust</span>
     <span class="doccomment">/// # use quaint::{ast::*, visitor::{Visitor, Sqlite}};</span>
+    <span class="doccomment">/// # fn main() -&gt; Result&lt;(), quaint::error::Error&gt; {</span>
     <span class="doccomment">/// let join = &quot;posts&quot;.alias(&quot;p&quot;).on((&quot;p&quot;, &quot;visible&quot;).equals(true));</span>
     <span class="doccomment">/// let query = Select::from_table(&quot;users&quot;).left_join(join);</span>
-    <span class="doccomment">/// let (sql, params) = Sqlite::build(query);</span>
+    <span class="doccomment">/// let (sql, params) = Sqlite::build(query)?;</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// assert_eq!(</span>
     <span class="doccomment">///     &quot;SELECT `users`.* FROM `users` LEFT JOIN `posts` AS `p` ON `p`.`visible` = ?&quot;,</span>
@@ -754,6 +851,8 @@
     <span class="doccomment">///     ],</span>
     <span class="doccomment">///     params</span>
     <span class="doccomment">/// );</span>
+    <span class="doccomment">/// # Ok(())</span>
+    <span class="doccomment">/// # }</span>
     <span class="doccomment">/// ```</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">left_join</span><span class="op">&lt;</span><span class="ident">J</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">join</span>: <span class="ident">J</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>
     <span class="kw">where</span>
@@ -767,9 +866,10 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// ```rust</span>
     <span class="doccomment">/// # use quaint::{ast::*, visitor::{Visitor, Sqlite}};</span>
+    <span class="doccomment">/// # fn main() -&gt; Result&lt;(), quaint::error::Error&gt; {</span>
     <span class="doccomment">/// let join = &quot;posts&quot;.alias(&quot;p&quot;).on((&quot;p&quot;, &quot;visible&quot;).equals(true));</span>
     <span class="doccomment">/// let query = Select::from_table(&quot;users&quot;).right_join(join);</span>
-    <span class="doccomment">/// let (sql, params) = Sqlite::build(query);</span>
+    <span class="doccomment">/// let (sql, params) = Sqlite::build(query)?;</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// assert_eq!(</span>
     <span class="doccomment">///     &quot;SELECT `users`.* FROM `users` RIGHT JOIN `posts` AS `p` ON `p`.`visible` = ?&quot;,</span>
@@ -782,6 +882,8 @@
     <span class="doccomment">///     ],</span>
     <span class="doccomment">///     params</span>
     <span class="doccomment">/// );</span>
+    <span class="doccomment">/// # Ok(())</span>
+    <span class="doccomment">/// # }</span>
     <span class="doccomment">/// ```</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">right_join</span><span class="op">&lt;</span><span class="ident">J</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">join</span>: <span class="ident">J</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>
     <span class="kw">where</span>
@@ -795,9 +897,10 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// ```rust</span>
     <span class="doccomment">/// # use quaint::{ast::*, visitor::{Visitor, Sqlite}};</span>
+    <span class="doccomment">/// # fn main() -&gt; Result&lt;(), quaint::error::Error&gt; {</span>
     <span class="doccomment">/// let join = &quot;posts&quot;.alias(&quot;p&quot;).on((&quot;p&quot;, &quot;visible&quot;).equals(true));</span>
     <span class="doccomment">/// let query = Select::from_table(&quot;users&quot;).full_join(join);</span>
-    <span class="doccomment">/// let (sql, params) = Sqlite::build(query);</span>
+    <span class="doccomment">/// let (sql, params) = Sqlite::build(query)?;</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// assert_eq!(</span>
     <span class="doccomment">///     &quot;SELECT `users`.* FROM `users` FULL JOIN `posts` AS `p` ON `p`.`visible` = ?&quot;,</span>
@@ -810,6 +913,8 @@
     <span class="doccomment">///     ],</span>
     <span class="doccomment">///     params</span>
     <span class="doccomment">/// );</span>
+    <span class="doccomment">/// # Ok(())</span>
+    <span class="doccomment">/// # }</span>
     <span class="doccomment">/// ```</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">full_join</span><span class="op">&lt;</span><span class="ident">J</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">join</span>: <span class="ident">J</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>
     <span class="kw">where</span>
@@ -823,14 +928,17 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// ```rust</span>
     <span class="doccomment">/// # use quaint::{ast::*, visitor::{Visitor, Sqlite}};</span>
+    <span class="doccomment">/// # fn main() -&gt; Result&lt;(), quaint::error::Error&gt; {</span>
     <span class="doccomment">/// let query = Select::from_table(&quot;users&quot;)</span>
     <span class="doccomment">///     .order_by(&quot;foo&quot;)</span>
     <span class="doccomment">///     .order_by(&quot;baz&quot;.ascend())</span>
     <span class="doccomment">///     .order_by(&quot;bar&quot;.descend());</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// let (sql, _) = Sqlite::build(query);</span>
+    <span class="doccomment">/// let (sql, _) = Sqlite::build(query)?;</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// assert_eq!(&quot;SELECT `users`.* FROM `users` ORDER BY `foo`, `baz` ASC, `bar` DESC&quot;, sql);</span>
+    <span class="doccomment">/// # Ok(())</span>
+    <span class="doccomment">/// # }</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">order_by</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">value</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>
     <span class="kw">where</span>
         <span class="ident">T</span>: <span class="ident">IntoOrderDefinition</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
@@ -845,13 +953,16 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// ```rust</span>
     <span class="doccomment">/// # use quaint::{ast::*, visitor::{Visitor, Sqlite}};</span>
+    <span class="doccomment">/// # fn main() -&gt; Result&lt;(), quaint::error::Error&gt; {</span>
     <span class="doccomment">/// let query = Select::from_table(&quot;users&quot;).column(&quot;foo&quot;).column(&quot;bar&quot;)</span>
     <span class="doccomment">///     .group_by(&quot;foo&quot;)</span>
     <span class="doccomment">///     .group_by(&quot;bar&quot;);</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// let (sql, _) = Sqlite::build(query);</span>
+    <span class="doccomment">/// let (sql, _) = Sqlite::build(query)?;</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// assert_eq!(&quot;SELECT `foo`, `bar` FROM `users` GROUP BY `foo`, `bar`&quot;, sql);</span>
+    <span class="doccomment">/// # Ok(())</span>
+    <span class="doccomment">/// # }</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">group_by</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">value</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>
     <span class="kw">where</span>
         <span class="ident">T</span>: <span class="ident">IntoGroupByDefinition</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
@@ -865,14 +976,17 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// ```rust</span>
     <span class="doccomment">/// # use quaint::{ast::*, visitor::{Visitor, Sqlite}};</span>
+    <span class="doccomment">/// # fn main() -&gt; Result&lt;(), quaint::error::Error&gt; {</span>
     <span class="doccomment">/// let query = Select::from_table(&quot;users&quot;).column(&quot;foo&quot;).column(&quot;bar&quot;)</span>
     <span class="doccomment">///     .group_by(&quot;foo&quot;)</span>
     <span class="doccomment">///     .having(&quot;foo&quot;.greater_than(100));</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// let (sql, params) = Sqlite::build(query);</span>
+    <span class="doccomment">/// let (sql, params) = Sqlite::build(query)?;</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// assert_eq!(&quot;SELECT `foo`, `bar` FROM `users` GROUP BY `foo` HAVING `foo` &gt; ?&quot;, sql);</span>
     <span class="doccomment">/// assert_eq!(vec![Value::from(100)], params);</span>
+    <span class="doccomment">/// # Ok(())</span>
+    <span class="doccomment">/// # }</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">having</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">conditions</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>
     <span class="kw">where</span>
         <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">ConditionTree</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
@@ -885,11 +999,14 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// ```rust</span>
     <span class="doccomment">/// # use quaint::{ast::*, visitor::{Visitor, Sqlite}};</span>
+    <span class="doccomment">/// # fn main() -&gt; Result&lt;(), quaint::error::Error&gt; {</span>
     <span class="doccomment">/// let query = Select::from_table(&quot;users&quot;).limit(10);</span>
-    <span class="doccomment">/// let (sql, params) = Sqlite::build(query);</span>
+    <span class="doccomment">/// let (sql, params) = Sqlite::build(query)?;</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// assert_eq!(&quot;SELECT `users`.* FROM `users` LIMIT ?&quot;, sql);</span>
     <span class="doccomment">/// assert_eq!(vec![Value::from(10)], params);</span>
+    <span class="doccomment">/// # Ok(())</span>
+    <span class="doccomment">/// # }</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">limit</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">limit</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">limit</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Value</span>::<span class="ident">from</span>(<span class="ident">limit</span>));
         <span class="self">self</span>
@@ -899,11 +1016,14 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// ```rust</span>
     <span class="doccomment">/// # use quaint::{ast::*, visitor::{Visitor, Sqlite}};</span>
+    <span class="doccomment">/// # fn main() -&gt; Result&lt;(), quaint::error::Error&gt; {</span>
     <span class="doccomment">/// let query = Select::from_table(&quot;users&quot;).offset(10);</span>
-    <span class="doccomment">/// let (sql, params) = Sqlite::build(query);</span>
+    <span class="doccomment">/// let (sql, params) = Sqlite::build(query)?;</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// assert_eq!(&quot;SELECT `users`.* FROM `users` LIMIT ? OFFSET ?&quot;, sql);</span>
     <span class="doccomment">/// assert_eq!(vec![Value::from(-1), Value::from(10)], params);</span>
+    <span class="doccomment">/// # Ok(())</span>
+    <span class="doccomment">/// # }</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">offset</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">offset</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">offset</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Value</span>::<span class="ident">from</span>(<span class="ident">offset</span>));
         <span class="self">self</span>

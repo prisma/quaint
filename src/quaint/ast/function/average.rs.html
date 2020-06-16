@@ -21,6 +21,9 @@
 <span id="21">21</span>
 <span id="22">22</span>
 <span id="23">23</span>
+<span id="24">24</span>
+<span id="25">25</span>
+<span id="26">26</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">super</span>::<span class="ident">Function</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">ast</span>::<span class="ident">Column</span>;
@@ -34,9 +37,12 @@
 <span class="doccomment">///</span>
 <span class="doccomment">/// ```rust</span>
 <span class="doccomment">/// # use quaint::{ast::*, visitor::{Visitor, Sqlite}};</span>
+<span class="doccomment">/// # fn main() -&gt; Result&lt;(), quaint::error::Error&gt; {</span>
 <span class="doccomment">/// let query = Select::from_table(&quot;users&quot;).value(avg(&quot;age&quot;));</span>
-<span class="doccomment">/// let (sql, _) = Sqlite::build(query);</span>
+<span class="doccomment">/// let (sql, _) = Sqlite::build(query)?;</span>
 <span class="doccomment">/// assert_eq!(&quot;SELECT AVG(`age`) FROM `users`&quot;, sql);</span>
+<span class="doccomment">/// # Ok(())</span>
+<span class="doccomment">/// # }</span>
 <span class="doccomment">/// ```</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">avg</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">C</span><span class="op">&gt;</span>(<span class="ident">col</span>: <span class="ident">C</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Function</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>
 <span class="kw">where</span>

@@ -49,6 +49,10 @@
 <span id="49">49</span>
 <span id="50">50</span>
 <span id="51">51</span>
+<span id="52">52</span>
+<span id="53">53</span>
+<span id="54">54</span>
+<span id="55">55</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! An abstract syntax tree for SQL queries.</span>
 <span class="doccomment">//!</span>
@@ -65,8 +69,10 @@
 <span class="kw">mod</span> <span class="ident">expression</span>;
 <span class="kw">mod</span> <span class="ident">function</span>;
 <span class="kw">mod</span> <span class="ident">grouping</span>;
+<span class="kw">mod</span> <span class="ident">index</span>;
 <span class="kw">mod</span> <span class="ident">insert</span>;
 <span class="kw">mod</span> <span class="ident">join</span>;
+<span class="kw">mod</span> <span class="ident">merge</span>;
 <span class="kw">mod</span> <span class="ident">ops</span>;
 <span class="kw">mod</span> <span class="ident">ordering</span>;
 <span class="kw">mod</span> <span class="ident">over</span>;
@@ -78,7 +84,7 @@
 <span class="kw">mod</span> <span class="ident">update</span>;
 <span class="kw">mod</span> <span class="ident">values</span>;
 
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">column</span>::<span class="ident">Column</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">column</span>::{<span class="ident">Column</span>, <span class="ident">DefaultValue</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">compare</span>::{<span class="ident">Comparable</span>, <span class="ident">Compare</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">conditions</span>::<span class="ident">ConditionTree</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">conjunctive</span>::<span class="ident">Conjunctive</span>;
@@ -86,8 +92,10 @@
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">expression</span>::<span class="kw-2">*</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">function</span>::<span class="kw-2">*</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">grouping</span>::<span class="kw-2">*</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">index</span>::<span class="kw-2">*</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">insert</span>::<span class="kw-2">*</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">join</span>::{<span class="ident">Join</span>, <span class="ident">JoinData</span>, <span class="ident">Joinable</span>};
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use</span> <span class="ident">merge</span>::<span class="kw-2">*</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">ops</span>::<span class="kw-2">*</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">ordering</span>::{<span class="ident">IntoOrderDefinition</span>, <span class="ident">Order</span>, <span class="ident">OrderDefinition</span>, <span class="ident">Orderable</span>, <span class="ident">Ordering</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">over</span>::<span class="kw-2">*</span>;
@@ -97,7 +105,7 @@
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">table</span>::<span class="kw-2">*</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">union</span>::<span class="ident">Union</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">update</span>::<span class="kw-2">*</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">values</span>::{<span class="ident">Value</span>, <span class="ident">Values</span>};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">values</span>::{<span class="ident">IntoRaw</span>, <span class="ident">Raw</span>, <span class="ident">Value</span>, <span class="ident">Values</span>};
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sqlite&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mysql&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;postgresql&quot;</span>))]</span>
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use</span> <span class="ident">values</span>::<span class="ident">Params</span>;

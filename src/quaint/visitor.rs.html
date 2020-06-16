@@ -794,6 +794,59 @@
 <span id="794">794</span>
 <span id="795">795</span>
 <span id="796">796</span>
+<span id="797">797</span>
+<span id="798">798</span>
+<span id="799">799</span>
+<span id="800">800</span>
+<span id="801">801</span>
+<span id="802">802</span>
+<span id="803">803</span>
+<span id="804">804</span>
+<span id="805">805</span>
+<span id="806">806</span>
+<span id="807">807</span>
+<span id="808">808</span>
+<span id="809">809</span>
+<span id="810">810</span>
+<span id="811">811</span>
+<span id="812">812</span>
+<span id="813">813</span>
+<span id="814">814</span>
+<span id="815">815</span>
+<span id="816">816</span>
+<span id="817">817</span>
+<span id="818">818</span>
+<span id="819">819</span>
+<span id="820">820</span>
+<span id="821">821</span>
+<span id="822">822</span>
+<span id="823">823</span>
+<span id="824">824</span>
+<span id="825">825</span>
+<span id="826">826</span>
+<span id="827">827</span>
+<span id="828">828</span>
+<span id="829">829</span>
+<span id="830">830</span>
+<span id="831">831</span>
+<span id="832">832</span>
+<span id="833">833</span>
+<span id="834">834</span>
+<span id="835">835</span>
+<span id="836">836</span>
+<span id="837">837</span>
+<span id="838">838</span>
+<span id="839">839</span>
+<span id="840">840</span>
+<span id="841">841</span>
+<span id="842">842</span>
+<span id="843">843</span>
+<span id="844">844</span>
+<span id="845">845</span>
+<span id="846">846</span>
+<span id="847">847</span>
+<span id="848">848</span>
+<span id="849">849</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Visitors for reading an abstract SQL syntax tree, generating the query and</span>
 <span class="doccomment">//! gathering parameters in the right order.</span>
@@ -803,22 +856,28 @@
 <span class="doccomment">//! [ast](../ast/index.html) module.</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! For prelude, all important imports are in `quaint::visitor::*`;</span>
+<span class="kw">mod</span> <span class="ident">mssql</span>;
 <span class="kw">mod</span> <span class="ident">mysql</span>;
 <span class="kw">mod</span> <span class="ident">postgres</span>;
 <span class="kw">mod</span> <span class="ident">sqlite</span>;
 
+<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">mssql</span>::<span class="ident">Mssql</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">mysql</span>::<span class="ident">Mysql</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">postgres</span>::<span class="ident">Postgres</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">sqlite</span>::<span class="ident">Sqlite</span>;
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">ast</span>::<span class="kw-2">*</span>;
-<span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">borrow</span>::<span class="ident">Cow</span>, <span class="ident">fmt</span>};
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>;
+
+<span class="kw">pub</span> <span class="kw">type</span> <span class="prelude-ty">Result</span> <span class="op">=</span> <span class="kw">crate</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>;
 
 <span class="doccomment">/// A function travelling through the query AST, building the final query string</span>
 <span class="doccomment">/// and gathering parameters sent to the database together with the query.</span>
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Visitor</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// Backtick character to surround identifiers, such as column and table names.</span>
-    <span class="kw">const</span> <span class="ident">C_BACKTICK</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>;
+    <span class="doccomment">/// Opening backtick character to surround identifiers, such as column and table names.</span>
+    <span class="kw">const</span> <span class="ident">C_BACKTICK_OPEN</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>;
+    <span class="doccomment">/// Closing backtick character to surround identifiers, such as column and table names.</span>
+    <span class="kw">const</span> <span class="ident">C_BACKTICK_CLOSE</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>;
     <span class="doccomment">/// Wildcard character to be used in `LIKE` queries.</span>
     <span class="kw">const</span> <span class="ident">C_WILDCARD</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>;
 
@@ -829,26 +888,31 @@
     <span class="doccomment">/// The point of entry for visiting query ASTs.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// # use quaint::{ast::*, visitor::*};</span>
+    <span class="doccomment">/// # use quaint::{ast::*, visitor::*, error::Error};</span>
+    <span class="doccomment">/// # fn main() -&gt; Result {</span>
     <span class="doccomment">/// let query = Select::from_table(&quot;cats&quot;);</span>
-    <span class="doccomment">/// let (sqlite, _) = Sqlite::build(query.clone());</span>
-    <span class="doccomment">/// let (psql, _) = Postgres::build(query.clone());</span>
-    <span class="doccomment">/// let (mysql, _) = Mysql::build(query.clone());</span>
+    <span class="doccomment">/// let (sqlite, _) = Sqlite::build(query.clone())?;</span>
+    <span class="doccomment">/// let (psql, _) = Postgres::build(query.clone())?;</span>
+    <span class="doccomment">/// let (mysql, _) = Mysql::build(query.clone())?;</span>
+    <span class="doccomment">/// let (mssql, _) = Mssql::build(query.clone())?;</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// assert_eq!(&quot;SELECT `cats`.* FROM `cats`&quot;, sqlite);</span>
     <span class="doccomment">/// assert_eq!(&quot;SELECT \&quot;cats\&quot;.* FROM \&quot;cats\&quot;&quot;, psql);</span>
     <span class="doccomment">/// assert_eq!(&quot;SELECT `cats`.* FROM `cats`&quot;, mysql);</span>
+    <span class="doccomment">/// assert_eq!(&quot;SELECT [cats].* FROM [cats]&quot;, mssql);</span>
+    <span class="doccomment">/// # Ok(())</span>
+    <span class="doccomment">/// # }</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">fn</span> <span class="ident">build</span><span class="op">&lt;</span><span class="ident">Q</span><span class="op">&gt;</span>(<span class="ident">query</span>: <span class="ident">Q</span>) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">String</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Value</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>)
+    <span class="kw">fn</span> <span class="ident">build</span><span class="op">&lt;</span><span class="ident">Q</span><span class="op">&gt;</span>(<span class="ident">query</span>: <span class="ident">Q</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">crate</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">String</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Value</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>)<span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="ident">Q</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Query</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>;
 
     <span class="doccomment">/// Write to the query.</span>
-    <span class="kw">fn</span> <span class="ident">write</span><span class="op">&lt;</span><span class="ident">D</span>: <span class="ident">fmt</span>::<span class="ident">Display</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">s</span>: <span class="ident">D</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span>;
+    <span class="kw">fn</span> <span class="ident">write</span><span class="op">&lt;</span><span class="ident">D</span>: <span class="ident">fmt</span>::<span class="ident">Display</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">s</span>: <span class="ident">D</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span>;
 
-    <span class="kw">fn</span> <span class="ident">surround_with</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">begin</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">end</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">f</span>: <span class="ident">F</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span>
+    <span class="kw">fn</span> <span class="ident">surround_with</span><span class="op">&lt;</span><span class="ident">F</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">begin</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">end</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">f</span>: <span class="ident">F</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span>
     <span class="kw">where</span>
-        <span class="ident">F</span>: <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span>,
+        <span class="ident">F</span>: <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span>,
     {
         <span class="self">self</span>.<span class="ident">write</span>(<span class="ident">begin</span>)<span class="question-mark">?</span>;
         <span class="ident">f</span>(<span class="self">self</span>)<span class="question-mark">?</span>;
@@ -860,25 +924,28 @@
     <span class="kw">fn</span> <span class="ident">add_parameter</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">value</span>: <span class="ident">Value</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>);
 
     <span class="doccomment">/// The `LIMIT` and `OFFSET` statement in the query</span>
-    <span class="kw">fn</span> <span class="ident">visit_limit_and_offset</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">limit</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Value</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>, <span class="ident">offset</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Value</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span>;
+    <span class="kw">fn</span> <span class="ident">visit_limit_and_offset</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">limit</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Value</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>, <span class="ident">offset</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Value</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span>;
 
     <span class="doccomment">/// A walk through an `INSERT` statement</span>
-    <span class="kw">fn</span> <span class="ident">visit_insert</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">insert</span>: <span class="ident">Insert</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span>;
+    <span class="kw">fn</span> <span class="ident">visit_insert</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">insert</span>: <span class="ident">Insert</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span>;
 
     <span class="doccomment">/// What to use to substitute a parameter in the query.</span>
-    <span class="kw">fn</span> <span class="ident">parameter_substitution</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span>;
+    <span class="kw">fn</span> <span class="ident">parameter_substitution</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span>;
 
     <span class="doccomment">/// What to use to substitute a parameter in the query.</span>
-    <span class="kw">fn</span> <span class="ident">visit_aggregate_to_string</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">value</span>: <span class="ident">Expression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span>;
+    <span class="kw">fn</span> <span class="ident">visit_aggregate_to_string</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">value</span>: <span class="ident">Expression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span>;
+
+    <span class="doccomment">/// Visit a non-parameterized value.</span>
+    <span class="kw">fn</span> <span class="ident">visit_raw_value</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">value</span>: <span class="ident">Value</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span>;
 
     <span class="doccomment">/// A visit to a value we parameterize</span>
-    <span class="kw">fn</span> <span class="ident">visit_parameterized</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">value</span>: <span class="ident">Value</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
+    <span class="kw">fn</span> <span class="ident">visit_parameterized</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">value</span>: <span class="ident">Value</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span> {
         <span class="self">self</span>.<span class="ident">add_parameter</span>(<span class="ident">value</span>);
         <span class="self">self</span>.<span class="ident">parameter_substitution</span>()
     }
 
     <span class="doccomment">/// The join statements in the query</span>
-    <span class="kw">fn</span> <span class="ident">visit_joins</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">joins</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Join</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
+    <span class="kw">fn</span> <span class="ident">visit_joins</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">joins</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Join</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span> {
         <span class="kw">for</span> <span class="ident">j</span> <span class="kw">in</span> <span class="ident">joins</span> {
             <span class="kw">match</span> <span class="ident">j</span> {
                 <span class="ident">Join</span>::<span class="ident">Inner</span>(<span class="ident">data</span>) <span class="op">=</span><span class="op">&gt;</span> {
@@ -903,14 +970,14 @@
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="kw">fn</span> <span class="ident">visit_join_data</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">data</span>: <span class="ident">JoinData</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
+    <span class="kw">fn</span> <span class="ident">visit_join_data</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">data</span>: <span class="ident">JoinData</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span> {
         <span class="self">self</span>.<span class="ident">visit_table</span>(<span class="ident">data</span>.<span class="ident">table</span>, <span class="bool-val">true</span>)<span class="question-mark">?</span>;
         <span class="self">self</span>.<span class="ident">write</span>(<span class="string">&quot; ON &quot;</span>)<span class="question-mark">?</span>;
         <span class="self">self</span>.<span class="ident">visit_conditions</span>(<span class="ident">data</span>.<span class="ident">conditions</span>)
     }
 
     <span class="doccomment">/// A walk through a `SELECT` statement</span>
-    <span class="kw">fn</span> <span class="ident">visit_select</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">select</span>: <span class="ident">Select</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
+    <span class="kw">fn</span> <span class="ident">visit_select</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">select</span>: <span class="ident">Select</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span> {
         <span class="self">self</span>.<span class="ident">write</span>(<span class="string">&quot;SELECT &quot;</span>)<span class="question-mark">?</span>;
 
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">table</span>) <span class="op">=</span> <span class="ident">select</span>.<span class="ident">table</span> {
@@ -918,14 +985,18 @@
                 <span class="kw">match</span> <span class="ident">table</span>.<span class="ident">typ</span> {
                     <span class="ident">TableType</span>::<span class="ident">Query</span>(<span class="kw">_</span>) <span class="op">|</span> <span class="ident">TableType</span>::<span class="ident">Values</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">table</span>.<span class="ident">alias</span> {
                         <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">alias</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                            <span class="self">self</span>.<span class="ident">surround_with</span>(<span class="self">Self</span>::<span class="ident">C_BACKTICK</span>, <span class="self">Self</span>::<span class="ident">C_BACKTICK</span>, <span class="op">|</span><span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">s</span><span class="op">|</span> <span class="ident">s</span>.<span class="ident">write</span>(<span class="ident">alias</span>))<span class="question-mark">?</span>;
+                            <span class="self">self</span>.<span class="ident">surround_with</span>(<span class="self">Self</span>::<span class="ident">C_BACKTICK_OPEN</span>, <span class="self">Self</span>::<span class="ident">C_BACKTICK_CLOSE</span>, <span class="op">|</span><span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">s</span><span class="op">|</span> {
+                                <span class="ident">s</span>.<span class="ident">write</span>(<span class="ident">alias</span>)
+                            })<span class="question-mark">?</span>;
                             <span class="self">self</span>.<span class="ident">write</span>(<span class="string">&quot;.*&quot;</span>)<span class="question-mark">?</span>;
                         }
                         <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">write</span>(<span class="string">&quot;*&quot;</span>)<span class="question-mark">?</span>,
                     },
                     <span class="ident">TableType</span>::<span class="ident">Table</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">table</span>.<span class="ident">alias</span>.<span class="ident">clone</span>() {
                         <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">alias</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                            <span class="self">self</span>.<span class="ident">surround_with</span>(<span class="self">Self</span>::<span class="ident">C_BACKTICK</span>, <span class="self">Self</span>::<span class="ident">C_BACKTICK</span>, <span class="op">|</span><span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">s</span><span class="op">|</span> <span class="ident">s</span>.<span class="ident">write</span>(<span class="ident">alias</span>))<span class="question-mark">?</span>;
+                            <span class="self">self</span>.<span class="ident">surround_with</span>(<span class="self">Self</span>::<span class="ident">C_BACKTICK_OPEN</span>, <span class="self">Self</span>::<span class="ident">C_BACKTICK_CLOSE</span>, <span class="op">|</span><span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">s</span><span class="op">|</span> {
+                                <span class="ident">s</span>.<span class="ident">write</span>(<span class="ident">alias</span>)
+                            })<span class="question-mark">?</span>;
                             <span class="self">self</span>.<span class="ident">write</span>(<span class="string">&quot;.*&quot;</span>)<span class="question-mark">?</span>;
                         }
                         <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> {
@@ -973,7 +1044,7 @@
     }
 
     <span class="doccomment">/// A walk through an `UPDATE` statement</span>
-    <span class="kw">fn</span> <span class="ident">visit_update</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">update</span>: <span class="ident">Update</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
+    <span class="kw">fn</span> <span class="ident">visit_update</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">update</span>: <span class="ident">Update</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span> {
         <span class="self">self</span>.<span class="ident">write</span>(<span class="string">&quot;UPDATE &quot;</span>)<span class="question-mark">?</span>;
         <span class="self">self</span>.<span class="ident">visit_table</span>(<span class="ident">update</span>.<span class="ident">table</span>, <span class="bool-val">true</span>)<span class="question-mark">?</span>;
 
@@ -1002,7 +1073,7 @@
     }
 
     <span class="doccomment">/// A walk through an `DELETE` statement</span>
-    <span class="kw">fn</span> <span class="ident">visit_delete</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">delete</span>: <span class="ident">Delete</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
+    <span class="kw">fn</span> <span class="ident">visit_delete</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">delete</span>: <span class="ident">Delete</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span> {
         <span class="self">self</span>.<span class="ident">write</span>(<span class="string">&quot;DELETE FROM &quot;</span>)<span class="question-mark">?</span>;
         <span class="self">self</span>.<span class="ident">visit_table</span>(<span class="ident">delete</span>.<span class="ident">table</span>, <span class="bool-val">true</span>)<span class="question-mark">?</span>;
 
@@ -1016,11 +1087,13 @@
 
     <span class="doccomment">/// A helper for delimiting an identifier, surrounding every part with `C_BACKTICK`</span>
     <span class="doccomment">/// and delimiting the values with a `.`</span>
-    <span class="kw">fn</span> <span class="ident">delimited_identifiers</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">parts</span>: <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span><span class="ident">str</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
+    <span class="kw">fn</span> <span class="ident">delimited_identifiers</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">parts</span>: <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span><span class="ident">str</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span> {
         <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">parts</span>.<span class="ident">len</span>();
 
         <span class="kw">for</span> (<span class="ident">i</span>, <span class="ident">parts</span>) <span class="kw">in</span> <span class="ident">parts</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
-            <span class="self">self</span>.<span class="ident">surround_with</span>(<span class="self">Self</span>::<span class="ident">C_BACKTICK</span>, <span class="self">Self</span>::<span class="ident">C_BACKTICK</span>, <span class="op">|</span><span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">s</span><span class="op">|</span> <span class="ident">s</span>.<span class="ident">write</span>(<span class="ident">parts</span>))<span class="question-mark">?</span>;
+            <span class="self">self</span>.<span class="ident">surround_with</span>(<span class="self">Self</span>::<span class="ident">C_BACKTICK_OPEN</span>, <span class="self">Self</span>::<span class="ident">C_BACKTICK_CLOSE</span>, <span class="op">|</span><span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">s</span><span class="op">|</span> {
+                <span class="ident">s</span>.<span class="ident">write</span>(<span class="ident">parts</span>)
+            })<span class="question-mark">?</span>;
 
             <span class="kw">if</span> <span class="ident">i</span> <span class="op">&lt;</span> (<span class="ident">len</span> <span class="op">-</span> <span class="number">1</span>) {
                 <span class="self">self</span>.<span class="ident">write</span>(<span class="string">&quot;.&quot;</span>)<span class="question-mark">?</span>;
@@ -1031,19 +1104,19 @@
     }
 
     <span class="doccomment">/// A walk through a complete `Query` statement</span>
-    <span class="kw">fn</span> <span class="ident">visit_query</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">query</span>: <span class="ident">Query</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) {
+    <span class="kw">fn</span> <span class="ident">visit_query</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">query</span>: <span class="ident">Query</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span> {
         <span class="kw">match</span> <span class="ident">query</span> {
-            <span class="ident">Query</span>::<span class="ident">Select</span>(<span class="ident">select</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">visit_select</span>(<span class="kw-2">*</span><span class="ident">select</span>).<span class="ident">unwrap</span>(),
-            <span class="ident">Query</span>::<span class="ident">Insert</span>(<span class="ident">insert</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">visit_insert</span>(<span class="kw-2">*</span><span class="ident">insert</span>).<span class="ident">unwrap</span>(),
-            <span class="ident">Query</span>::<span class="ident">Update</span>(<span class="ident">update</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">visit_update</span>(<span class="kw-2">*</span><span class="ident">update</span>).<span class="ident">unwrap</span>(),
-            <span class="ident">Query</span>::<span class="ident">Delete</span>(<span class="ident">delete</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">visit_delete</span>(<span class="kw-2">*</span><span class="ident">delete</span>).<span class="ident">unwrap</span>(),
-            <span class="ident">Query</span>::<span class="ident">Union</span>(<span class="ident">union</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">visit_union</span>(<span class="ident">union</span>).<span class="ident">unwrap</span>(),
-            <span class="ident">Query</span>::<span class="ident">Raw</span>(<span class="ident">string</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">write</span>(<span class="ident">string</span>).<span class="ident">unwrap</span>(),
+            <span class="ident">Query</span>::<span class="ident">Select</span>(<span class="ident">select</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">visit_select</span>(<span class="kw-2">*</span><span class="ident">select</span>),
+            <span class="ident">Query</span>::<span class="ident">Insert</span>(<span class="ident">insert</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">visit_insert</span>(<span class="kw-2">*</span><span class="ident">insert</span>),
+            <span class="ident">Query</span>::<span class="ident">Update</span>(<span class="ident">update</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">visit_update</span>(<span class="kw-2">*</span><span class="ident">update</span>),
+            <span class="ident">Query</span>::<span class="ident">Delete</span>(<span class="ident">delete</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">visit_delete</span>(<span class="kw-2">*</span><span class="ident">delete</span>),
+            <span class="ident">Query</span>::<span class="ident">Union</span>(<span class="ident">union</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">visit_union</span>(<span class="ident">union</span>),
+            <span class="ident">Query</span>::<span class="ident">Raw</span>(<span class="ident">string</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">write</span>(<span class="ident">string</span>),
         }
     }
 
     <span class="doccomment">/// A walk through a union of `SELECT` statements</span>
-    <span class="kw">fn</span> <span class="ident">visit_union</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="kw-2">mut</span> <span class="ident">ua</span>: <span class="ident">Union</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
+    <span class="kw">fn</span> <span class="ident">visit_union</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="kw-2">mut</span> <span class="ident">ua</span>: <span class="ident">Union</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span> {
         <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">ua</span>.<span class="ident">selects</span>.<span class="ident">len</span>();
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">types</span> <span class="op">=</span> <span class="ident">ua</span>.<span class="ident">types</span>.<span class="ident">drain</span>(<span class="number">0</span>..);
 
@@ -1063,7 +1136,7 @@
     }
 
     <span class="doccomment">/// The selected columns</span>
-    <span class="kw">fn</span> <span class="ident">visit_columns</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">columns</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
+    <span class="kw">fn</span> <span class="ident">visit_columns</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">columns</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span> {
         <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">columns</span>.<span class="ident">len</span>();
 
         <span class="kw">for</span> (<span class="ident">i</span>, <span class="ident">column</span>) <span class="kw">in</span> <span class="ident">columns</span>.<span class="ident">into_iter</span>().<span class="ident">enumerate</span>() {
@@ -1077,7 +1150,7 @@
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="kw">fn</span> <span class="ident">visit_operation</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">op</span>: <span class="ident">SqlOp</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
+    <span class="kw">fn</span> <span class="ident">visit_operation</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">op</span>: <span class="ident">SqlOp</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span> {
         <span class="kw">match</span> <span class="ident">op</span> {
             <span class="ident">SqlOp</span>::<span class="ident">Add</span>(<span class="ident">left</span>, <span class="ident">right</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">surround_with</span>(<span class="string">&quot;(&quot;</span>, <span class="string">&quot;)&quot;</span>, <span class="op">|</span><span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">se</span><span class="op">|</span> {
                 <span class="ident">se</span>.<span class="ident">visit_expression</span>(<span class="ident">left</span>)<span class="question-mark">?</span>;
@@ -1108,12 +1181,13 @@
     }
 
     <span class="doccomment">/// A visit to a value used in an expression</span>
-    <span class="kw">fn</span> <span class="ident">visit_expression</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">value</span>: <span class="ident">Expression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
+    <span class="kw">fn</span> <span class="ident">visit_expression</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">value</span>: <span class="ident">Expression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span> {
         <span class="kw">match</span> <span class="ident">value</span>.<span class="ident">kind</span> {
             <span class="ident">ExpressionKind</span>::<span class="ident">Value</span>(<span class="ident">value</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="kw-2">*</span><span class="ident">value</span>)<span class="question-mark">?</span>,
             <span class="ident">ExpressionKind</span>::<span class="ident">ConditionTree</span>(<span class="ident">tree</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">visit_conditions</span>(<span class="ident">tree</span>)<span class="question-mark">?</span>,
             <span class="ident">ExpressionKind</span>::<span class="ident">Compare</span>(<span class="ident">compare</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">visit_compare</span>(<span class="ident">compare</span>)<span class="question-mark">?</span>,
             <span class="ident">ExpressionKind</span>::<span class="ident">Parameterized</span>(<span class="ident">val</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">visit_parameterized</span>(<span class="ident">val</span>)<span class="question-mark">?</span>,
+            <span class="ident">ExpressionKind</span>::<span class="ident">RawValue</span>(<span class="ident">val</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">visit_raw_value</span>(<span class="ident">val</span>.<span class="number">0</span>)<span class="question-mark">?</span>,
             <span class="ident">ExpressionKind</span>::<span class="ident">Column</span>(<span class="ident">column</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">visit_column</span>(<span class="kw-2">*</span><span class="ident">column</span>)<span class="question-mark">?</span>,
             <span class="ident">ExpressionKind</span>::<span class="ident">Row</span>(<span class="ident">row</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">visit_row</span>(<span class="ident">row</span>)<span class="question-mark">?</span>,
             <span class="ident">ExpressionKind</span>::<span class="ident">Select</span>(<span class="ident">select</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">surround_with</span>(<span class="string">&quot;(&quot;</span>, <span class="string">&quot;)&quot;</span>, <span class="op">|</span><span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">s</span><span class="op">|</span> <span class="ident">s</span>.<span class="ident">visit_select</span>(<span class="kw-2">*</span><span class="ident">select</span>))<span class="question-mark">?</span>,
@@ -1138,7 +1212,13 @@
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="kw">fn</span> <span class="ident">visit_values</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">values</span>: <span class="ident">Values</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
+    <span class="kw">fn</span> <span class="ident">visit_multiple_tuple_comparison</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">left</span>: <span class="ident">Row</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>, <span class="ident">right</span>: <span class="ident">Values</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>, <span class="ident">negate</span>: <span class="ident">bool</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span> {
+        <span class="self">self</span>.<span class="ident">visit_row</span>(<span class="ident">left</span>)<span class="question-mark">?</span>;
+        <span class="self">self</span>.<span class="ident">write</span>(<span class="kw">if</span> <span class="ident">negate</span> { <span class="string">&quot; NOT IN &quot;</span> } <span class="kw">else</span> { <span class="string">&quot; IN &quot;</span> })<span class="question-mark">?</span>;
+        <span class="self">self</span>.<span class="ident">visit_values</span>(<span class="ident">right</span>)
+    }
+
+    <span class="kw">fn</span> <span class="ident">visit_values</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">values</span>: <span class="ident">Values</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span> {
         <span class="self">self</span>.<span class="ident">surround_with</span>(<span class="string">&quot;(&quot;</span>, <span class="string">&quot;)&quot;</span>, <span class="op">|</span><span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">s</span><span class="op">|</span> {
             <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">values</span>.<span class="ident">len</span>();
             <span class="kw">for</span> (<span class="ident">i</span>, <span class="ident">row</span>) <span class="kw">in</span> <span class="ident">values</span>.<span class="ident">into_iter</span>().<span class="ident">enumerate</span>() {
@@ -1153,7 +1233,7 @@
     }
 
     <span class="doccomment">/// A database table identifier</span>
-    <span class="kw">fn</span> <span class="ident">visit_table</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">table</span>: <span class="ident">Table</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>, <span class="ident">include_alias</span>: <span class="ident">bool</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
+    <span class="kw">fn</span> <span class="ident">visit_table</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">table</span>: <span class="ident">Table</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>, <span class="ident">include_alias</span>: <span class="ident">bool</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span> {
         <span class="kw">match</span> <span class="ident">table</span>.<span class="ident">typ</span> {
             <span class="ident">TableType</span>::<span class="ident">Table</span>(<span class="ident">table_name</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">table</span>.<span class="ident">database</span> {
                 <span class="prelude-val">Some</span>(<span class="ident">database</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">delimited_identifiers</span>(<span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">database</span>, <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">table_name</span>])<span class="question-mark">?</span>,
@@ -1175,7 +1255,7 @@
     }
 
     <span class="doccomment">/// A database column identifier</span>
-    <span class="kw">fn</span> <span class="ident">visit_column</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">column</span>: <span class="ident">Column</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
+    <span class="kw">fn</span> <span class="ident">visit_column</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">column</span>: <span class="ident">Column</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span> {
         <span class="kw">match</span> <span class="ident">column</span>.<span class="ident">table</span> {
             <span class="prelude-val">Some</span>(<span class="ident">table</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="self">self</span>.<span class="ident">visit_table</span>(<span class="ident">table</span>, <span class="bool-val">false</span>)<span class="question-mark">?</span>;
@@ -1194,7 +1274,7 @@
     }
 
     <span class="doccomment">/// A row of data used as an expression</span>
-    <span class="kw">fn</span> <span class="ident">visit_row</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">row</span>: <span class="ident">Row</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
+    <span class="kw">fn</span> <span class="ident">visit_row</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">row</span>: <span class="ident">Row</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span> {
         <span class="self">self</span>.<span class="ident">surround_with</span>(<span class="string">&quot;(&quot;</span>, <span class="string">&quot;)&quot;</span>, <span class="op">|</span><span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">s</span><span class="op">|</span> {
             <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">row</span>.<span class="ident">values</span>.<span class="ident">len</span>();
             <span class="kw">for</span> (<span class="ident">i</span>, <span class="ident">value</span>) <span class="kw">in</span> <span class="ident">row</span>.<span class="ident">values</span>.<span class="ident">into_iter</span>().<span class="ident">enumerate</span>() {
@@ -1210,7 +1290,7 @@
     }
 
     <span class="doccomment">/// A walk through the query conditions</span>
-    <span class="kw">fn</span> <span class="ident">visit_conditions</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">tree</span>: <span class="ident">ConditionTree</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
+    <span class="kw">fn</span> <span class="ident">visit_conditions</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">tree</span>: <span class="ident">ConditionTree</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span> {
         <span class="kw">match</span> <span class="ident">tree</span> {
             <span class="ident">ConditionTree</span>::<span class="ident">And</span>(<span class="ident">expressions</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">surround_with</span>(<span class="string">&quot;(&quot;</span>, <span class="string">&quot;)&quot;</span>, <span class="op">|</span><span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">s</span><span class="op">|</span> {
                 <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">expressions</span>.<span class="ident">len</span>();
@@ -1249,7 +1329,7 @@
     }
 
     <span class="doccomment">/// A comparison expression</span>
-    <span class="kw">fn</span> <span class="ident">visit_compare</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">compare</span>: <span class="ident">Compare</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
+    <span class="kw">fn</span> <span class="ident">visit_compare</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">compare</span>: <span class="ident">Compare</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span> {
         <span class="kw">match</span> <span class="ident">compare</span> {
             <span class="ident">Compare</span>::<span class="ident">Equals</span>(<span class="ident">left</span>, <span class="ident">right</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">visit_condition_equals</span>(<span class="kw-2">*</span><span class="ident">left</span>, <span class="kw-2">*</span><span class="ident">right</span>),
             <span class="ident">Compare</span>::<span class="ident">NotEquals</span>(<span class="ident">left</span>, <span class="ident">right</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">visit_condition_not_equals</span>(<span class="kw-2">*</span><span class="ident">left</span>, <span class="kw-2">*</span><span class="ident">right</span>),
@@ -1327,6 +1407,17 @@
                     <span class="self">self</span>.<span class="ident">visit_parameterized</span>(<span class="ident">pv</span>)
                 }
 
+                (
+                    <span class="ident">Expression</span> {
+                        <span class="ident">kind</span>: <span class="ident">ExpressionKind</span>::<span class="ident">Row</span>(<span class="ident">row</span>),
+                        ..
+                    },
+                    <span class="ident">Expression</span> {
+                        <span class="ident">kind</span>: <span class="ident">ExpressionKind</span>::<span class="ident">Values</span>(<span class="ident">values</span>),
+                        ..
+                    },
+                ) <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">visit_multiple_tuple_comparison</span>(<span class="ident">row</span>, <span class="kw-2">*</span><span class="ident">values</span>, <span class="bool-val">false</span>),
+
                 <span class="comment">// expr IN (..)</span>
                 (<span class="ident">left</span>, <span class="ident">right</span>) <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="ident">left</span>)<span class="question-mark">?</span>;
@@ -1388,6 +1479,17 @@
                     <span class="self">self</span>.<span class="ident">visit_parameterized</span>(<span class="ident">pv</span>)
                 }
 
+                (
+                    <span class="ident">Expression</span> {
+                        <span class="ident">kind</span>: <span class="ident">ExpressionKind</span>::<span class="ident">Row</span>(<span class="ident">row</span>),
+                        ..
+                    },
+                    <span class="ident">Expression</span> {
+                        <span class="ident">kind</span>: <span class="ident">ExpressionKind</span>::<span class="ident">Values</span>(<span class="ident">values</span>),
+                        ..
+                    },
+                ) <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">visit_multiple_tuple_comparison</span>(<span class="ident">row</span>, <span class="kw-2">*</span><span class="ident">values</span>, <span class="bool-val">true</span>),
+
                 <span class="comment">// expr IN (..)</span>
                 (<span class="ident">left</span>, <span class="ident">right</span>) <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="ident">left</span>)<span class="question-mark">?</span>;
@@ -1398,12 +1500,12 @@
             <span class="ident">Compare</span>::<span class="ident">Like</span>(<span class="ident">left</span>, <span class="ident">right</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="kw-2">*</span><span class="ident">left</span>)<span class="question-mark">?</span>;
 
-                <span class="self">self</span>.<span class="ident">add_parameter</span>(<span class="ident">Value</span>::<span class="ident">Text</span>(<span class="ident">Cow</span>::<span class="ident">from</span>(<span class="macro">format</span><span class="macro">!</span>(
+                <span class="self">self</span>.<span class="ident">add_parameter</span>(<span class="ident">Value</span>::<span class="ident">text</span>(<span class="macro">format</span><span class="macro">!</span>(
                     <span class="string">&quot;{}{}{}&quot;</span>,
                     <span class="self">Self</span>::<span class="ident">C_WILDCARD</span>,
                     <span class="ident">right</span>,
                     <span class="self">Self</span>::<span class="ident">C_WILDCARD</span>
-                ))));
+                )));
 
                 <span class="self">self</span>.<span class="ident">write</span>(<span class="string">&quot; LIKE &quot;</span>)<span class="question-mark">?</span>;
                 <span class="self">self</span>.<span class="ident">parameter_substitution</span>()
@@ -1411,12 +1513,12 @@
             <span class="ident">Compare</span>::<span class="ident">NotLike</span>(<span class="ident">left</span>, <span class="ident">right</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="kw-2">*</span><span class="ident">left</span>)<span class="question-mark">?</span>;
 
-                <span class="self">self</span>.<span class="ident">add_parameter</span>(<span class="ident">Value</span>::<span class="ident">Text</span>(<span class="ident">Cow</span>::<span class="ident">from</span>(<span class="macro">format</span><span class="macro">!</span>(
+                <span class="self">self</span>.<span class="ident">add_parameter</span>(<span class="ident">Value</span>::<span class="ident">text</span>(<span class="macro">format</span><span class="macro">!</span>(
                     <span class="string">&quot;{}{}{}&quot;</span>,
                     <span class="self">Self</span>::<span class="ident">C_WILDCARD</span>,
                     <span class="ident">right</span>,
                     <span class="self">Self</span>::<span class="ident">C_WILDCARD</span>
-                ))));
+                )));
 
                 <span class="self">self</span>.<span class="ident">write</span>(<span class="string">&quot; NOT LIKE &quot;</span>)<span class="question-mark">?</span>;
                 <span class="self">self</span>.<span class="ident">parameter_substitution</span>()
@@ -1424,7 +1526,7 @@
             <span class="ident">Compare</span>::<span class="ident">BeginsWith</span>(<span class="ident">left</span>, <span class="ident">right</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="kw-2">*</span><span class="ident">left</span>)<span class="question-mark">?</span>;
 
-                <span class="self">self</span>.<span class="ident">add_parameter</span>(<span class="ident">Value</span>::<span class="ident">Text</span>(<span class="ident">Cow</span>::<span class="ident">from</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}{}&quot;</span>, <span class="ident">right</span>, <span class="self">Self</span>::<span class="ident">C_WILDCARD</span>))));
+                <span class="self">self</span>.<span class="ident">add_parameter</span>(<span class="ident">Value</span>::<span class="ident">text</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}{}&quot;</span>, <span class="ident">right</span>, <span class="self">Self</span>::<span class="ident">C_WILDCARD</span>)));
 
                 <span class="self">self</span>.<span class="ident">write</span>(<span class="string">&quot; LIKE &quot;</span>)<span class="question-mark">?</span>;
                 <span class="self">self</span>.<span class="ident">parameter_substitution</span>()
@@ -1432,7 +1534,7 @@
             <span class="ident">Compare</span>::<span class="ident">NotBeginsWith</span>(<span class="ident">left</span>, <span class="ident">right</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="kw-2">*</span><span class="ident">left</span>)<span class="question-mark">?</span>;
 
-                <span class="self">self</span>.<span class="ident">add_parameter</span>(<span class="ident">Value</span>::<span class="ident">Text</span>(<span class="ident">Cow</span>::<span class="ident">from</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}{}&quot;</span>, <span class="ident">right</span>, <span class="self">Self</span>::<span class="ident">C_WILDCARD</span>))));
+                <span class="self">self</span>.<span class="ident">add_parameter</span>(<span class="ident">Value</span>::<span class="ident">text</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}{}&quot;</span>, <span class="ident">right</span>, <span class="self">Self</span>::<span class="ident">C_WILDCARD</span>)));
 
                 <span class="self">self</span>.<span class="ident">write</span>(<span class="string">&quot; NOT LIKE &quot;</span>)<span class="question-mark">?</span>;
                 <span class="self">self</span>.<span class="ident">parameter_substitution</span>()
@@ -1440,7 +1542,7 @@
             <span class="ident">Compare</span>::<span class="ident">EndsInto</span>(<span class="ident">left</span>, <span class="ident">right</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="kw-2">*</span><span class="ident">left</span>)<span class="question-mark">?</span>;
 
-                <span class="self">self</span>.<span class="ident">add_parameter</span>(<span class="ident">Value</span>::<span class="ident">Text</span>(<span class="ident">Cow</span>::<span class="ident">from</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}{}&quot;</span>, <span class="self">Self</span>::<span class="ident">C_WILDCARD</span>, <span class="ident">right</span>,))));
+                <span class="self">self</span>.<span class="ident">add_parameter</span>(<span class="ident">Value</span>::<span class="ident">text</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}{}&quot;</span>, <span class="self">Self</span>::<span class="ident">C_WILDCARD</span>, <span class="ident">right</span>,)));
 
                 <span class="self">self</span>.<span class="ident">write</span>(<span class="string">&quot; LIKE &quot;</span>)<span class="question-mark">?</span>;
                 <span class="self">self</span>.<span class="ident">parameter_substitution</span>()
@@ -1448,7 +1550,7 @@
             <span class="ident">Compare</span>::<span class="ident">NotEndsInto</span>(<span class="ident">left</span>, <span class="ident">right</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="kw-2">*</span><span class="ident">left</span>)<span class="question-mark">?</span>;
 
-                <span class="self">self</span>.<span class="ident">add_parameter</span>(<span class="ident">Value</span>::<span class="ident">Text</span>(<span class="ident">Cow</span>::<span class="ident">from</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}{}&quot;</span>, <span class="self">Self</span>::<span class="ident">C_WILDCARD</span>, <span class="ident">right</span>,))));
+                <span class="self">self</span>.<span class="ident">add_parameter</span>(<span class="ident">Value</span>::<span class="ident">text</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}{}&quot;</span>, <span class="self">Self</span>::<span class="ident">C_WILDCARD</span>, <span class="ident">right</span>,)));
 
                 <span class="self">self</span>.<span class="ident">write</span>(<span class="string">&quot; NOT LIKE &quot;</span>)<span class="question-mark">?</span>;
                 <span class="self">self</span>.<span class="ident">parameter_substitution</span>()
@@ -1478,20 +1580,24 @@
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">visit_condition_equals</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">left</span>: <span class="ident">Expression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>, <span class="ident">right</span>: <span class="ident">Expression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
+    <span class="kw">fn</span> <span class="ident">visit_condition_equals</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">left</span>: <span class="ident">Expression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>, <span class="ident">right</span>: <span class="ident">Expression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span> {
         <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="ident">left</span>)<span class="question-mark">?</span>;
         <span class="self">self</span>.<span class="ident">write</span>(<span class="string">&quot; = &quot;</span>)<span class="question-mark">?</span>;
-        <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="ident">right</span>)
+        <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="ident">right</span>)<span class="question-mark">?</span>;
+
+        <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="kw">fn</span> <span class="ident">visit_condition_not_equals</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">left</span>: <span class="ident">Expression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>, <span class="ident">right</span>: <span class="ident">Expression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
+    <span class="kw">fn</span> <span class="ident">visit_condition_not_equals</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">left</span>: <span class="ident">Expression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>, <span class="ident">right</span>: <span class="ident">Expression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span> {
         <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="ident">left</span>)<span class="question-mark">?</span>;
         <span class="self">self</span>.<span class="ident">write</span>(<span class="string">&quot; &lt;&gt; &quot;</span>)<span class="question-mark">?</span>;
-        <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="ident">right</span>)
+        <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="ident">right</span>)<span class="question-mark">?</span>;
+
+        <span class="prelude-val">Ok</span>(())
     }
 
     <span class="doccomment">/// A visit in the `ORDER BY` section of the query</span>
-    <span class="kw">fn</span> <span class="ident">visit_ordering</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ordering</span>: <span class="ident">Ordering</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
+    <span class="kw">fn</span> <span class="ident">visit_ordering</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ordering</span>: <span class="ident">Ordering</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span> {
         <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">ordering</span>.<span class="number">0</span>.<span class="ident">len</span>();
 
         <span class="kw">for</span> (<span class="ident">i</span>, (<span class="ident">value</span>, <span class="ident">ordering</span>)) <span class="kw">in</span> <span class="ident">ordering</span>.<span class="number">0</span>.<span class="ident">into_iter</span>().<span class="ident">enumerate</span>() {
@@ -1512,7 +1618,7 @@
     }
 
     <span class="doccomment">/// A visit in the `GROUP BY` section of the query</span>
-    <span class="kw">fn</span> <span class="ident">visit_grouping</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">grouping</span>: <span class="ident">Grouping</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
+    <span class="kw">fn</span> <span class="ident">visit_grouping</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">grouping</span>: <span class="ident">Grouping</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span> {
         <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">grouping</span>.<span class="number">0</span>.<span class="ident">len</span>();
 
         <span class="kw">for</span> (<span class="ident">i</span>, <span class="ident">value</span>) <span class="kw">in</span> <span class="ident">grouping</span>.<span class="number">0</span>.<span class="ident">into_iter</span>().<span class="ident">enumerate</span>() {
@@ -1526,7 +1632,7 @@
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="kw">fn</span> <span class="ident">visit_function</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">fun</span>: <span class="ident">Function</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
+    <span class="kw">fn</span> <span class="ident">visit_function</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">fun</span>: <span class="ident">Function</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span> {
         <span class="kw">match</span> <span class="ident">fun</span>.<span class="ident">typ_</span> {
             <span class="ident">FunctionType</span>::<span class="ident">RowNumber</span>(<span class="ident">fun_rownum</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">if</span> <span class="ident">fun_rownum</span>.<span class="ident">over</span>.<span class="ident">is_empty</span>() {
@@ -1565,7 +1671,7 @@
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="kw">fn</span> <span class="ident">visit_partitioning</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">over</span>: <span class="ident">Over</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
+    <span class="kw">fn</span> <span class="ident">visit_partitioning</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">over</span>: <span class="ident">Over</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span> {
         <span class="kw">if</span> <span class="op">!</span><span class="ident">over</span>.<span class="ident">partitioning</span>.<span class="ident">is_empty</span>() {
             <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">over</span>.<span class="ident">partitioning</span>.<span class="ident">len</span>();
             <span class="self">self</span>.<span class="ident">write</span>(<span class="string">&quot;PARTITION BY &quot;</span>)<span class="question-mark">?</span>;

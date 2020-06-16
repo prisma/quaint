@@ -52,6 +52,12 @@
 <span id="52">52</span>
 <span id="53">53</span>
 <span id="54">54</span>
+<span id="55">55</span>
+<span id="56">56</span>
+<span id="57">57</span>
+<span id="58">58</span>
+<span id="59">59</span>
+<span id="60">60</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">ast</span>::<span class="kw-2">*</span>;
 
@@ -73,10 +79,13 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// ```rust</span>
     <span class="doccomment">/// # use quaint::{ast::*, visitor::{Visitor, Sqlite}};</span>
+    <span class="doccomment">/// # fn main() -&gt; Result&lt;(), quaint::error::Error&gt; {</span>
     <span class="doccomment">/// let query = Delete::from_table(&quot;users&quot;);</span>
-    <span class="doccomment">/// let (sql, _) = Sqlite::build(query);</span>
+    <span class="doccomment">/// let (sql, _) = Sqlite::build(query)?;</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// assert_eq!(&quot;DELETE FROM `users`&quot;, sql);</span>
+    <span class="doccomment">/// # Ok(())</span>
+    <span class="doccomment">/// # }</span>
     <span class="doccomment">/// ```</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_table</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">table</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>
     <span class="kw">where</span>
@@ -93,11 +102,14 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// ```rust</span>
     <span class="doccomment">/// # use quaint::{ast::*, visitor::{Visitor, Sqlite}};</span>
+    <span class="doccomment">/// # fn main() -&gt; Result&lt;(), quaint::error::Error&gt; {</span>
     <span class="doccomment">/// let query = Delete::from_table(&quot;users&quot;).so_that(&quot;bar&quot;.equals(false));</span>
-    <span class="doccomment">/// let (sql, params) = Sqlite::build(query);</span>
+    <span class="doccomment">/// let (sql, params) = Sqlite::build(query)?;</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// assert_eq!(&quot;DELETE FROM `users` WHERE `bar` = ?&quot;, sql);</span>
-    <span class="doccomment">/// assert_eq!(vec![Value::Boolean(false)], params);</span>
+    <span class="doccomment">/// assert_eq!(vec![Value::boolean(false)], params);</span>
+    <span class="doccomment">/// # Ok(())</span>
+    <span class="doccomment">/// # }</span>
     <span class="doccomment">/// ```</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">so_that</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">conditions</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>
     <span class="kw">where</span>

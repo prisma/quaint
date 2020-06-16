@@ -1,13 +1,14 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="API documentation for the Rust `pooled` mod in crate `quaint`."><meta name="keywords" content="rust, rustlang, rust-lang, pooled"><title>quaint::pooled - Rust</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css"><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script src="../../storage.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="shortcut icon" href="../../favicon.ico"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc mod"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../../quaint/index.html'><div class='logo-container'><img src='../../rust-logo.png' alt='logo'></div></a><p class='location'>Module pooled</p><div class="sidebar-elems"><div class="block items"><ul><li><a href="#structs">Structs</a></li></ul></div><p class='location'><a href='../index.html'>quaint</a></p><script>window.sidebarCurrent = {name: 'pooled', ty: 'mod', relpath: '../'};</script><script defer src="../sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!"><img src="../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><h1 class='fqn'><span class='out-of-band'><span id='render-detail'><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class='inner'>&#x2212;</span>]</a></span><a class='srclink' href='../../src/quaint/pooled.rs.html#1-361' title='goto source code'>[src]</a></span><span class='in-band'>Module <a href='../index.html'>quaint</a>::<wbr><a class="mod" href=''>pooled</a></span></h1><div class='docblock'><h1 id="a-connection-pool-to-a-sql-database" class="section-header"><a href="#a-connection-pool-to-a-sql-database">A connection pool to a SQL database.</a></h1>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="API documentation for the Rust `pooled` mod in crate `quaint`."><meta name="keywords" content="rust, rustlang, rust-lang, pooled"><title>quaint::pooled - Rust</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css"><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script src="../../storage.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="shortcut icon" href="../../favicon.ico"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc mod"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../../quaint/index.html'><div class='logo-container'><img src='../../rust-logo.png' alt='logo'></div></a><p class='location'>Module pooled</p><div class="sidebar-elems"><div class="block items"><ul><li><a href="#structs">Structs</a></li></ul></div><p class='location'><a href='../index.html'>quaint</a></p><script>window.sidebarCurrent = {name: 'pooled', ty: 'mod', relpath: '../'};</script><script defer src="../sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!"><img src="../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><h1 class='fqn'><span class='out-of-band'><span id='render-detail'><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class='inner'>&#x2212;</span>]</a></span><a class='srclink' href='../../src/quaint/pooled.rs.html#1-407' title='goto source code'>[src]</a></span><span class='in-band'>Module <a href='../index.html'>quaint</a>::<wbr><a class="mod" href=''>pooled</a></span></h1><div class='docblock'><h1 id="a-connection-pool-to-a-sql-database" class="section-header"><a href="#a-connection-pool-to-a-sql-database">A connection pool to a SQL database.</a></h1>
 <p>A pool is created through the <a href="struct.Quaint.html#method.builder"><code>builder</code></a> method, starting from a connection
 string that allows some of the parameters be delivered by the user.</p>
 <p>A connection string has the following structure:</p>
 <p><code>connector_type://user:password@host/database?parameters</code></p>
 <p>Connector type can be one of the following:</p>
 <ul>
-<li><code>sqlite</code>/<code>file</code> opens an SQLite connection</li>
-<li><code>mysql</code> opens a MySQL connection</li>
-<li><code>postgres</code>/<code>postgresql</code> opens a PostgreSQL connection</li>
+<li><code>sqlite</code>/<code>file</code> opens an SQLite connection.</li>
+<li><code>mysql</code> opens a MySQL connection.</li>
+<li><code>postgres</code>/<code>postgresql</code> opens a PostgreSQL connection.</li>
+<li><code>sqlserver</code>/<code>jdbc:sqlserver</code> opens a Microsoft SQL Server connection.</li>
 </ul>
 <p>All parameters should be given in the query string format:
 <code>?key1=val1&amp;key2=val2</code>. All parameters are optional.</p>
@@ -70,6 +71,31 @@ socket. When set, the host parameter is dismissed.</li>
 database will return a <code>ConnectTimeout</code> error if taking more than the
 defined value.</li>
 </ul>
+<h2 id="microsoft-sql-server" class="section-header"><a href="#microsoft-sql-server">Microsoft SQL Server</a></h2>
+<p>SQL Server is a bit different due to its connection string following the
+JDBC standard. It's quite similar to the others: the parameters are delimited
+with a <code>;</code> instead of <code>?</code> or <code>&amp;</code>, and the parameter names are camelCase instead
+of snake_case.</p>
+<ul>
+<li><code>encrypt</code> if set to <code>true</code> encrypts all traffic over TLS. If <code>false</code>, only
+the login details are encrypted.</li>
+<li><code>user</code> sets the login name.</li>
+<li><code>password</code> sets the login password.</li>
+<li><code>database</code> sets the database to connect to.</li>
+<li><code>trustServerCertificate</code> if set to <code>true</code>, accepts any kind of certificate
+from the server.</li>
+<li><code>socketTimeout</code> defined in seconds. If set, a query will return a
+<code>Timeout</code> error if it fails to resolve before given time.</li>
+<li><code>connectTimeout</code> defined in seconds (default: 5). Connecting to a
+database will return a <code>ConnectTimeout</code> error if taking more than the
+defined value.</li>
+<li><code>connection:imit</code> defines the maximum number of connections opened to the
+database.</li>
+</ul>
+<p>Example of a JDBC connection string:</p>
+
+<div class='information'><div class='tooltip ignore'>ⓘ<span class='tooltiptext'>This example is not tested</span></div></div><div class="example-wrap"><pre class="rust rust-example-rendered ignore">
+<span class="ident">sqlserver</span>:<span class="comment">//host:port;database=master;user=SA;password=secret</span></pre></div>
 <p>To create a new <code>Quaint</code> pool connecting to a PostgreSQL database:</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered">

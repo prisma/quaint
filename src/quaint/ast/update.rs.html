@@ -105,6 +105,15 @@
 <span id="105">105</span>
 <span id="106">106</span>
 <span id="107">107</span>
+<span id="108">108</span>
+<span id="109">109</span>
+<span id="110">110</span>
+<span id="111">111</span>
+<span id="112">112</span>
+<span id="113">113</span>
+<span id="114">114</span>
+<span id="115">115</span>
+<span id="116">116</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">ast</span>::<span class="kw-2">*</span>;
 
@@ -141,18 +150,21 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// ```rust</span>
     <span class="doccomment">/// # use quaint::{ast::*, visitor::{Visitor, Sqlite}};</span>
+    <span class="doccomment">/// # fn main() -&gt; Result&lt;(), quaint::error::Error&gt; {</span>
     <span class="doccomment">/// let query = Update::table(&quot;users&quot;).set(&quot;foo&quot;, 10).set(&quot;bar&quot;, false);</span>
-    <span class="doccomment">/// let (sql, params) = Sqlite::build(query);</span>
+    <span class="doccomment">/// let (sql, params) = Sqlite::build(query)?;</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// assert_eq!(&quot;UPDATE `users` SET `foo` = ?, `bar` = ?&quot;, sql);</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// assert_eq!(</span>
     <span class="doccomment">///     vec![</span>
-    <span class="doccomment">///         Value::Integer(10),</span>
-    <span class="doccomment">///         Value::Boolean(false),</span>
+    <span class="doccomment">///         Value::from(10),</span>
+    <span class="doccomment">///         Value::from(false),</span>
     <span class="doccomment">///     ],</span>
     <span class="doccomment">///     params,</span>
     <span class="doccomment">/// );</span>
+    <span class="doccomment">/// # Ok(())</span>
+    <span class="doccomment">/// # }</span>
     <span class="doccomment">/// ```</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">column</span>: <span class="ident">K</span>, <span class="ident">value</span>: <span class="ident">V</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Update</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>
     <span class="kw">where</span>
@@ -170,27 +182,31 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// ```rust</span>
     <span class="doccomment">/// # use quaint::{ast::*, visitor::{Visitor, Sqlite}};</span>
+    <span class="doccomment">/// # fn main() -&gt; Result&lt;(), quaint::error::Error&gt; {</span>
     <span class="doccomment">/// let query = Update::table(&quot;users&quot;).set(&quot;foo&quot;, 1).so_that(&quot;bar&quot;.equals(false));</span>
-    <span class="doccomment">/// let (sql, params) = Sqlite::build(query);</span>
+    <span class="doccomment">/// let (sql, params) = Sqlite::build(query)?;</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// assert_eq!(&quot;UPDATE `users` SET `foo` = ? WHERE `bar` = ?&quot;, sql);</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// assert_eq!(</span>
     <span class="doccomment">///     vec![</span>
-    <span class="doccomment">///         Value::Integer(1),</span>
-    <span class="doccomment">///         Value::Boolean(false),</span>
+    <span class="doccomment">///         Value::from(1),</span>
+    <span class="doccomment">///         Value::from(false),</span>
     <span class="doccomment">///     ],</span>
     <span class="doccomment">///     params,</span>
     <span class="doccomment">/// );</span>
+    <span class="doccomment">/// # Ok(())</span>
+    <span class="doccomment">/// # }</span>
     <span class="doccomment">/// ```</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// We can also use a nested `SELECT` in the conditions.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// ```rust</span>
     <span class="doccomment">/// # use quaint::{ast::*, visitor::{Visitor, Sqlite}};</span>
+    <span class="doccomment">/// # fn main() -&gt; Result&lt;(), quaint::error::Error&gt; {</span>
     <span class="doccomment">/// let select = Select::from_table(&quot;bars&quot;).column(&quot;id&quot;).so_that(&quot;uniq_val&quot;.equals(3));</span>
     <span class="doccomment">/// let query = Update::table(&quot;users&quot;).set(&quot;foo&quot;, 1).so_that(&quot;bar&quot;.equals(select));</span>
-    <span class="doccomment">/// let (sql, params) = Sqlite::build(query);</span>
+    <span class="doccomment">/// let (sql, params) = Sqlite::build(query)?;</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// assert_eq!(</span>
     <span class="doccomment">///     &quot;UPDATE `users` SET `foo` = ? WHERE `bar` = (SELECT `id` FROM `bars` WHERE `uniq_val` = ?)&quot;,</span>
@@ -199,11 +215,13 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// assert_eq!(</span>
     <span class="doccomment">///     vec![</span>
-    <span class="doccomment">///         Value::Integer(1),</span>
-    <span class="doccomment">///         Value::Integer(3),</span>
+    <span class="doccomment">///         Value::from(1),</span>
+    <span class="doccomment">///         Value::from(3),</span>
     <span class="doccomment">///     ],</span>
     <span class="doccomment">///     params,</span>
     <span class="doccomment">/// );</span>
+    <span class="doccomment">/// # Ok(())</span>
+    <span class="doccomment">/// # }</span>
     <span class="doccomment">/// ```</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">so_that</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">conditions</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>
     <span class="kw">where</span>

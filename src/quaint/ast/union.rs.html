@@ -81,6 +81,12 @@
 <span id="81">81</span>
 <span id="82">82</span>
 <span id="83">83</span>
+<span id="84">84</span>
+<span id="85">85</span>
+<span id="86">86</span>
+<span id="87">87</span>
+<span id="88">88</span>
+<span id="89">89</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">ast</span>::{<span class="ident">Query</span>, <span class="ident">Select</span>};
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>;
@@ -126,9 +132,10 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// ```rust</span>
     <span class="doccomment">/// # use quaint::{ast::*, visitor::{Visitor, Sqlite}};</span>
+    <span class="doccomment">/// # fn main() -&gt; Result&lt;(), quaint::error::Error&gt; {</span>
     <span class="doccomment">/// let s1 = Select::default().value(1);</span>
     <span class="doccomment">/// let s2 = Select::default().value(2);</span>
-    <span class="doccomment">/// let (sql, params) = Sqlite::build(Union::new(s1).all(s2));</span>
+    <span class="doccomment">/// let (sql, params) = Sqlite::build(Union::new(s1).all(s2))?;</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// assert_eq!(&quot;(SELECT ?) UNION ALL (SELECT ?)&quot;, sql);</span>
     <span class="doccomment">///</span>
@@ -136,6 +143,8 @@
     <span class="doccomment">///     Value::from(1),</span>
     <span class="doccomment">///     Value::from(2)</span>
     <span class="doccomment">/// ], params);</span>
+    <span class="doccomment">/// # Ok(())</span>
+    <span class="doccomment">/// # }</span>
     <span class="doccomment">/// ```</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">all</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">q</span>: <span class="ident">Select</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">selects</span>.<span class="ident">push</span>(<span class="ident">q</span>);
@@ -148,9 +157,10 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// ```rust</span>
     <span class="doccomment">/// # use quaint::{ast::*, visitor::{Visitor, Sqlite}};</span>
+    <span class="doccomment">/// # fn main() -&gt; Result&lt;(), quaint::error::Error&gt; {</span>
     <span class="doccomment">/// let s1 = Select::default().value(1);</span>
     <span class="doccomment">/// let s2 = Select::default().value(2);</span>
-    <span class="doccomment">/// let (sql, params) = Sqlite::build(Union::new(s1).distinct(s2));</span>
+    <span class="doccomment">/// let (sql, params) = Sqlite::build(Union::new(s1).distinct(s2))?;</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// assert_eq!(&quot;(SELECT ?) UNION (SELECT ?)&quot;, sql);</span>
     <span class="doccomment">///</span>
@@ -158,6 +168,8 @@
     <span class="doccomment">///     Value::from(1),</span>
     <span class="doccomment">///     Value::from(2)</span>
     <span class="doccomment">/// ], params);</span>
+    <span class="doccomment">/// # Ok(())</span>
+    <span class="doccomment">/// # }</span>
     <span class="doccomment">/// ```</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">distinct</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">q</span>: <span class="ident">Select</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">selects</span>.<span class="ident">push</span>(<span class="ident">q</span>);

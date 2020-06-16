@@ -359,6 +359,52 @@
 <span id="359">359</span>
 <span id="360">360</span>
 <span id="361">361</span>
+<span id="362">362</span>
+<span id="363">363</span>
+<span id="364">364</span>
+<span id="365">365</span>
+<span id="366">366</span>
+<span id="367">367</span>
+<span id="368">368</span>
+<span id="369">369</span>
+<span id="370">370</span>
+<span id="371">371</span>
+<span id="372">372</span>
+<span id="373">373</span>
+<span id="374">374</span>
+<span id="375">375</span>
+<span id="376">376</span>
+<span id="377">377</span>
+<span id="378">378</span>
+<span id="379">379</span>
+<span id="380">380</span>
+<span id="381">381</span>
+<span id="382">382</span>
+<span id="383">383</span>
+<span id="384">384</span>
+<span id="385">385</span>
+<span id="386">386</span>
+<span id="387">387</span>
+<span id="388">388</span>
+<span id="389">389</span>
+<span id="390">390</span>
+<span id="391">391</span>
+<span id="392">392</span>
+<span id="393">393</span>
+<span id="394">394</span>
+<span id="395">395</span>
+<span id="396">396</span>
+<span id="397">397</span>
+<span id="398">398</span>
+<span id="399">399</span>
+<span id="400">400</span>
+<span id="401">401</span>
+<span id="402">402</span>
+<span id="403">403</span>
+<span id="404">404</span>
+<span id="405">405</span>
+<span id="406">406</span>
+<span id="407">407</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! # A connection pool to a SQL database.</span>
 <span class="doccomment">//!</span>
@@ -371,9 +417,10 @@
 <span class="doccomment">//!</span>
 <span class="doccomment">//! Connector type can be one of the following:</span>
 <span class="doccomment">//!</span>
-<span class="doccomment">//! - `sqlite`/`file` opens an SQLite connection</span>
-<span class="doccomment">//! - `mysql` opens a MySQL connection</span>
-<span class="doccomment">//! - `postgres`/`postgresql` opens a PostgreSQL connection</span>
+<span class="doccomment">//! - `sqlite`/`file` opens an SQLite connection.</span>
+<span class="doccomment">//! - `mysql` opens a MySQL connection.</span>
+<span class="doccomment">//! - `postgres`/`postgresql` opens a PostgreSQL connection.</span>
+<span class="doccomment">//! - `sqlserver`/`jdbc:sqlserver` opens a Microsoft SQL Server connection.</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! All parameters should be given in the query string format:</span>
 <span class="doccomment">//! `?key1=val1&amp;key2=val2`. All parameters are optional.</span>
@@ -436,6 +483,34 @@
 <span class="doccomment">//! - `connect_timeout` defined in seconds (default: 5). Connecting to a</span>
 <span class="doccomment">//!   database will return a `ConnectTimeout` error if taking more than the</span>
 <span class="doccomment">//!   defined value.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! ## Microsoft SQL Server</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! SQL Server is a bit different due to its connection string following the</span>
+<span class="doccomment">//! JDBC standard. It&#39;s quite similar to the others: the parameters are delimited</span>
+<span class="doccomment">//! with a `;` instead of `?` or `&amp;`, and the parameter names are camelCase instead</span>
+<span class="doccomment">//! of snake_case.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! - `encrypt` if set to `true` encrypts all traffic over TLS. If `false`, only</span>
+<span class="doccomment">//!   the login details are encrypted.</span>
+<span class="doccomment">//! - `user` sets the login name.</span>
+<span class="doccomment">//! - `password` sets the login password.</span>
+<span class="doccomment">//! - `database` sets the database to connect to.</span>
+<span class="doccomment">//! - `trustServerCertificate` if set to `true`, accepts any kind of certificate</span>
+<span class="doccomment">//!   from the server.</span>
+<span class="doccomment">//! - `socketTimeout` defined in seconds. If set, a query will return a</span>
+<span class="doccomment">//!   `Timeout` error if it fails to resolve before given time.</span>
+<span class="doccomment">//! - `connectTimeout` defined in seconds (default: 5). Connecting to a</span>
+<span class="doccomment">//!   database will return a `ConnectTimeout` error if taking more than the</span>
+<span class="doccomment">//!   defined value.</span>
+<span class="doccomment">//! - `connection:imit` defines the maximum number of connections opened to the</span>
+<span class="doccomment">//!   database.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! Example of a JDBC connection string:</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! ```ignore</span>
+<span class="doccomment">//! sqlserver://host:port;database=master;user=SA;password=secret</span>
+<span class="doccomment">//! ```</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! To create a new `Quaint` pool connecting to a PostgreSQL database:</span>
 <span class="doccomment">//!</span>
@@ -639,19 +714,17 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// [module level documentation]: index.html</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">builder</span>(<span class="ident">url_str</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">crate</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Builder</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="ident">Url</span>::<span class="ident">parse</span>(<span class="ident">url_str</span>)<span class="question-mark">?</span>;
-
-        <span class="kw">match</span> <span class="ident">url</span>.<span class="ident">scheme</span>() {
+        <span class="kw">match</span> <span class="ident">url_str</span> {
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sqlite&quot;</span>)]</span>
-            <span class="string">&quot;file&quot;</span> <span class="op">|</span> <span class="string">&quot;sqlite&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="kw">let</span> <span class="ident">params</span> <span class="op">=</span> <span class="kw">crate</span>::<span class="ident">connector</span>::<span class="ident">SqliteParams</span>::<span class="ident">try_from</span>(<span class="ident">url_str</span>)<span class="question-mark">?</span>;
+            <span class="ident">s</span> <span class="kw">if</span> <span class="ident">s</span>.<span class="ident">starts_with</span>(<span class="string">&quot;file&quot;</span>) <span class="op">|</span><span class="op">|</span> <span class="ident">s</span>.<span class="ident">starts_with</span>(<span class="string">&quot;sqlite&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="kw">let</span> <span class="ident">params</span> <span class="op">=</span> <span class="kw">crate</span>::<span class="ident">connector</span>::<span class="ident">SqliteParams</span>::<span class="ident">try_from</span>(<span class="ident">s</span>)<span class="question-mark">?</span>;
 
                 <span class="kw">let</span> <span class="ident">manager</span> <span class="op">=</span> <span class="ident">QuaintManager</span>::<span class="ident">Sqlite</span> {
                     <span class="ident">file_path</span>: <span class="ident">params</span>.<span class="ident">file_path</span>,
                     <span class="ident">db_name</span>: <span class="ident">params</span>.<span class="ident">db_name</span>,
                 };
 
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">builder</span> <span class="op">=</span> <span class="ident">Builder</span>::<span class="ident">new</span>(<span class="ident">url_str</span>, <span class="ident">manager</span>)<span class="question-mark">?</span>;
+                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">builder</span> <span class="op">=</span> <span class="ident">Builder</span>::<span class="ident">new</span>(<span class="ident">s</span>, <span class="ident">manager</span>)<span class="question-mark">?</span>;
 
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">limit</span>) <span class="op">=</span> <span class="ident">params</span>.<span class="ident">connection_limit</span> {
                     <span class="ident">builder</span>.<span class="ident">connection_limit</span>(<span class="ident">limit</span>);
@@ -660,13 +733,13 @@
                 <span class="prelude-val">Ok</span>(<span class="ident">builder</span>)
             }
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mysql&quot;</span>)]</span>
-            <span class="string">&quot;mysql&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="kw">crate</span>::<span class="ident">connector</span>::<span class="ident">MysqlUrl</span>::<span class="ident">new</span>(<span class="ident">url</span>)<span class="question-mark">?</span>;
+            <span class="ident">s</span> <span class="kw">if</span> <span class="ident">s</span>.<span class="ident">starts_with</span>(<span class="string">&quot;mysql&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="kw">crate</span>::<span class="ident">connector</span>::<span class="ident">MysqlUrl</span>::<span class="ident">new</span>(<span class="ident">Url</span>::<span class="ident">parse</span>(<span class="ident">s</span>)<span class="question-mark">?</span>)<span class="question-mark">?</span>;
                 <span class="kw">let</span> <span class="ident">connection_limit</span> <span class="op">=</span> <span class="ident">url</span>.<span class="ident">connection_limit</span>();
                 <span class="kw">let</span> <span class="ident">connect_timeout</span> <span class="op">=</span> <span class="ident">url</span>.<span class="ident">connect_timeout</span>();
 
                 <span class="kw">let</span> <span class="ident">manager</span> <span class="op">=</span> <span class="ident">QuaintManager</span>::<span class="ident">Mysql</span>(<span class="ident">url</span>);
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">builder</span> <span class="op">=</span> <span class="ident">Builder</span>::<span class="ident">new</span>(<span class="ident">url_str</span>, <span class="ident">manager</span>)<span class="question-mark">?</span>;
+                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">builder</span> <span class="op">=</span> <span class="ident">Builder</span>::<span class="ident">new</span>(<span class="ident">s</span>, <span class="ident">manager</span>)<span class="question-mark">?</span>;
 
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">limit</span>) <span class="op">=</span> <span class="ident">connection_limit</span> {
                     <span class="ident">builder</span>.<span class="ident">connection_limit</span>(<span class="ident">limit</span>);
@@ -679,13 +752,32 @@
                 <span class="prelude-val">Ok</span>(<span class="ident">builder</span>)
             }
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;postgresql&quot;</span>)]</span>
-            <span class="string">&quot;postgres&quot;</span> <span class="op">|</span> <span class="string">&quot;postgresql&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="kw">crate</span>::<span class="ident">connector</span>::<span class="ident">PostgresUrl</span>::<span class="ident">new</span>(<span class="ident">url</span>)<span class="question-mark">?</span>;
+            <span class="ident">s</span> <span class="kw">if</span> <span class="ident">s</span>.<span class="ident">starts_with</span>(<span class="string">&quot;postgres&quot;</span>) <span class="op">|</span><span class="op">|</span> <span class="ident">s</span>.<span class="ident">starts_with</span>(<span class="string">&quot;postgresql&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="kw">crate</span>::<span class="ident">connector</span>::<span class="ident">PostgresUrl</span>::<span class="ident">new</span>(<span class="ident">Url</span>::<span class="ident">parse</span>(<span class="ident">s</span>)<span class="question-mark">?</span>)<span class="question-mark">?</span>;
                 <span class="kw">let</span> <span class="ident">connection_limit</span> <span class="op">=</span> <span class="ident">url</span>.<span class="ident">connection_limit</span>();
                 <span class="kw">let</span> <span class="ident">connect_timeout</span> <span class="op">=</span> <span class="ident">url</span>.<span class="ident">connect_timeout</span>();
 
                 <span class="kw">let</span> <span class="ident">manager</span> <span class="op">=</span> <span class="ident">QuaintManager</span>::<span class="ident">Postgres</span>(<span class="ident">url</span>);
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">builder</span> <span class="op">=</span> <span class="ident">Builder</span>::<span class="ident">new</span>(<span class="ident">url_str</span>, <span class="ident">manager</span>)<span class="question-mark">?</span>;
+                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">builder</span> <span class="op">=</span> <span class="ident">Builder</span>::<span class="ident">new</span>(<span class="ident">s</span>, <span class="ident">manager</span>)<span class="question-mark">?</span>;
+
+                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">limit</span>) <span class="op">=</span> <span class="ident">connection_limit</span> {
+                    <span class="ident">builder</span>.<span class="ident">connection_limit</span>(<span class="ident">limit</span>);
+                }
+
+                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">timeout</span>) <span class="op">=</span> <span class="ident">connect_timeout</span> {
+                    <span class="ident">builder</span>.<span class="ident">connect_timeout</span>(<span class="ident">timeout</span>);
+                }
+
+                <span class="prelude-val">Ok</span>(<span class="ident">builder</span>)
+            }
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mssql&quot;</span>)]</span>
+            <span class="ident">s</span> <span class="kw">if</span> <span class="ident">s</span>.<span class="ident">starts_with</span>(<span class="string">&quot;jdbc:sqlserver&quot;</span>) <span class="op">|</span><span class="op">|</span> <span class="ident">s</span>.<span class="ident">starts_with</span>(<span class="string">&quot;sqlserver&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="kw">crate</span>::<span class="ident">connector</span>::<span class="ident">MssqlUrl</span>::<span class="ident">new</span>(<span class="ident">s</span>)<span class="question-mark">?</span>;
+                <span class="kw">let</span> <span class="ident">connection_limit</span> <span class="op">=</span> <span class="ident">url</span>.<span class="ident">connection_limit</span>();
+                <span class="kw">let</span> <span class="ident">connect_timeout</span> <span class="op">=</span> <span class="ident">url</span>.<span class="ident">connect_timeout</span>();
+
+                <span class="kw">let</span> <span class="ident">manager</span> <span class="op">=</span> <span class="ident">QuaintManager</span>::<span class="ident">Mssql</span>(<span class="ident">url</span>);
+                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">builder</span> <span class="op">=</span> <span class="ident">Builder</span>::<span class="ident">new</span>(<span class="ident">s</span>, <span class="ident">manager</span>)<span class="question-mark">?</span>;
 
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">limit</span>) <span class="op">=</span> <span class="ident">connection_limit</span> {
                     <span class="ident">builder</span>.<span class="ident">connection_limit</span>(<span class="ident">limit</span>);

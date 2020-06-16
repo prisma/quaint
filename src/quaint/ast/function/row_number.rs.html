@@ -47,6 +47,9 @@
 <span id="47">47</span>
 <span id="48">48</span>
 <span id="49">49</span>
+<span id="50">50</span>
+<span id="51">51</span>
+<span id="52">52</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">ast</span>::{<span class="ident">Column</span>, <span class="ident">IntoOrderDefinition</span>, <span class="ident">Over</span>};
 
@@ -81,18 +84,21 @@
 <span class="doccomment">///</span>
 <span class="doccomment">/// ```rust</span>
 <span class="doccomment">/// # use quaint::{ast::*, visitor::{Visitor, Sqlite}};</span>
+<span class="doccomment">/// # fn main() -&gt; Result&lt;(), quaint::error::Error&gt; {</span>
 <span class="doccomment">/// let fun = Function::from(row_number().order_by(&quot;created_at&quot;).partition_by(&quot;name&quot;));</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// let query = Select::from_table(&quot;users&quot;)</span>
 <span class="doccomment">///     .column(&quot;id&quot;)</span>
 <span class="doccomment">///     .value(fun.alias(&quot;num&quot;));</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// let (sql, _) = Sqlite::build(query);</span>
+<span class="doccomment">/// let (sql, _) = Sqlite::build(query)?;</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// assert_eq!(</span>
 <span class="doccomment">///     &quot;SELECT `id`, ROW_NUMBER() OVER(PARTITION BY `name` ORDER BY `created_at`) AS `num` FROM `users`&quot;,</span>
 <span class="doccomment">///     sql</span>
 <span class="doccomment">/// );</span>
+<span class="doccomment">/// # Ok(())</span>
+<span class="doccomment">/// # }</span>
 <span class="doccomment">/// ```</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">row_number</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">RowNumber</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="ident">RowNumber</span>::<span class="ident">default</span>()

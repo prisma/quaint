@@ -267,11 +267,43 @@
 <span id="267">267</span>
 <span id="268">268</span>
 <span id="269">269</span>
+<span id="270">270</span>
+<span id="271">271</span>
+<span id="272">272</span>
+<span id="273">273</span>
+<span id="274">274</span>
+<span id="275">275</span>
+<span id="276">276</span>
+<span id="277">277</span>
+<span id="278">278</span>
+<span id="279">279</span>
+<span id="280">280</span>
+<span id="281">281</span>
+<span id="282">282</span>
+<span id="283">283</span>
+<span id="284">284</span>
+<span id="285">285</span>
+<span id="286">286</span>
+<span id="287">287</span>
+<span id="288">288</span>
+<span id="289">289</span>
+<span id="290">290</span>
+<span id="291">291</span>
+<span id="292">292</span>
+<span id="293">293</span>
+<span id="294">294</span>
+<span id="295">295</span>
+<span id="296">296</span>
+<span id="297">297</span>
+<span id="298">298</span>
+<span id="299">299</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">error</span>::{<span class="ident">Error</span>, <span class="ident">ErrorKind</span>};
 <span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">borrow</span>::<span class="ident">Cow</span>, <span class="ident">fmt</span>};
 <span class="kw">use</span> <span class="ident">url</span>::<span class="ident">Url</span>;
 
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mssql&quot;</span>)]</span>
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">connector</span>::<span class="ident">MssqlUrl</span>;
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mysql&quot;</span>)]</span>
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">connector</span>::<span class="ident">MysqlUrl</span>;
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;postgresql&quot;</span>)]</span>
@@ -290,6 +322,9 @@
     <span class="doccomment">/// A MySQL connection URL.</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mysql&quot;</span>)]</span>
     <span class="ident">Mysql</span>(<span class="ident">MysqlUrl</span>),
+    <span class="doccomment">/// A SQL Server connection URL.</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mssql&quot;</span>)]</span>
+    <span class="ident">Mssql</span>(<span class="ident">MssqlUrl</span>),
     <span class="doccomment">/// A SQLite connection URL.</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sqlite&quot;</span>)]</span>
     <span class="ident">Sqlite</span> {
@@ -309,15 +344,23 @@
         <span class="kw">let</span> <span class="ident">url_result</span>: <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Url</span>, <span class="kw">_</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">url_str</span>.<span class="ident">parse</span>();
 
         <span class="comment">// Non-URL database strings are interpreted as SQLite file paths.</span>
-        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sqlite&quot;</span>)]</span>
-        {
-            <span class="kw">if</span> <span class="ident">url_result</span>.<span class="ident">is_err</span>() {
-                <span class="kw">let</span> <span class="ident">params</span> <span class="op">=</span> <span class="ident">SqliteParams</span>::<span class="ident">try_from</span>(<span class="ident">url_str</span>)<span class="question-mark">?</span>;
-                <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">ConnectionInfo</span>::<span class="ident">Sqlite</span> {
-                    <span class="ident">file_path</span>: <span class="ident">params</span>.<span class="ident">file_path</span>,
-                    <span class="ident">db_name</span>: <span class="ident">params</span>.<span class="ident">db_name</span>.<span class="ident">clone</span>(),
-                });
+        <span class="kw">match</span> <span class="ident">url_str</span> {
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sqlite&quot;</span>)]</span>
+            <span class="ident">s</span> <span class="kw">if</span> <span class="ident">s</span>.<span class="ident">starts_with</span>(<span class="string">&quot;file&quot;</span>) <span class="op">|</span><span class="op">|</span> <span class="ident">s</span>.<span class="ident">starts_with</span>(<span class="string">&quot;sqlite&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="kw">if</span> <span class="ident">url_result</span>.<span class="ident">is_err</span>() {
+                    <span class="kw">let</span> <span class="ident">params</span> <span class="op">=</span> <span class="ident">SqliteParams</span>::<span class="ident">try_from</span>(<span class="ident">s</span>)<span class="question-mark">?</span>;
+
+                    <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">ConnectionInfo</span>::<span class="ident">Sqlite</span> {
+                        <span class="ident">file_path</span>: <span class="ident">params</span>.<span class="ident">file_path</span>,
+                        <span class="ident">db_name</span>: <span class="ident">params</span>.<span class="ident">db_name</span>.<span class="ident">clone</span>(),
+                    });
+                }
             }
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mssql&quot;</span>)]</span>
+            <span class="ident">s</span> <span class="kw">if</span> <span class="ident">s</span>.<span class="ident">starts_with</span>(<span class="string">&quot;jdbc:sqlserver&quot;</span>) <span class="op">|</span><span class="op">|</span> <span class="ident">s</span>.<span class="ident">starts_with</span>(<span class="string">&quot;sqlserver&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">ConnectionInfo</span>::<span class="ident">Mssql</span>(<span class="ident">MssqlUrl</span>::<span class="ident">new</span>(<span class="ident">url_str</span>)<span class="question-mark">?</span>));
+            }
+            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> (),
         }
 
         <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="ident">url_result</span><span class="question-mark">?</span>;
@@ -343,6 +386,7 @@
             }
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;postgresql&quot;</span>)]</span>
             <span class="ident">SqlFamily</span>::<span class="ident">Postgres</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">ConnectionInfo</span>::<span class="ident">Postgres</span>(<span class="ident">PostgresUrl</span>::<span class="ident">new</span>(<span class="ident">url</span>)<span class="question-mark">?</span>)),
+            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
         }
     }
 
@@ -353,6 +397,8 @@
             <span class="ident">ConnectionInfo</span>::<span class="ident">Postgres</span>(<span class="ident">url</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">url</span>.<span class="ident">dbname</span>()),
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mysql&quot;</span>)]</span>
             <span class="ident">ConnectionInfo</span>::<span class="ident">Mysql</span>(<span class="ident">url</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">url</span>.<span class="ident">dbname</span>()),
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mssql&quot;</span>)]</span>
+            <span class="ident">ConnectionInfo</span>::<span class="ident">Mssql</span>(<span class="ident">url</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">url</span>.<span class="ident">dbname</span>()),
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sqlite&quot;</span>)]</span>
             <span class="ident">ConnectionInfo</span>::<span class="ident">Sqlite</span> { .. } <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
         }
@@ -369,6 +415,8 @@
             <span class="ident">ConnectionInfo</span>::<span class="ident">Postgres</span>(<span class="ident">url</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">url</span>.<span class="ident">schema</span>(),
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mysql&quot;</span>)]</span>
             <span class="ident">ConnectionInfo</span>::<span class="ident">Mysql</span>(<span class="ident">url</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">url</span>.<span class="ident">dbname</span>(),
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mssql&quot;</span>)]</span>
+            <span class="ident">ConnectionInfo</span>::<span class="ident">Mssql</span>(<span class="ident">url</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">url</span>.<span class="ident">dbname</span>(),
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sqlite&quot;</span>)]</span>
             <span class="ident">ConnectionInfo</span>::<span class="ident">Sqlite</span> { <span class="ident">db_name</span>, .. } <span class="op">=</span><span class="op">&gt;</span> <span class="ident">db_name</span>,
         }
@@ -381,6 +429,8 @@
             <span class="ident">ConnectionInfo</span>::<span class="ident">Postgres</span>(<span class="ident">url</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">url</span>.<span class="ident">host</span>(),
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mysql&quot;</span>)]</span>
             <span class="ident">ConnectionInfo</span>::<span class="ident">Mysql</span>(<span class="ident">url</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">url</span>.<span class="ident">host</span>(),
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mssql&quot;</span>)]</span>
+            <span class="ident">ConnectionInfo</span>::<span class="ident">Mssql</span>(<span class="ident">url</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">url</span>.<span class="ident">host</span>(),
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sqlite&quot;</span>)]</span>
             <span class="ident">ConnectionInfo</span>::<span class="ident">Sqlite</span> { .. } <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;localhost&quot;</span>,
         }
@@ -393,6 +443,8 @@
             <span class="ident">ConnectionInfo</span>::<span class="ident">Postgres</span>(<span class="ident">url</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">url</span>.<span class="ident">username</span>()),
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mysql&quot;</span>)]</span>
             <span class="ident">ConnectionInfo</span>::<span class="ident">Mysql</span>(<span class="ident">url</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">url</span>.<span class="ident">username</span>()),
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mssql&quot;</span>)]</span>
+            <span class="ident">ConnectionInfo</span>::<span class="ident">Mssql</span>(<span class="ident">url</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">url</span>.<span class="ident">username</span>().<span class="ident">map</span>(<span class="ident">Cow</span>::<span class="ident">from</span>),
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sqlite&quot;</span>)]</span>
             <span class="ident">ConnectionInfo</span>::<span class="ident">Sqlite</span> { .. } <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
         }
@@ -405,6 +457,8 @@
             <span class="ident">ConnectionInfo</span>::<span class="ident">Postgres</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mysql&quot;</span>)]</span>
             <span class="ident">ConnectionInfo</span>::<span class="ident">Mysql</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mssql&quot;</span>)]</span>
+            <span class="ident">ConnectionInfo</span>::<span class="ident">Mssql</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sqlite&quot;</span>)]</span>
             <span class="ident">ConnectionInfo</span>::<span class="ident">Sqlite</span> { <span class="ident">file_path</span>, .. } <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">file_path</span>),
         }
@@ -417,6 +471,8 @@
             <span class="ident">ConnectionInfo</span>::<span class="ident">Postgres</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">SqlFamily</span>::<span class="ident">Postgres</span>,
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mysql&quot;</span>)]</span>
             <span class="ident">ConnectionInfo</span>::<span class="ident">Mysql</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">SqlFamily</span>::<span class="ident">Mysql</span>,
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mssql&quot;</span>)]</span>
+            <span class="ident">ConnectionInfo</span>::<span class="ident">Mssql</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">SqlFamily</span>::<span class="ident">Mssql</span>,
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sqlite&quot;</span>)]</span>
             <span class="ident">ConnectionInfo</span>::<span class="ident">Sqlite</span> { .. } <span class="op">=</span><span class="op">&gt;</span> <span class="ident">SqlFamily</span>::<span class="ident">Sqlite</span>,
         }
@@ -429,6 +485,8 @@
             <span class="ident">ConnectionInfo</span>::<span class="ident">Postgres</span>(<span class="ident">url</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">url</span>.<span class="ident">port</span>()),
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mysql&quot;</span>)]</span>
             <span class="ident">ConnectionInfo</span>::<span class="ident">Mysql</span>(<span class="ident">url</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">url</span>.<span class="ident">port</span>()),
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mssql&quot;</span>)]</span>
+            <span class="ident">ConnectionInfo</span>::<span class="ident">Mssql</span>(<span class="ident">url</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">url</span>.<span class="ident">port</span>()),
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sqlite&quot;</span>)]</span>
             <span class="ident">ConnectionInfo</span>::<span class="ident">Sqlite</span> { .. } <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
         }
@@ -442,6 +500,8 @@
             <span class="ident">ConnectionInfo</span>::<span class="ident">Postgres</span>(<span class="ident">url</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}:{}&quot;</span>, <span class="ident">url</span>.<span class="ident">host</span>(), <span class="ident">url</span>.<span class="ident">port</span>()),
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mysql&quot;</span>)]</span>
             <span class="ident">ConnectionInfo</span>::<span class="ident">Mysql</span>(<span class="ident">url</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}:{}&quot;</span>, <span class="ident">url</span>.<span class="ident">host</span>(), <span class="ident">url</span>.<span class="ident">port</span>()),
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mssql&quot;</span>)]</span>
+            <span class="ident">ConnectionInfo</span>::<span class="ident">Mssql</span>(<span class="ident">url</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}:{}&quot;</span>, <span class="ident">url</span>.<span class="ident">host</span>(), <span class="ident">url</span>.<span class="ident">port</span>()),
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sqlite&quot;</span>)]</span>
             <span class="ident">ConnectionInfo</span>::<span class="ident">Sqlite</span> { <span class="ident">file_path</span>, .. } <span class="op">=</span><span class="op">&gt;</span> <span class="ident">file_path</span>.<span class="ident">clone</span>(),
         }
@@ -457,6 +517,8 @@
     <span class="ident">Mysql</span>,
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sqlite&quot;</span>)]</span>
     <span class="ident">Sqlite</span>,
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mssql&quot;</span>)]</span>
+    <span class="ident">Mssql</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">SqlFamily</span> {
@@ -469,6 +531,8 @@
             <span class="ident">SqlFamily</span>::<span class="ident">Mysql</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;mysql&quot;</span>,
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sqlite&quot;</span>)]</span>
             <span class="ident">SqlFamily</span>::<span class="ident">Sqlite</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;sqlite&quot;</span>,
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mssql&quot;</span>)]</span>
+            <span class="ident">SqlFamily</span>::<span class="ident">Mssql</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;mssql&quot;</span>,
         }
     }
 
@@ -492,26 +556,22 @@
 
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;postgresql&quot;</span>)]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_postgres</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">SqlFamily</span>::<span class="ident">Postgres</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
-        }
+        <span class="macro">matches</span><span class="macro">!</span>(<span class="self">self</span>, <span class="ident">SqlFamily</span>::<span class="ident">Postgres</span>)
     }
 
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mysql&quot;</span>)]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_mysql</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">SqlFamily</span>::<span class="ident">Mysql</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
-        }
+        <span class="macro">matches</span><span class="macro">!</span>(<span class="self">self</span>, <span class="ident">SqlFamily</span>::<span class="ident">Mysql</span>)
     }
 
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sqlite&quot;</span>)]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_sqlite</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">SqlFamily</span>::<span class="ident">Sqlite</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
-        }
+        <span class="macro">matches</span><span class="macro">!</span>(<span class="self">self</span>, <span class="ident">SqlFamily</span>::<span class="ident">Sqlite</span>)
+    }
+
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mssql&quot;</span>)]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_mssql</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+        <span class="macro">matches</span><span class="macro">!</span>(<span class="self">self</span>, <span class="ident">SqlFamily</span>::<span class="ident">Mssql</span>)
     }
 }
 
