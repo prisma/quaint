@@ -118,6 +118,30 @@
 <span id="118">118</span>
 <span id="119">119</span>
 <span id="120">120</span>
+<span id="121">121</span>
+<span id="122">122</span>
+<span id="123">123</span>
+<span id="124">124</span>
+<span id="125">125</span>
+<span id="126">126</span>
+<span id="127">127</span>
+<span id="128">128</span>
+<span id="129">129</span>
+<span id="130">130</span>
+<span id="131">131</span>
+<span id="132">132</span>
+<span id="133">133</span>
+<span id="134">134</span>
+<span id="135">135</span>
+<span id="136">136</span>
+<span id="137">137</span>
+<span id="138">138</span>
+<span id="139">139</span>
+<span id="140">140</span>
+<span id="141">141</span>
+<span id="142">142</span>
+<span id="143">143</span>
+<span id="144">144</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">ast</span>::<span class="ident">Value</span>,
@@ -137,29 +161,53 @@
             <span class="kw">let</span> <span class="ident">pv</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">get_raw</span>(<span class="ident">i</span>) {
                 <span class="ident">ValueRef</span>::<span class="ident">Null</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">column</span>.<span class="ident">decl_type</span>() {
                     <span class="prelude-val">Some</span>(<span class="string">&quot;INT&quot;</span>)
+                    <span class="op">|</span> <span class="prelude-val">Some</span>(<span class="string">&quot;int&quot;</span>)
                     <span class="op">|</span> <span class="prelude-val">Some</span>(<span class="string">&quot;INTEGER&quot;</span>)
+                    <span class="op">|</span> <span class="prelude-val">Some</span>(<span class="string">&quot;integer&quot;</span>)
                     <span class="op">|</span> <span class="prelude-val">Some</span>(<span class="string">&quot;SERIAL&quot;</span>)
+                    <span class="op">|</span> <span class="prelude-val">Some</span>(<span class="string">&quot;serial&quot;</span>)
                     <span class="op">|</span> <span class="prelude-val">Some</span>(<span class="string">&quot;TINYINT&quot;</span>)
+                    <span class="op">|</span> <span class="prelude-val">Some</span>(<span class="string">&quot;tinyint&quot;</span>)
                     <span class="op">|</span> <span class="prelude-val">Some</span>(<span class="string">&quot;SMALLINT&quot;</span>)
+                    <span class="op">|</span> <span class="prelude-val">Some</span>(<span class="string">&quot;smallint&quot;</span>)
                     <span class="op">|</span> <span class="prelude-val">Some</span>(<span class="string">&quot;MEDIUMINT&quot;</span>)
+                    <span class="op">|</span> <span class="prelude-val">Some</span>(<span class="string">&quot;mediumint&quot;</span>)
                     <span class="op">|</span> <span class="prelude-val">Some</span>(<span class="string">&quot;BIGINT&quot;</span>)
+                    <span class="op">|</span> <span class="prelude-val">Some</span>(<span class="string">&quot;bigint&quot;</span>)
                     <span class="op">|</span> <span class="prelude-val">Some</span>(<span class="string">&quot;UNSIGNED BIG INT&quot;</span>)
+                    <span class="op">|</span> <span class="prelude-val">Some</span>(<span class="string">&quot;unsigned big int&quot;</span>)
                     <span class="op">|</span> <span class="prelude-val">Some</span>(<span class="string">&quot;INT2&quot;</span>)
-                    <span class="op">|</span> <span class="prelude-val">Some</span>(<span class="string">&quot;INT8&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Value</span>::<span class="ident">Integer</span>(<span class="prelude-val">None</span>),
+                    <span class="op">|</span> <span class="prelude-val">Some</span>(<span class="string">&quot;int2&quot;</span>)
+                    <span class="op">|</span> <span class="prelude-val">Some</span>(<span class="string">&quot;INT8&quot;</span>)
+                    <span class="op">|</span> <span class="prelude-val">Some</span>(<span class="string">&quot;int8&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Value</span>::<span class="ident">Integer</span>(<span class="prelude-val">None</span>),
                     <span class="prelude-val">Some</span>(<span class="string">&quot;TEXT&quot;</span>) <span class="op">|</span> <span class="prelude-val">Some</span>(<span class="string">&quot;CLOB&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Value</span>::<span class="ident">Text</span>(<span class="prelude-val">None</span>),
+                    <span class="prelude-val">Some</span>(<span class="string">&quot;text&quot;</span>) <span class="op">|</span> <span class="prelude-val">Some</span>(<span class="string">&quot;clob&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Value</span>::<span class="ident">Text</span>(<span class="prelude-val">None</span>),
                     <span class="prelude-val">Some</span>(<span class="ident">n</span>) <span class="kw">if</span> <span class="ident">n</span>.<span class="ident">starts_with</span>(<span class="string">&quot;CHARACTER&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Value</span>::<span class="ident">Text</span>(<span class="prelude-val">None</span>),
+                    <span class="prelude-val">Some</span>(<span class="ident">n</span>) <span class="kw">if</span> <span class="ident">n</span>.<span class="ident">starts_with</span>(<span class="string">&quot;character&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Value</span>::<span class="ident">Text</span>(<span class="prelude-val">None</span>),
                     <span class="prelude-val">Some</span>(<span class="ident">n</span>) <span class="kw">if</span> <span class="ident">n</span>.<span class="ident">starts_with</span>(<span class="string">&quot;VARCHAR&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Value</span>::<span class="ident">Text</span>(<span class="prelude-val">None</span>),
+                    <span class="prelude-val">Some</span>(<span class="ident">n</span>) <span class="kw">if</span> <span class="ident">n</span>.<span class="ident">starts_with</span>(<span class="string">&quot;varchar&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Value</span>::<span class="ident">Text</span>(<span class="prelude-val">None</span>),
                     <span class="prelude-val">Some</span>(<span class="ident">n</span>) <span class="kw">if</span> <span class="ident">n</span>.<span class="ident">starts_with</span>(<span class="string">&quot;VARYING CHARACTER&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Value</span>::<span class="ident">Text</span>(<span class="prelude-val">None</span>),
+                    <span class="prelude-val">Some</span>(<span class="ident">n</span>) <span class="kw">if</span> <span class="ident">n</span>.<span class="ident">starts_with</span>(<span class="string">&quot;varying character&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Value</span>::<span class="ident">Text</span>(<span class="prelude-val">None</span>),
                     <span class="prelude-val">Some</span>(<span class="ident">n</span>) <span class="kw">if</span> <span class="ident">n</span>.<span class="ident">starts_with</span>(<span class="string">&quot;NCHAR&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Value</span>::<span class="ident">Text</span>(<span class="prelude-val">None</span>),
+                    <span class="prelude-val">Some</span>(<span class="ident">n</span>) <span class="kw">if</span> <span class="ident">n</span>.<span class="ident">starts_with</span>(<span class="string">&quot;nchar&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Value</span>::<span class="ident">Text</span>(<span class="prelude-val">None</span>),
                     <span class="prelude-val">Some</span>(<span class="ident">n</span>) <span class="kw">if</span> <span class="ident">n</span>.<span class="ident">starts_with</span>(<span class="string">&quot;NATIVE CHARACTER&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Value</span>::<span class="ident">Text</span>(<span class="prelude-val">None</span>),
+                    <span class="prelude-val">Some</span>(<span class="ident">n</span>) <span class="kw">if</span> <span class="ident">n</span>.<span class="ident">starts_with</span>(<span class="string">&quot;native character&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Value</span>::<span class="ident">Text</span>(<span class="prelude-val">None</span>),
                     <span class="prelude-val">Some</span>(<span class="ident">n</span>) <span class="kw">if</span> <span class="ident">n</span>.<span class="ident">starts_with</span>(<span class="string">&quot;NVARCHAR&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Value</span>::<span class="ident">Text</span>(<span class="prelude-val">None</span>),
+                    <span class="prelude-val">Some</span>(<span class="ident">n</span>) <span class="kw">if</span> <span class="ident">n</span>.<span class="ident">starts_with</span>(<span class="string">&quot;nvarchar&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Value</span>::<span class="ident">Text</span>(<span class="prelude-val">None</span>),
                     <span class="prelude-val">Some</span>(<span class="ident">n</span>) <span class="kw">if</span> <span class="ident">n</span>.<span class="ident">starts_with</span>(<span class="string">&quot;DECIMAL&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Value</span>::<span class="ident">Real</span>(<span class="prelude-val">None</span>),
+                    <span class="prelude-val">Some</span>(<span class="ident">n</span>) <span class="kw">if</span> <span class="ident">n</span>.<span class="ident">starts_with</span>(<span class="string">&quot;decimal&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Value</span>::<span class="ident">Real</span>(<span class="prelude-val">None</span>),
                     <span class="prelude-val">Some</span>(<span class="string">&quot;BLOB&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Value</span>::<span class="ident">Bytes</span>(<span class="prelude-val">None</span>),
+                    <span class="prelude-val">Some</span>(<span class="string">&quot;blob&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Value</span>::<span class="ident">Bytes</span>(<span class="prelude-val">None</span>),
                     <span class="prelude-val">Some</span>(<span class="string">&quot;NUMERIC&quot;</span>) <span class="op">|</span> <span class="prelude-val">Some</span>(<span class="string">&quot;REAL&quot;</span>) <span class="op">|</span> <span class="prelude-val">Some</span>(<span class="string">&quot;DOUBLE&quot;</span>) <span class="op">|</span> <span class="prelude-val">Some</span>(<span class="string">&quot;DOUBLE PRECISION&quot;</span>) <span class="op">|</span> <span class="prelude-val">Some</span>(<span class="string">&quot;FLOAT&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
                         <span class="ident">Value</span>::<span class="ident">Real</span>(<span class="prelude-val">None</span>)
                     }
+                    <span class="prelude-val">Some</span>(<span class="string">&quot;numeric&quot;</span>) <span class="op">|</span> <span class="prelude-val">Some</span>(<span class="string">&quot;real&quot;</span>) <span class="op">|</span> <span class="prelude-val">Some</span>(<span class="string">&quot;double&quot;</span>) <span class="op">|</span> <span class="prelude-val">Some</span>(<span class="string">&quot;double precision&quot;</span>) <span class="op">|</span> <span class="prelude-val">Some</span>(<span class="string">&quot;float&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="ident">Value</span>::<span class="ident">Real</span>(<span class="prelude-val">None</span>)
+                    }
                     <span class="prelude-val">Some</span>(<span class="string">&quot;DATE&quot;</span>) <span class="op">|</span> <span class="prelude-val">Some</span>(<span class="string">&quot;DATETIME&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Value</span>::<span class="ident">DateTime</span>(<span class="prelude-val">None</span>),
+                    <span class="prelude-val">Some</span>(<span class="string">&quot;date&quot;</span>) <span class="op">|</span> <span class="prelude-val">Some</span>(<span class="string">&quot;datetime&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Value</span>::<span class="ident">DateTime</span>(<span class="prelude-val">None</span>),
                     <span class="prelude-val">Some</span>(<span class="string">&quot;BOOLEAN&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Value</span>::<span class="ident">Boolean</span>(<span class="prelude-val">None</span>),
+                    <span class="prelude-val">Some</span>(<span class="string">&quot;boolean&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Value</span>::<span class="ident">Boolean</span>(<span class="prelude-val">None</span>),
                     <span class="prelude-val">Some</span>(<span class="ident">n</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;Value {} not supported&quot;</span>, <span class="ident">n</span>),
                     <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Value</span>::<span class="ident">Integer</span>(<span class="prelude-val">None</span>),
                 },
