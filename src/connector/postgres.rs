@@ -236,7 +236,7 @@ impl PostgresUrl {
         let mut socket_timeout = None;
         let mut connect_timeout = None;
         let mut pg_bouncer = false;
-        let mut statement_cache_size = 0;
+        let mut statement_cache_size = 500;
 
         for (k, v) in url.query_pairs() {
             match k.as_ref() {
@@ -604,6 +604,25 @@ mod tests {
         let url = PostgresUrl::new(Url::parse("postgresql:///dbname?host=%2Fvar%2Frun%2Fpostgresql").unwrap()).unwrap();
         assert_eq!("dbname", url.dbname());
         assert_eq!("/var/run/postgresql", url.host());
+    }
+
+    #[test]
+    fn should_allow_changing_of_cache_size() {
+        let url =
+            PostgresUrl::new(Url::parse("postgresql:///localhost:5432/foo?statement_cache_size=420").unwrap()).unwrap();
+        assert_eq!(420, url.cache().capacity());
+    }
+
+    #[test]
+    fn should_have_default_cache_size() {
+        let url = PostgresUrl::new(Url::parse("postgresql:///localhost:5432/foo").unwrap()).unwrap();
+        assert_eq!(500, url.cache().capacity());
+    }
+
+    #[test]
+    fn should_not_enable_caching_with_pgbouncer() {
+        let url = PostgresUrl::new(Url::parse("postgresql:///localhost:5432/foo?pgbouncer=true").unwrap()).unwrap();
+        assert_eq!(0, url.cache().capacity());
     }
 
     #[test]
