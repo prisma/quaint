@@ -405,6 +405,9 @@
 <span id="405">405</span>
 <span id="406">406</span>
 <span id="407">407</span>
+<span id="408">408</span>
+<span id="409">409</span>
+<span id="410">410</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! # A connection pool to a SQL database.</span>
 <span class="doccomment">//!</span>
@@ -466,6 +469,9 @@
 <span class="doccomment">//!   transaction, a deallocation query `DEALLOCATE ALL` is executed right after</span>
 <span class="doccomment">//!   `BEGIN` to avoid possible collisions with statements created in other</span>
 <span class="doccomment">//!   sessions.</span>
+<span class="doccomment">//! - `statement_cache_size`, number of prepared statements kept cached.</span>
+<span class="doccomment">//!   Defaults to 500, which means caching is off. If `pgbouncer` mode is enabled,</span>
+<span class="doccomment">//!   caching is always off.</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! ## MySQL</span>
 <span class="doccomment">//!</span>

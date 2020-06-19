@@ -1078,6 +1078,74 @@
 <span id="1078">1078</span>
 <span id="1079">1079</span>
 <span id="1080">1080</span>
+<span id="1081">1081</span>
+<span id="1082">1082</span>
+<span id="1083">1083</span>
+<span id="1084">1084</span>
+<span id="1085">1085</span>
+<span id="1086">1086</span>
+<span id="1087">1087</span>
+<span id="1088">1088</span>
+<span id="1089">1089</span>
+<span id="1090">1090</span>
+<span id="1091">1091</span>
+<span id="1092">1092</span>
+<span id="1093">1093</span>
+<span id="1094">1094</span>
+<span id="1095">1095</span>
+<span id="1096">1096</span>
+<span id="1097">1097</span>
+<span id="1098">1098</span>
+<span id="1099">1099</span>
+<span id="1100">1100</span>
+<span id="1101">1101</span>
+<span id="1102">1102</span>
+<span id="1103">1103</span>
+<span id="1104">1104</span>
+<span id="1105">1105</span>
+<span id="1106">1106</span>
+<span id="1107">1107</span>
+<span id="1108">1108</span>
+<span id="1109">1109</span>
+<span id="1110">1110</span>
+<span id="1111">1111</span>
+<span id="1112">1112</span>
+<span id="1113">1113</span>
+<span id="1114">1114</span>
+<span id="1115">1115</span>
+<span id="1116">1116</span>
+<span id="1117">1117</span>
+<span id="1118">1118</span>
+<span id="1119">1119</span>
+<span id="1120">1120</span>
+<span id="1121">1121</span>
+<span id="1122">1122</span>
+<span id="1123">1123</span>
+<span id="1124">1124</span>
+<span id="1125">1125</span>
+<span id="1126">1126</span>
+<span id="1127">1127</span>
+<span id="1128">1128</span>
+<span id="1129">1129</span>
+<span id="1130">1130</span>
+<span id="1131">1131</span>
+<span id="1132">1132</span>
+<span id="1133">1133</span>
+<span id="1134">1134</span>
+<span id="1135">1135</span>
+<span id="1136">1136</span>
+<span id="1137">1137</span>
+<span id="1138">1138</span>
+<span id="1139">1139</span>
+<span id="1140">1140</span>
+<span id="1141">1141</span>
+<span id="1142">1142</span>
+<span id="1143">1143</span>
+<span id="1144">1144</span>
+<span id="1145">1145</span>
+<span id="1146">1146</span>
+<span id="1147">1147</span>
+<span id="1148">1148</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">mod</span> <span class="ident">conversion</span>;
 <span class="kw">mod</span> <span class="ident">error</span>;
@@ -1090,6 +1158,7 @@
 };
 <span class="kw">use</span> <span class="ident">async_trait</span>::<span class="ident">async_trait</span>;
 <span class="kw">use</span> <span class="ident">futures</span>::{<span class="ident">future</span>::<span class="ident">FutureExt</span>, <span class="ident">lock</span>::<span class="ident">Mutex</span>};
+<span class="kw">use</span> <span class="ident">lru_cache</span>::<span class="ident">LruCache</span>;
 <span class="kw">use</span> <span class="ident">native_tls</span>::{<span class="ident">Certificate</span>, <span class="ident">Identity</span>, <span class="ident">TlsConnector</span>};
 <span class="kw">use</span> <span class="ident">percent_encoding</span>::<span class="ident">percent_decode</span>;
 <span class="kw">use</span> <span class="ident">postgres_native_tls</span>::<span class="ident">MakeTlsConnector</span>;
@@ -1100,7 +1169,7 @@
     <span class="ident">time</span>::<span class="ident">Duration</span>,
 };
 <span class="kw">use</span> <span class="ident">tokio</span>::<span class="ident">time</span>::<span class="ident">timeout</span>;
-<span class="kw">use</span> <span class="ident">tokio_postgres</span>::{<span class="ident">config</span>::<span class="ident">SslMode</span>, <span class="ident">Client</span>, <span class="ident">Config</span>};
+<span class="kw">use</span> <span class="ident">tokio_postgres</span>::{<span class="ident">config</span>::<span class="ident">SslMode</span>, <span class="ident">Client</span>, <span class="ident">Config</span>, <span class="ident">Statement</span>};
 <span class="kw">use</span> <span class="ident">url</span>::<span class="ident">Url</span>;
 
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const</span> <span class="ident">DEFAULT_SCHEMA</span>: <span class="kw-2">&amp;</span><span class="ident">str</span> <span class="op">=</span> <span class="string">&quot;public&quot;</span>;
@@ -1114,7 +1183,7 @@
     }
 }
 
-<span class="kw">struct</span> <span class="ident">PostgresClient</span>(<span class="ident">Mutex</span><span class="op">&lt;</span><span class="ident">Client</span><span class="op">&gt;</span>);
+<span class="kw">struct</span> <span class="ident">PostgresClient</span>(<span class="ident">Client</span>);
 
 <span class="kw">impl</span> <span class="ident">std</span>::<span class="ident">fmt</span>::<span class="ident">Debug</span> <span class="kw">for</span> <span class="ident">PostgresClient</span> {
     <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">std</span>::<span class="ident">fmt</span>::<span class="ident">Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">std</span>::<span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
@@ -1128,6 +1197,7 @@
     <span class="ident">client</span>: <span class="ident">PostgresClient</span>,
     <span class="ident">pg_bouncer</span>: <span class="ident">bool</span>,
     <span class="ident">socket_timeout</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span>,
+    <span class="ident">statement_cache</span>: <span class="ident">Mutex</span><span class="op">&lt;</span><span class="ident">LruCache</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">Statement</span><span class="op">&gt;</span><span class="op">&gt;</span>,
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">PartialEq</span>)]</span>
@@ -1295,6 +1365,14 @@
         <span class="self">self</span>.<span class="ident">query_params</span>.<span class="ident">connect_timeout</span>
     }
 
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">cache</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">LruCache</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">Statement</span><span class="op">&gt;</span> {
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">query_params</span>.<span class="ident">pg_bouncer</span> <span class="op">=</span><span class="op">=</span> <span class="bool-val">true</span> {
+            <span class="ident">LruCache</span>::<span class="ident">new</span>(<span class="number">0</span>)
+        } <span class="kw">else</span> {
+            <span class="ident">LruCache</span>::<span class="ident">new</span>(<span class="self">self</span>.<span class="ident">query_params</span>.<span class="ident">statement_cache_size</span>)
+        }
+    }
+
     <span class="kw">fn</span> <span class="ident">parse_query_params</span>(<span class="ident">url</span>: <span class="kw-2">&amp;</span><span class="ident">Url</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">PostgresUrlQueryParams</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">connection_limit</span> <span class="op">=</span> <span class="prelude-val">None</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">schema</span> <span class="op">=</span> <span class="ident">String</span>::<span class="ident">from</span>(<span class="ident">DEFAULT_SCHEMA</span>);
@@ -1307,6 +1385,7 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">socket_timeout</span> <span class="op">=</span> <span class="prelude-val">None</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">connect_timeout</span> <span class="op">=</span> <span class="prelude-val">None</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pg_bouncer</span> <span class="op">=</span> <span class="bool-val">false</span>;
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">statement_cache_size</span> <span class="op">=</span> <span class="number">500</span>;
 
         <span class="kw">for</span> (<span class="ident">k</span>, <span class="ident">v</span>) <span class="kw">in</span> <span class="ident">url</span>.<span class="ident">query_pairs</span>() {
             <span class="kw">match</span> <span class="ident">k</span>.<span class="ident">as_ref</span>() {
@@ -1336,6 +1415,11 @@
                 }
                 <span class="string">&quot;sslpassword&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="ident">identity_password</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">v</span>.<span class="ident">to_string</span>());
+                }
+                <span class="string">&quot;statement_cache_size&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="ident">statement_cache_size</span> <span class="op">=</span> <span class="ident">v</span>
+                        .<span class="ident">parse</span>()
+                        .<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">Error</span>::<span class="ident">builder</span>(<span class="ident">ErrorKind</span>::<span class="ident">InvalidConnectionArguments</span>).<span class="ident">build</span>())<span class="question-mark">?</span>;
                 }
                 <span class="string">&quot;sslaccept&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">match</span> <span class="ident">v</span>.<span class="ident">as_ref</span>() {
@@ -1405,6 +1489,7 @@
             <span class="ident">connect_timeout</span>,
             <span class="ident">socket_timeout</span>,
             <span class="ident">pg_bouncer</span>,
+            <span class="ident">statement_cache_size</span>,
         })
     }
 
@@ -1446,6 +1531,7 @@
     <span class="ident">host</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
     <span class="ident">socket_timeout</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span>,
     <span class="ident">connect_timeout</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span>,
+    <span class="ident">statement_cache_size</span>: <span class="ident">usize</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">PostgreSql</span> {
@@ -1504,9 +1590,10 @@
         <span class="ident">client</span>.<span class="ident">simple_query</span>(<span class="ident">session_variables</span>.<span class="ident">as_str</span>()).<span class="kw">await</span><span class="question-mark">?</span>;
 
         <span class="prelude-val">Ok</span>(<span class="self">Self</span> {
-            <span class="ident">client</span>: <span class="ident">PostgresClient</span>(<span class="ident">Mutex</span>::<span class="ident">new</span>(<span class="ident">client</span>)),
+            <span class="ident">client</span>: <span class="ident">PostgresClient</span>(<span class="ident">client</span>),
             <span class="ident">socket_timeout</span>: <span class="ident">url</span>.<span class="ident">query_params</span>.<span class="ident">socket_timeout</span>,
             <span class="ident">pg_bouncer</span>: <span class="ident">url</span>.<span class="ident">query_params</span>.<span class="ident">pg_bouncer</span>,
+            <span class="ident">statement_cache</span>: <span class="ident">Mutex</span>::<span class="ident">new</span>(<span class="ident">url</span>.<span class="ident">cache</span>()),
         })
     }
 
@@ -1527,6 +1614,39 @@
             },
         }
     }
+
+    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">fetch_cached</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">sql</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">crate</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Statement</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cache</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">statement_cache</span>.<span class="ident">lock</span>().<span class="kw">await</span>;
+
+        <span class="kw">match</span> <span class="ident">cache</span>.<span class="ident">get_mut</span>(<span class="ident">sql</span>) {
+            <span class="prelude-val">Some</span>(<span class="ident">stmt</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;tracing-log&quot;</span>))]</span>
+                {
+                    <span class="macro">trace</span><span class="macro">!</span>(<span class="string">&quot;CACHE HIT: \&quot;{}\&quot;&quot;</span>, <span class="ident">sql</span>);
+                }
+                <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;tracing-log&quot;</span>)]</span>
+                {
+                    <span class="ident">tracing</span>::<span class="macro">trace</span><span class="macro">!</span>(<span class="string">&quot;CACHE HIT: \&quot;{}\&quot;&quot;</span>, <span class="ident">sql</span>);
+                }
+
+                <span class="prelude-val">Ok</span>(<span class="ident">stmt</span>.<span class="ident">clone</span>()) <span class="comment">// arc&#39;d</span>
+            }
+            <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;tracing-log&quot;</span>))]</span>
+                {
+                    <span class="macro">trace</span><span class="macro">!</span>(<span class="string">&quot;CACHE MISS: \&quot;{}\&quot;&quot;</span>, <span class="ident">sql</span>);
+                }
+                <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;tracing-log&quot;</span>)]</span>
+                {
+                    <span class="ident">tracing</span>::<span class="macro">trace</span><span class="macro">!</span>(<span class="string">&quot;CACHE MISS: \&quot;{}\&quot;&quot;</span>, <span class="ident">sql</span>);
+                }
+
+                <span class="kw">let</span> <span class="ident">stmt</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">timeout</span>(<span class="self">self</span>.<span class="ident">client</span>.<span class="number">0</span>.<span class="ident">prepare</span>(<span class="ident">sql</span>)).<span class="kw">await</span><span class="question-mark">?</span>;
+                <span class="ident">cache</span>.<span class="ident">insert</span>(<span class="ident">sql</span>.<span class="ident">to_string</span>(), <span class="ident">stmt</span>.<span class="ident">clone</span>());
+                <span class="prelude-val">Ok</span>(<span class="ident">stmt</span>)
+            }
+        }
+    }
 }
 
 <span class="kw">impl</span> <span class="ident">TransactionCapable</span> <span class="kw">for</span> <span class="ident">PostgreSql</span> {}
@@ -1545,11 +1665,10 @@
 
     <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">query_raw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">sql</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">params</span>: <span class="kw-2">&amp;</span>[<span class="ident">Value</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">crate</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ResultSet</span><span class="op">&gt;</span> {
         <span class="ident">metrics</span>::<span class="ident">query</span>(<span class="string">&quot;postgres.query_raw&quot;</span>, <span class="ident">sql</span>, <span class="ident">params</span>, <span class="kw">move</span> <span class="op">|</span><span class="op">|</span> <span class="kw">async</span> <span class="kw">move</span> {
-            <span class="kw">let</span> <span class="ident">client</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">client</span>.<span class="number">0</span>.<span class="ident">lock</span>().<span class="kw">await</span>;
-            <span class="kw">let</span> <span class="ident">stmt</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">timeout</span>(<span class="ident">client</span>.<span class="ident">prepare</span>(<span class="ident">sql</span>)).<span class="kw">await</span><span class="question-mark">?</span>;
+            <span class="kw">let</span> <span class="ident">stmt</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">fetch_cached</span>(<span class="ident">sql</span>).<span class="kw">await</span><span class="question-mark">?</span>;
 
             <span class="kw">let</span> <span class="ident">rows</span> <span class="op">=</span> <span class="self">self</span>
-                .<span class="ident">timeout</span>(<span class="ident">client</span>.<span class="ident">query</span>(<span class="kw-2">&amp;</span><span class="ident">stmt</span>, <span class="ident">conversion</span>::<span class="ident">conv_params</span>(<span class="ident">params</span>).<span class="ident">as_slice</span>()))
+                .<span class="ident">timeout</span>(<span class="self">self</span>.<span class="ident">client</span>.<span class="number">0</span>.<span class="ident">query</span>(<span class="kw-2">&amp;</span><span class="ident">stmt</span>, <span class="ident">conversion</span>::<span class="ident">conv_params</span>(<span class="ident">params</span>).<span class="ident">as_slice</span>()))
                 .<span class="kw">await</span><span class="question-mark">?</span>;
 
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">ResultSet</span>::<span class="ident">new</span>(<span class="ident">stmt</span>.<span class="ident">to_column_names</span>(), <span class="ident">Vec</span>::<span class="ident">new</span>());
@@ -1565,11 +1684,10 @@
 
     <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">execute_raw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">sql</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">params</span>: <span class="kw-2">&amp;</span>[<span class="ident">Value</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">crate</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">u64</span><span class="op">&gt;</span> {
         <span class="ident">metrics</span>::<span class="ident">query</span>(<span class="string">&quot;postgres.execute_raw&quot;</span>, <span class="ident">sql</span>, <span class="ident">params</span>, <span class="kw">move</span> <span class="op">|</span><span class="op">|</span> <span class="kw">async</span> <span class="kw">move</span> {
-            <span class="kw">let</span> <span class="ident">client</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">client</span>.<span class="number">0</span>.<span class="ident">lock</span>().<span class="kw">await</span>;
-            <span class="kw">let</span> <span class="ident">stmt</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">timeout</span>(<span class="ident">client</span>.<span class="ident">prepare</span>(<span class="ident">sql</span>)).<span class="kw">await</span><span class="question-mark">?</span>;
+            <span class="kw">let</span> <span class="ident">stmt</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">fetch_cached</span>(<span class="ident">sql</span>).<span class="kw">await</span><span class="question-mark">?</span>;
 
             <span class="kw">let</span> <span class="ident">changes</span> <span class="op">=</span> <span class="self">self</span>
-                .<span class="ident">timeout</span>(<span class="ident">client</span>.<span class="ident">execute</span>(<span class="kw-2">&amp;</span><span class="ident">stmt</span>, <span class="ident">conversion</span>::<span class="ident">conv_params</span>(<span class="ident">params</span>).<span class="ident">as_slice</span>()))
+                .<span class="ident">timeout</span>(<span class="self">self</span>.<span class="ident">client</span>.<span class="number">0</span>.<span class="ident">execute</span>(<span class="kw-2">&amp;</span><span class="ident">stmt</span>, <span class="ident">conversion</span>::<span class="ident">conv_params</span>(<span class="ident">params</span>).<span class="ident">as_slice</span>()))
                 .<span class="kw">await</span><span class="question-mark">?</span>;
 
             <span class="prelude-val">Ok</span>(<span class="ident">changes</span>)
@@ -1579,8 +1697,7 @@
 
     <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">raw_cmd</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">cmd</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">crate</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="ident">metrics</span>::<span class="ident">query</span>(<span class="string">&quot;postgres.raw_cmd&quot;</span>, <span class="ident">cmd</span>, <span class="kw-2">&amp;</span>[], <span class="kw">move</span> <span class="op">|</span><span class="op">|</span> <span class="kw">async</span> <span class="kw">move</span> {
-            <span class="kw">let</span> <span class="ident">client</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">client</span>.<span class="number">0</span>.<span class="ident">lock</span>().<span class="kw">await</span>;
-            <span class="self">self</span>.<span class="ident">timeout</span>(<span class="ident">client</span>.<span class="ident">simple_query</span>(<span class="ident">cmd</span>)).<span class="kw">await</span><span class="question-mark">?</span>;
+            <span class="self">self</span>.<span class="ident">timeout</span>(<span class="self">self</span>.<span class="ident">client</span>.<span class="number">0</span>.<span class="ident">simple_query</span>(<span class="ident">cmd</span>)).<span class="kw">await</span><span class="question-mark">?</span>;
 
             <span class="prelude-val">Ok</span>(())
         })
@@ -1636,6 +1753,25 @@
         <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="ident">PostgresUrl</span>::<span class="ident">new</span>(<span class="ident">Url</span>::<span class="ident">parse</span>(<span class="string">&quot;postgresql:///dbname?host=%2Fvar%2Frun%2Fpostgresql&quot;</span>).<span class="ident">unwrap</span>()).<span class="ident">unwrap</span>();
         <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="string">&quot;dbname&quot;</span>, <span class="ident">url</span>.<span class="ident">dbname</span>());
         <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="string">&quot;/var/run/postgresql&quot;</span>, <span class="ident">url</span>.<span class="ident">host</span>());
+    }
+
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="kw">fn</span> <span class="ident">should_allow_changing_of_cache_size</span>() {
+        <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span>
+            <span class="ident">PostgresUrl</span>::<span class="ident">new</span>(<span class="ident">Url</span>::<span class="ident">parse</span>(<span class="string">&quot;postgresql:///localhost:5432/foo?statement_cache_size=420&quot;</span>).<span class="ident">unwrap</span>()).<span class="ident">unwrap</span>();
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="number">420</span>, <span class="ident">url</span>.<span class="ident">cache</span>().<span class="ident">capacity</span>());
+    }
+
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="kw">fn</span> <span class="ident">should_have_default_cache_size</span>() {
+        <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="ident">PostgresUrl</span>::<span class="ident">new</span>(<span class="ident">Url</span>::<span class="ident">parse</span>(<span class="string">&quot;postgresql:///localhost:5432/foo&quot;</span>).<span class="ident">unwrap</span>()).<span class="ident">unwrap</span>();
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="number">500</span>, <span class="ident">url</span>.<span class="ident">cache</span>().<span class="ident">capacity</span>());
+    }
+
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="kw">fn</span> <span class="ident">should_not_enable_caching_with_pgbouncer</span>() {
+        <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="ident">PostgresUrl</span>::<span class="ident">new</span>(<span class="ident">Url</span>::<span class="ident">parse</span>(<span class="string">&quot;postgresql:///localhost:5432/foo?pgbouncer=true&quot;</span>).<span class="ident">unwrap</span>()).<span class="ident">unwrap</span>();
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="number">0</span>, <span class="ident">url</span>.<span class="ident">cache</span>().<span class="ident">capacity</span>());
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>

@@ -176,6 +176,15 @@
 <span id="176">176</span>
 <span id="177">177</span>
 <span id="178">178</span>
+<span id="179">179</span>
+<span id="180">180</span>
+<span id="181">181</span>
+<span id="182">182</span>
+<span id="183">183</span>
+<span id="184">184</span>
+<span id="185">185</span>
+<span id="186">186</span>
+<span id="187">187</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! A single connection abstraction to a SQL database.</span>
 
@@ -250,6 +259,15 @@
     <span class="doccomment">/// - `connect_timeout` defined in seconds (default: 5). Connecting to a</span>
     <span class="doccomment">///   database will return a `ConnectTimeout` error if taking more than the</span>
     <span class="doccomment">///   defined value.</span>
+    <span class="doccomment">/// - `pgbouncer` either `true` or `false`. If set, allows usage with the</span>
+    <span class="doccomment">///   pgBouncer connection pool in transaction mode. Additionally a transaction</span>
+    <span class="doccomment">///   is required for every query for the mode to work. When starting a new</span>
+    <span class="doccomment">///   transaction, a deallocation query `DEALLOCATE ALL` is executed right after</span>
+    <span class="doccomment">///   `BEGIN` to avoid possible collisions with statements created in other</span>
+    <span class="doccomment">///   sessions.</span>
+    <span class="doccomment">/// - `statement_cache_size`, number of prepared statements kept cached.</span>
+    <span class="doccomment">///   Defaults to 500, which means caching is off. If `pgbouncer` mode is enabled,</span>
+    <span class="doccomment">///   caching is always off.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// MySQL:</span>
     <span class="doccomment">///</span>
