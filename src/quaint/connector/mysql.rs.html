@@ -1249,7 +1249,7 @@
         <span class="ident">metrics</span>::<span class="ident">query</span>(<span class="string">&quot;mysql.query_raw&quot;</span>, <span class="ident">sql</span>, <span class="ident">params</span>, <span class="kw">move</span> <span class="op">|</span><span class="op">|</span> <span class="kw">async</span> <span class="kw">move</span> {
             <span class="kw">let</span> <span class="ident">conn</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">get_conn</span>().<span class="kw">await</span><span class="question-mark">?</span>;
             <span class="kw">let</span> <span class="ident">results</span> <span class="op">=</span> <span class="self">self</span>
-                .<span class="ident">timeout</span>(<span class="ident">conn</span>.<span class="ident">prep_exec</span>(<span class="ident">sql</span>, <span class="ident">conversion</span>::<span class="ident">conv_params</span>(<span class="ident">params</span>)))
+                .<span class="ident">timeout</span>(<span class="ident">conn</span>.<span class="ident">prep_exec</span>(<span class="ident">sql</span>, <span class="ident">conversion</span>::<span class="ident">conv_params</span>(<span class="ident">params</span>)<span class="question-mark">?</span>))
                 .<span class="kw">await</span><span class="question-mark">?</span>;
 
             <span class="kw">let</span> <span class="ident">columns</span> <span class="op">=</span> <span class="ident">results</span>
@@ -1280,7 +1280,7 @@
         <span class="ident">metrics</span>::<span class="ident">query</span>(<span class="string">&quot;mysql.execute_raw&quot;</span>, <span class="ident">sql</span>, <span class="ident">params</span>, <span class="kw">move</span> <span class="op">|</span><span class="op">|</span> <span class="kw">async</span> <span class="kw">move</span> {
             <span class="kw">let</span> <span class="ident">conn</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">get_conn</span>().<span class="kw">await</span><span class="question-mark">?</span>;
             <span class="kw">let</span> <span class="ident">results</span> <span class="op">=</span> <span class="self">self</span>
-                .<span class="ident">timeout</span>(<span class="ident">conn</span>.<span class="ident">prep_exec</span>(<span class="ident">sql</span>, <span class="ident">conversion</span>::<span class="ident">conv_params</span>(<span class="ident">params</span>)))
+                .<span class="ident">timeout</span>(<span class="ident">conn</span>.<span class="ident">prep_exec</span>(<span class="ident">sql</span>, <span class="ident">conversion</span>::<span class="ident">conv_params</span>(<span class="ident">params</span>)<span class="question-mark">?</span>))
                 .<span class="kw">await</span><span class="question-mark">?</span>;
             <span class="prelude-val">Ok</span>(<span class="ident">results</span>.<span class="ident">affected_rows</span>())
         })

@@ -322,7 +322,7 @@
                     <span class="prelude-val">Some</span>(<span class="ident">DefaultValue</span>::<span class="ident">Generated</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
                     <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> {
                         <span class="kw">let</span> <span class="ident">kind</span> <span class="op">=</span>
-                            <span class="ident">ErrorKind</span>::<span class="ident">ConversionError</span>(<span class="string">&quot;A unique column missing from insert and table has no default.&quot;</span>);
+                            <span class="ident">ErrorKind</span>::<span class="ident">conversion</span>(<span class="string">&quot;A unique column missing from insert and table has no default.&quot;</span>);
 
                         <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">builder</span>(<span class="ident">kind</span>).<span class="ident">build</span>());
                     }
