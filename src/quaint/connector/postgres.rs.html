@@ -1168,6 +1168,30 @@
 <span id="1168">1168</span>
 <span id="1169">1169</span>
 <span id="1170">1170</span>
+<span id="1171">1171</span>
+<span id="1172">1172</span>
+<span id="1173">1173</span>
+<span id="1174">1174</span>
+<span id="1175">1175</span>
+<span id="1176">1176</span>
+<span id="1177">1177</span>
+<span id="1178">1178</span>
+<span id="1179">1179</span>
+<span id="1180">1180</span>
+<span id="1181">1181</span>
+<span id="1182">1182</span>
+<span id="1183">1183</span>
+<span id="1184">1184</span>
+<span id="1185">1185</span>
+<span id="1186">1186</span>
+<span id="1187">1187</span>
+<span id="1188">1188</span>
+<span id="1189">1189</span>
+<span id="1190">1190</span>
+<span id="1191">1191</span>
+<span id="1192">1192</span>
+<span id="1193">1193</span>
+<span id="1194">1194</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">mod</span> <span class="ident">conversion</span>;
 <span class="kw">mod</span> <span class="ident">error</span>;
@@ -2337,6 +2361,30 @@
             <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">result</span>.<span class="ident">len</span>(), <span class="number">1</span>);
             <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">result</span>.<span class="ident">get</span>(<span class="number">0</span>).<span class="ident">unwrap</span>().<span class="ident">get</span>(<span class="string">&quot;id&quot;</span>).<span class="ident">unwrap</span>(), <span class="kw-2">&amp;</span><span class="ident">Value</span>::<span class="ident">integer</span>(<span class="number">2</span>))
         }
+    }
+
+    <span class="attribute">#[<span class="ident">tokio</span>::<span class="ident">test</span>]</span>
+    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">upper_fun</span>() {
+        <span class="kw">let</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">Quaint</span>::<span class="ident">new</span>(<span class="kw-2">&amp;</span><span class="ident">CONN_STR</span>).<span class="kw">await</span>.<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">select</span> <span class="op">=</span> <span class="ident">Select</span>::<span class="ident">default</span>().<span class="ident">value</span>(<span class="ident">upper</span>(<span class="string">&quot;foo&quot;</span>).<span class="ident">alias</span>(<span class="string">&quot;val&quot;</span>));
+
+        <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">conn</span>.<span class="ident">query</span>(<span class="ident">select</span>.<span class="ident">into</span>()).<span class="kw">await</span>.<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">row</span> <span class="op">=</span> <span class="ident">res</span>.<span class="ident">get</span>(<span class="number">0</span>).<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">val</span> <span class="op">=</span> <span class="ident">row</span>.<span class="ident">get</span>(<span class="string">&quot;val&quot;</span>).<span class="ident">unwrap</span>().<span class="ident">as_str</span>();
+
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="prelude-val">Some</span>(<span class="string">&quot;FOO&quot;</span>), <span class="ident">val</span>);
+    }
+
+    <span class="attribute">#[<span class="ident">tokio</span>::<span class="ident">test</span>]</span>
+    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">lower_fun</span>() {
+        <span class="kw">let</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">Quaint</span>::<span class="ident">new</span>(<span class="kw-2">&amp;</span><span class="ident">CONN_STR</span>).<span class="kw">await</span>.<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">select</span> <span class="op">=</span> <span class="ident">Select</span>::<span class="ident">default</span>().<span class="ident">value</span>(<span class="ident">lower</span>(<span class="string">&quot;BAR&quot;</span>).<span class="ident">alias</span>(<span class="string">&quot;val&quot;</span>));
+
+        <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">conn</span>.<span class="ident">query</span>(<span class="ident">select</span>.<span class="ident">into</span>()).<span class="kw">await</span>.<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">row</span> <span class="op">=</span> <span class="ident">res</span>.<span class="ident">get</span>(<span class="number">0</span>).<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">val</span> <span class="op">=</span> <span class="ident">row</span>.<span class="ident">get</span>(<span class="string">&quot;val&quot;</span>).<span class="ident">unwrap</span>().<span class="ident">as_str</span>();
+
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="prelude-val">Some</span>(<span class="string">&quot;bar&quot;</span>), <span class="ident">val</span>);
     }
 }
 </pre></div>

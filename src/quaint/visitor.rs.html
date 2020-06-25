@@ -847,6 +847,14 @@
 <span id="847">847</span>
 <span id="848">848</span>
 <span id="849">849</span>
+<span id="850">850</span>
+<span id="851">851</span>
+<span id="852">852</span>
+<span id="853">853</span>
+<span id="854">854</span>
+<span id="855">855</span>
+<span id="856">856</span>
+<span id="857">857</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Visitors for reading an abstract SQL syntax tree, generating the query and</span>
 <span class="doccomment">//! gathering parameters in the right order.</span>
@@ -1660,6 +1668,14 @@
             <span class="ident">FunctionType</span>::<span class="ident">Sum</span>(<span class="ident">sum</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="self">self</span>.<span class="ident">write</span>(<span class="string">&quot;SUM&quot;</span>)<span class="question-mark">?</span>;
                 <span class="self">self</span>.<span class="ident">surround_with</span>(<span class="string">&quot;(&quot;</span>, <span class="string">&quot;)&quot;</span>, <span class="op">|</span><span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">s</span><span class="op">|</span> <span class="ident">s</span>.<span class="ident">visit_column</span>(<span class="ident">sum</span>.<span class="ident">column</span>))<span class="question-mark">?</span>;
+            }
+            <span class="ident">FunctionType</span>::<span class="ident">Lower</span>(<span class="ident">lower</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="self">self</span>.<span class="ident">write</span>(<span class="string">&quot;LOWER&quot;</span>)<span class="question-mark">?</span>;
+                <span class="self">self</span>.<span class="ident">surround_with</span>(<span class="string">&quot;(&quot;</span>, <span class="string">&quot;)&quot;</span>, <span class="op">|</span><span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">s</span><span class="op">|</span> <span class="ident">s</span>.<span class="ident">visit_expression</span>(<span class="kw-2">*</span><span class="ident">lower</span>.<span class="ident">expression</span>))<span class="question-mark">?</span>;
+            }
+            <span class="ident">FunctionType</span>::<span class="ident">Upper</span>(<span class="ident">upper</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="self">self</span>.<span class="ident">write</span>(<span class="string">&quot;UPPER&quot;</span>)<span class="question-mark">?</span>;
+                <span class="self">self</span>.<span class="ident">surround_with</span>(<span class="string">&quot;(&quot;</span>, <span class="string">&quot;)&quot;</span>, <span class="op">|</span><span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">s</span><span class="op">|</span> <span class="ident">s</span>.<span class="ident">visit_expression</span>(<span class="kw-2">*</span><span class="ident">upper</span>.<span class="ident">expression</span>))<span class="question-mark">?</span>;
             }
         };
 
