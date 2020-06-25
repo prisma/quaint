@@ -117,7 +117,7 @@ async fn bigint_unsigned_positive_value_out_of_range(api: &mut dyn TestApi) -> c
         .await?;
 
     let insert = format!(r#"INSERT INTO `{}` (`big`) VALUES (18446744073709551615)"#, table);
-    api.conn().execute_raw(&insert, &[]).await.unwrap();
+    api.conn().execute_raw(&insert, vec![]).await.unwrap();
     let result = api.conn().select(Select::from_table(&table)).await;
 
     assert!(

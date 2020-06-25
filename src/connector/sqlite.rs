@@ -1,145 +1,74 @@
+mod config;
 mod conversion;
 mod error;
 
 use crate::{
-    ast::{Query, Value},
-    connector::{metrics, queryable::*, ResultSet},
-    error::{Error, ErrorKind},
+    ast::{Insert, Query, Value},
+    connector::{bind::Bind, metrics, queryable::*, timeout::timeout, ResultSet},
+    error::Error,
     visitor::{self, Visitor},
 };
 use async_trait::async_trait;
-use rusqlite::NO_PARAMS;
-use std::{collections::HashSet, convert::TryFrom, path::Path, time::Duration};
-use tokio::sync::Mutex;
-
-const DEFAULT_SCHEMA_NAME: &str = "quaint";
+pub use config::*;
+use futures::{lock::Mutex, TryStreamExt};
+use sqlx::{
+    sqlite::{SqliteConnectOptions, SqliteRow},
+    Column as _, Connection, Done, Executor, Row as _, SqliteConnection,
+};
+use std::{collections::HashSet, convert::TryFrom, time::Duration};
 
 /// A connector interface for the SQLite database
 pub struct Sqlite {
-    pub(crate) client: Mutex<rusqlite::Connection>,
+    pub(crate) connection: Mutex<SqliteConnection>,
     /// This is not a `PathBuf` because we need to `ATTACH` the database to the path, and this can
     /// only be done with UTF-8 paths.
     pub(crate) file_path: String,
-}
-
-#[derive(Debug)]
-pub struct SqliteParams {
-    pub connection_limit: Option<usize>,
-    /// This is not a `PathBuf` because we need to `ATTACH` the database to the path, and this can
-    /// only be done with UTF-8 paths.
-    pub file_path: String,
-    pub db_name: String,
-    pub socket_timeout: Option<Duration>,
-}
-
-impl TryFrom<&str> for SqliteParams {
-    type Error = Error;
-
-    fn try_from(path: &str) -> crate::Result<Self> {
-        let path = if path.starts_with("file:") {
-            path.trim_start_matches("file:")
-        } else {
-            path.trim_start_matches("sqlite:")
-        };
-
-        let path_parts: Vec<&str> = path.split('?').collect();
-        let path_str = path_parts[0];
-        let path = Path::new(path_str);
-
-        if path.is_dir() {
-            Err(Error::builder(ErrorKind::DatabaseUrlIsInvalid(path.to_str().unwrap().to_string())).build())
-        } else {
-            let mut connection_limit = None;
-            let mut db_name = None;
-            let mut socket_timeout = None;
-
-            if path_parts.len() > 1 {
-                let params = path_parts.last().unwrap().split('&').map(|kv| {
-                    let splitted: Vec<&str> = kv.split('=').collect();
-                    (splitted[0], splitted[1])
-                });
-
-                for (k, v) in params {
-                    match k {
-                        "connection_limit" => {
-                            let as_int: usize = v
-                                .parse()
-                                .map_err(|_| Error::builder(ErrorKind::InvalidConnectionArguments).build())?;
-
-                            connection_limit = Some(as_int);
-                        }
-                        "db_name" => {
-                            db_name = Some(v.to_string());
-                        }
-                        "socket_timeout" => {
-                            let as_int = v
-                                .parse()
-                                .map_err(|_| Error::builder(ErrorKind::InvalidConnectionArguments).build())?;
-
-                            socket_timeout = Some(Duration::from_secs(as_int));
-                        }
-                        _ => {
-                            #[cfg(not(feature = "tracing-log"))]
-                            trace!("Discarding connection string param: {}", k);
-                            #[cfg(feature = "tracing-log")]
-                            tracing::trace!(message = "Discarding connection string param", param = k);
-                        }
-                    };
-                }
-            }
-
-            Ok(Self {
-                connection_limit,
-                file_path: path_str.to_owned(),
-                db_name: db_name.unwrap_or_else(|| DEFAULT_SCHEMA_NAME.to_owned()),
-                socket_timeout,
-            })
-        }
-    }
-}
-
-impl TryFrom<&str> for Sqlite {
-    type Error = Error;
-
-    fn try_from(path: &str) -> crate::Result<Self> {
-        let params = SqliteParams::try_from(path)?;
-
-        let conn = rusqlite::Connection::open_in_memory()?;
-
-        if let Some(timeout) = params.socket_timeout {
-            conn.busy_timeout(timeout)?;
-        };
-
-        let client = Mutex::new(conn);
-        let file_path = params.file_path;
-
-        Ok(Sqlite { client, file_path })
-    }
+    pub(crate) socket_timeout: Option<Duration>,
 }
 
 impl Sqlite {
-    pub fn new(file_path: &str) -> crate::Result<Sqlite> {
-        Self::try_from(file_path)
+    pub async fn new(file_path: &str) -> crate::Result<Sqlite> {
+        let params = SqliteParams::try_from(file_path)?;
+
+        let opts = SqliteConnectOptions::new()
+            .statement_cache_capacity(params.statement_cache_size)
+            .create_if_missing(true);
+
+        let conn = SqliteConnection::connect_with(&opts).await?;
+
+        let connection = Mutex::new(conn);
+        let file_path = params.file_path;
+        let socket_timeout = params.socket_timeout;
+
+        Ok(Sqlite {
+            connection,
+            file_path,
+            socket_timeout,
+        })
     }
 
     pub async fn attach_database(&mut self, db_name: &str) -> crate::Result<()> {
-        let client = self.client.lock().await;
-        let mut stmt = client.prepare("PRAGMA database_list")?;
+        let mut conn = self.connection.lock().await;
 
-        let databases: HashSet<String> = stmt
-            .query_map(NO_PARAMS, |row| {
-                let name: String = row.get(1)?;
-
+        let databases: HashSet<String> = sqlx::query("PRAGMA database_list")
+            .try_map(|row: SqliteRow| {
+                let name: String = row.try_get(1)?;
                 Ok(name)
-            })?
-            .map(|res| res.unwrap())
+            })
+            .fetch_all(&mut *conn)
+            .await?
+            .into_iter()
             .collect();
 
         if !databases.contains(db_name) {
-            rusqlite::Connection::execute(&client, "ATTACH DATABASE ? AS ?", &[self.file_path.as_str(), db_name])?;
+            sqlx::query("ATTACH DATABASE ? AS ?")
+                .bind(self.file_path.as_str())
+                .bind(db_name)
+                .execute(&mut *conn)
+                .await?;
         }
 
-        rusqlite::Connection::execute(&client, "PRAGMA foreign_keys = ON", NO_PARAMS)?;
+        sqlx::query("PRAGMA foreign_keys = ON").execute(&mut *conn).await?;
 
         Ok(())
     }
@@ -151,56 +80,101 @@ impl TransactionCapable for Sqlite {}
 impl Queryable for Sqlite {
     async fn query(&self, q: Query<'_>) -> crate::Result<ResultSet> {
         let (sql, params) = visitor::Sqlite::build(q)?;
-        self.query_raw(&sql, &params).await
+        self.query_raw(&sql, params).await
     }
 
     async fn execute(&self, q: Query<'_>) -> crate::Result<u64> {
         let (sql, params) = visitor::Sqlite::build(q)?;
-        self.execute_raw(&sql, &params).await
+        self.execute_raw(&sql, params).await
     }
 
-    async fn query_raw(&self, sql: &str, params: &[Value<'_>]) -> crate::Result<ResultSet> {
-        metrics::query("sqlite.query_raw", sql, params, move || async move {
-            let client = self.client.lock().await;
+    async fn insert(&self, q: Insert<'_>) -> crate::Result<ResultSet> {
+        let (sql, params) = visitor::Sqlite::build(q)?;
 
-            let mut stmt = client.prepare_cached(sql)?;
+        metrics::query_new("sqlite.execute_raw", &sql, params, |params| async {
+            let mut query = sqlx::query(&sql);
 
-            let mut rows = stmt.query(params)?;
-            let mut result = ResultSet::new(rows.to_column_names(), Vec::new());
-
-            while let Some(row) = rows.next()? {
-                result.rows.push(row.get_result_row()?);
+            for param in params.into_iter() {
+                query = query.bind_value(param, None)?;
             }
 
-            result.set_last_insert_id(u64::try_from(client.last_insert_rowid()).unwrap_or(0));
+            let mut conn = self.connection.lock().await;
+            let done = timeout(self.socket_timeout, query.execute(&mut *conn)).await?;
 
-            Ok(result)
+            let mut result_set = ResultSet::default();
+            result_set.set_last_insert_id(done.last_insert_rowid() as u64);
+
+            Ok(result_set)
         })
         .await
     }
 
-    async fn execute_raw(&self, sql: &str, params: &[Value<'_>]) -> crate::Result<u64> {
-        metrics::query("sqlite.query_raw", sql, params, move || async move {
-            let client = self.client.lock().await;
-            let mut stmt = client.prepare_cached(sql)?;
-            let res = u64::try_from(stmt.execute(params)?)?;
+    async fn query_raw(&self, sql: &str, params: Vec<Value<'_>>) -> crate::Result<ResultSet> {
+        metrics::query_new("sqlite.query_raw", sql, params, move |params| async move {
+            let mut query = sqlx::query(sql);
 
-            Ok(res)
+            for param in params.into_iter() {
+                query = query.bind_value(param, None)?;
+            }
+
+            let mut conn = self.connection.lock().await;
+            let mut columns = Vec::new();
+            let mut rows = Vec::new();
+
+            timeout(self.socket_timeout, async {
+                let mut stream = query.fetch(&mut *conn);
+
+                while let Some(row) = stream.try_next().await? {
+                    if columns.is_empty() {
+                        columns = row.columns().iter().map(|c| c.name().to_string()).collect();
+                    }
+
+                    rows.push(conversion::map_row(row)?);
+                }
+
+                Ok::<(), Error>(())
+            })
+            .await?;
+
+            Ok(ResultSet::new(columns, rows))
+        })
+        .await
+    }
+
+    async fn execute_raw(&self, sql: &str, params: Vec<Value<'_>>) -> crate::Result<u64> {
+        metrics::query_new("sqlite.execute_raw", sql, params, |params| async move {
+            let mut query = sqlx::query(sql);
+
+            for param in params.into_iter() {
+                query = query.bind_value(param, None)?;
+            }
+
+            let mut conn = self.connection.lock().await;
+            let done = timeout(self.socket_timeout, query.execute(&mut *conn)).await?;
+
+            Ok(done.rows_affected())
         })
         .await
     }
 
     async fn raw_cmd(&self, cmd: &str) -> crate::Result<()> {
-        metrics::query("sqlite.raw_cmd", cmd, &[], move || async move {
-            let client = self.client.lock().await;
-            client.execute_batch(cmd)?;
+        metrics::query_new("sqlite.raw_cmd", cmd, Vec::new(), move |_| async move {
+            let mut conn = self.connection.lock().await;
+            timeout(self.socket_timeout, conn.execute(cmd)).await?;
             Ok(())
         })
         .await
     }
 
     async fn version(&self) -> crate::Result<Option<String>> {
-        Ok(Some(rusqlite::version().into()))
+        let query = r#"SELECT sqlite_version() version;"#;
+        let rows = self.query_raw(query, vec![]).await?;
+
+        let version_string = rows
+            .get(0)
+            .and_then(|row| row.get("version").and_then(|version| version.to_string()));
+
+        Ok(version_string)
     }
 }
 
@@ -230,9 +204,9 @@ mod tests {
         assert_eq!(params.file_path, "dev.db");
     }
 
-    #[tokio::test]
+    #[tokio::test(threaded_scheduler)]
     async fn unknown_table_should_give_a_good_error() {
-        let conn = Sqlite::try_from("file:db/test.db").unwrap();
+        let conn = Sqlite::new("file:db/test.db").await.unwrap();
         let select = Select::from_table("not_there");
 
         let err = conn.select(select).await.unwrap_err();

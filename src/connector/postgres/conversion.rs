@@ -1,595 +1,1110 @@
 use crate::{
     ast::Value,
-    connector::queryable::{GetRow, ToColumnNames},
+    connector::bind::Bind,
     error::{Error, ErrorKind},
 };
-use bit_vec::BitVec;
-use bytes::BytesMut;
-#[cfg(feature = "chrono-0_4")]
-use chrono::{DateTime, NaiveDateTime, Utc};
-use postgres_types::{FromSql, ToSql};
 use rust_decimal::{
     prelude::{FromPrimitive, ToPrimitive},
     Decimal,
 };
-use std::{error::Error as StdError, str::FromStr};
-use tokio_postgres::{
-    types::{self, IsNull, Kind, Type as PostgresType},
-    Row as PostgresRow, Statement as PostgresStatement,
+#[cfg(feature = "chrono-0_4")]
+use sqlx::postgres::types::PgTimeTz;
+use sqlx::{
+    postgres::{types::PgMoney, PgArguments, PgRow, PgTypeInfo, PgTypeKind},
+    query::Query,
+    types::Json,
+    Column, Postgres, Row, TypeInfo,
 };
+use std::borrow::Cow;
 
-#[cfg(feature = "uuid-0_8")]
-use uuid::Uuid;
+impl<'a> Bind<'a, Postgres> for Query<'a, Postgres, PgArguments> {
+    #[inline]
+    fn bind_value(self, value: Value<'a>, type_info: Option<&PgTypeInfo>) -> crate::Result<Self> {
+        let query = match (value, type_info.map(|ti| ti.name())) {
+            // integers
+            (Value::Integer(i), Some("INT2")) => self.bind(i.map(|i| i as i16)),
+            (Value::Integer(i), Some("INT4")) => self.bind(i.map(|i| i as i32)),
+            (Value::Integer(i), Some("OID")) => self.bind(i.map(|i| i as u32)),
+            (Value::Integer(i), Some("TEXT")) => self.bind(i.map(|i| format!("{}", i))),
+            (Value::Integer(i), _) => self.bind(i.map(|i| i as i64)),
 
-pub fn conv_params<'a>(params: &'a [Value<'a>]) -> Vec<&'a (dyn types::ToSql + Sync)> {
-    params.iter().map(|x| x as &(dyn ToSql + Sync)).collect::<Vec<_>>()
-}
+            // floating and real
+            (Value::Real(d), Some("FLOAT4")) => match d {
+                Some(decimal) => {
+                    let f = decimal.to_f32().ok_or_else(|| {
+                        let kind = ErrorKind::conversion("Could not convert `Decimal` into `f32`.");
+                        Error::builder(kind).build()
+                    })?;
 
-struct EnumString {
-    value: String,
-}
+                    self.bind(f)
+                }
+                None => self.bind(Option::<f32>::None),
+            },
+            (Value::Real(d), Some("FLOAT8")) => match d {
+                Some(decimal) => {
+                    let f = decimal.to_f64().ok_or_else(|| {
+                        let kind = ErrorKind::conversion("Could not convert `Decimal` into `f32`.");
+                        Error::builder(kind).build()
+                    })?;
 
-impl<'a> FromSql<'a> for EnumString {
-    fn from_sql(_ty: &PostgresType, raw: &'a [u8]) -> Result<EnumString, Box<dyn std::error::Error + Sync + Send>> {
-        Ok(EnumString {
-            value: String::from_utf8(raw.to_owned()).unwrap().into(),
-        })
-    }
+                    self.bind(f)
+                }
+                None => self.bind(Option::<f64>::None),
+            },
+            (Value::Real(d), Some("MONEY")) => self.bind(d.map(|r| PgMoney::from_decimal(r, 2))),
+            (Value::Real(d), _) => self.bind(d),
 
-    fn accepts(_ty: &PostgresType) -> bool {
-        true
-    }
-}
+            #[cfg(feature = "uuid-0_8")]
+            (Value::Text(val), Some("UUID")) => match val {
+                Some(cow) => {
+                    let id: uuid::Uuid = cow.parse().map_err(|_| {
+                        let kind = ErrorKind::conversion(format!(
+                            "The given string '{}' could not be converted to UUID.",
+                            cow
+                        ));
+                        Error::builder(kind).build()
+                    })?;
+                    self.bind(id)
+                }
+                None => self.bind(Option::<uuid::Uuid>::None),
+            },
+            // strings
+            #[cfg(feature = "ipnetwork")]
+            (Value::Text(c), t) if t == Some("INET") || t == Some("CIDR") => match c {
+                Some(s) => {
+                    let ip: sqlx::types::ipnetwork::IpNetwork = s.parse().map_err(|_| {
+                        let msg = format!("Provided IP address ({}) not in the right format.", s);
+                        let kind = ErrorKind::conversion(msg);
 
-struct TimeTz(chrono::NaiveTime);
+                        Error::builder(kind).build()
+                    })?;
 
-impl<'a> FromSql<'a> for TimeTz {
-    fn from_sql(_ty: &PostgresType, raw: &'a [u8]) -> Result<TimeTz, Box<dyn std::error::Error + Sync + Send>> {
-        // We assume UTC.
-        let time: chrono::NaiveTime = chrono::NaiveTime::from_sql(&PostgresType::TIMETZ, &raw[..8])?;
-        Ok(TimeTz(time))
-    }
+                    self.bind(ip)
+                }
+                None => self.bind(Option::<sqlx::types::ipnetwork::IpNetwork>::None),
+            },
+            #[cfg(feature = "bit-vec")]
+            (Value::Text(c), t) if t == Some("BIT") || t == Some("VARBIT") => match c {
+                Some(s) => {
+                    let bits = string_to_bits(&s)?;
+                    self.bind(bits)
+                }
+                None => self.bind(Option::<sqlx::types::ipnetwork::IpNetwork>::None),
+            },
+            (Value::Text(c), _)
+                if type_info
+                    .map(|ti| matches!(ti.kind(), PgTypeKind::Enum(_)))
+                    .unwrap_or(false) =>
+            {
+                self.bind(c.map(|c| c.into_owned()))
+            }
+            (Value::Text(c), _) => self.bind(c.map(|c| c.into_owned())),
+            (Value::Enum(c), _) => self.bind(c.map(|c| c.into_owned())),
 
-    fn accepts(ty: &PostgresType) -> bool {
-        ty == &PostgresType::TIMETZ
-    }
-}
+            (Value::Bytes(c), _) => self.bind(c.map(|c| c.into_owned())),
+            (Value::Boolean(b), _) => self.bind(b),
+            (Value::Char(c), _) => self.bind(c.map(|c| c as i8)),
 
-/// This implementation of FromSql assumes that the precision for money fields is configured to the default
-/// of 2 decimals.
-///
-/// Postgres docs: https://www.postgresql.org/docs/current/datatype-money.html
-struct NaiveMoney(Decimal);
+            #[cfg(all(feature = "bit-vec", feature = "array"))]
+            (Value::Array(ary_opt), t) if t == Some("BIT[]") || t == Some("VARBIT[]") => match ary_opt {
+                Some(ary) => {
+                    let mut bits = Vec::with_capacity(ary.len());
 
-impl<'a> FromSql<'a> for NaiveMoney {
-    fn from_sql(_ty: &PostgresType, raw: &'a [u8]) -> Result<NaiveMoney, Box<dyn std::error::Error + Sync + Send>> {
-        let cents = i64::from_sql(&PostgresType::INT8, raw)?;
+                    for val in ary.into_iter().map(|v| v.into_string()) {
+                        match val {
+                            Some(s) => {
+                                let bit = string_to_bits(&s)?;
+                                bits.push(bit);
+                            }
+                            None => {
+                                let msg = "Non-string parameter when storing a BIT[]";
+                                let kind = ErrorKind::conversion(msg);
 
-        Ok(NaiveMoney(Decimal::new(cents, 2)))
-    }
-
-    fn accepts(ty: &PostgresType) -> bool {
-        ty == &PostgresType::MONEY
-    }
-}
-
-impl GetRow for PostgresRow {
-    fn get_result_row<'b>(&'b self) -> crate::Result<Vec<Value<'static>>> {
-        fn convert(row: &PostgresRow, i: usize) -> crate::Result<Value<'static>> {
-            let result = match *row.columns()[i].type_() {
-                PostgresType::BOOL => Value::Boolean(row.try_get(i)?),
-                PostgresType::INT2 => match row.try_get(i)? {
-                    Some(val) => {
-                        let val: i16 = val;
-                        Value::integer(val)
-                    }
-                    None => Value::Integer(None),
-                },
-                PostgresType::INT4 => match row.try_get(i)? {
-                    Some(val) => {
-                        let val: i32 = val;
-                        Value::integer(val)
-                    }
-                    None => Value::Integer(None),
-                },
-                PostgresType::INT8 => match row.try_get(i)? {
-                    Some(val) => {
-                        let val: i64 = val;
-                        Value::integer(val)
-                    }
-                    None => Value::Integer(None),
-                },
-                PostgresType::NUMERIC => Value::Real(row.try_get(i)?),
-                PostgresType::FLOAT4 => match row.try_get(i)? {
-                    Some(val) => {
-                        let val: Decimal = Decimal::from_f32(val).expect("f32 is not a Decimal");
-                        Value::real(val)
-                    }
-                    None => Value::Real(None),
-                },
-                PostgresType::FLOAT8 => match row.try_get(i)? {
-                    Some(val) => {
-                        let val: f64 = val;
-                        // Decimal::from_f64 is buggy. Issue: https://github.com/paupino/rust-decimal/issues/228
-                        let val: Decimal = Decimal::from_str(&val.to_string()).expect("f64 is not a Decimal");
-                        Value::real(val)
-                    }
-                    None => Value::Real(None),
-                },
-                PostgresType::MONEY => match row.try_get(i)? {
-                    Some(val) => {
-                        let val: NaiveMoney = val;
-                        Value::real(val.0)
-                    }
-                    None => Value::Real(None),
-                },
-                #[cfg(feature = "chrono-0_4")]
-                PostgresType::TIMESTAMP => match row.try_get(i)? {
-                    Some(val) => {
-                        let ts: NaiveDateTime = val;
-                        let dt = DateTime::<Utc>::from_utc(ts, Utc);
-                        Value::datetime(dt)
-                    }
-                    None => Value::DateTime(None),
-                },
-                #[cfg(feature = "chrono-0_4")]
-                PostgresType::TIMESTAMPTZ => match row.try_get(i)? {
-                    Some(val) => {
-                        let ts: DateTime<Utc> = val;
-                        Value::datetime(ts)
-                    }
-                    None => Value::DateTime(None),
-                },
-                #[cfg(feature = "chrono-0_4")]
-                PostgresType::DATE => match row.try_get(i)? {
-                    Some(val) => Value::date(val),
-                    None => Value::Date(None),
-                },
-                #[cfg(feature = "chrono-0_4")]
-                PostgresType::TIME => match row.try_get(i)? {
-                    Some(val) => Value::time(val),
-                    None => Value::Time(None),
-                },
-                #[cfg(feature = "chrono-0_4")]
-                PostgresType::TIMETZ => match row.try_get(i)? {
-                    Some(val) => {
-                        let time: TimeTz = val;
-                        Value::time(time.0)
-                    }
-                    None => Value::Time(None),
-                },
-                #[cfg(feature = "uuid-0_8")]
-                PostgresType::UUID => match row.try_get(i)? {
-                    Some(val) => {
-                        let val: Uuid = val;
-                        Value::uuid(val)
-                    }
-                    None => Value::Uuid(None),
-                },
-                #[cfg(feature = "uuid-0_8")]
-                PostgresType::UUID_ARRAY => match row.try_get(i)? {
-                    Some(val) => {
-                        let val: Vec<Uuid> = val;
-                        let val = val.into_iter().map(Value::uuid);
-                        Value::array(val)
-                    }
-                    None => Value::Array(None),
-                },
-                #[cfg(feature = "json-1")]
-                PostgresType::JSON | PostgresType::JSONB => Value::Json(row.try_get(i)?),
-                #[cfg(feature = "array")]
-                PostgresType::INT2_ARRAY => match row.try_get(i)? {
-                    Some(val) => {
-                        let val: Vec<i16> = val;
-                        let ints = val.into_iter().map(Value::integer);
-                        Value::array(ints)
-                    }
-                    None => Value::Array(None),
-                },
-                #[cfg(feature = "array")]
-                PostgresType::INT4_ARRAY => match row.try_get(i)? {
-                    Some(val) => {
-                        let val: Vec<i32> = val;
-                        let ints = val.into_iter().map(Value::integer);
-                        Value::array(ints)
-                    }
-                    None => Value::Array(None),
-                },
-                #[cfg(feature = "array")]
-                PostgresType::INT8_ARRAY => match row.try_get(i)? {
-                    Some(val) => {
-                        let val: Vec<i64> = val;
-                        let ints = val.into_iter().map(Value::integer);
-                        Value::array(ints)
-                    }
-                    None => Value::Array(None),
-                },
-                #[cfg(feature = "array")]
-                PostgresType::FLOAT4_ARRAY => match row.try_get(i)? {
-                    Some(val) => {
-                        let val: Vec<f32> = val;
-                        let floats = val.into_iter().map(Value::from);
-                        Value::array(floats)
-                    }
-                    None => Value::Array(None),
-                },
-                #[cfg(feature = "array")]
-                PostgresType::FLOAT8_ARRAY => match row.try_get(i)? {
-                    Some(val) => {
-                        let val: Vec<f64> = val;
-                        let floats = val.into_iter().map(Value::from);
-                        Value::array(floats)
-                    }
-                    None => Value::Array(None),
-                },
-                #[cfg(feature = "array")]
-                PostgresType::BOOL_ARRAY => match row.try_get(i)? {
-                    Some(val) => {
-                        let val: Vec<bool> = val;
-                        let bools = val.into_iter().map(Value::from);
-                        Value::array(bools)
-                    }
-                    None => Value::Array(None),
-                },
-                #[cfg(all(feature = "array", feature = "chrono-0_4"))]
-                PostgresType::TIMESTAMP_ARRAY => match row.try_get(i)? {
-                    Some(val) => {
-                        let val: Vec<NaiveDateTime> = val;
-
-                        let dates = val
-                            .into_iter()
-                            .map(|x| Value::datetime(DateTime::<Utc>::from_utc(x, Utc)));
-
-                        Value::array(dates)
-                    }
-                    None => Value::Array(None),
-                },
-                #[cfg(feature = "array")]
-                PostgresType::NUMERIC_ARRAY => match row.try_get(i)? {
-                    Some(val) => {
-                        let val: Vec<Decimal> = val;
-
-                        let decimals = val.into_iter().map(|x| Value::real(x.to_string().parse().unwrap()));
-
-                        Value::array(decimals)
-                    }
-                    None => Value::Array(None),
-                },
-                #[cfg(feature = "array")]
-                PostgresType::TEXT_ARRAY | PostgresType::NAME_ARRAY | PostgresType::VARCHAR_ARRAY => {
-                    match row.try_get(i)? {
-                        Some(val) => {
-                            let strings: Vec<&str> = val;
-                            Value::array(strings.into_iter().map(|s| s.to_string()))
+                                Err(Error::builder(kind).build())?
+                            }
                         }
-                        None => Value::Array(None),
+                    }
+
+                    self.bind(bits)
+                }
+                None => self.bind(Option::<Vec<i16>>::None),
+            },
+
+            #[cfg(feature = "array")]
+            (Value::Array(ary_opt), Some("INT2[]")) => match ary_opt {
+                Some(ary) => {
+                    let mut ints = Vec::with_capacity(ary.len());
+
+                    for val in ary.into_iter().map(|v| v.as_i64().map(|i| i as i16)) {
+                        match val {
+                            Some(int) => {
+                                ints.push(int);
+                            }
+                            None => {
+                                let msg = "Non-integer parameter when storing an INT2[]";
+                                let kind = ErrorKind::conversion(msg);
+
+                                Err(Error::builder(kind).build())?
+                            }
+                        }
+                    }
+
+                    self.bind(ints)
+                }
+                None => self.bind(Option::<Vec<i16>>::None),
+            },
+
+            #[cfg(feature = "array")]
+            (Value::Array(ary_opt), Some("INT4[]")) => match ary_opt {
+                Some(ary) => {
+                    let mut ints = Vec::with_capacity(ary.len());
+
+                    for val in ary.into_iter().map(|v| v.as_i64().map(|i| i as i32)) {
+                        match val {
+                            Some(int) => {
+                                ints.push(int);
+                            }
+                            None => {
+                                let msg = "Non-integer parameter when storing an INT4[]";
+                                let kind = ErrorKind::conversion(msg);
+
+                                Err(Error::builder(kind).build())?
+                            }
+                        }
+                    }
+
+                    self.bind(ints)
+                }
+                None => self.bind(Option::<Vec<i32>>::None),
+            },
+
+            #[cfg(feature = "array")]
+            (Value::Array(ary_opt), Some("INT8[]")) => match ary_opt {
+                Some(ary) => {
+                    let mut ints = Vec::with_capacity(ary.len());
+
+                    for val in ary.into_iter().map(|v| v.as_i64()) {
+                        match val {
+                            Some(int) => {
+                                ints.push(int);
+                            }
+                            None => {
+                                let msg = "Non-integer parameter when storing an INT8[]";
+                                let kind = ErrorKind::conversion(msg);
+
+                                Err(Error::builder(kind).build())?
+                            }
+                        }
+                    }
+
+                    self.bind(ints)
+                }
+                None => self.bind(Option::<Vec<i64>>::None),
+            },
+
+            #[cfg(feature = "array")]
+            (Value::Array(ary_opt), Some("OID[]")) => match ary_opt {
+                Some(ary) => {
+                    let mut ints = Vec::with_capacity(ary.len());
+
+                    for val in ary.into_iter().map(|v| v.as_i64().map(|i| i as u32)) {
+                        match val {
+                            Some(int) => {
+                                ints.push(int);
+                            }
+                            None => {
+                                let msg = "Non-integer parameter when storing an OID[]";
+                                let kind = ErrorKind::conversion(msg);
+
+                                Err(Error::builder(kind).build())?
+                            }
+                        }
+                    }
+
+                    self.bind(ints)
+                }
+                None => self.bind(Option::<Vec<u32>>::None),
+            },
+
+            #[cfg(feature = "array")]
+            (Value::Array(ary_opt), Some("FLOAT4[]")) => match ary_opt {
+                Some(ary) => {
+                    let mut floats = Vec::with_capacity(ary.len());
+
+                    for val in ary.into_iter().map(|v| v.as_f64().map(|i| i as f32)) {
+                        match val {
+                            Some(float) => {
+                                floats.push(float);
+                            }
+                            None => {
+                                let msg = "Non-float parameter when storing a FLOAT4[]";
+                                let kind = ErrorKind::conversion(msg);
+
+                                Err(Error::builder(kind).build())?
+                            }
+                        }
+                    }
+
+                    self.bind(floats)
+                }
+                None => self.bind(Option::<Vec<f32>>::None),
+            },
+
+            #[cfg(feature = "array")]
+            (Value::Array(ary_opt), Some("FLOAT8[]")) => match ary_opt {
+                Some(ary) => {
+                    let mut floats = Vec::with_capacity(ary.len());
+
+                    for val in ary.into_iter().map(|v| v.as_f64()) {
+                        match val {
+                            Some(float) => {
+                                floats.push(float);
+                            }
+                            None => {
+                                let msg = "Non-float parameter when storing a FLOAT8[]";
+                                let kind = ErrorKind::conversion(msg);
+
+                                Err(Error::builder(kind).build())?
+                            }
+                        }
+                    }
+
+                    self.bind(floats)
+                }
+                None => self.bind(Option::<Vec<f64>>::None),
+            },
+
+            #[cfg(feature = "array")]
+            (Value::Array(ary_opt), Some("NUMERIC[]")) => match ary_opt {
+                Some(ary) => {
+                    let mut floats = Vec::with_capacity(ary.len());
+
+                    for val in ary.into_iter().map(|v| v.as_decimal()) {
+                        match val {
+                            Some(float) => {
+                                floats.push(float);
+                            }
+                            None => {
+                                let msg = "Non-numeric parameter when storing a NUMERIC[]";
+                                let kind = ErrorKind::conversion(msg);
+
+                                Err(Error::builder(kind).build())?
+                            }
+                        }
+                    }
+
+                    self.bind(floats)
+                }
+                None => self.bind(Option::<Vec<f64>>::None),
+            },
+
+            #[cfg(feature = "array")]
+            (Value::Array(ary_opt), Some("MONEY[]")) => match ary_opt {
+                Some(ary) => {
+                    let mut moneys = Vec::with_capacity(ary.len());
+
+                    for val in ary.into_iter().map(|v| v.as_decimal()) {
+                        match val {
+                            Some(decimal) => moneys.push(PgMoney::from_decimal(decimal, 2)),
+                            None => {
+                                let msg = "Non-numeric parameter when storing a MONEY[]";
+                                let kind = ErrorKind::conversion(msg);
+
+                                Err(Error::builder(kind).build())?
+                            }
+                        }
+                    }
+
+                    self.bind(moneys)
+                }
+                None => self.bind(Option::<Vec<f64>>::None),
+            },
+
+            #[cfg(feature = "array")]
+            (Value::Array(ary_opt), Some("BOOL[]")) => match ary_opt {
+                Some(ary) => {
+                    let mut boos = Vec::with_capacity(ary.len());
+
+                    for val in ary.into_iter().map(|v| v.as_bool()) {
+                        match val {
+                            Some(boo) => {
+                                boos.push(boo);
+                            }
+                            None => {
+                                let msg = "Non-boolean parameter when storing a BOOL[]";
+                                let kind = ErrorKind::conversion(msg);
+
+                                Err(Error::builder(kind).build())?
+                            }
+                        }
+                    }
+
+                    self.bind(boos)
+                }
+                None => self.bind(Option::<Vec<bool>>::None),
+            },
+
+            #[cfg(all(feature = "array", feature = "chrono-0_4"))]
+            (Value::Array(ary_opt), Some("TIMESTAMPTZ[]")) => match ary_opt {
+                Some(ary) => {
+                    let mut vals = Vec::with_capacity(ary.len());
+
+                    for val in ary.into_iter().map(|v| v.as_datetime()) {
+                        match val {
+                            Some(val) => {
+                                vals.push(val);
+                            }
+                            None => {
+                                let msg = "Non-datetime parameter when storing a TIMESTAMPTZ[]";
+                                let kind = ErrorKind::conversion(msg);
+
+                                Err(Error::builder(kind).build())?
+                            }
+                        }
+                    }
+
+                    self.bind(vals)
+                }
+                None => self.bind(Option::<Vec<chrono::DateTime<chrono::Utc>>>::None),
+            },
+
+            #[cfg(all(feature = "array", feature = "chrono-0_4"))]
+            (Value::Array(ary_opt), Some("TIMESTAMP[]")) => match ary_opt {
+                Some(ary) => {
+                    let mut vals = Vec::with_capacity(ary.len());
+
+                    for val in ary.into_iter().map(|v| v.as_datetime()) {
+                        match val {
+                            Some(val) => {
+                                vals.push(val.naive_utc());
+                            }
+                            None => {
+                                let msg = "Non-datetime parameter when storing a TIMESTAMP[]";
+                                let kind = ErrorKind::conversion(msg);
+
+                                Err(Error::builder(kind).build())?
+                            }
+                        }
+                    }
+
+                    self.bind(vals)
+                }
+                None => self.bind(Option::<Vec<chrono::NaiveDateTime>>::None),
+            },
+
+            #[cfg(all(feature = "array", feature = "chrono-0_4"))]
+            (Value::Array(ary_opt), Some("DATE[]")) => match ary_opt {
+                Some(ary) => {
+                    let mut vals = Vec::with_capacity(ary.len());
+
+                    for val in ary.into_iter().map(|v| v.as_date()) {
+                        match val {
+                            Some(val) => {
+                                vals.push(val);
+                            }
+                            None => {
+                                let msg = "Non-date parameter when storing a DATE[]";
+                                let kind = ErrorKind::conversion(msg);
+
+                                Err(Error::builder(kind).build())?
+                            }
+                        }
+                    }
+
+                    self.bind(vals)
+                }
+                None => self.bind(Option::<Vec<chrono::NaiveDate>>::None),
+            },
+
+            #[cfg(all(feature = "array", feature = "chrono-0_4"))]
+            (Value::Array(ary_opt), Some("TIME[]")) => match ary_opt {
+                Some(ary) => {
+                    let mut vals = Vec::with_capacity(ary.len());
+
+                    for val in ary.into_iter().map(|v| v.as_time()) {
+                        match val {
+                            Some(val) => {
+                                vals.push(val);
+                            }
+                            None => {
+                                let msg = "Non-time parameter when storing a TIME[]";
+                                let kind = ErrorKind::conversion(msg);
+
+                                Err(Error::builder(kind).build())?
+                            }
+                        }
+                    }
+
+                    self.bind(vals)
+                }
+                None => self.bind(Option::<Vec<chrono::NaiveTime>>::None),
+            },
+
+            #[cfg(all(feature = "array", feature = "chrono-0_4"))]
+            (Value::Array(ary_opt), Some("TIMETZ[]")) => match ary_opt {
+                Some(ary) => {
+                    let mut vals = Vec::with_capacity(ary.len());
+
+                    for val in ary.into_iter().map(|v| v.as_datetime()) {
+                        match val {
+                            Some(val) => {
+                                let timetz = PgTimeTz {
+                                    time: val.time(),
+                                    offset: chrono::FixedOffset::east(0),
+                                };
+
+                                vals.push(timetz);
+                            }
+                            None => {
+                                let msg = "Non-time parameter when storing a TIMETZ[]";
+                                let kind = ErrorKind::conversion(msg);
+
+                                Err(Error::builder(kind).build())?
+                            }
+                        }
+                    }
+
+                    self.bind(vals)
+                }
+                None => self.bind(Option::<Vec<PgTimeTz>>::None),
+            },
+
+            #[cfg(all(feature = "array", feature = "json-1"))]
+            (Value::Array(ary_opt), t) if t == Some("JSON[]") || t == Some("JSONB[]") => match ary_opt {
+                Some(ary) if ary.first().map(|val| val.is_json()).unwrap_or(false) => {
+                    let mut vals = Vec::with_capacity(ary.len());
+
+                    for val in ary.into_iter().map(|v| v.into_json()) {
+                        match val {
+                            Some(val) => {
+                                vals.push(Json(val));
+                            }
+                            None => {
+                                let msg = "Non-json parameter when storing a JSON[]";
+                                let kind = ErrorKind::conversion(msg);
+
+                                Err(Error::builder(kind).build())?
+                            }
+                        }
+                    }
+
+                    self.bind(vals)
+                }
+                Some(ary) => {
+                    let mut vals = Vec::with_capacity(ary.len());
+
+                    for val in ary.into_iter().map(|v| v.into_string()) {
+                        match val {
+                            Some(val) => {
+                                let json = serde_json::from_str(val.as_str()).map_err(|_| {
+                                    let msg = "Non-json parameter when storing a JSON[]";
+                                    let kind = ErrorKind::conversion(msg);
+
+                                    Error::builder(kind).build()
+                                })?;
+                                vals.push(Json(json));
+                            }
+                            None => {
+                                let msg = "Non-json parameter when storing a JSON[]";
+                                let kind = ErrorKind::conversion(msg);
+
+                                Err(Error::builder(kind).build())?
+                            }
+                        }
+                    }
+
+                    self.bind(vals)
+                }
+                None => self.bind(Option::<Vec<Json<serde_json::Value>>>::None),
+            },
+
+            #[cfg(feature = "array")]
+            (Value::Array(ary_opt), Some("\"CHAR\"[]")) => match ary_opt {
+                Some(ary) => {
+                    let mut vals = Vec::with_capacity(ary.len());
+
+                    for val in ary.into_iter().map(|v| v.as_char()) {
+                        match val {
+                            Some(val) => {
+                                vals.push(val as i8);
+                            }
+                            None => {
+                                let msg = "Non-char parameter when storing a CHAR[]";
+                                let kind = ErrorKind::conversion(msg);
+
+                                Err(Error::builder(kind).build())?
+                            }
+                        }
+                    }
+
+                    self.bind(vals)
+                }
+                None => self.bind(Option::<Vec<i8>>::None),
+            },
+
+            #[cfg(any(feature = "array", feature = "uuid-0_8"))]
+            (Value::Array(ary_opt), Some("UUID[]")) => match ary_opt {
+                Some(ary) if ary.first().map(|v| v.is_uuid()).unwrap_or(false) => {
+                    let mut vals = Vec::with_capacity(ary.len());
+
+                    for val in ary.into_iter().map(|v| v.as_uuid()) {
+                        match val {
+                            Some(val) => {
+                                vals.push(val);
+                            }
+                            None => {
+                                let msg = "Non-uuid parameter when storing a UUID[]";
+                                let kind = ErrorKind::conversion(msg);
+
+                                Err(Error::builder(kind).build())?
+                            }
+                        }
+                    }
+
+                    self.bind(vals)
+                }
+                Some(ary) => {
+                    let mut vals = Vec::with_capacity(ary.len());
+
+                    for val in ary.into_iter().map(|v| v.into_string()) {
+                        match val {
+                            Some(val) => {
+                                let id: uuid::Uuid = val.parse().map_err(|_| {
+                                    let kind = ErrorKind::conversion(format!(
+                                        "The given string '{}' could not be converted to UUID.",
+                                        val
+                                    ));
+                                    Error::builder(kind).build()
+                                })?;
+                                vals.push(id);
+                            }
+                            None => {
+                                let msg = "Non-uuid parameter when storing a UUID[]";
+                                let kind = ErrorKind::conversion(msg);
+
+                                Err(Error::builder(kind).build())?
+                            }
+                        }
+                    }
+
+                    self.bind(vals)
+                }
+                None => self.bind(Option::<Vec<uuid::Uuid>>::None),
+            },
+
+            #[cfg(feature = "array")]
+            (Value::Array(ary_opt), t)
+                if t == Some("TEXT[]") || t == Some("VARCHAR[]") || t == Some("NAME[]") || t == Some("CHAR[]") =>
+            {
+                match ary_opt {
+                    Some(ary) => {
+                        let mut vals = Vec::with_capacity(ary.len());
+
+                        for val in ary.into_iter().map(|v| v.into_string()) {
+                            match val {
+                                Some(val) => {
+                                    vals.push(val);
+                                }
+                                None => {
+                                    let msg = "Non-string parameter when storing a string array";
+                                    let kind = ErrorKind::conversion(msg);
+
+                                    Err(Error::builder(kind).build())?
+                                }
+                            }
+                        }
+
+                        self.bind(vals)
+                    }
+                    None => self.bind(Option::<Vec<String>>::None),
+                }
+            }
+
+            #[cfg(feature = "array")]
+            (Value::Array(ary_opt), t) if t == Some("BYTEA[]") => match ary_opt {
+                Some(ary) => {
+                    let mut vals = Vec::with_capacity(ary.len());
+
+                    for val in ary.into_iter().map(|v| v.into_bytes()) {
+                        match val {
+                            Some(val) => {
+                                vals.push(val);
+                            }
+                            None => {
+                                let msg = "Non-bytes parameter when storing a bytea array";
+                                let kind = ErrorKind::conversion(msg);
+
+                                Err(Error::builder(kind).build())?
+                            }
+                        }
+                    }
+
+                    self.bind(vals)
+                }
+                None => self.bind(Option::<Vec<String>>::None),
+            },
+
+            #[cfg(all(feature = "array", feature = "ipnetwork"))]
+            (Value::Array(ary_opt), t) if t == Some("INET[]") || t == Some("CIDR[]") => match ary_opt {
+                Some(ary) => {
+                    let mut ips = Vec::with_capacity(ary.len());
+
+                    for val in ary.into_iter() {
+                        match val.into_string() {
+                            Some(s) => {
+                                let ip: sqlx::types::ipnetwork::IpNetwork = s.parse().map_err(|_| {
+                                    let msg = format!("Provided IP address ({}) not in the right format.", s);
+                                    let kind = ErrorKind::conversion(msg);
+
+                                    Error::builder(kind).build()
+                                })?;
+
+                                ips.push(ip);
+                            }
+                            None => {
+                                let msg = "Non-string parameter when storing an IP array";
+                                let kind = ErrorKind::conversion(msg);
+
+                                Err(Error::builder(kind).build())?
+                            }
+                        }
+                    }
+
+                    self.bind(ips)
+                }
+                None => self.bind(Option::<Vec<sqlx::types::ipnetwork::IpNetwork>>::None),
+            },
+
+            #[cfg(feature = "array")]
+            (Value::Array(ary_opt), t) => match t {
+                _ if type_info
+                    .map(|ti| matches!(ti.kind(), PgTypeKind::Array(ti) if matches!(ti.kind(), PgTypeKind::Enum(_))))
+                    .unwrap_or(false) =>
+                {
+                    match ary_opt {
+                        Some(ary) => {
+                            let mut vals = Vec::with_capacity(ary.len());
+
+                            for val in ary.into_iter().map(|v| v.into_string()) {
+                                match val {
+                                    Some(val) => {
+                                        vals.push(val);
+                                    }
+                                    None => {
+                                        let msg = "Non-string parameter when storing a string array";
+                                        let kind = ErrorKind::conversion(msg);
+
+                                        Err(Error::builder(kind).build())?
+                                    }
+                                }
+                            }
+
+                            self.bind(vals)
+                        }
+                        None => self.bind(Option::<Vec<String>>::None),
                     }
                 }
-                #[cfg(feature = "array")]
-                PostgresType::MONEY_ARRAY => match row.try_get(i)? {
-                    Some(val) => {
-                        let val: Vec<NaiveMoney> = val;
-                        let nums = val.into_iter().map(|x| Value::real(x.0));
-                        Value::array(nums)
-                    }
-                    None => Value::Array(None),
-                },
-                #[cfg(feature = "array")]
-                PostgresType::OID_ARRAY => match row.try_get(i)? {
-                    Some(val) => {
-                        let val: Vec<u32> = val;
-                        let nums = val.into_iter().map(|x| Value::integer(x as i64));
-                        Value::array(nums)
-                    }
-                    None => Value::Array(None),
-                },
-                #[cfg(feature = "array")]
-                PostgresType::TIMESTAMPTZ_ARRAY => match row.try_get(i)? {
-                    Some(val) => {
-                        let val: Vec<DateTime<Utc>> = val;
-                        let dates = val.into_iter().map(Value::datetime);
-                        Value::array(dates)
-                    }
-                    None => Value::Array(None),
-                },
-                #[cfg(feature = "array")]
-                PostgresType::DATE_ARRAY => match row.try_get(i)? {
-                    Some(val) => {
-                        let val: Vec<chrono::NaiveDate> = val;
-                        Value::array(val.into_iter().map(Value::date))
-                    }
-                    None => Value::Array(None),
-                },
-                #[cfg(feature = "array")]
-                PostgresType::TIME_ARRAY => match row.try_get(i)? {
-                    Some(val) => {
-                        let val: Vec<chrono::NaiveTime> = val;
-                        Value::array(val.into_iter().map(Value::time))
-                    }
-                    None => Value::Array(None),
-                },
-                #[cfg(feature = "array")]
-                PostgresType::TIMETZ_ARRAY => match row.try_get(i)? {
-                    Some(val) => {
-                        let val: Vec<TimeTz> = val;
+                Some(t) => {
+                    let msg = format!("Postgres type {} not supported yet", t);
+                    let kind = ErrorKind::conversion(msg);
 
-                        let dates = val.into_iter().map(|time| Value::time(time.0));
+                    Err(Error::builder(kind).build())?
+                }
+                None => {
+                    let kind = ErrorKind::conversion("Untyped Postgres arrays are not supported");
+                    Err(Error::builder(kind).build())?
+                }
+            },
 
-                        Value::array(dates)
-                    }
-                    None => Value::Array(None),
-                },
-                #[cfg(feature = "array")]
-                PostgresType::JSON_ARRAY => match row.try_get(i)? {
-                    Some(val) => {
-                        let val: Vec<serde_json::Value> = val;
-                        let jsons = val.into_iter().map(Value::json);
-                        Value::array(jsons)
-                    }
-                    None => Value::Array(None),
-                },
-                #[cfg(feature = "array")]
-                PostgresType::JSONB_ARRAY => match row.try_get(i)? {
-                    Some(val) => {
-                        let val: Vec<serde_json::Value> = val;
-                        let jsons = val.into_iter().map(Value::json);
-                        Value::array(jsons)
-                    }
-                    None => Value::Array(None),
-                },
-                PostgresType::OID => match row.try_get(i)? {
-                    Some(val) => {
-                        let val: u32 = val;
-                        Value::integer(val)
-                    }
-                    None => Value::Integer(None),
-                },
-                PostgresType::CHAR => match row.try_get(i)? {
-                    Some(val) => {
-                        let val: i8 = val;
-                        Value::character((val as u8) as char)
-                    }
-                    None => Value::Char(None),
-                },
-                PostgresType::INET | PostgresType::CIDR => match row.try_get(i)? {
-                    Some(val) => {
-                        let val: std::net::IpAddr = val;
-                        Value::text(val.to_string())
-                    }
-                    None => Value::Text(None),
-                },
-                #[cfg(feature = "array")]
-                PostgresType::INET_ARRAY | PostgresType::CIDR_ARRAY => match row.try_get(i)? {
-                    Some(val) => {
-                        let val: Vec<std::net::IpAddr> = val;
-                        let addrs = val.into_iter().map(|v| Value::text(v.to_string()));
-                        Value::array(addrs)
-                    }
-                    None => Value::Array(None),
-                },
-                PostgresType::BIT | PostgresType::VARBIT => match row.try_get(i)? {
-                    Some(val) => {
-                        let val: BitVec = val;
-                        Value::text(bits_to_string(&val)?)
-                    }
-                    None => Value::Text(None),
-                },
-                #[cfg(feature = "array")]
-                PostgresType::BIT_ARRAY | PostgresType::VARBIT_ARRAY => match row.try_get(i)? {
-                    Some(val) => {
-                        let val: Vec<BitVec> = val;
-
-                        let stringified = val
-                            .into_iter()
-                            .map(|bits| bits_to_string(&bits).map(Value::text))
-                            .collect::<crate::Result<Vec<_>>>()?;
-
-                        Value::array(stringified)
-                    }
-                    None => Value::Array(None),
-                },
-                ref x => match x.kind() {
-                    Kind::Enum(_) => match row.try_get(i)? {
-                        Some(val) => {
-                            let val: EnumString = val;
-                            Value::enum_variant(val.value)
-                        }
-                        None => Value::Enum(None),
-                    },
-                    #[cfg(feature = "array")]
-                    Kind::Array(inner) => match inner.kind() {
-                        Kind::Enum(_) => match row.try_get(i)? {
-                            Some(val) => {
-                                let val: Vec<EnumString> = val;
-                                let variants = val.into_iter().map(|x| Value::enum_variant(x.value));
-                                Value::array(variants)
-                            }
-                            None => Value::Array(None),
-                        },
-                        _ => match row.try_get(i)? {
-                            Some(val) => {
-                                let val: Vec<String> = val;
-                                let strings = val.into_iter().map(Value::text);
-                                Value::array(strings)
-                            }
-                            None => Value::Array(None),
-                        },
-                    },
-                    _ => match row.try_get(i)? {
-                        Some(val) => {
-                            let val: String = val;
-                            Value::text(val)
-                        }
-                        None => Value::Text(None),
-                    },
-                },
-            };
-
-            Ok(result)
-        }
-
-        let num_columns = self.columns().len();
-        let mut row = Vec::with_capacity(num_columns);
-
-        for i in 0..num_columns {
-            row.push(convert(self, i)?);
-        }
-
-        Ok(row)
-    }
-}
-
-impl ToColumnNames for PostgresStatement {
-    fn to_column_names(&self) -> Vec<String> {
-        self.columns().into_iter().map(|c| c.name().into()).collect()
-    }
-}
-
-impl<'a> ToSql for Value<'a> {
-    fn to_sql(
-        &self,
-        ty: &PostgresType,
-        out: &mut BytesMut,
-    ) -> Result<IsNull, Box<dyn StdError + 'static + Send + Sync>> {
-        let res = match (self, ty) {
-            (Value::Integer(integer), &PostgresType::INT2) => integer.map(|integer| (integer as i16).to_sql(ty, out)),
-            (Value::Integer(integer), &PostgresType::INT4) => integer.map(|integer| (integer as i32).to_sql(ty, out)),
-            (Value::Integer(integer), &PostgresType::TEXT) => {
-                integer.map(|integer| format!("{}", integer).to_sql(ty, out))
-            }
-            (Value::Integer(integer), &PostgresType::OID) => integer.map(|integer| (integer as u32).to_sql(ty, out)),
-            (Value::Integer(integer), _) => integer.map(|integer| (integer as i64).to_sql(ty, out)),
-            (Value::Real(decimal), &PostgresType::FLOAT4) => decimal.map(|decimal| {
-                let f = decimal.to_f32().expect("decimal to f32 conversion");
-                f.to_sql(ty, out)
-            }),
-            (Value::Real(decimal), &PostgresType::FLOAT8) => decimal.map(|decimal| {
-                let f = decimal.to_f64().expect("decimal to f64 conversion");
-                f.to_sql(ty, out)
-            }),
-            (Value::Array(decimals), &PostgresType::FLOAT4_ARRAY) => decimals.as_ref().map(|decimals| {
-                let f: Vec<f32> = decimals
-                    .into_iter()
-                    .filter_map(|v| v.as_decimal().and_then(|decimal| decimal.to_f32()))
-                    .collect();
-                f.to_sql(ty, out)
-            }),
-            (Value::Array(decimals), &PostgresType::FLOAT8_ARRAY) => decimals.as_ref().map(|decimals| {
-                let f: Vec<f64> = decimals
-                    .into_iter()
-                    .filter_map(|v| v.as_decimal().and_then(|decimal| decimal.to_f64()))
-                    .collect();
-                f.to_sql(ty, out)
-            }),
-            (Value::Real(decimal), &PostgresType::MONEY) => decimal.map(|decimal| {
-                let mut i64_bytes: [u8; 8] = [0; 8];
-                let decimal = (decimal * Decimal::new(100, 0)).round();
-                i64_bytes.copy_from_slice(&decimal.serialize()[4..12]);
-                let i = i64::from_le_bytes(i64_bytes);
-                i.to_sql(ty, out)
-            }),
-            (Value::Real(decimal), &PostgresType::NUMERIC) => decimal.map(|decimal| decimal.to_sql(ty, out)),
-            (Value::Real(float), _) => float.map(|float| float.to_sql(ty, out)),
-            #[cfg(feature = "uuid-0_8")]
-            (Value::Text(string), &PostgresType::UUID) => string.as_ref().map(|string| {
-                let parsed_uuid: Uuid = string.parse()?;
-                parsed_uuid.to_sql(ty, out)
-            }),
-            #[cfg(feature = "uuid-0_8")]
-            (Value::Array(values), &PostgresType::UUID_ARRAY) => values.as_ref().map(|values| {
-                let parsed_uuid: Vec<Uuid> = values
-                    .into_iter()
-                    .filter_map(|v| v.to_string().and_then(|v| v.parse().ok()))
-                    .collect();
-                parsed_uuid.to_sql(ty, out)
-            }),
-            (Value::Text(string), &PostgresType::INET) | (Value::Text(string), &PostgresType::CIDR) => {
-                string.as_ref().map(|string| {
-                    let parsed_ip_addr: std::net::IpAddr = string.parse()?;
-                    parsed_ip_addr.to_sql(ty, out)
-                })
-            }
-            (Value::Array(values), &PostgresType::INET_ARRAY) | (Value::Array(values), &PostgresType::CIDR_ARRAY) => {
-                values.as_ref().map(|values| {
-                    let parsed_ip_addr: Vec<std::net::IpAddr> = values
-                        .into_iter()
-                        .filter_map(|v| v.to_string().and_then(|s| s.parse().ok()))
-                        .collect();
-                    parsed_ip_addr.to_sql(ty, out)
-                })
-            }
-            (Value::Text(string), &PostgresType::JSON) | (Value::Text(string), &PostgresType::JSONB) => string
-                .as_ref()
-                .map(|string| serde_json::from_str::<serde_json::Value>(&string)?.to_sql(ty, out)),
-            (Value::Text(string), &PostgresType::BIT) | (Value::Text(string), &PostgresType::VARBIT) => {
-                string.as_ref().map(|string| {
-                    let bits: BitVec = string_to_bits(string)?;
-
-                    bits.to_sql(ty, out)
-                })
-            }
-            (Value::Text(string), _) => string.as_ref().map(|ref string| string.to_sql(ty, out)),
-            (Value::Array(values), &PostgresType::BIT_ARRAY) | (Value::Array(values), &PostgresType::VARBIT_ARRAY) => {
-                values.as_ref().map(|values| {
-                    let bitvecs: Vec<BitVec> = values
-                        .into_iter()
-                        .filter_map(|val| val.as_str().map(|s| string_to_bits(s)))
-                        .collect::<crate::Result<Vec<_>>>()?;
-
-                    bitvecs.to_sql(ty, out)
-                })
-            }
-            (Value::Bytes(bytes), _) => bytes.as_ref().map(|bytes| bytes.as_ref().to_sql(ty, out)),
-            (Value::Enum(string), _) => string.as_ref().map(|string| {
-                out.extend_from_slice(string.as_bytes());
-                Ok(IsNull::No)
-            }),
-            (Value::Boolean(boo), _) => boo.map(|boo| boo.to_sql(ty, out)),
-            (Value::Char(c), _) => c.map(|c| (c as i8).to_sql(ty, out)),
-            #[cfg(feature = "array")]
-            (Value::Array(vec), _) => vec.as_ref().map(|vec| vec.to_sql(ty, out)),
             #[cfg(feature = "json-1")]
-            (Value::Json(value), _) => value.as_ref().map(|value| value.to_sql(ty, out)),
+            (Value::Json(json), _) => self.bind(json.map(Json)),
+
             #[cfg(feature = "uuid-0_8")]
-            (Value::Uuid(value), _) => value.map(|value| value.to_sql(ty, out)),
+            (Value::Uuid(uuid), _) => self.bind(uuid),
+
             #[cfg(feature = "chrono-0_4")]
-            (Value::DateTime(value), &PostgresType::DATE) => {
-                value.map(|value| value.date().naive_utc().to_sql(ty, out))
+            (Value::DateTime(dt), Some("TIMETZ")) => {
+                let time_tz = dt.map(|dt| PgTimeTz {
+                    time: dt.time(),
+                    offset: chrono::FixedOffset::east(0),
+                });
+
+                self.bind(time_tz)
             }
+
             #[cfg(feature = "chrono-0_4")]
-            (Value::Date(value), _) => value.map(|value| value.to_sql(ty, out)),
+            (Value::DateTime(dt), Some("TIME")) => self.bind(dt.map(|dt| dt.time())),
+
             #[cfg(feature = "chrono-0_4")]
-            (Value::Time(value), _) => value.map(|value| value.to_sql(ty, out)),
+            (Value::DateTime(dt), Some("DATE")) => self.bind(dt.map(|dt| dt.date().naive_utc())),
+
             #[cfg(feature = "chrono-0_4")]
-            (Value::DateTime(value), &PostgresType::TIME) => value.map(|value| value.time().to_sql(ty, out)),
+            (Value::DateTime(dt), _) => self.bind(dt),
+
             #[cfg(feature = "chrono-0_4")]
-            (Value::DateTime(value), &PostgresType::TIMETZ) => value.map(|value| {
-                let result = value.time().to_sql(ty, out)?;
-                // We assume UTC. see https://www.postgresql.org/docs/9.5/datatype-datetime.html
-                out.extend_from_slice(&[0; 4]);
-                Ok(result)
-            }),
+            (Value::Date(date), _) => self.bind(date),
+
             #[cfg(feature = "chrono-0_4")]
-            (Value::DateTime(value), _) => value.map(|value| value.naive_utc().to_sql(ty, out)),
+            (Value::Time(time), _) => self.bind(time),
         };
 
-        match res {
-            Some(res) => res,
-            None => Ok(IsNull::Yes),
+        Ok(query)
+    }
+}
+
+pub fn map_row<'a>(row: PgRow) -> Result<Vec<Value<'a>>, sqlx::Error> {
+    let mut result = Vec::with_capacity(row.len());
+
+    for i in 0..row.len() {
+        let type_info = row.columns()[i].type_info();
+
+        let value = match type_info.name() {
+            // Singular types from here down, arrays after these.
+            "\"CHAR\"" => {
+                let int_opt: Option<i8> = row.get_unchecked(i);
+                Value::Char(int_opt.map(|i| (i as u8) as char))
+            }
+
+            "INT2" => {
+                let int_opt: Option<i16> = row.get_unchecked(i);
+                Value::Integer(int_opt.map(|i| i as i64))
+            }
+
+            "INT4" => {
+                let int_opt: Option<i32> = row.get_unchecked(i);
+                Value::Integer(int_opt.map(|i| i as i64))
+            }
+
+            "INT8" => Value::Integer(row.get_unchecked(i)),
+
+            "OID" => {
+                let int_opt: Option<u32> = row.get_unchecked(i);
+                Value::Integer(int_opt.map(|i| i as i64))
+            }
+
+            "MONEY" => {
+                let money_opt: Option<PgMoney> = row.get_unchecked(i);
+
+                // We assume the default setting of 2 decimals.
+                let decimal_opt = money_opt.map(|money| money.to_decimal(2));
+
+                Value::Real(decimal_opt)
+            }
+
+            "NUMERIC" => Value::Real(row.get_unchecked(i)),
+
+            "FLOAT4" => {
+                let f_opt: Option<f32> = row.get_unchecked(i);
+                Value::Real(f_opt.map(|f| Decimal::from_f32(f).unwrap()))
+            }
+
+            "FLOAT8" => {
+                let f_opt: Option<f64> = row.get_unchecked(i);
+                Value::Real(f_opt.map(|f| Decimal::from_f64(f).unwrap()))
+            }
+
+            "TEXT" | "VARCHAR" | "NAME" | "CHAR" => {
+                let string_opt: Option<String> = row.get_unchecked(i);
+                Value::Text(string_opt.map(Cow::from))
+            }
+
+            "BYTEA" => {
+                let bytes_opt: Option<Vec<u8>> = row.get_unchecked(i);
+                Value::Bytes(bytes_opt.map(Cow::from))
+            }
+
+            "BOOL" => Value::Boolean(row.get_unchecked(i)),
+
+            "INET" | "CIDR" => {
+                let ip_opt: Option<sqlx::types::ipnetwork::IpNetwork> = row.get_unchecked(i);
+                Value::Text(ip_opt.map(|ip| format!("{}", ip)).map(Cow::from))
+            }
+
+            #[cfg(feature = "uuid-0_8")]
+            "UUID" => Value::Uuid(row.get_unchecked(i)),
+
+            #[cfg(feature = "chrono-0_4")]
+            "TIMESTAMPTZ" => Value::DateTime(row.get_unchecked(i)),
+
+            #[cfg(feature = "chrono-0_4")]
+            "DATE" => Value::Date(row.get_unchecked(i)),
+
+            #[cfg(feature = "chrono-0_4")]
+            "TIME" => Value::Time(row.get_unchecked(i)),
+
+            #[cfg(all(feature = "chrono-0_4", feature = "array"))]
+            "TIMESTAMP" => {
+                let naive: Option<chrono::NaiveDateTime> = row.get_unchecked(i);
+                let dt = naive.map(|d| chrono::DateTime::<chrono::Utc>::from_utc(d, chrono::Utc));
+                Value::DateTime(dt)
+            }
+
+            #[cfg(feature = "chrono-0_4")]
+            "TIMETZ" => {
+                let timetz_opt: Option<PgTimeTz> = row.get_unchecked(i);
+
+                let dt_opt = timetz_opt.map(|time_tz| {
+                    let dt = chrono::NaiveDate::from_ymd(1970, 1, 1).and_time(time_tz.time);
+                    let dt = chrono::DateTime::<chrono::Utc>::from_utc(dt, chrono::Utc);
+                    let dt = dt.with_timezone(&time_tz.offset);
+
+                    chrono::DateTime::from_utc(dt.naive_utc(), chrono::Utc)
+                });
+
+                Value::DateTime(dt_opt)
+            }
+
+            #[cfg(feature = "json-1")]
+            "JSON" | "JSONB" => Value::Json(row.get_unchecked(i)),
+
+            #[cfg(feature = "bit-vec")]
+            "BIT" | "VARBIT" => {
+                let bit_opt: Option<bit_vec::BitVec> = row.get_unchecked(i);
+                Value::Text(bit_opt.map(bits_to_string).map(Cow::from))
+            }
+
+            // arrays from here on
+            #[cfg(feature = "array")]
+            "\"CHAR\"[]" => {
+                let ary_opt: Option<Vec<i8>> = row.get_unchecked(i);
+
+                let chars = ary_opt.map(|ary| {
+                    ary.into_iter()
+                        .map(|i| (i as u8) as char)
+                        .map(Value::character)
+                        .collect()
+                });
+
+                Value::Array(chars)
+            }
+
+            #[cfg(feature = "array")]
+            "INT2[]" => {
+                let ary_opt: Option<Vec<i16>> = row.get_unchecked(i);
+                Value::Array(ary_opt.map(|ary| ary.into_iter().map(Value::integer).collect()))
+            }
+
+            #[cfg(feature = "array")]
+            "INT4[]" => {
+                let ary_opt: Option<Vec<i32>> = row.get_unchecked(i);
+                Value::Array(ary_opt.map(|ary| ary.into_iter().map(Value::integer).collect()))
+            }
+
+            #[cfg(feature = "array")]
+            "INT8[]" => {
+                let ary_opt: Option<Vec<i64>> = row.get_unchecked(i);
+                Value::Array(ary_opt.map(|ary| ary.into_iter().map(Value::integer).collect()))
+            }
+
+            #[cfg(feature = "array")]
+            "OID[]" => {
+                let ary_opt: Option<Vec<u32>> = row.get_unchecked(i);
+                Value::Array(ary_opt.map(|ary| ary.into_iter().map(Value::integer).collect()))
+            }
+
+            #[cfg(feature = "array")]
+            "MONEY[]" => {
+                let ary_opt: Option<Vec<PgMoney>> = row.get_unchecked(i);
+
+                // We assume the default setting of 2 decimals.
+                let decs = ary_opt.map(|ary| {
+                    ary.into_iter()
+                        .map(|money| money.to_decimal(2))
+                        .map(Value::real)
+                        .collect()
+                });
+
+                Value::Array(decs)
+            }
+
+            #[cfg(feature = "array")]
+            "NUMERIC[]" => {
+                let ary_opt: Option<Vec<Decimal>> = row.get_unchecked(i);
+                let decs = ary_opt.map(|ary| ary.into_iter().map(Value::real).collect());
+
+                Value::Array(decs)
+            }
+
+            #[cfg(feature = "array")]
+            "FLOAT4[]" => {
+                let ary_opt: Option<Vec<f32>> = row.get_unchecked(i);
+
+                let decs = ary_opt.map(|ary| {
+                    ary.into_iter()
+                        .map(|f| Decimal::from_f32(f).unwrap())
+                        .map(Value::real)
+                        .collect()
+                });
+
+                Value::Array(decs)
+            }
+
+            #[cfg(feature = "array")]
+            "FLOAT8[]" => {
+                let ary_opt: Option<Vec<f64>> = row.get_unchecked(i);
+
+                let decs = ary_opt.map(|ary| {
+                    ary.into_iter()
+                        .map(|f| Decimal::from_f64(f).unwrap())
+                        .map(Value::real)
+                        .collect()
+                });
+
+                Value::Array(decs)
+            }
+
+            #[cfg(feature = "array")]
+            "TEXT[]" | "VARCHAR[]" | "NAME[]" | "CHAR[]" => {
+                let ary_opt: Option<Vec<String>> = row.get_unchecked(i);
+                Value::Array(ary_opt.map(|ary| ary.into_iter().map(Value::text).collect()))
+            }
+
+            #[cfg(feature = "array")]
+            "BOOL[]" => {
+                let ary_opt: Option<Vec<bool>> = row.get_unchecked(i);
+                Value::Array(ary_opt.map(|ary| ary.into_iter().map(Value::boolean).collect()))
+            }
+
+            #[cfg(feature = "array")]
+            "CIDR[]" | "INET[]" => {
+                let ary_opt: Option<Vec<sqlx::types::ipnetwork::IpNetwork>> = row.get_unchecked(i);
+                let strs = ary_opt.map(|ary| ary.into_iter().map(|ip| Value::text(format!("{}", ip))).collect());
+
+                Value::Array(strs)
+            }
+
+            #[cfg(feature = "array")]
+            "BYTEA[]" => {
+                let ary_opt: Option<Vec<Vec<u8>>> = row.get_unchecked(i);
+                let bytes = ary_opt.map(|ary| ary.into_iter().map(Value::bytes).collect());
+
+                Value::Array(bytes)
+            }
+
+            #[cfg(all(feature = "chrono-0_4", feature = "array"))]
+            "TIMESTAMPTZ[]" => {
+                let ary_opt: Option<Vec<chrono::DateTime<chrono::Utc>>> = row.get_unchecked(i);
+                Value::Array(ary_opt.map(|ary| ary.into_iter().map(Value::datetime).collect()))
+            }
+
+            #[cfg(all(feature = "chrono-0_4", feature = "array"))]
+            "DATE[]" => {
+                let ary_opt: Option<Vec<chrono::NaiveDate>> = row.get_unchecked(i);
+                Value::Array(ary_opt.map(|ary| ary.into_iter().map(Value::date).collect()))
+            }
+
+            #[cfg(all(feature = "chrono-0_4", feature = "array"))]
+            "TIMESTAMP[]" => {
+                let ary_opt: Option<Vec<chrono::NaiveDateTime>> = row.get_unchecked(i);
+
+                Value::Array(ary_opt.map(|ary| {
+                    ary.into_iter()
+                        .map(|d| chrono::DateTime::<chrono::Utc>::from_utc(d, chrono::Utc))
+                        .map(Value::datetime)
+                        .collect()
+                }))
+            }
+
+            #[cfg(all(feature = "chrono-0_4", feature = "array"))]
+            "TIME[]" => {
+                let ary_opt: Option<Vec<chrono::NaiveTime>> = row.get_unchecked(i);
+                Value::Array(ary_opt.map(|ary| ary.into_iter().map(Value::time).collect()))
+            }
+
+            #[cfg(all(feature = "chrono-0_4", feature = "array"))]
+            "TIMETZ[]" => {
+                let ary_opt: Option<Vec<PgTimeTz>> = row.get_unchecked(i);
+
+                let dts = ary_opt.map(|ary| {
+                    ary.into_iter()
+                        .map(|time_tz| {
+                            let dt = chrono::NaiveDate::from_ymd(1970, 1, 1).and_time(time_tz.time);
+                            let dt = chrono::DateTime::<chrono::Utc>::from_utc(dt, chrono::Utc);
+                            let dt = dt.with_timezone(&time_tz.offset);
+
+                            chrono::DateTime::from_utc(dt.naive_utc(), chrono::Utc)
+                        })
+                        .map(Value::datetime)
+                        .collect()
+                });
+
+                Value::Array(dts)
+            }
+
+            #[cfg(all(feature = "json-1", feature = "array"))]
+            "JSON[]" | "JSONB[]" => {
+                let ary_opt: Option<Vec<Json<serde_json::Value>>> = row.get_unchecked(i);
+                let jsons = ary_opt.map(|ary| ary.into_iter().map(|j| Value::json(j.0)).collect());
+
+                Value::Array(jsons)
+            }
+
+            #[cfg(all(feature = "bit-vec", feature = "array"))]
+            "BIT[]" | "VARBIT[]" => {
+                let ary_opt: Option<Vec<bit_vec::BitVec>> = row.get_unchecked(i);
+                let strs = ary_opt.map(|ary| ary.into_iter().map(bits_to_string).map(Value::text).collect());
+
+                Value::Array(strs)
+            }
+
+            #[cfg(all(feature = "uuid-0_8", feature = "array"))]
+            "UUID[]" => {
+                let ary_opt: Option<Vec<uuid::Uuid>> = row.get_unchecked(i);
+                let uuids = ary_opt.map(|ary| ary.into_iter().map(Value::uuid).collect());
+
+                Value::Array(uuids)
+            }
+
+            name => match type_info {
+                ti if matches!(ti.kind(), PgTypeKind::Enum(_)) => {
+                    let string_opt: Option<String> = row.get_unchecked(i);
+                    Value::Enum(string_opt.map(Cow::from))
+                }
+                ti if matches!(ti.kind(), PgTypeKind::Array(ti) if matches!(ti.kind(), PgTypeKind::Enum(_))) => {
+                    let ary_opt: Option<Vec<String>> = row.get_unchecked(i);
+                    Value::Array(ary_opt.map(|ary| ary.into_iter().map(Value::enum_variant).collect()))
+                }
+                _ => {
+                    let msg = format!("Type {} is not yet supported in the PostgreSQL connector.", name);
+                    let kind = ErrorKind::conversion(msg.clone());
+
+                    let mut builder = Error::builder(kind);
+                    builder.set_original_message(msg);
+
+                    let error = sqlx::Error::ColumnDecode {
+                        index: format!("{}", i),
+                        source: Box::new(builder.build()),
+                    };
+
+                    Err(error)?
+                }
+            },
+        };
+
+        result.push(value);
+    }
+
+    Ok(result)
+}
+
+#[cfg(feature = "bit-vec")]
+fn bits_to_string(bits: bit_vec::BitVec) -> String {
+    let mut s = String::with_capacity(bits.len());
+
+    for bit in bits {
+        if bit {
+            s.push('1');
+        } else {
+            s.push('0');
         }
     }
 
-    fn accepts(_: &PostgresType) -> bool {
-        true // Please check later should we make this to be more restricted
-    }
-
-    tokio_postgres::types::to_sql_checked!();
+    s
 }
 
-fn string_to_bits(s: &str) -> crate::Result<BitVec> {
-    use bit_vec::*;
-
-    let mut bits = BitVec::with_capacity(s.len());
+#[cfg(feature = "bit-vec")]
+fn string_to_bits(s: &str) -> crate::Result<bit_vec::BitVec> {
+    let mut bits = bit_vec::BitVec::with_capacity(s.len());
 
     for c in s.chars() {
         match c {
@@ -605,18 +1120,4 @@ fn string_to_bits(s: &str) -> crate::Result<BitVec> {
     }
 
     Ok(bits)
-}
-
-fn bits_to_string(bits: &BitVec) -> crate::Result<String> {
-    let mut s = String::with_capacity(bits.len());
-
-    for bit in bits {
-        if bit {
-            s.push('1');
-        } else {
-            s.push('0');
-        }
-    }
-
-    Ok(s)
 }

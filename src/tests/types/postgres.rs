@@ -228,14 +228,14 @@ test_type!(varbit_array(
     Value::array(vec![Value::text("001010101"), Value::text("01101111")])
 ));
 
-test_type!(inet(PostgreSql, "inet", Value::Text(None), Value::text("127.0.0.1")));
+test_type!(inet(PostgreSql, "inet", Value::Text(None), Value::text("127.0.0.1/32")));
 
 #[cfg(feature = "array")]
 test_type!(inet_array(
     PostgreSql,
     "inet[]",
     Value::Array(None),
-    Value::array(vec![Value::text("127.0.0.1"), Value::text("192.168.1.1")])
+    Value::array(vec![Value::text("127.0.0.1/32"), Value::text("192.168.1.1/32")])
 ));
 
 #[cfg(feature = "json-1")]
@@ -340,11 +340,10 @@ test_type!(timestamptz_array(PostgreSql, "timestamptz[]", Value::Array(None), {
     Value::array(vec![dt.with_timezone(&chrono::Utc)])
 }));
 
-/* Reserved for SQLx. All of these are broken in the current impl!
 #[cfg(feature = "chrono-0_4")]
 test_type!(timetz(PostgreSql, "timetz", {
     let dt = chrono::DateTime::parse_from_rfc3339("1970-01-01T19:10:22Z").unwrap();
-    Value::time(chrono::NaiveTime::from_hms(19, 10, 22))
+    Value::datetime(dt.with_timezone(&chrono::Utc))
 }));
 
 #[cfg(all(feature = "chrono-0_4", feature = "array"))]
@@ -382,5 +381,3 @@ test_type!(uuid_array(
         uuid::Uuid::from_str("936DA01F-9ABD-4D9D-80C7-02AF85C822A8").unwrap()
     ])
 ));
-
-*/

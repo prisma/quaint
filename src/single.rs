@@ -102,7 +102,7 @@ impl Quaint {
             #[cfg(feature = "sqlite")]
             s if s.starts_with("file") || s.starts_with("sqlite") => {
                 let params = connector::SqliteParams::try_from(s)?;
-                let mut sqlite = connector::Sqlite::new(&params.file_path)?;
+                let mut sqlite = connector::Sqlite::new(&params.file_path).await?;
 
                 sqlite.attach_database(&params.db_name).await?;
 
@@ -111,7 +111,7 @@ impl Quaint {
             #[cfg(feature = "mysql")]
             s if s.starts_with("mysql") => {
                 let url = connector::MysqlUrl::new(Url::parse(s)?)?;
-                let mysql = connector::Mysql::new(url)?;
+                let mysql = connector::Mysql::new(url).await?;
 
                 Arc::new(mysql) as Arc<dyn Queryable>
             }
@@ -132,6 +132,7 @@ impl Quaint {
         };
 
         let connection_info = Arc::new(ConnectionInfo::from_url(url_str)?);
+
         Self::log_start(&connection_info);
 
         Ok(Self { inner, connection_info })
@@ -167,11 +168,15 @@ impl Queryable for Quaint {
         self.inner.execute(q).await
     }
 
-    async fn query_raw(&self, sql: &str, params: &[ast::Value<'_>]) -> crate::Result<connector::ResultSet> {
+    async fn insert(&self, q: ast::Insert<'_>) -> crate::Result<connector::ResultSet> {
+        self.inner.insert(q).await
+    }
+
+    async fn query_raw(&self, sql: &str, params: Vec<ast::Value<'_>>) -> crate::Result<connector::ResultSet> {
         self.inner.query_raw(sql, params).await
     }
 
-    async fn execute_raw(&self, sql: &str, params: &[ast::Value<'_>]) -> crate::Result<u64> {
+    async fn execute_raw(&self, sql: &str, params: Vec<ast::Value<'_>>) -> crate::Result<u64> {
         self.inner.execute_raw(sql, params).await
     }
 

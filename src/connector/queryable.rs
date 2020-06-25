@@ -21,14 +21,14 @@ pub trait Queryable: Send + Sync {
     async fn query(&self, q: Query<'_>) -> crate::Result<ResultSet>;
 
     /// Execute a query given as SQL, interpolating the given parameters.
-    async fn query_raw(&self, sql: &str, params: &[Value<'_>]) -> crate::Result<ResultSet>;
+    async fn query_raw(&self, sql: &str, params: Vec<Value<'_>>) -> crate::Result<ResultSet>;
 
     /// Execute the given query, returning the number of affected rows.
     async fn execute(&self, q: Query<'_>) -> crate::Result<u64>;
 
     /// Execute a query given as SQL, interpolating the given parameters and
     /// returning the number of affected rows.
-    async fn execute_raw(&self, sql: &str, params: &[Value<'_>]) -> crate::Result<u64>;
+    async fn execute_raw(&self, sql: &str, params: Vec<Value<'_>>) -> crate::Result<u64>;
 
     /// Run a command in the database, for queries that can't be run using
     /// prepared statements.
@@ -40,13 +40,15 @@ pub trait Queryable: Send + Sync {
     /// parsing or normalization.
     async fn version(&self) -> crate::Result<Option<String>>;
 
+    /// Execute an `INSERT` query.
+    ///
+    /// A special case where `INSERT` could return data in PostgreSQL or SQL
+    /// Server should be handled with the `insert` method. For other databases
+    /// the `ResultSet` is empty but might contain the last insert id.
+    async fn insert(&self, q: Insert<'_>) -> crate::Result<ResultSet>;
+
     /// Execute a `SELECT` query.
     async fn select(&self, q: Select<'_>) -> crate::Result<ResultSet> {
-        self.query(q.into()).await
-    }
-
-    /// Execute an `INSERT` query.
-    async fn insert(&self, q: Insert<'_>) -> crate::Result<ResultSet> {
         self.query(q.into()).await
     }
 

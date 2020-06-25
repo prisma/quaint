@@ -1,4 +1,12 @@
+#![allow(dead_code)]
+
 //! Error module
+#[cfg(feature = "mysql")]
+use sqlx::mysql::MySqlDatabaseError;
+#[cfg(feature = "postgresql")]
+use sqlx::postgres::PgDatabaseError;
+#[cfg(feature = "sqlite")]
+use sqlx::sqlite::SqliteError;
 use std::{borrow::Cow, fmt, io, num};
 use thiserror::Error;
 
@@ -220,10 +228,22 @@ impl From<mobc::Error<Error>> for Error {
     }
 }
 
-#[cfg(any(feature = "postgresql", feature = "mysql"))]
+#[cfg(feature = "runtime-tokio")]
 impl From<tokio::time::Elapsed> for Error {
     fn from(_: tokio::time::Elapsed) -> Self {
-        let kind = ErrorKind::Timeout("tokio timeout".into());
+        let kind = ErrorKind::Timeout("Socket".into());
+
+        let mut builder = Error::builder(kind);
+        builder.set_original_message("Query timed out.");
+
+        builder.build()
+    }
+}
+
+#[cfg(feature = "runtime-async-std")]
+impl From<async_std::future::TimeoutError> for Error {
+    fn from(_: async_std::future::TimeoutError) -> Self {
+        let kind = ErrorKind::Timeout("Socket".into());
 
         let mut builder = Error::builder(kind);
         builder.set_original_message("Query timed out.");
@@ -248,5 +268,52 @@ impl From<io::Error> for Error {
 impl From<std::string::FromUtf8Error> for Error {
     fn from(_: std::string::FromUtf8Error) -> Error {
         Error::builder(ErrorKind::conversion("Couldn't convert data to UTF-8")).build()
+    }
+}
+
+#[cfg(any(feature = "mysql", feature = "postgresql", feature = "sqlite"))]
+impl From<sqlx::Error> for Error {
+    fn from(e: sqlx::Error) -> Self {
+        match e {
+            #[cfg(feature = "mysql")]
+            sqlx::Error::Database(e) if e.try_downcast_ref::<MySqlDatabaseError>().is_some() => {
+                let my_error = e.try_downcast::<MySqlDatabaseError>().unwrap();
+                Error::from(*my_error)
+            }
+
+            #[cfg(feature = "sqlite")]
+            sqlx::Error::Database(e) if e.try_downcast_ref::<SqliteError>().is_some() => {
+                let sqlite_error = e.try_downcast::<SqliteError>().unwrap();
+                Error::from(*sqlite_error)
+            }
+
+            #[cfg(feature = "postgresql")]
+            sqlx::Error::Database(e) if e.try_downcast_ref::<PgDatabaseError>().is_some() => {
+                let pg_error = e.try_downcast::<PgDatabaseError>().unwrap();
+                Error::from(*pg_error)
+            }
+
+            sqlx::Error::Io(io_error) => Error::builder(ErrorKind::ConnectionError(io_error.into())).build(),
+            sqlx::Error::Configuration(_) => Error::builder(ErrorKind::InvalidConnectionArguments).build(),
+            sqlx::Error::Tls(e) => Error::builder(ErrorKind::TlsError { message: e.to_string() }).build(),
+
+            sqlx::Error::Protocol(s) => {
+                let io_error = io::Error::new(io::ErrorKind::BrokenPipe, s);
+                Error::builder(ErrorKind::IoError(io_error)).build()
+            }
+
+            sqlx::Error::ColumnDecode { index, source } => {
+                let kind = ErrorKind::conversion(format!("Couldn't decode column with index {}: {}", index, source));
+
+                Error::builder(kind).build()
+            }
+
+            sqlx::Error::Decode(e) => {
+                let kind = ErrorKind::conversion(e.to_string());
+                Error::builder(kind).build()
+            }
+
+            e => Error::builder(ErrorKind::QueryError(e.into())).build(),
+        }
     }
 }

@@ -620,62 +620,6 @@ mod tests {
         assert_eq!(expected_sql, sql);
     }
 
-    #[cfg(feature = "sqlite")]
-    fn sqlite_harness() -> ::rusqlite::Connection {
-        let conn = ::rusqlite::Connection::open_in_memory().unwrap();
-
-        conn.execute(
-            "CREATE TABLE users (id, name TEXT, age REAL, nice INTEGER)",
-            ::rusqlite::NO_PARAMS,
-        )
-        .unwrap();
-
-        let insert = Insert::single_into("users")
-            .value("id", 1)
-            .value("name", "Alice")
-            .value("age", 42.69)
-            .value("nice", true);
-
-        let (sql, params) = Sqlite::build(insert).unwrap();
-
-        conn.execute(&sql, params.as_slice()).unwrap();
-        conn
-    }
-
-    #[test]
-    #[cfg(feature = "sqlite")]
-    fn bind_test_1() {
-        let conn = sqlite_harness();
-
-        let conditions = "name".equals("Alice").and("age".less_than(100.0)).and("nice".equals(1));
-        let query = Select::from_table("users").so_that(conditions);
-        let (sql_str, params) = Sqlite::build(query).unwrap();
-
-        #[derive(Debug)]
-        struct Person {
-            name: String,
-            age: f64,
-            nice: i32,
-        }
-
-        let mut stmt = conn.prepare(&sql_str).unwrap();
-        let mut person_iter = stmt
-            .query_map(&params, |row| {
-                Ok(Person {
-                    name: row.get(1).unwrap(),
-                    age: row.get(2).unwrap(),
-                    nice: row.get(3).unwrap(),
-                })
-            })
-            .unwrap();
-
-        let person: Person = person_iter.nth(0).unwrap().unwrap();
-
-        assert_eq!("Alice", person.name);
-        assert_eq!(42.69, person.age);
-        assert_eq!(1, person.nice);
-    }
-
     #[test]
     fn test_raw_null() {
         let (sql, params) = Sqlite::build(Select::default().value(Value::Text(None).raw())).unwrap();

@@ -56,12 +56,7 @@ test_type!(double(
     Value::real(rust_decimal::Decimal::from_str("1.12345").unwrap())
 ));
 
-test_type!(bit64(
-    MySql,
-    "bit(64)",
-    Value::Bytes(None),
-    Value::bytes(vec![0, 0, 0, 0, 0, 6, 107, 58])
-));
+test_type!(bit64(MySql, "bit(64)", Value::Integer(None), Value::integer(62)));
 
 // SQLx can get booleans here!
 test_type!(boolean(
@@ -128,10 +123,12 @@ test_type!(json(
 ));
 
 #[cfg(feature = "chrono-0_4")]
-test_type!(date(MySql, "date", Value::Date(None), {
-    let dt = chrono::DateTime::parse_from_rfc3339("2020-04-20T00:00:00Z").unwrap();
-    Value::datetime(dt.with_timezone(&chrono::Utc))
-}));
+test_type!(date(
+    MySql,
+    "date",
+    Value::Date(None),
+    Value::date(chrono::NaiveDate::from_ymd(2020, 4, 20))
+));
 
 #[cfg(feature = "chrono-0_4")]
 test_type!(time(
