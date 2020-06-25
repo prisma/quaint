@@ -3,12 +3,16 @@ mod average;
 mod count;
 mod row_number;
 mod sum;
+mod lower;
+mod upper;
 
 pub use aggregate_to_string::*;
 pub use average::*;
 pub use count::*;
 pub use row_number::*;
 pub use sum::*;
+pub use lower::*;
+pub use upper::*;
 
 use super::{Aliasable, Expression};
 use std::borrow::Cow;
@@ -28,6 +32,8 @@ pub(crate) enum FunctionType<'a> {
     AggregateToString(AggregateToString<'a>),
     Average(Average<'a>),
     Sum(Sum<'a>),
+    Lower(Lower<'a>),
+    Upper(Upper<'a>),
 }
 
 impl<'a> Aliasable<'a> for Function<'a> {
@@ -42,4 +48,4 @@ impl<'a> Aliasable<'a> for Function<'a> {
     }
 }
 
-function!(RowNumber, Count, AggregateToString, Average, Sum);
+function!(RowNumber, Count, AggregateToString, Average, Sum, Lower, Upper);
