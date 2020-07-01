@@ -49,21 +49,41 @@
 <span id="49">49</span>
 <span id="50">50</span>
 <span id="51">51</span>
+<span id="52">52</span>
+<span id="53">53</span>
+<span id="54">54</span>
+<span id="55">55</span>
+<span id="56">56</span>
+<span id="57">57</span>
+<span id="58">58</span>
+<span id="59">59</span>
+<span id="60">60</span>
+<span id="61">61</span>
+<span id="62">62</span>
+<span id="63">63</span>
+<span id="64">64</span>
+<span id="65">65</span>
+<span id="66">66</span>
+<span id="67">67</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">mod</span> <span class="ident">aggregate_to_string</span>;
 <span class="kw">mod</span> <span class="ident">average</span>;
 <span class="kw">mod</span> <span class="ident">count</span>;
+<span class="kw">mod</span> <span class="ident">lower</span>;
+<span class="kw">mod</span> <span class="ident">maximum</span>;
+<span class="kw">mod</span> <span class="ident">minimum</span>;
 <span class="kw">mod</span> <span class="ident">row_number</span>;
 <span class="kw">mod</span> <span class="ident">sum</span>;
-<span class="kw">mod</span> <span class="ident">lower</span>;
 <span class="kw">mod</span> <span class="ident">upper</span>;
 
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">aggregate_to_string</span>::<span class="kw-2">*</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">average</span>::<span class="kw-2">*</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">count</span>::<span class="kw-2">*</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">lower</span>::<span class="kw-2">*</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">maximum</span>::<span class="kw-2">*</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">minimum</span>::<span class="kw-2">*</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">row_number</span>::<span class="kw-2">*</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">sum</span>::<span class="kw-2">*</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">lower</span>::<span class="kw-2">*</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">upper</span>::<span class="kw-2">*</span>;
 
 <span class="kw">use</span> <span class="kw">super</span>::{<span class="ident">Aliasable</span>, <span class="ident">Expression</span>};
@@ -86,6 +106,8 @@
     <span class="ident">Sum</span>(<span class="ident">Sum</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>),
     <span class="ident">Lower</span>(<span class="ident">Lower</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>),
     <span class="ident">Upper</span>(<span class="ident">Upper</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>),
+    <span class="ident">Minimum</span>(<span class="ident">Minimum</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>),
+    <span class="ident">Maximum</span>(<span class="ident">Maximum</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>),
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">Aliasable</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Function</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
@@ -100,6 +122,16 @@
     }
 }
 
-<span class="macro">function</span><span class="macro">!</span>(<span class="ident">RowNumber</span>, <span class="ident">Count</span>, <span class="ident">AggregateToString</span>, <span class="ident">Average</span>, <span class="ident">Sum</span>, <span class="ident">Lower</span>, <span class="ident">Upper</span>);
+<span class="macro">function</span><span class="macro">!</span>(
+    <span class="ident">RowNumber</span>,
+    <span class="ident">Count</span>,
+    <span class="ident">AggregateToString</span>,
+    <span class="ident">Average</span>,
+    <span class="ident">Sum</span>,
+    <span class="ident">Lower</span>,
+    <span class="ident">Upper</span>,
+    <span class="ident">Minimum</span>,
+    <span class="ident">Maximum</span>
+);
 </pre></div>
 </section><section id="search" class="content hidden"></section><section class="footer"></section><script>window.rootPath = "../../../";window.currentCrate = "quaint";</script><script src="../../../aliases.js"></script><script src="../../../main.js"></script><script src="../../../source-script.js"></script><script src="../../../source-files.js"></script><script defer src="../../../search-index.js"></script></body></html>
