@@ -137,7 +137,7 @@ impl ConnectionInfo {
     }
 
     /// The provided database user name. This will be `None` on SQLite.
-    pub fn username(&self) -> Option<Cow<str>> {
+    pub fn username(&self) -> Option<Cow<'_, str>> {
         match self {
             #[cfg(feature = "postgresql")]
             ConnectionInfo::Postgres(url) => Some(url.username()),

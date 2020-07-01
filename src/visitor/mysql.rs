@@ -1,6 +1,7 @@
 use crate::{
     ast::*,
     visitor::{self, Visitor},
+    error::{Error, ErrorKind},
 };
 use std::fmt::{self, Write};
 

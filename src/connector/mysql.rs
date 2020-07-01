@@ -46,7 +46,7 @@ impl MysqlUrl {
     }
 
     /// The percent-decoded database username.
-    pub fn username(&self) -> Cow<str> {
+    pub fn username(&self) -> Cow<'_, str> {
         match percent_decode(self.url.username().as_bytes()).decode_utf8() {
             Ok(username) => username,
             Err(_) => {
@@ -61,7 +61,7 @@ impl MysqlUrl {
     }
 
     /// The percent-decoded database password.
-    pub fn password(&self) -> Option<Cow<str>> {
+    pub fn password(&self) -> Option<Cow<'_, str>> {
         match self
             .url
             .password()

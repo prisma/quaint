@@ -14,13 +14,13 @@ mod private {
 }
 
 impl ValueIndex<ResultRowRef<'_>, Value<'static>> for usize {
-    fn index_into<'v>(self, row: &'v ResultRowRef) -> &'v Value<'static> {
+    fn index_into<'v>(self, row: &'v ResultRowRef<'_>) -> &'v Value<'static> {
         row.at(self).unwrap()
     }
 }
 
 impl ValueIndex<ResultRowRef<'_>, Value<'static>> for &str {
-    fn index_into<'v>(self, row: &'v ResultRowRef) -> &'v Value<'static> {
+    fn index_into<'v>(self, row: &'v ResultRowRef<'_>) -> &'v Value<'static> {
         row.get(self).unwrap()
     }
 }

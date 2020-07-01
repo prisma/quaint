@@ -154,7 +154,7 @@ impl PostgresUrl {
     }
 
     /// The percent-decoded database username.
-    pub fn username(&self) -> Cow<str> {
+    pub fn username(&self) -> Cow<'_, str> {
         match percent_decode(self.url.username().as_bytes()).decode_utf8() {
             Ok(username) => username,
             Err(_) => {
@@ -191,7 +191,7 @@ impl PostgresUrl {
     }
 
     /// The percent-decoded database password.
-    pub fn password(&self) -> Cow<str> {
+    pub fn password(&self) -> Cow<'_, str> {
         match self
             .url
             .password()
@@ -667,7 +667,7 @@ mod tests {
         assert!(res.is_empty());
     }
 
-    #[allow(unused)]
+    #[allow(dead_code)]
     const TABLE_DEF: &str = r#"
     CREATE TABLE "user"(
         id       int4    PRIMARY KEY     NOT NULL,
@@ -677,13 +677,13 @@ mod tests {
     );
     "#;
 
-    #[allow(unused)]
+    #[allow(dead_code)]
     const CREATE_USER: &str = r#"
     INSERT INTO "user" (id, name, age, salary)
     VALUES (1, 'Joe', 27, 20000.00 );
     "#;
 
-    #[allow(unused)]
+    #[allow(dead_code)]
     const DROP_TABLE: &str = "DROP TABLE IF EXISTS \"user\";";
 
     #[tokio::test]

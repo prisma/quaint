@@ -330,7 +330,7 @@ mod tests {
         }
     }
 
-    #[allow(unused)]
+    #[allow(dead_code)]
     const TABLE_DEF: &str = r#"
     CREATE TABLE USER (
         ID INT PRIMARY KEY     NOT NULL,
@@ -340,7 +340,7 @@ mod tests {
     );
     "#;
 
-    #[allow(unused)]
+    #[allow(dead_code)]
     const CREATE_USER: &str = r#"
     INSERT INTO USER (ID,NAME,AGE,SALARY)
     VALUES (1, 'Joe', 27, 20000.00 );
