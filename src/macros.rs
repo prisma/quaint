@@ -116,7 +116,7 @@ macro_rules! aliasable {
                 where
                     T: Into<Cow<'a, str>>,
                 {
-                    let table: Table = self.into();
+                    let table: Table<'_> = self.into();
                     table.alias(alias)
                 }
             }

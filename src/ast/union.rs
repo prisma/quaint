@@ -8,7 +8,7 @@ pub(crate) enum UnionType {
 }
 
 impl fmt::Display for UnionType {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             UnionType::All => write!(f, "UNION ALL"),
             UnionType::Distinct => write!(f, "UNION"),

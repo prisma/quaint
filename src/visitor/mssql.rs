@@ -4,7 +4,6 @@ use crate::{
         Column, Expression, ExpressionKind, Insert, IntoRaw, Merge, OnConflict, Order, Ordering, Row, Table, TableType,
         Using, Values,
     },
-    error::{Error, ErrorKind},
     visitor, Value,
 };
 use std::{convert::TryFrom, fmt::Write};
