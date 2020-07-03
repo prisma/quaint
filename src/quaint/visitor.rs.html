@@ -863,6 +863,10 @@
 <span id="863">863</span>
 <span id="864">864</span>
 <span id="865">865</span>
+<span id="866">866</span>
+<span id="867">867</span>
+<span id="868">868</span>
+<span id="869">869</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Visitors for reading an abstract SQL syntax tree, generating the query and</span>
 <span class="doccomment">//! gathering parameters in the right order.</span>
@@ -995,6 +999,10 @@
     <span class="doccomment">/// A walk through a `SELECT` statement</span>
     <span class="kw">fn</span> <span class="ident">visit_select</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">select</span>: <span class="ident">Select</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span> {
         <span class="self">self</span>.<span class="ident">write</span>(<span class="string">&quot;SELECT &quot;</span>)<span class="question-mark">?</span>;
+
+        <span class="kw">if</span> <span class="ident">select</span>.<span class="ident">distinct</span> {
+            <span class="self">self</span>.<span class="ident">write</span>(<span class="string">&quot;DISTINCT &quot;</span>)<span class="question-mark">?</span>;
+        }
 
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">table</span>) <span class="op">=</span> <span class="ident">select</span>.<span class="ident">table</span> {
             <span class="kw">if</span> <span class="ident">select</span>.<span class="ident">columns</span>.<span class="ident">is_empty</span>() {

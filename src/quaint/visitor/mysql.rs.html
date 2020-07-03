@@ -486,6 +486,28 @@
 <span id="486">486</span>
 <span id="487">487</span>
 <span id="488">488</span>
+<span id="489">489</span>
+<span id="490">490</span>
+<span id="491">491</span>
+<span id="492">492</span>
+<span id="493">493</span>
+<span id="494">494</span>
+<span id="495">495</span>
+<span id="496">496</span>
+<span id="497">497</span>
+<span id="498">498</span>
+<span id="499">499</span>
+<span id="500">500</span>
+<span id="501">501</span>
+<span id="502">502</span>
+<span id="503">503</span>
+<span id="504">504</span>
+<span id="505">505</span>
+<span id="506">506</span>
+<span id="507">507</span>
+<span id="508">508</span>
+<span id="509">509</span>
+<span id="510">510</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">ast</span>::<span class="kw-2">*</span>,
@@ -944,6 +966,28 @@
         <span class="kw">let</span> (<span class="ident">sql</span>, <span class="ident">params</span>) <span class="op">=</span> <span class="ident">Mysql</span>::<span class="ident">build</span>(<span class="ident">Select</span>::<span class="ident">default</span>().<span class="ident">value</span>(<span class="ident">Value</span>::<span class="ident">character</span>(<span class="string">&#39;a&#39;</span>).<span class="ident">raw</span>())).<span class="ident">unwrap</span>();
         <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="string">&quot;SELECT &#39;a&#39;&quot;</span>, <span class="ident">sql</span>);
         <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">params</span>.<span class="ident">is_empty</span>());
+    }
+
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="kw">fn</span> <span class="ident">test_distinct</span>() {
+        <span class="kw">let</span> <span class="ident">expected_sql</span> <span class="op">=</span> <span class="string">&quot;SELECT DISTINCT `bar` FROM `test`&quot;</span>;
+        <span class="kw">let</span> <span class="ident">query</span> <span class="op">=</span> <span class="ident">Select</span>::<span class="ident">from_table</span>(<span class="string">&quot;test&quot;</span>).<span class="ident">column</span>(<span class="ident">Column</span>::<span class="ident">new</span>(<span class="string">&quot;bar&quot;</span>)).<span class="ident">distinct</span>();
+        <span class="kw">let</span> (<span class="ident">sql</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="ident">Mysql</span>::<span class="ident">build</span>(<span class="ident">query</span>).<span class="ident">unwrap</span>();
+
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">expected_sql</span>, <span class="ident">sql</span>);
+    }
+
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="kw">fn</span> <span class="ident">test_distinct_with_subquery</span>() {
+        <span class="kw">let</span> <span class="ident">expected_sql</span> <span class="op">=</span> <span class="string">&quot;SELECT DISTINCT (SELECT ? FROM `test2`), `bar` FROM `test`&quot;</span>;
+        <span class="kw">let</span> <span class="ident">query</span> <span class="op">=</span> <span class="ident">Select</span>::<span class="ident">from_table</span>(<span class="string">&quot;test&quot;</span>)
+            .<span class="ident">value</span>(<span class="ident">Select</span>::<span class="ident">from_table</span>(<span class="string">&quot;test2&quot;</span>).<span class="ident">value</span>(<span class="macro">val</span><span class="macro">!</span>(<span class="number">1</span>)))
+            .<span class="ident">column</span>(<span class="ident">Column</span>::<span class="ident">new</span>(<span class="string">&quot;bar&quot;</span>))
+            .<span class="ident">distinct</span>();
+
+        <span class="kw">let</span> (<span class="ident">sql</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="ident">Mysql</span>::<span class="ident">build</span>(<span class="ident">query</span>).<span class="ident">unwrap</span>();
+
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">expected_sql</span>, <span class="ident">sql</span>);
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
