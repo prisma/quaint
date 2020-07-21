@@ -198,9 +198,9 @@ impl ConnectionInfo {
             #[cfg(feature = "postgresql")]
             ConnectionInfo::Postgres(url) => url.pg_bouncer(),
             #[cfg(feature = "mysql")]
-            ConnectionInfo::Mysql(url) => false,
+            ConnectionInfo::Mysql(_) => false,
             #[cfg(feature = "mssql")]
-            ConnectionInfo::Mssql(url) => false,
+            ConnectionInfo::Mssql(_) => false,
             #[cfg(feature = "sqlite")]
             ConnectionInfo::Sqlite { .. } => false,
         }

@@ -2,7 +2,7 @@
 
 use crate::{
     ast,
-    connector::{self, ConnectionInfo, Queryable, SqlFamily, TransactionCapable},
+    connector::{self, ConnectionInfo, Queryable, TransactionCapable},
 };
 use async_trait::async_trait;
 use std::{fmt, sync::Arc};
