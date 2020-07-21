@@ -144,14 +144,14 @@ impl Quaint {
             if info.pg_bouncer() {
                 info!("PgBouncer mode is enabled.");
             }
-            info!("Starting connection.", family, connection_limit);
+            info!("Starting a {} connection.", family);
         }
         #[cfg(feature = "tracing-log")]
         {
             if info.pg_bouncer() {
                 tracing::info!("PgBouncer mode is enabled.");
             }
-            tracing::info!("Starting connection.", family, connection_limit);
+            tracing::info!("Starting a {} connection.", family);
         }
     }
 
