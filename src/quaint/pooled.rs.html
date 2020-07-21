@@ -408,6 +408,11 @@
 <span id="408">408</span>
 <span id="409">409</span>
 <span id="410">410</span>
+<span id="411">411</span>
+<span id="412">412</span>
+<span id="413">413</span>
+<span id="414">414</span>
+<span id="415">415</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! # A connection pool to a SQL database.</span>
 <span class="doccomment">//!</span>
@@ -680,23 +685,7 @@
     <span class="doccomment">/// Consume the builder and create a new instance of a pool.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">build</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Quaint</span> {
         <span class="kw">let</span> <span class="ident">connection_info</span> <span class="op">=</span> <span class="ident">Arc</span>::<span class="ident">new</span>(<span class="self">self</span>.<span class="ident">connection_info</span>);
-        <span class="kw">let</span> <span class="ident">family</span> <span class="op">=</span> <span class="ident">connection_info</span>.<span class="ident">sql_family</span>();
-
-        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;tracing-log&quot;</span>))]</span>
-        {
-            <span class="macro">info</span><span class="macro">!</span>(
-                <span class="string">&quot;Starting a {} pool with up to {} connections.&quot;</span>,
-                <span class="ident">family</span>, <span class="self">self</span>.<span class="ident">connection_limit</span>
-            );
-        }
-        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;tracing-log&quot;</span>)]</span>
-        {
-            <span class="ident">tracing</span>::<span class="macro">info</span><span class="macro">!</span>(
-                <span class="string">&quot;Starting a {} pool with up to {} connections.&quot;</span>,
-                <span class="ident">family</span>,
-                <span class="self">self</span>.<span class="ident">connection_limit</span>
-            );
-        }
+        <span class="self">Self</span>::<span class="ident">log_start</span>(<span class="kw-2">&amp;</span><span class="ident">connection_info</span>, <span class="self">self</span>.<span class="ident">connection_limit</span>);
 
         <span class="kw">let</span> <span class="ident">inner</span> <span class="op">=</span> <span class="ident">Pool</span>::<span class="ident">builder</span>()
             .<span class="ident">max_open</span>(<span class="self">self</span>.<span class="ident">connection_limit</span> <span class="kw">as</span> <span class="ident">u64</span>)
@@ -710,6 +699,27 @@
             <span class="ident">inner</span>,
             <span class="ident">connection_info</span>,
             <span class="ident">connect_timeout</span>: <span class="self">self</span>.<span class="ident">connect_timeout</span>,
+        }
+    }
+
+    <span class="kw">fn</span> <span class="ident">log_start</span>(<span class="ident">info</span>: <span class="kw-2">&amp;</span><span class="ident">ConnectionInfo</span>, <span class="ident">connection_limit</span>: <span class="ident">usize</span>) {
+        <span class="kw">let</span> <span class="ident">family</span> <span class="op">=</span> <span class="ident">info</span>.<span class="ident">sql_family</span>();
+        <span class="kw">let</span> <span class="ident">pg_bouncer</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">info</span>.<span class="ident">pg_bouncer</span>() { <span class="string">&quot; in PgBouncer mode&quot;</span> } <span class="kw">else</span> { <span class="string">&quot;&quot;</span> };
+        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;tracing-log&quot;</span>))]</span>
+        {
+            <span class="macro">info</span><span class="macro">!</span>(
+                <span class="string">&quot;Starting a {} pool with {} connections{}.&quot;</span>,
+                <span class="ident">family</span>, <span class="ident">connection_limit</span>, <span class="ident">pg_bouncer</span>
+            );
+        }
+        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;tracing-log&quot;</span>)]</span>
+        {
+            <span class="ident">tracing</span>::<span class="macro">info</span><span class="macro">!</span>(
+                <span class="string">&quot;Starting a {} pool with {} connections{}.&quot;</span>,
+                <span class="ident">family</span>,
+                <span class="ident">connection_limit</span>,
+                <span class="ident">pg_bouncer</span>
+            );
         }
     }
 }
