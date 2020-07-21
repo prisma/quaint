@@ -145,7 +145,6 @@ use mobc::Pool;
 use std::{sync::Arc, time::Duration};
 use url::Url;
 
-use crate::log_startup::log_start;
 #[cfg(feature = "sqlite")]
 use std::convert::TryFrom;
 
@@ -270,7 +269,7 @@ impl Builder {
     /// Consume the builder and create a new instance of a pool.
     pub fn build(self) -> Quaint {
         let connection_info = Arc::new(self.connection_info);
-        self::log_start(&connection_info, self.connection_limit);
+        Self::log_start(&connection_info, self.connection_limit);
 
         let inner = Pool::builder()
             .max_open(self.connection_limit as u64)

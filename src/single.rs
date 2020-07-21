@@ -8,7 +8,6 @@ use async_trait::async_trait;
 use std::{fmt, sync::Arc};
 use url::Url;
 
-use crate::log_startup::log_start;
 #[cfg(feature = "sqlite")]
 use std::convert::TryFrom;
 
