@@ -212,6 +212,11 @@ impl PostgresUrl {
         &self.query_params.schema
     }
 
+    /// Whether the pgbouncer mode is enabled.
+    pub fn pg_bouncer(&self) -> bool {
+        self.query_params.pg_bouncer
+    }
+
     pub(crate) fn connect_timeout(&self) -> Option<Duration> {
         self.query_params.connect_timeout
     }
@@ -423,17 +428,6 @@ impl PostgreSql {
                 }
             }
         }));
-
-        if url.query_params.pg_bouncer {
-            #[cfg(not(feature = "tracing-log"))]
-            {
-                info!("PgBouncer is enabled.");
-            }
-            #[cfg(feature = "tracing-log")]
-            {
-                tracing::info!("PgBouncer is enabled.");
-            }
-        }
 
         let schema = url.schema();
 

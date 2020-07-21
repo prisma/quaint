@@ -192,6 +192,20 @@ impl ConnectionInfo {
         }
     }
 
+    /// Whether the pgbouncer mode is enabled.
+    pub fn pg_bouncer(&self) -> bool {
+        match self {
+            #[cfg(feature = "postgresql")]
+            ConnectionInfo::Postgres(url) => url.pg_bouncer(),
+            #[cfg(feature = "mysql")]
+            ConnectionInfo::Mysql(url) => false,
+            #[cfg(feature = "mssql")]
+            ConnectionInfo::Mssql(url) => false,
+            #[cfg(feature = "sqlite")]
+            ConnectionInfo::Sqlite { .. } => false,
+        }
+    }
+
     /// A string describing the database location, meant for error messages. It will be the host
     /// and port on MySQL/Postgres, and the file path on SQLite.
     pub fn database_location(&self) -> String {

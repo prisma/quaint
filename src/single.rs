@@ -8,6 +8,7 @@ use async_trait::async_trait;
 use std::{fmt, sync::Arc};
 use url::Url;
 
+use crate::log_startup::log_start;
 #[cfg(feature = "sqlite")]
 use std::convert::TryFrom;
 
@@ -119,7 +120,6 @@ impl Quaint {
             s if s.starts_with("postgres") || s.starts_with("postgresql") => {
                 let url = connector::PostgresUrl::new(Url::parse(s)?)?;
                 let psql = connector::PostgreSql::new(url).await?;
-
                 Arc::new(psql) as Arc<dyn Queryable>
             }
             #[cfg(feature = "mssql")]
@@ -133,25 +133,32 @@ impl Quaint {
         };
 
         let connection_info = Arc::new(ConnectionInfo::from_url(url_str)?);
-        Self::log_start(connection_info.sql_family(), 1);
+        Self::log_start(&connection_info);
 
         Ok(Self { inner, connection_info })
+    }
+
+    fn log_start(info: &ConnectionInfo) {
+        let family = info.sql_family();
+        #[cfg(not(feature = "tracing-log"))]
+        {
+            if info.pg_bouncer() {
+                info!("PgBouncer mode is enabled.");
+            }
+            info!("Starting connection.", family, connection_limit);
+        }
+        #[cfg(feature = "tracing-log")]
+        {
+            if info.pg_bouncer() {
+                tracing::info!("PgBouncer mode is enabled.");
+            }
+            tracing::info!("Starting connection.", family, connection_limit);
+        }
     }
 
     /// Info about the connection and underlying database.
     pub fn connection_info(&self) -> &ConnectionInfo {
         &self.connection_info
-    }
-
-    fn log_start(family: SqlFamily, connection_limit: u32) {
-        #[cfg(not(feature = "tracing-log"))]
-        {
-            info!("Starting a {} pool with {} connections.", family, connection_limit);
-        }
-        #[cfg(feature = "tracing-log")]
-        {
-            tracing::info!("Starting a {} pool with {} connections.", family, connection_limit);
-        }
     }
 }
 

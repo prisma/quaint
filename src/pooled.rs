@@ -145,6 +145,7 @@ use mobc::Pool;
 use std::{sync::Arc, time::Duration};
 use url::Url;
 
+use crate::log_startup::log_start;
 #[cfg(feature = "sqlite")]
 use std::convert::TryFrom;
 
@@ -269,23 +270,7 @@ impl Builder {
     /// Consume the builder and create a new instance of a pool.
     pub fn build(self) -> Quaint {
         let connection_info = Arc::new(self.connection_info);
-        let family = connection_info.sql_family();
-
-        #[cfg(not(feature = "tracing-log"))]
-        {
-            info!(
-                "Starting a {} pool with up to {} connections.",
-                family, self.connection_limit
-            );
-        }
-        #[cfg(feature = "tracing-log")]
-        {
-            tracing::info!(
-                "Starting a {} pool with up to {} connections.",
-                family,
-                self.connection_limit
-            );
-        }
+        self::log_start(&connection_info, self.connection_limit);
 
         let inner = Pool::builder()
             .max_open(self.connection_limit as u64)
@@ -299,6 +284,24 @@ impl Builder {
             inner,
             connection_info,
             connect_timeout: self.connect_timeout,
+        }
+    }
+
+    fn log_start(info: &ConnectionInfo, connection_limit: usize) {
+        let family = info.sql_family();
+        #[cfg(not(feature = "tracing-log"))]
+        {
+            if info.pg_bouncer() {
+                info!("PgBouncer mode is enabled.");
+            }
+            info!("Starting a {} pool with {} connections.", family, connection_limit);
+        }
+        #[cfg(feature = "tracing-log")]
+        {
+            if info.pg_bouncer() {
+                tracing::info!("PgBouncer mode is enabled.");
+            }
+            tracing::info!("Starting a {} pool with {} connections.", family, connection_limit);
         }
     }
 }
