@@ -288,19 +288,18 @@ impl Builder {
 
     fn log_start(info: &ConnectionInfo, connection_limit: usize) {
         let family = info.sql_family();
+        let pg_bouncer = if info.pg_bouncer() { " in PgBouncer mode" } else { "" };
+        let message = format!(
+            "Starting a {} pool with {} connections{}.",
+            family, connection_limit, pg_bouncer
+        );
         #[cfg(not(feature = "tracing-log"))]
         {
-            if info.pg_bouncer() {
-                info!("PgBouncer mode is enabled.");
-            }
-            info!("Starting a {} pool with {} connections.", family, connection_limit);
+            info!(message);
         }
         #[cfg(feature = "tracing-log")]
         {
-            if info.pg_bouncer() {
-                tracing::info!("PgBouncer mode is enabled.");
-            }
-            tracing::info!("Starting a {} pool with {} connections.", family, connection_limit);
+            tracing::info!(message);
         }
     }
 }
