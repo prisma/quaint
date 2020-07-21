@@ -150,11 +150,6 @@ impl Quaint {
             tracing::info!(message);
         }
     }
-
-    /// Info about the connection and underlying database.
-    pub fn connection_info(&self) -> &ConnectionInfo {
-        &self.connection_info
-    }
 }
 
 #[async_trait]
