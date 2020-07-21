@@ -424,6 +424,17 @@ impl PostgreSql {
             }
         }));
 
+        if url.query_params.pg_bouncer {
+            #[cfg(not(feature = "tracing-log"))]
+            {
+                info!("PgBouncer is enabled.");
+            }
+            #[cfg(feature = "tracing-log")]
+            {
+                tracing::info!("PgBouncer is enabled.");
+            }
+        }
+
         let schema = url.schema();
 
         // SET NAMES sets the client text encoding. It needs to be explicitly set for automatic
