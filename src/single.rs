@@ -137,6 +137,11 @@ impl Quaint {
         Ok(Self { inner, connection_info })
     }
 
+    /// Info about the connection and underlying database.
+    pub fn connection_info(&self) -> &ConnectionInfo {
+        &self.connection_info
+    }
+
     fn log_start(info: &ConnectionInfo) {
         let family = info.sql_family();
         let pg_bouncer = if info.pg_bouncer() { " in PgBouncer mode" } else { "" };
