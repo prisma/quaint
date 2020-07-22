@@ -1197,6 +1197,7 @@
 <span id="1197">1197</span>
 <span id="1198">1198</span>
 <span id="1199">1199</span>
+<span id="1200">1200</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">mod</span> <span class="ident">conversion</span>;
 <span class="kw">mod</span> <span class="ident">error</span>;
@@ -1566,6 +1567,7 @@
         <span class="ident">config</span>.<span class="ident">host</span>(<span class="self">self</span>.<span class="ident">host</span>());
         <span class="ident">config</span>.<span class="ident">port</span>(<span class="self">self</span>.<span class="ident">port</span>());
         <span class="ident">config</span>.<span class="ident">dbname</span>(<span class="self">self</span>.<span class="ident">dbname</span>());
+        <span class="ident">config</span>.<span class="ident">pgbouncer_mode</span>(<span class="self">self</span>.<span class="ident">query_params</span>.<span class="ident">pg_bouncer</span>);
 
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">connect_timeout</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">query_params</span>.<span class="ident">connect_timeout</span> {
             <span class="ident">config</span>.<span class="ident">connect_timeout</span>(<span class="ident">connect_timeout</span>);

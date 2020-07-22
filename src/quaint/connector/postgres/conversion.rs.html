@@ -619,6 +619,7 @@
 <span id="619">619</span>
 <span id="620">620</span>
 <span id="621">621</span>
+<span id="622">622</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">ast</span>::<span class="ident">Value</span>,
@@ -629,13 +630,14 @@
 <span class="kw">use</span> <span class="ident">bytes</span>::<span class="ident">BytesMut</span>;
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;chrono-0_4&quot;</span>)]</span>
 <span class="kw">use</span> <span class="ident">chrono</span>::{<span class="ident">DateTime</span>, <span class="ident">NaiveDateTime</span>, <span class="ident">Utc</span>};
+<span class="kw">use</span> <span class="ident">postgres_types</span>::{<span class="ident">FromSql</span>, <span class="ident">ToSql</span>};
 <span class="kw">use</span> <span class="ident">rust_decimal</span>::{
     <span class="ident">prelude</span>::{<span class="ident">FromPrimitive</span>, <span class="ident">ToPrimitive</span>},
     <span class="ident">Decimal</span>,
 };
 <span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">error</span>::<span class="ident">Error</span> <span class="kw">as</span> <span class="ident">StdError</span>, <span class="ident">str</span>::<span class="ident">FromStr</span>};
 <span class="kw">use</span> <span class="ident">tokio_postgres</span>::{
-    <span class="ident">types</span>::{<span class="self">self</span>, <span class="ident">FromSql</span>, <span class="ident">IsNull</span>, <span class="ident">Kind</span>, <span class="ident">ToSql</span>, <span class="ident">Type</span> <span class="kw">as</span> <span class="ident">PostgresType</span>},
+    <span class="ident">types</span>::{<span class="self">self</span>, <span class="ident">IsNull</span>, <span class="ident">Kind</span>, <span class="ident">Type</span> <span class="kw">as</span> <span class="ident">PostgresType</span>},
     <span class="ident">Row</span> <span class="kw">as</span> <span class="ident">PostgresRow</span>, <span class="ident">Statement</span> <span class="kw">as</span> <span class="ident">PostgresStatement</span>,
 };
 
