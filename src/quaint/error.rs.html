@@ -247,6 +247,9 @@
 <span id="247">247</span>
 <span id="248">248</span>
 <span id="249">249</span>
+<span id="250">250</span>
+<span id="251">251</span>
+<span id="252">252</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Error module</span>
 <span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">borrow</span>::<span class="ident">Cow</span>, <span class="ident">fmt</span>, <span class="ident">io</span>, <span class="ident">num</span>};
@@ -354,6 +357,9 @@
 
     <span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;Query returned no data&quot;</span>)]</span>
     <span class="ident">NotFound</span>,
+
+    <span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;No such table: {}&quot;</span>, <span class="ident">table</span>)]</span>
+    <span class="ident">TableDoesNotExist</span> { <span class="ident">table</span>: <span class="ident">String</span> },
 
     <span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;Unique constraint failed: {}&quot;</span>, <span class="ident">constraint</span>)]</span>
     <span class="ident">UniqueConstraintViolation</span> { <span class="ident">constraint</span>: <span class="ident">DatabaseConstraint</span> },

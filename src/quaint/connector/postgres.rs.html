@@ -1198,6 +1198,21 @@
 <span id="1198">1198</span>
 <span id="1199">1199</span>
 <span id="1200">1200</span>
+<span id="1201">1201</span>
+<span id="1202">1202</span>
+<span id="1203">1203</span>
+<span id="1204">1204</span>
+<span id="1205">1205</span>
+<span id="1206">1206</span>
+<span id="1207">1207</span>
+<span id="1208">1208</span>
+<span id="1209">1209</span>
+<span id="1210">1210</span>
+<span id="1211">1211</span>
+<span id="1212">1212</span>
+<span id="1213">1213</span>
+<span id="1214">1214</span>
+<span id="1215">1215</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">mod</span> <span class="ident">conversion</span>;
 <span class="kw">mod</span> <span class="ident">error</span>;
@@ -2397,6 +2412,21 @@
         <span class="kw">let</span> <span class="ident">val</span> <span class="op">=</span> <span class="ident">row</span>.<span class="ident">get</span>(<span class="string">&quot;val&quot;</span>).<span class="ident">unwrap</span>().<span class="ident">as_str</span>();
 
         <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="prelude-val">Some</span>(<span class="string">&quot;bar&quot;</span>), <span class="ident">val</span>);
+    }
+
+    <span class="attribute">#[<span class="ident">tokio</span>::<span class="ident">test</span>]</span>
+    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">unknown_table_should_give_a_good_error</span>() {
+        <span class="kw">let</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">Quaint</span>::<span class="ident">new</span>(<span class="kw-2">&amp;</span><span class="ident">CONN_STR</span>).<span class="kw">await</span>.<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">select</span> <span class="op">=</span> <span class="ident">Select</span>::<span class="ident">from_table</span>(<span class="string">&quot;not_there&quot;</span>);
+
+        <span class="kw">let</span> <span class="ident">err</span> <span class="op">=</span> <span class="ident">conn</span>.<span class="ident">select</span>(<span class="ident">select</span>).<span class="kw">await</span>.<span class="ident">unwrap_err</span>();
+
+        <span class="kw">match</span> <span class="ident">err</span>.<span class="ident">kind</span>() {
+            <span class="ident">ErrorKind</span>::<span class="ident">TableDoesNotExist</span> { <span class="ident">table</span> } <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="string">&quot;not_there&quot;</span>, <span class="ident">table</span>.<span class="ident">as_str</span>());
+            }
+            <span class="ident">e</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;Expected error TableDoesNotExist, got {:?}&quot;</span>, <span class="ident">e</span>),
+        }
     }
 }
 </pre></div>
