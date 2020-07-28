@@ -566,15 +566,6 @@
 <span id="566">566</span>
 <span id="567">567</span>
 <span id="568">568</span>
-<span id="569">569</span>
-<span id="570">570</span>
-<span id="571">571</span>
-<span id="572">572</span>
-<span id="573">573</span>
-<span id="574">574</span>
-<span id="575">575</span>
-<span id="576">576</span>
-<span id="577">577</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">mod</span> <span class="ident">conversion</span>;
 <span class="kw">mod</span> <span class="ident">error</span>;
@@ -600,6 +591,7 @@
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">file_path</span>: <span class="ident">String</span>,
 }
 
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">SqliteParams</span> {
     <span class="kw">pub</span> <span class="ident">connection_limit</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>,
     <span class="doccomment">/// This is not a `PathBuf` because we need to `ATTACH` the database to the path, and this can</span>
@@ -608,8 +600,6 @@
     <span class="kw">pub</span> <span class="ident">db_name</span>: <span class="ident">String</span>,
     <span class="kw">pub</span> <span class="ident">socket_timeout</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span>,
 }
-
-<span class="kw">type</span> <span class="ident">ConnectionParams</span> <span class="op">=</span> (<span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">String</span>, <span class="ident">String</span>)<span class="op">&gt;</span>, <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">String</span>, <span class="ident">String</span>)<span class="op">&gt;</span>);
 
 <span class="kw">impl</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">SqliteParams</span> {
     <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">Error</span>;
@@ -628,26 +618,18 @@
         <span class="kw">if</span> <span class="ident">path</span>.<span class="ident">is_dir</span>() {
             <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">builder</span>(<span class="ident">ErrorKind</span>::<span class="ident">DatabaseUrlIsInvalid</span>(<span class="ident">path</span>.<span class="ident">to_str</span>().<span class="ident">unwrap</span>().<span class="ident">to_string</span>())).<span class="ident">build</span>())
         } <span class="kw">else</span> {
-            <span class="kw">let</span> <span class="ident">official</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[];
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">connection_limit</span> <span class="op">=</span> <span class="prelude-val">None</span>;
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">db_name</span> <span class="op">=</span> <span class="prelude-val">None</span>;
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">socket_timeout</span> <span class="op">=</span> <span class="prelude-val">None</span>;
 
             <span class="kw">if</span> <span class="ident">path_parts</span>.<span class="ident">len</span>() <span class="op">&gt;</span> <span class="number">1</span> {
-                <span class="kw">let</span> (<span class="kw">_</span>, <span class="ident">unsupported</span>): <span class="ident">ConnectionParams</span> <span class="op">=</span> <span class="ident">path_parts</span>
-                    .<span class="ident">last</span>()
-                    .<span class="ident">unwrap</span>()
-                    .<span class="ident">split</span>(<span class="string">&#39;&amp;&#39;</span>)
-                    .<span class="ident">map</span>(<span class="op">|</span><span class="ident">kv</span><span class="op">|</span> {
-                        <span class="kw">let</span> <span class="ident">splitted</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">kv</span>.<span class="ident">split</span>(<span class="string">&#39;=&#39;</span>).<span class="ident">collect</span>();
-                        (<span class="ident">String</span>::<span class="ident">from</span>(<span class="ident">splitted</span>[<span class="number">0</span>]), <span class="ident">String</span>::<span class="ident">from</span>(<span class="ident">splitted</span>[<span class="number">1</span>]))
-                    })
-                    .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">String</span>, <span class="ident">String</span>)<span class="op">&gt;</span><span class="op">&gt;</span>()
-                    .<span class="ident">into_iter</span>()
-                    .<span class="ident">partition</span>(<span class="op">|</span>(<span class="ident">k</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="ident">official</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">k</span>.<span class="ident">as_str</span>()));
+                <span class="kw">let</span> <span class="ident">params</span> <span class="op">=</span> <span class="ident">path_parts</span>.<span class="ident">last</span>().<span class="ident">unwrap</span>().<span class="ident">split</span>(<span class="string">&#39;&amp;&#39;</span>).<span class="ident">map</span>(<span class="op">|</span><span class="ident">kv</span><span class="op">|</span> {
+                    <span class="kw">let</span> <span class="ident">splitted</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">kv</span>.<span class="ident">split</span>(<span class="string">&#39;=&#39;</span>).<span class="ident">collect</span>();
+                    (<span class="ident">splitted</span>[<span class="number">0</span>], <span class="ident">splitted</span>[<span class="number">1</span>])
+                });
 
-                <span class="kw">for</span> (<span class="ident">k</span>, <span class="ident">v</span>) <span class="kw">in</span> <span class="ident">unsupported</span>.<span class="ident">into_iter</span>() {
-                    <span class="kw">match</span> <span class="ident">k</span>.<span class="ident">as_ref</span>() {
+                <span class="kw">for</span> (<span class="ident">k</span>, <span class="ident">v</span>) <span class="kw">in</span> <span class="ident">params</span> {
+                    <span class="kw">match</span> <span class="ident">k</span> {
                         <span class="string">&quot;connection_limit&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                             <span class="kw">let</span> <span class="ident">as_int</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="ident">v</span>
                                 .<span class="ident">parse</span>()
@@ -669,7 +651,7 @@
                             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;tracing-log&quot;</span>))]</span>
                             <span class="macro">trace</span><span class="macro">!</span>(<span class="string">&quot;Discarding connection string param: {}&quot;</span>, <span class="ident">k</span>);
                             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;tracing-log&quot;</span>)]</span>
-                            <span class="ident">tracing</span>::<span class="macro">trace</span><span class="macro">!</span>(<span class="ident">message</span> <span class="op">=</span> <span class="string">&quot;Discarding connection string param&quot;</span>, <span class="ident">param</span> <span class="op">=</span> <span class="ident">k</span>.<span class="ident">as_str</span>());
+                            <span class="ident">tracing</span>::<span class="macro">trace</span><span class="macro">!</span>(<span class="ident">message</span> <span class="op">=</span> <span class="string">&quot;Discarding connection string param&quot;</span>, <span class="ident">param</span> <span class="op">=</span> <span class="ident">k</span>);
                         }
                     };
                 }
