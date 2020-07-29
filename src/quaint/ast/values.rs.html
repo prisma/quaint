@@ -776,6 +776,8 @@
 <span id="776">776</span>
 <span id="777">777</span>
 <span id="778">778</span>
+<span id="779">779</span>
+<span id="780">780</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">ast</span>::<span class="kw-2">*</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">error</span>::{<span class="ident">Error</span>, <span class="ident">ErrorKind</span>};
@@ -1348,7 +1350,9 @@
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;chrono-0_4&quot;</span>)]</span>
 <span class="macro">value</span><span class="macro">!</span>(<span class="ident">val</span>: <span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span>, <span class="ident">DateTime</span>, <span class="ident">val</span>);
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;chrono-0_4&quot;</span>)]</span>
-<span class="macro">value</span><span class="macro">!</span>(<span class="ident">val</span>: <span class="ident">chrono</span>::<span class="ident">NaiveTime</span>, <span class="ident">Text</span>, <span class="ident">val</span>.<span class="ident">to_string</span>().<span class="ident">into</span>());
+<span class="macro">value</span><span class="macro">!</span>(<span class="ident">val</span>: <span class="ident">chrono</span>::<span class="ident">NaiveTime</span>, <span class="ident">Time</span>, <span class="ident">val</span>);
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;chrono-0_4&quot;</span>)]</span>
+<span class="macro">value</span><span class="macro">!</span>(<span class="ident">val</span>: <span class="ident">chrono</span>::<span class="ident">NaiveDate</span>, <span class="ident">Date</span>, <span class="ident">val</span>);
 
 <span class="macro">value</span><span class="macro">!</span>(
     <span class="ident">val</span>: <span class="ident">f64</span>,
