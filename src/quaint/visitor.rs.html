@@ -867,6 +867,19 @@
 <span id="867">867</span>
 <span id="868">868</span>
 <span id="869">869</span>
+<span id="870">870</span>
+<span id="871">871</span>
+<span id="872">872</span>
+<span id="873">873</span>
+<span id="874">874</span>
+<span id="875">875</span>
+<span id="876">876</span>
+<span id="877">877</span>
+<span id="878">878</span>
+<span id="879">879</span>
+<span id="880">880</span>
+<span id="881">881</span>
+<span id="882">882</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Visitors for reading an abstract SQL syntax tree, generating the query and</span>
 <span class="doccomment">//! gathering parameters in the right order.</span>
@@ -1004,37 +1017,50 @@
             <span class="self">self</span>.<span class="ident">write</span>(<span class="string">&quot;DISTINCT &quot;</span>)<span class="question-mark">?</span>;
         }
 
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">table</span>) <span class="op">=</span> <span class="ident">select</span>.<span class="ident">table</span> {
+        <span class="kw">if</span> <span class="op">!</span><span class="ident">select</span>.<span class="ident">tables</span>.<span class="ident">is_empty</span>() {
             <span class="kw">if</span> <span class="ident">select</span>.<span class="ident">columns</span>.<span class="ident">is_empty</span>() {
-                <span class="kw">match</span> <span class="ident">table</span>.<span class="ident">typ</span> {
-                    <span class="ident">TableType</span>::<span class="ident">Query</span>(<span class="kw">_</span>) <span class="op">|</span> <span class="ident">TableType</span>::<span class="ident">Values</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">table</span>.<span class="ident">alias</span> {
-                        <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">alias</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                            <span class="self">self</span>.<span class="ident">surround_with</span>(<span class="self">Self</span>::<span class="ident">C_BACKTICK_OPEN</span>, <span class="self">Self</span>::<span class="ident">C_BACKTICK_CLOSE</span>, <span class="op">|</span><span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">s</span><span class="op">|</span> {
-                                <span class="ident">s</span>.<span class="ident">write</span>(<span class="ident">alias</span>)
-                            })<span class="question-mark">?</span>;
-                            <span class="self">self</span>.<span class="ident">write</span>(<span class="string">&quot;.*&quot;</span>)<span class="question-mark">?</span>;
-                        }
-                        <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">write</span>(<span class="string">&quot;*&quot;</span>)<span class="question-mark">?</span>,
-                    },
-                    <span class="ident">TableType</span>::<span class="ident">Table</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">table</span>.<span class="ident">alias</span>.<span class="ident">clone</span>() {
-                        <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">alias</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                            <span class="self">self</span>.<span class="ident">surround_with</span>(<span class="self">Self</span>::<span class="ident">C_BACKTICK_OPEN</span>, <span class="self">Self</span>::<span class="ident">C_BACKTICK_CLOSE</span>, <span class="op">|</span><span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">s</span><span class="op">|</span> {
-                                <span class="ident">s</span>.<span class="ident">write</span>(<span class="ident">alias</span>)
-                            })<span class="question-mark">?</span>;
-                            <span class="self">self</span>.<span class="ident">write</span>(<span class="string">&quot;.*&quot;</span>)<span class="question-mark">?</span>;
-                        }
-                        <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> {
-                            <span class="self">self</span>.<span class="ident">visit_table</span>(<span class="kw-2">*</span><span class="ident">table</span>.<span class="ident">clone</span>(), <span class="bool-val">false</span>)<span class="question-mark">?</span>;
-                            <span class="self">self</span>.<span class="ident">write</span>(<span class="string">&quot;.*&quot;</span>)<span class="question-mark">?</span>;
-                        }
-                    },
+                <span class="kw">for</span> (<span class="ident">i</span>, <span class="ident">table</span>) <span class="kw">in</span> <span class="ident">select</span>.<span class="ident">tables</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
+                    <span class="kw">if</span> <span class="ident">i</span> <span class="op">&gt;</span> <span class="number">0</span> {
+                        <span class="self">self</span>.<span class="ident">write</span>(<span class="string">&quot;, &quot;</span>)<span class="question-mark">?</span>;
+                    }
+
+                    <span class="kw">match</span> <span class="ident">table</span>.<span class="ident">typ</span> {
+                        <span class="ident">TableType</span>::<span class="ident">Query</span>(<span class="kw">_</span>) <span class="op">|</span> <span class="ident">TableType</span>::<span class="ident">Values</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">table</span>.<span class="ident">alias</span> {
+                            <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">alias</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                                <span class="self">self</span>.<span class="ident">surround_with</span>(<span class="self">Self</span>::<span class="ident">C_BACKTICK_OPEN</span>, <span class="self">Self</span>::<span class="ident">C_BACKTICK_CLOSE</span>, <span class="op">|</span><span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">s</span><span class="op">|</span> {
+                                    <span class="ident">s</span>.<span class="ident">write</span>(<span class="ident">alias</span>)
+                                })<span class="question-mark">?</span>;
+                                <span class="self">self</span>.<span class="ident">write</span>(<span class="string">&quot;.*&quot;</span>)<span class="question-mark">?</span>;
+                            }
+                            <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">write</span>(<span class="string">&quot;*&quot;</span>)<span class="question-mark">?</span>,
+                        },
+                        <span class="ident">TableType</span>::<span class="ident">Table</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">table</span>.<span class="ident">alias</span>.<span class="ident">clone</span>() {
+                            <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">alias</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                                <span class="self">self</span>.<span class="ident">surround_with</span>(<span class="self">Self</span>::<span class="ident">C_BACKTICK_OPEN</span>, <span class="self">Self</span>::<span class="ident">C_BACKTICK_CLOSE</span>, <span class="op">|</span><span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">s</span><span class="op">|</span> {
+                                    <span class="ident">s</span>.<span class="ident">write</span>(<span class="ident">alias</span>)
+                                })<span class="question-mark">?</span>;
+                                <span class="self">self</span>.<span class="ident">write</span>(<span class="string">&quot;.*&quot;</span>)<span class="question-mark">?</span>;
+                            }
+                            <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> {
+                                <span class="self">self</span>.<span class="ident">visit_table</span>(<span class="kw-2">*</span><span class="ident">table</span>.<span class="ident">clone</span>(), <span class="bool-val">false</span>)<span class="question-mark">?</span>;
+                                <span class="self">self</span>.<span class="ident">write</span>(<span class="string">&quot;.*&quot;</span>)<span class="question-mark">?</span>;
+                            }
+                        },
+                    }
                 }
             } <span class="kw">else</span> {
                 <span class="self">self</span>.<span class="ident">visit_columns</span>(<span class="ident">select</span>.<span class="ident">columns</span>)<span class="question-mark">?</span>;
             }
 
             <span class="self">self</span>.<span class="ident">write</span>(<span class="string">&quot; FROM &quot;</span>)<span class="question-mark">?</span>;
-            <span class="self">self</span>.<span class="ident">visit_table</span>(<span class="kw-2">*</span><span class="ident">table</span>, <span class="bool-val">true</span>)<span class="question-mark">?</span>;
+
+            <span class="kw">for</span> (<span class="ident">i</span>, <span class="ident">table</span>) <span class="kw">in</span> <span class="ident">select</span>.<span class="ident">tables</span>.<span class="ident">into_iter</span>().<span class="ident">enumerate</span>() {
+                <span class="kw">if</span> <span class="ident">i</span> <span class="op">&gt;</span> <span class="number">0</span> {
+                    <span class="self">self</span>.<span class="ident">write</span>(<span class="string">&quot;, &quot;</span>)<span class="question-mark">?</span>;
+                }
+
+                <span class="self">self</span>.<span class="ident">visit_table</span>(<span class="kw-2">*</span><span class="ident">table</span>, <span class="bool-val">true</span>)<span class="question-mark">?</span>;
+            }
 
             <span class="kw">if</span> <span class="op">!</span><span class="ident">select</span>.<span class="ident">joins</span>.<span class="ident">is_empty</span>() {
                 <span class="self">self</span>.<span class="ident">visit_joins</span>(<span class="ident">select</span>.<span class="ident">joins</span>)<span class="question-mark">?</span>;

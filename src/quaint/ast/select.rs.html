@@ -531,6 +531,30 @@
 <span id="531">531</span>
 <span id="532">532</span>
 <span id="533">533</span>
+<span id="534">534</span>
+<span id="535">535</span>
+<span id="536">536</span>
+<span id="537">537</span>
+<span id="538">538</span>
+<span id="539">539</span>
+<span id="540">540</span>
+<span id="541">541</span>
+<span id="542">542</span>
+<span id="543">543</span>
+<span id="544">544</span>
+<span id="545">545</span>
+<span id="546">546</span>
+<span id="547">547</span>
+<span id="548">548</span>
+<span id="549">549</span>
+<span id="550">550</span>
+<span id="551">551</span>
+<span id="552">552</span>
+<span id="553">553</span>
+<span id="554">554</span>
+<span id="555">555</span>
+<span id="556">556</span>
+<span id="557">557</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">ast</span>::<span class="kw-2">*</span>;
 
@@ -538,7 +562,7 @@
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Clone</span>, <span class="ident">Default</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Select</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">distinct</span>: <span class="ident">bool</span>,
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">table</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="ident">Table</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">tables</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="ident">Table</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">columns</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">conditions</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ConditionTree</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">ordering</span>: <span class="ident">Ordering</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
@@ -635,9 +659,33 @@
         <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Table</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     {
         <span class="ident">Select</span> {
-            <span class="ident">table</span>: <span class="prelude-val">Some</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">table</span>.<span class="ident">into</span>())),
+            <span class="ident">tables</span>: <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">table</span>.<span class="ident">into</span>())],
             ..<span class="ident">Default</span>::<span class="ident">default</span>()
         }
+    }
+
+    <span class="doccomment">/// Adds a table to be selected.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// ```rust</span>
+    <span class="doccomment">/// # use quaint::{ast::*, visitor::{Visitor, Sqlite}};</span>
+    <span class="doccomment">/// # fn main() -&gt; Result&lt;(), quaint::error::Error&gt; {</span>
+    <span class="doccomment">/// let query = Select::from_table(&quot;users&quot;)</span>
+    <span class="doccomment">///     .and_from(Table::from(Select::default().value(1)).alias(&quot;num&quot;))</span>
+    <span class="doccomment">///     .column((&quot;users&quot;, &quot;name&quot;))</span>
+    <span class="doccomment">///     .value(Table::from(&quot;num&quot;).asterisk());</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// let (sql, _) = Sqlite::build(query)?;</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// assert_eq!(&quot;SELECT `users`.`name`, `num`.* FROM `users`, (SELECT ?) AS `num`&quot;, sql);</span>
+    <span class="doccomment">/// # Ok(())</span>
+    <span class="doccomment">/// # }</span>
+    <span class="doccomment">/// ```</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">and_from</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">table</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>
+    <span class="kw">where</span>
+        <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Table</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    {
+        <span class="self">self</span>.<span class="ident">tables</span>.<span class="ident">push</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">table</span>.<span class="ident">into</span>()));
+        <span class="self">self</span>
     }
 
     <span class="doccomment">/// Selects a static value as the column.</span>
