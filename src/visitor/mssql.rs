@@ -1225,8 +1225,8 @@ mod tests {
     fn test_from() {
         let expected_sql = "SELECT [foo].*, [bar].[a] FROM [foo], (SELECT [a] FROM [baz]) AS [bar]";
         let query = Select::default()
-            .from("foo")
-            .from(Table::from(Select::from_table("baz").column("a")).alias("bar"))
+            .and_from("foo")
+            .and_from(Table::from(Select::from_table("baz").column("a")).alias("bar"))
             .value(Table::from("foo").asterisk())
             .column(("bar", "a"));
 

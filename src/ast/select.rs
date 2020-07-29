@@ -112,7 +112,7 @@ impl<'a> Select<'a> {
     /// # use quaint::{ast::*, visitor::{Visitor, Sqlite}};
     /// # fn main() -> Result<(), quaint::error::Error> {
     /// let query = Select::from_table("users")
-    ///     .from(Table::from(Select::default().value(1)).alias("num"))
+    ///     .and_from(Table::from(Select::default().value(1)).alias("num"))
     ///     .column(("users", "name"))
     ///     .value(Table::from("num").asterisk());
     ///
@@ -122,7 +122,7 @@ impl<'a> Select<'a> {
     /// # Ok(())
     /// # }
     /// ```
-    pub fn from<T>(mut self, table: T) -> Self
+    pub fn and_from<T>(mut self, table: T) -> Self
     where
         T: Into<Table<'a>>,
     {
