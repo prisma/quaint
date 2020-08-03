@@ -33,7 +33,7 @@ pub struct Table<'a> {
 }
 
 impl<'a> PartialEq for Table<'a> {
-    fn eq(&self, other: &Table) -> bool {
+    fn eq(&self, other: &Table<'_>) -> bool {
         self.typ == other.typ && self.database == other.database
     }
 }
@@ -91,7 +91,7 @@ impl<'a> Table<'a> {
                 Some(dual_col.equals(column.clone()).into())
             };
 
-            Ok::<Option<ConditionTree>, Error>(cond)
+            Ok::<Option<ConditionTree<'_>>, Error>(cond)
         };
 
         for index in self.index_definitions.iter() {

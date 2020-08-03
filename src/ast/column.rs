@@ -39,7 +39,7 @@ where
 }
 
 impl<'a> PartialEq for Column<'a> {
-    fn eq(&self, other: &Column) -> bool {
+    fn eq(&self, other: &Column<'_>) -> bool {
         self.name == other.name && self.table == other.table
     }
 }

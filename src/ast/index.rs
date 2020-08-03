@@ -33,7 +33,7 @@ impl<'a> IndexDefinition<'a> {
     }
 
     /// True if the index definition contains the given column.
-    pub fn contains(&self, column: &Column) -> bool {
+    pub fn contains(&self, column: &Column<'_>) -> bool {
         match self {
             Self::Single(ref c) if c == column => true,
             Self::Compound(ref cols) if cols.iter().any(|c| c == column) => true,

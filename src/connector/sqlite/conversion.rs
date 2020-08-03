@@ -168,7 +168,7 @@ impl<'a> ToColumnNames for SqliteRows<'a> {
 }
 
 impl<'a> ToSql for Value<'a> {
-    fn to_sql(&self) -> Result<ToSqlOutput, RusqlError> {
+    fn to_sql(&self) -> Result<ToSqlOutput<'_>, RusqlError> {
         let value = match self {
             Value::Integer(integer) => integer.map(|i| ToSqlOutput::from(i)),
             Value::Real(d) => d.map(|d| ToSqlOutput::from(d.to_f64().expect("Decimal is not a f64."))),

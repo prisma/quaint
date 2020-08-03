@@ -38,14 +38,14 @@ pub trait IntoGroupByDefinition<'a> {
 
 impl<'a> IntoGroupByDefinition<'a> for &'a str {
     fn into_group_by_definition(self) -> GroupByDefinition<'a> {
-        let column: Column = self.into();
+        let column: Column<'_> = self.into();
         column.into()
     }
 }
 
 impl<'a> IntoGroupByDefinition<'a> for (&'a str, &'a str) {
     fn into_group_by_definition(self) -> GroupByDefinition<'a> {
-        let column: Column = self.into();
+        let column: Column<'_> = self.into();
         column.into()
     }
 }
