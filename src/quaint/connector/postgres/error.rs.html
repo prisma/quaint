@@ -234,6 +234,21 @@
 <span id="234">234</span>
 <span id="235">235</span>
 <span id="236">236</span>
+<span id="237">237</span>
+<span id="238">238</span>
+<span id="239">239</span>
+<span id="240">240</span>
+<span id="241">241</span>
+<span id="242">242</span>
+<span id="243">243</span>
+<span id="244">244</span>
+<span id="245">245</span>
+<span id="246">246</span>
+<span id="247">247</span>
+<span id="248">248</span>
+<span id="249">249</span>
+<span id="250">250</span>
+<span id="251">251</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">error</span>::{<span class="ident">DatabaseConstraint</span>, <span class="ident">Error</span>, <span class="ident">ErrorKind</span>};
 
@@ -301,19 +316,34 @@
                 <span class="kw">let</span> <span class="ident">error</span> <span class="op">=</span> <span class="ident">e</span>.<span class="ident">into_source</span>().<span class="ident">unwrap</span>(); <span class="comment">// boom</span>
                 <span class="kw">let</span> <span class="ident">db_error</span> <span class="op">=</span> <span class="ident">error</span>.<span class="ident">downcast_ref</span>::<span class="op">&lt;</span><span class="ident">DbError</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>(); <span class="comment">// BOOM</span>
 
-                <span class="kw">let</span> <span class="ident">column_name</span> <span class="op">=</span> <span class="ident">db_error</span>
-                    .<span class="ident">column</span>()
-                    .<span class="ident">expect</span>(<span class="string">&quot;column on null constraint violation error&quot;</span>)
-                    .<span class="ident">to_owned</span>();
+                <span class="kw">match</span> <span class="ident">db_error</span>.<span class="ident">column</span>() {
+                    <span class="prelude-val">Some</span>(<span class="ident">column</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="kw">let</span> <span class="ident">column_name</span> <span class="op">=</span> <span class="ident">column</span>.<span class="ident">to_owned</span>();
 
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">builder</span> <span class="op">=</span> <span class="ident">Error</span>::<span class="ident">builder</span>(<span class="ident">ErrorKind</span>::<span class="ident">ForeignKeyConstraintViolation</span> {
-                    <span class="ident">constraint</span>: <span class="ident">DatabaseConstraint</span>::<span class="ident">Fields</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="ident">column_name</span>]),
-                });
+                        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">builder</span> <span class="op">=</span> <span class="ident">Error</span>::<span class="ident">builder</span>(<span class="ident">ErrorKind</span>::<span class="ident">ForeignKeyConstraintViolation</span> {
+                            <span class="ident">constraint</span>: <span class="ident">DatabaseConstraint</span>::<span class="ident">Fields</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="ident">column_name</span>]),
+                        });
 
-                <span class="ident">builder</span>.<span class="ident">set_original_code</span>(<span class="ident">code</span>);
-                <span class="ident">builder</span>.<span class="ident">set_original_message</span>(<span class="ident">db_error</span>.<span class="ident">message</span>());
+                        <span class="ident">builder</span>.<span class="ident">set_original_code</span>(<span class="ident">code</span>);
+                        <span class="ident">builder</span>.<span class="ident">set_original_message</span>(<span class="ident">db_error</span>.<span class="ident">message</span>());
 
-                <span class="ident">builder</span>.<span class="ident">build</span>()
+                        <span class="ident">builder</span>.<span class="ident">build</span>()
+                    }
+                    <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="kw">let</span> <span class="ident">message</span> <span class="op">=</span> <span class="ident">db_error</span>.<span class="ident">message</span>();
+                        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">splitted</span> <span class="op">=</span> <span class="ident">message</span>.<span class="ident">split_whitespace</span>();
+                        <span class="kw">let</span> <span class="ident">constraint</span> <span class="op">=</span> <span class="ident">splitted</span>.<span class="ident">nth</span>(<span class="number">10</span>).<span class="ident">unwrap</span>().<span class="ident">split</span>(<span class="string">&#39;&quot;&#39;</span>).<span class="ident">nth</span>(<span class="number">1</span>).<span class="ident">unwrap</span>().<span class="ident">to_string</span>();
+
+                        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">builder</span> <span class="op">=</span> <span class="ident">Error</span>::<span class="ident">builder</span>(<span class="ident">ErrorKind</span>::<span class="ident">ForeignKeyConstraintViolation</span> {
+                            <span class="ident">constraint</span>: <span class="ident">DatabaseConstraint</span>::<span class="ident">Index</span>(<span class="ident">constraint</span>),
+                        });
+
+                        <span class="ident">builder</span>.<span class="ident">set_original_code</span>(<span class="ident">code</span>);
+                        <span class="ident">builder</span>.<span class="ident">set_original_message</span>(<span class="ident">message</span>);
+
+                        <span class="ident">builder</span>.<span class="ident">build</span>()
+                    }
+                }
             }
             <span class="prelude-val">Some</span>(<span class="ident">code</span>) <span class="kw">if</span> <span class="ident">code</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;3D000&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">let</span> <span class="ident">code</span> <span class="op">=</span> <span class="ident">code</span>.<span class="ident">to_string</span>();
@@ -472,4 +502,4 @@
     }
 }
 </pre></div>
-</section><section id="search" class="content hidden"></section><section class="footer"></section><script>window.rootPath = "../../../../";window.currentCrate = "quaint";</script><script src="../../../../aliases.js"></script><script src="../../../../main.js"></script><script src="../../../../source-script.js"></script><script src="../../../../source-files.js"></script><script defer src="../../../../search-index.js"></script></body></html>
+</section><section id="search" class="content hidden"></section><section class="footer"></section><script>window.rootPath = "../../../../";window.currentCrate = "quaint";</script><script src="../../../../main.js"></script><script src="../../../../source-script.js"></script><script src="../../../../source-files.js"></script><script defer src="../../../../search-index.js"></script></body></html>

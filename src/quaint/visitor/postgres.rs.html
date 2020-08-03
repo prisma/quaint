@@ -629,7 +629,7 @@
 
                     <span class="self">self</span>.<span class="ident">write</span>(<span class="string">&quot; (&quot;</span>)<span class="question-mark">?</span>;
                     <span class="kw">for</span> (<span class="ident">i</span>, <span class="ident">c</span>) <span class="kw">in</span> <span class="ident">insert</span>.<span class="ident">columns</span>.<span class="ident">into_iter</span>().<span class="ident">enumerate</span>() {
-                        <span class="self">self</span>.<span class="ident">visit_column</span>(<span class="ident">c</span>)<span class="question-mark">?</span>;
+                        <span class="self">self</span>.<span class="ident">visit_column</span>(<span class="ident">c</span>.<span class="ident">name</span>.<span class="ident">into_owned</span>().<span class="ident">into</span>())<span class="question-mark">?</span>;
 
                         <span class="kw">if</span> <span class="ident">i</span> <span class="op">&lt;</span> (<span class="ident">columns</span> <span class="op">-</span> <span class="number">1</span>) {
                             <span class="self">self</span>.<span class="ident">write</span>(<span class="string">&quot;,&quot;</span>)<span class="question-mark">?</span>;
@@ -649,7 +649,7 @@
 
                 <span class="self">self</span>.<span class="ident">write</span>(<span class="string">&quot; (&quot;</span>)<span class="question-mark">?</span>;
                 <span class="kw">for</span> (<span class="ident">i</span>, <span class="ident">c</span>) <span class="kw">in</span> <span class="ident">insert</span>.<span class="ident">columns</span>.<span class="ident">into_iter</span>().<span class="ident">enumerate</span>() {
-                    <span class="self">self</span>.<span class="ident">visit_column</span>(<span class="ident">c</span>)<span class="question-mark">?</span>;
+                    <span class="self">self</span>.<span class="ident">visit_column</span>(<span class="ident">c</span>.<span class="ident">name</span>.<span class="ident">into_owned</span>().<span class="ident">into</span>())<span class="question-mark">?</span>;
 
                     <span class="kw">if</span> <span class="ident">i</span> <span class="op">&lt;</span> (<span class="ident">columns</span> <span class="op">-</span> <span class="number">1</span>) {
                         <span class="self">self</span>.<span class="ident">write</span>(<span class="string">&quot;,&quot;</span>)<span class="question-mark">?</span>;
@@ -996,4 +996,4 @@
     }
 }
 </pre></div>
-</section><section id="search" class="content hidden"></section><section class="footer"></section><script>window.rootPath = "../../../";window.currentCrate = "quaint";</script><script src="../../../aliases.js"></script><script src="../../../main.js"></script><script src="../../../source-script.js"></script><script src="../../../source-files.js"></script><script defer src="../../../search-index.js"></script></body></html>
+</section><section id="search" class="content hidden"></section><section class="footer"></section><script>window.rootPath = "../../../";window.currentCrate = "quaint";</script><script src="../../../main.js"></script><script src="../../../source-script.js"></script><script src="../../../source-files.js"></script><script defer src="../../../search-index.js"></script></body></html>

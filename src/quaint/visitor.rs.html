@@ -1709,7 +1709,7 @@
             }
             <span class="ident">FunctionType</span>::<span class="ident">Sum</span>(<span class="ident">sum</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="self">self</span>.<span class="ident">write</span>(<span class="string">&quot;SUM&quot;</span>)<span class="question-mark">?</span>;
-                <span class="self">self</span>.<span class="ident">surround_with</span>(<span class="string">&quot;(&quot;</span>, <span class="string">&quot;)&quot;</span>, <span class="op">|</span><span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">s</span><span class="op">|</span> <span class="ident">s</span>.<span class="ident">visit_column</span>(<span class="ident">sum</span>.<span class="ident">column</span>))<span class="question-mark">?</span>;
+                <span class="self">self</span>.<span class="ident">surround_with</span>(<span class="string">&quot;(&quot;</span>, <span class="string">&quot;)&quot;</span>, <span class="op">|</span><span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">s</span><span class="op">|</span> <span class="ident">s</span>.<span class="ident">visit_expression</span>(<span class="kw-2">*</span><span class="ident">sum</span>.<span class="ident">expr</span>))<span class="question-mark">?</span>;
             }
             <span class="ident">FunctionType</span>::<span class="ident">Lower</span>(<span class="ident">lower</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="self">self</span>.<span class="ident">write</span>(<span class="string">&quot;LOWER&quot;</span>)<span class="question-mark">?</span>;
@@ -1764,4 +1764,4 @@
     }
 }
 </pre></div>
-</section><section id="search" class="content hidden"></section><section class="footer"></section><script>window.rootPath = "../../";window.currentCrate = "quaint";</script><script src="../../aliases.js"></script><script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script><script defer src="../../search-index.js"></script></body></html>
+</section><section id="search" class="content hidden"></section><section class="footer"></section><script>window.rootPath = "../../";window.currentCrate = "quaint";</script><script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script><script defer src="../../search-index.js"></script></body></html>

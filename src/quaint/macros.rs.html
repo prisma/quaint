@@ -193,6 +193,8 @@
 <span id="193">193</span>
 <span id="194">194</span>
 <span id="195">195</span>
+<span id="196">196</span>
+<span id="197">197</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">/// Convert given set of tuples into `Values`.</span>
 <span class="doccomment">///</span>
@@ -354,6 +356,7 @@
     };
 }
 
+<span class="doccomment">/// A test-generator to test types in the defined database.</span>
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
 <span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">test_type</span> {
     (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>:<span class="ident">ident</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">db</span>:<span class="ident">ident</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">sql_type</span>:<span class="ident">literal</span>, $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">value</span>:<span class="ident">expr</span>),<span class="op">+</span> $(,)<span class="question-mark">?</span>)) <span class="op">=</span><span class="op">&gt;</span> {
@@ -362,13 +365,14 @@
             <span class="kw">fn</span> [<span class="op">&lt;</span> <span class="ident">test_type_</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span> <span class="op">&gt;</span>] () <span class="op">-</span><span class="op">&gt;</span> <span class="kw">crate</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
                 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">ast</span>::<span class="kw-2">*</span>;
                 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">connector</span>::<span class="ident">Queryable</span>;
+                <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">tests</span>::<span class="ident">test_api</span>::<span class="ident">TestApi</span>;
                 <span class="kw">use</span> <span class="ident">tokio</span>::<span class="ident">runtime</span>::<span class="ident">Builder</span>;
 
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rt</span> <span class="op">=</span> <span class="ident">Builder</span>::<span class="ident">new</span>().<span class="ident">threaded_scheduler</span>().<span class="ident">enable_io</span>().<span class="ident">enable_time</span>().<span class="ident">build</span>().<span class="ident">unwrap</span>();
 
                 <span class="ident">rt</span>.<span class="ident">block_on</span>(<span class="kw">async</span> {
                     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">setup</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">db</span>::<span class="ident">new</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-                    <span class="kw">let</span> <span class="ident">table</span> <span class="op">=</span> <span class="ident">setup</span>.<span class="ident">create_table</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">sql_type</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+                    <span class="kw">let</span> <span class="ident">table</span> <span class="op">=</span> <span class="ident">setup</span>.<span class="ident">create_type_table</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">sql_type</span>).<span class="kw">await</span><span class="question-mark">?</span>;
 
                     $(
                         <span class="kw">let</span> <span class="ident">value</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">value</span>;
@@ -390,4 +394,4 @@
     }
 }
 </pre></div>
-</section><section id="search" class="content hidden"></section><section class="footer"></section><script>window.rootPath = "../../";window.currentCrate = "quaint";</script><script src="../../aliases.js"></script><script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script><script defer src="../../search-index.js"></script></body></html>
+</section><section id="search" class="content hidden"></section><section class="footer"></section><script>window.rootPath = "../../";window.currentCrate = "quaint";</script><script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script><script defer src="../../search-index.js"></script></body></html>
