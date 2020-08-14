@@ -452,7 +452,7 @@ pub trait Comparable<'a> {
         T: Into<Expression<'a>>,
         V: Into<Expression<'a>>;
 
-    /// Tests if the value is not between two given values.
+    /// Compares two expressions with a custom operator.
     ///
     /// ```rust
     /// # use quaint::{ast::*, visitor::{Visitor, Sqlite}};
