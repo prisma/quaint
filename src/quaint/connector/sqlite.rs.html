@@ -245,9 +245,13 @@
 <span id="245">245</span>
 <span id="246">246</span>
 <span id="247">247</span>
+<span id="248">248</span>
+<span id="249">249</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">mod</span> <span class="ident">conversion</span>;
 <span class="kw">mod</span> <span class="ident">error</span>;
+
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">rusqlite</span>::<span class="ident">version</span> <span class="kw">as</span> <span class="ident">sqlite_version</span>;
 
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">ast</span>::{<span class="ident">Query</span>, <span class="ident">Value</span>},
