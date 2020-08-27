@@ -432,7 +432,7 @@ impl PostgreSql {
 
         let schema = url.schema();
 
-        // SET NAMES sets the client text encoding. It needs to be explicitly set for automatic
+        // SET NAMES sets the client text encoding. It needs to be explicitly set for automatic
         // conversion to and from UTF-8 to happen server-side.
         //
         // Relevant docs: https://www.postgresql.org/docs/current/multibyte.html
@@ -698,6 +698,24 @@ mod tests {
 
         let err = res.unwrap_err();
         assert!(matches!(err.kind(), ErrorKind::AuthenticationFailed { user } if user == "WRONG"));
+    }
+
+    #[tokio::test]
+    async fn should_map_database_already_exists_error() {
+        let conn = Quaint::new(&CONN_STR).await.unwrap();
+
+        conn.raw_cmd("DROP DATABASE IF EXISTS \"preexisting_db\"")
+            .await
+            .unwrap();
+        conn.raw_cmd("CREATE DATABASE \"preexisting_db\"").await.unwrap();
+
+        let err = conn.raw_cmd("CREATE DATABASE \"preexisting_db\"").await.unwrap_err();
+        let expected_err = Error::builder(ErrorKind::DatabaseAlreadyExists {
+            db_name: "preexisting_db".into(),
+        })
+        .build();
+
+        assert_eq!(err.to_string(), expected_err.to_string());
     }
 
     #[tokio::test]
