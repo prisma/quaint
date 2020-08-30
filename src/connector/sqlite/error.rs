@@ -1,46 +1,11 @@
-use crate::error::*;
-use libsqlite3_sys as ffi;
-use rusqlite::types::FromSqlError;
+use crate::error::{DatabaseConstraint, Error, ErrorKind};
+use sqlx::{error::DatabaseError, sqlite::SqliteError};
 
-impl From<rusqlite::Error> for Error {
-    fn from(e: rusqlite::Error) -> Error {
-        match e {
-            rusqlite::Error::ToSqlConversionFailure(error) => match error.downcast::<Error>() {
-                Ok(error) => *error,
-                Err(error) => {
-                    let mut builder = Error::builder(ErrorKind::QueryError(error.into()));
-
-                    builder.set_original_message("Could not interpret parameters in an SQLite query.");
-
-                    builder.build()
-                }
-            },
-            rusqlite::Error::InvalidQuery => {
-                let mut builder = Error::builder(ErrorKind::QueryError(e.into()));
-
-                builder.set_original_message(
-                    "Could not interpret the query or its parameters. Check the syntax and parameter types.",
-                );
-
-                builder.build()
-            }
-            rusqlite::Error::ExecuteReturnedResults => {
-                let mut builder = Error::builder(ErrorKind::QueryError(e.into()));
-                builder.set_original_message("Execute returned results, which is not allowed in SQLite.");
-
-                builder.build()
-            }
-
-            rusqlite::Error::QueryReturnedNoRows => Error::builder(ErrorKind::NotFound).build(),
-
-            rusqlite::Error::SqliteFailure(
-                ffi::Error {
-                    code: ffi::ErrorCode::ConstraintViolation,
-                    extended_code: 2067,
-                },
-                Some(description),
-            ) => {
-                let splitted: Vec<&str> = description.split(": ").collect();
+impl From<SqliteError> for Error {
+    fn from(e: SqliteError) -> Self {
+        match e.code().map(|c| c.into_owned()) {
+            Some(code) if code == "2067" => {
+                let splitted: Vec<&str> = e.message().split(": ").collect();
 
                 let field_names: Vec<String> = splitted[1]
                     .split(", ")
@@ -52,20 +17,14 @@ impl From<rusqlite::Error> for Error {
                     constraint: DatabaseConstraint::Fields(field_names),
                 });
 
-                builder.set_original_code("2067");
-                builder.set_original_message(description);
+                builder.set_original_code(code);
+                builder.set_original_message(e.message());
 
                 builder.build()
             }
 
-            rusqlite::Error::SqliteFailure(
-                ffi::Error {
-                    code: ffi::ErrorCode::ConstraintViolation,
-                    extended_code: 1555,
-                },
-                Some(description),
-            ) => {
-                let splitted: Vec<&str> = description.split(": ").collect();
+            Some(code) if code == "1555" => {
+                let splitted: Vec<&str> = e.message().split(": ").collect();
 
                 let field_names: Vec<String> = splitted[1]
                     .split(", ")
@@ -77,20 +36,14 @@ impl From<rusqlite::Error> for Error {
                     constraint: DatabaseConstraint::Fields(field_names),
                 });
 
-                builder.set_original_code("1555");
-                builder.set_original_message(description);
+                builder.set_original_code(code);
+                builder.set_original_message(e.message());
 
                 builder.build()
             }
 
-            rusqlite::Error::SqliteFailure(
-                ffi::Error {
-                    code: ffi::ErrorCode::ConstraintViolation,
-                    extended_code: 1299,
-                },
-                Some(description),
-            ) => {
-                let splitted: Vec<&str> = description.split(": ").collect();
+            Some(code) if code == "1299" => {
+                let splitted: Vec<&str> = e.message().split(": ").collect();
 
                 let field_names: Vec<String> = splitted[1]
                     .split(", ")
@@ -102,75 +55,52 @@ impl From<rusqlite::Error> for Error {
                     constraint: DatabaseConstraint::Fields(field_names),
                 });
 
-                builder.set_original_code("1299");
-                builder.set_original_message(description);
+                builder.set_original_code(code);
+                builder.set_original_message(e.message());
 
                 builder.build()
             }
 
-            rusqlite::Error::SqliteFailure(
-                ffi::Error {
-                    code: ffi::ErrorCode::ConstraintViolation,
-                    extended_code: 787,
-                },
-                Some(description),
-            ) => {
+            Some(code) if code == "787" => {
                 let mut builder = Error::builder(ErrorKind::ForeignKeyConstraintViolation {
                     constraint: DatabaseConstraint::ForeignKey,
                 });
 
-                builder.set_original_code("787");
-                builder.set_original_message(description);
+                builder.set_original_code(code);
+                builder.set_original_message(e.message());
 
                 builder.build()
             }
 
-            rusqlite::Error::SqliteFailure(
-                ffi::Error {
-                    code: ffi::ErrorCode::DatabaseBusy,
-                    extended_code,
-                },
-                description,
-            ) => {
+            Some(code) if code == "261" || code == "517" => {
                 let mut builder = Error::builder(ErrorKind::Timeout("SQLite database is busy".into()));
-                builder.set_original_code(format!("{}", extended_code));
-
-                if let Some(description) = description {
-                    builder.set_original_message(description);
-                }
+                builder.set_original_code(code);
+                builder.set_original_message(e.message());
 
                 builder.build()
             }
 
-            rusqlite::Error::SqliteFailure(ffi::Error { extended_code, .. }, ref description) => match description {
-                Some(d) if d.starts_with("no such table") => {
-                    let table = d.split(": ").last().unwrap().into();
+            Some(code) => {
+                let message = e.message().to_string();
+
+                if message.starts_with("no such table") {
+                    let table = message.split(": ").last().unwrap().into();
 
                     let mut builder = Error::builder(ErrorKind::TableDoesNotExist { table });
-                    builder.set_original_code(format!("{}", extended_code));
-                    builder.set_original_message(d);
+                    builder.set_original_code(code);
+                    builder.set_original_message(message);
 
                     builder.build()
-                }
-                _ => {
-                    let description = description.as_ref().map(|d| d.to_string());
+                } else {
                     let mut builder = Error::builder(ErrorKind::QueryError(e.into()));
-                    builder.set_original_code(format!("{}", extended_code));
-
-                    if let Some(description) = description {
-                        builder.set_original_message(description);
-                    }
+                    builder.set_original_code(code);
+                    builder.set_original_message(message);
 
                     builder.build()
                 }
-            },
-            e => Error::builder(ErrorKind::QueryError(e.into())).build(),
-        }
-    }
-}
+            }
 
-impl From<FromSqlError> for Error {
-    fn from(e: FromSqlError) -> Error {
-        Error::builder(ErrorKind::ColumnReadFailure(e.into())).build()
+            None => Error::builder(ErrorKind::QueryError(e.into())).build(),
+        }
     }
 }

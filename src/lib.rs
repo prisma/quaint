@@ -138,6 +138,7 @@ mod tests;
 use once_cell::sync::Lazy;
 
 pub use ast::Value;
+pub use rust_decimal::Decimal;
 
 pub(crate) static LOG_QUERIES: Lazy<bool> = Lazy::new(|| std::env::var("LOG_QUERIES").map(|_| true).unwrap_or(false));
 

@@ -31,11 +31,15 @@ impl Queryable for PooledConnection {
         self.inner.execute(q).await
     }
 
-    async fn query_raw(&self, sql: &str, params: &[ast::Value<'_>]) -> crate::Result<connector::ResultSet> {
+    async fn insert(&self, q: ast::Insert<'_>) -> crate::Result<connector::ResultSet> {
+        self.inner.insert(q).await
+    }
+
+    async fn query_raw(&self, sql: &str, params: Vec<ast::Value<'_>>) -> crate::Result<connector::ResultSet> {
         self.inner.query_raw(sql, params).await
     }
 
-    async fn execute_raw(&self, sql: &str, params: &[ast::Value<'_>]) -> crate::Result<u64> {
+    async fn execute_raw(&self, sql: &str, params: Vec<ast::Value<'_>>) -> crate::Result<u64> {
         self.inner.execute_raw(sql, params).await
     }
 
@@ -82,7 +86,7 @@ impl Manager for QuaintManager {
             QuaintManager::Sqlite { url, db_name } => {
                 use crate::connector::Sqlite;
 
-                let mut conn = Sqlite::new(&url)?;
+                let mut conn = Sqlite::new(&url).await?;
                 conn.attach_database(db_name).await?;
 
                 Ok(Box::new(conn) as Self::Connection)
@@ -91,7 +95,7 @@ impl Manager for QuaintManager {
             #[cfg(feature = "mysql")]
             QuaintManager::Mysql(url) => {
                 use crate::connector::Mysql;
-                Ok(Box::new(Mysql::new(url.clone())?) as Self::Connection)
+                Ok(Box::new(Mysql::new(url.clone()).await?) as Self::Connection)
             }
 
             #[cfg(feature = "postgresql")]

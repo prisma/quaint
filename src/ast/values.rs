@@ -332,6 +332,7 @@ impl<'a> Value<'a> {
 
     /// Transforms the `Value` to a `String` if it's text,
     /// otherwise `None`.
+
     pub fn into_string(self) -> Option<String> {
         match self {
             Value::Text(Some(cow)) => Some(cow.into_owned()),
@@ -362,6 +363,15 @@ impl<'a> Value<'a> {
         match self {
             Value::Text(Some(cow)) => Some(cow.to_string().into_bytes()),
             Value::Bytes(Some(cow)) => Some(cow.to_owned().into()),
+            _ => None,
+        }
+    }
+
+    /// Returns a cloned `Vec<u8>` if the value is text or a byte slice, otherwise `None`.
+    pub fn into_bytes(self) -> Option<Vec<u8>> {
+        match self {
+            Value::Text(Some(cow)) => Some(cow.into_owned().into()),
+            Value::Bytes(Some(cow)) => Some(cow.into_owned()),
             _ => None,
         }
     }
@@ -485,6 +495,7 @@ impl<'a> Value<'a> {
     pub fn as_date(&self) -> Option<NaiveDate> {
         match self {
             Value::Date(dt) => dt.clone(),
+            Value::DateTime(dt) => dt.map(|dt| dt.date().naive_utc()),
             _ => None,
         }
     }
@@ -503,6 +514,7 @@ impl<'a> Value<'a> {
     pub fn as_time(&self) -> Option<NaiveTime> {
         match self {
             Value::Time(time) => time.clone(),
+            Value::DateTime(dt) => dt.map(|dt| dt.time()),
             _ => None,
         }
     }
