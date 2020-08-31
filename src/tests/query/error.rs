@@ -48,7 +48,7 @@ async fn column_does_not_exist_on_read(api: &mut dyn TestApi) -> crate::Result<(
     let table = api.create_table("id1 int").await?;
 
     let insert = Insert::single_into(&table).value("id1", 1);
-    api.conn().insert(insert.clone().into()).await;
+    api.conn().insert(insert.clone().into()).await?;
 
     let select = format!("Select does_not_exist from {}", table);
     let res = api.conn().query_raw(&select, &[]).await;
