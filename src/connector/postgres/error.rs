@@ -154,7 +154,7 @@ impl From<tokio_postgres::error::Error> for Error {
                 let column = if column.len() == 1 {
                     column[0].into()
                 } else {
-                    column[0].into()
+                    column[1].into()
                 };
 
                 let mut builder = Error::builder(ErrorKind::ColumnNotFound { column });
