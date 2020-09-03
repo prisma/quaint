@@ -709,7 +709,7 @@
 
         <span class="macro">write</span><span class="macro">!</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">buf</span>, <span class="string">&quot;Server=tcp:{},{}&quot;</span>, <span class="ident">params</span>.<span class="ident">host</span>(), <span class="ident">params</span>.<span class="ident">port</span>())<span class="question-mark">?</span>;
         <span class="macro">write</span><span class="macro">!</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">buf</span>, <span class="string">&quot;;Encrypt={}&quot;</span>, <span class="ident">params</span>.<span class="ident">encrypt</span>())<span class="question-mark">?</span>;
-        <span class="macro">write</span><span class="macro">!</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">buf</span>, <span class="string">&quot;;Intial Catalog={}&quot;</span>, <span class="ident">params</span>.<span class="ident">database</span>())<span class="question-mark">?</span>;
+        <span class="macro">write</span><span class="macro">!</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">buf</span>, <span class="string">&quot;;Database={}&quot;</span>, <span class="ident">params</span>.<span class="ident">database</span>())<span class="question-mark">?</span>;
 
         <span class="macro">write</span><span class="macro">!</span>(
             <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">buf</span>,
