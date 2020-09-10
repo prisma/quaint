@@ -295,8 +295,6 @@
 <span id="295">295</span>
 <span id="296">296</span>
 <span id="297">297</span>
-<span id="298">298</span>
-<span id="299">299</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Convert results from the database into any type implementing `serde::Deserialize`.</span>
 
@@ -404,8 +402,6 @@
     <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">DeserializeError</span>;
 
     <span class="kw">fn</span> <span class="ident">deserialize_any</span><span class="op">&lt;</span><span class="ident">V</span>: <span class="ident">Visitor</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">visitor</span>: <span class="ident">V</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">V</span>::<span class="ident">Value</span>, <span class="self">Self</span>::<span class="ident">Error</span><span class="op">&gt;</span> {
-        <span class="kw">use</span> <span class="ident">rust_decimal</span>::<span class="ident">prelude</span>::<span class="ident">ToPrimitive</span>;
-
         <span class="kw">match</span> <span class="self">self</span>.<span class="number">0</span> {
             <span class="ident">Value</span>::<span class="ident">Text</span>(<span class="prelude-val">Some</span>(<span class="ident">s</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">visitor</span>.<span class="ident">visit_string</span>(<span class="ident">s</span>.<span class="ident">into_owned</span>()),
             <span class="ident">Value</span>::<span class="ident">Text</span>(<span class="prelude-val">None</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">visitor</span>.<span class="ident">visit_none</span>(),
@@ -419,7 +415,7 @@
             <span class="ident">Value</span>::<span class="ident">Boolean</span>(<span class="prelude-val">None</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">visitor</span>.<span class="ident">visit_none</span>(),
             <span class="ident">Value</span>::<span class="ident">Char</span>(<span class="prelude-val">Some</span>(<span class="ident">c</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">visitor</span>.<span class="ident">visit_char</span>(<span class="ident">c</span>),
             <span class="ident">Value</span>::<span class="ident">Char</span>(<span class="prelude-val">None</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">visitor</span>.<span class="ident">visit_none</span>(),
-            <span class="ident">Value</span>::<span class="ident">Real</span>(<span class="prelude-val">Some</span>(<span class="ident">real</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">visitor</span>.<span class="ident">visit_f64</span>(<span class="ident">real</span>.<span class="ident">to_f64</span>().<span class="ident">unwrap</span>()),
+            <span class="ident">Value</span>::<span class="ident">Real</span>(<span class="prelude-val">Some</span>(<span class="ident">real</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">visitor</span>.<span class="ident">visit_f64</span>(<span class="ident">real</span>.<span class="ident">to_string</span>().<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>()),
             <span class="ident">Value</span>::<span class="ident">Real</span>(<span class="prelude-val">None</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">visitor</span>.<span class="ident">visit_none</span>(),
 
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;uuid-0_8&quot;</span>)]</span>

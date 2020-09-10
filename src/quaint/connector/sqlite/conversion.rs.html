@@ -220,6 +220,7 @@
 <span id="220">220</span>
 <span id="221">221</span>
 <span id="222">222</span>
+<span id="223">223</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">ast</span>::<span class="ident">Value</span>,
@@ -233,7 +234,6 @@
     <span class="ident">types</span>::{<span class="ident">Null</span>, <span class="ident">ToSql</span>, <span class="ident">ToSqlOutput</span>, <span class="ident">ValueRef</span>},
     <span class="ident">Column</span>, <span class="ident">Error</span> <span class="kw">as</span> <span class="ident">RusqlError</span>, <span class="ident">Row</span> <span class="kw">as</span> <span class="ident">SqliteRow</span>, <span class="ident">Rows</span> <span class="kw">as</span> <span class="ident">SqliteRows</span>,
 };
-<span class="kw">use</span> <span class="ident">rust_decimal</span>::<span class="ident">prelude</span>::<span class="ident">ToPrimitive</span>;
 
 <span class="kw">impl</span> <span class="ident">TypeIdentifier</span> <span class="kw">for</span> <span class="ident">Column</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span> {
     <span class="kw">fn</span> <span class="ident">is_real</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
@@ -394,7 +394,9 @@
     <span class="kw">fn</span> <span class="ident">to_sql</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ToSqlOutput</span>, <span class="ident">RusqlError</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">value</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span> {
             <span class="ident">Value</span>::<span class="ident">Integer</span>(<span class="ident">integer</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">integer</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">i</span><span class="op">|</span> <span class="ident">ToSqlOutput</span>::<span class="ident">from</span>(<span class="ident">i</span>)),
-            <span class="ident">Value</span>::<span class="ident">Real</span>(<span class="ident">d</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">d</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">d</span><span class="op">|</span> <span class="ident">ToSqlOutput</span>::<span class="ident">from</span>(<span class="ident">d</span>.<span class="ident">to_f64</span>().<span class="ident">expect</span>(<span class="string">&quot;Decimal is not a f64.&quot;</span>))),
+            <span class="ident">Value</span>::<span class="ident">Real</span>(<span class="ident">d</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">d</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">d</span><span class="op">|</span> <span class="ident">ToSqlOutput</span>::<span class="ident">from</span>(<span class="ident">d</span>.<span class="ident">to_string</span>().<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span>().<span class="ident">expect</span>(<span class="string">&quot;Decimal is not a f64.&quot;</span>)))
+            }
             <span class="ident">Value</span>::<span class="ident">Text</span>(<span class="ident">cow</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">cow</span>.<span class="ident">as_ref</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">cow</span><span class="op">|</span> <span class="ident">ToSqlOutput</span>::<span class="ident">from</span>(<span class="ident">cow</span>.<span class="ident">as_ref</span>())),
             <span class="ident">Value</span>::<span class="ident">Enum</span>(<span class="ident">cow</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">cow</span>.<span class="ident">as_ref</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">cow</span><span class="op">|</span> <span class="ident">ToSqlOutput</span>::<span class="ident">from</span>(<span class="ident">cow</span>.<span class="ident">as_ref</span>())),
             <span class="ident">Value</span>::<span class="ident">Boolean</span>(<span class="ident">boo</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">boo</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">boo</span><span class="op">|</span> <span class="ident">ToSqlOutput</span>::<span class="ident">from</span>(<span class="ident">boo</span>)),
