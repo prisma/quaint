@@ -325,6 +325,11 @@
 <span id="325">325</span>
 <span id="326">326</span>
 <span id="327">327</span>
+<span id="328">328</span>
+<span id="329">329</span>
+<span id="330">330</span>
+<span id="331">331</span>
+<span id="332">332</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">ast</span>::<span class="ident">Value</span>,
@@ -437,7 +442,12 @@
 
         <span class="macro">matches</span><span class="macro">!</span>(
             <span class="self">self</span>.<span class="ident">column_type</span>(),
-            <span class="ident">MYSQL_TYPE_TINY</span> <span class="op">|</span> <span class="ident">MYSQL_TYPE_SHORT</span> <span class="op">|</span> <span class="ident">MYSQL_TYPE_LONG</span> <span class="op">|</span> <span class="ident">MYSQL_TYPE_LONGLONG</span> <span class="op">|</span> <span class="ident">MYSQL_TYPE_YEAR</span>
+            <span class="ident">MYSQL_TYPE_TINY</span>
+                <span class="op">|</span> <span class="ident">MYSQL_TYPE_SHORT</span>
+                <span class="op">|</span> <span class="ident">MYSQL_TYPE_LONG</span>
+                <span class="op">|</span> <span class="ident">MYSQL_TYPE_LONGLONG</span>
+                <span class="op">|</span> <span class="ident">MYSQL_TYPE_YEAR</span>
+                <span class="op">|</span> <span class="ident">MYSQL_TYPE_INT24</span>
         )
     }
 
