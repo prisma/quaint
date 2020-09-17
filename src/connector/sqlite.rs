@@ -12,7 +12,7 @@ use crate::{
 use async_trait::async_trait;
 use rusqlite::NO_PARAMS;
 use std::{collections::HashSet, convert::TryFrom, path::Path, time::Duration};
-use tokio::sync::Mutex;
+use tokio::{sync::Mutex, task};
 
 const DEFAULT_SCHEMA_NAME: &str = "quaint";
 
@@ -165,18 +165,20 @@ impl Queryable for Sqlite {
         metrics::query("sqlite.query_raw", sql, params, move || async move {
             let client = self.client.lock().await;
 
-            let mut stmt = client.prepare_cached(sql)?;
+            task::block_in_place(move || {
+                let mut stmt = client.prepare_cached(sql)?;
 
-            let mut rows = stmt.query(params)?;
-            let mut result = ResultSet::new(rows.to_column_names(), Vec::new());
+                let mut rows = stmt.query(params)?;
+                let mut result = ResultSet::new(rows.to_column_names(), Vec::new());
 
-            while let Some(row) = rows.next()? {
-                result.rows.push(row.get_result_row()?);
-            }
+                while let Some(row) = rows.next()? {
+                    result.rows.push(row.get_result_row()?);
+                }
 
-            result.set_last_insert_id(u64::try_from(client.last_insert_rowid()).unwrap_or(0));
+                result.set_last_insert_id(u64::try_from(client.last_insert_rowid()).unwrap_or(0));
 
-            Ok(result)
+                Ok(result)
+            })
         })
         .await
     }
@@ -184,10 +186,13 @@ impl Queryable for Sqlite {
     async fn execute_raw(&self, sql: &str, params: &[Value<'_>]) -> crate::Result<u64> {
         metrics::query("sqlite.query_raw", sql, params, move || async move {
             let client = self.client.lock().await;
-            let mut stmt = client.prepare_cached(sql)?;
-            let res = u64::try_from(stmt.execute(params)?)?;
 
-            Ok(res)
+            task::block_in_place(move || {
+                let mut stmt = client.prepare_cached(sql)?;
+                let res = u64::try_from(stmt.execute(params)?)?;
+
+                Ok(res)
+            })
         })
         .await
     }
@@ -195,8 +200,11 @@ impl Queryable for Sqlite {
     async fn raw_cmd(&self, cmd: &str) -> crate::Result<()> {
         metrics::query("sqlite.raw_cmd", cmd, &[], move || async move {
             let client = self.client.lock().await;
-            client.execute_batch(cmd)?;
-            Ok(())
+
+            task::block_in_place(move || {
+                client.execute_batch(cmd)?;
+                Ok(())
+            })
         })
         .await
     }
