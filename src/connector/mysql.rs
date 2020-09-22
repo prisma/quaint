@@ -424,17 +424,10 @@ mod tests {
     async fn should_execute_multi_statement_queries_with_raw_cmd() {
         let conn = Quaint::new(&CONN_STR).await.unwrap();
 
-        conn.raw_cmd("DROP DATABASE IF EXISTS `raw_cmd_test`;").await.unwrap();
-        conn.raw_cmd("CREATE DATABASE `raw_cmd_test`;").await.unwrap();
-
-        let mut url = Url::parse(&CONN_STR).unwrap();
-        url.set_path("/raw_cmd_test");
-        let conn = Quaint::new(&url.to_string()).await.unwrap();
-
         conn.raw_cmd(
             "
-            CREATE TABLE `testtable` (id INTEGER PRIMARY KEY);
-            CREATE TABLE `testtable2` (id INTEGER PRIMARY KEY);
+            CREATE TEMPORARY TABLE `testtable` (id INTEGER PRIMARY KEY);
+            CREATE TEMPORARY TABLE `testtable2` (id INTEGER PRIMARY KEY);
             INSERT INTO `testtable` (id) VALUES (51);
             INSERT INTO `testtable2` (id) VALUES (52);
             ",
