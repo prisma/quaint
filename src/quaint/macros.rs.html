@@ -371,7 +371,7 @@
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rt</span> <span class="op">=</span> <span class="ident">Builder</span>::<span class="ident">new</span>().<span class="ident">threaded_scheduler</span>().<span class="ident">enable_io</span>().<span class="ident">enable_time</span>().<span class="ident">build</span>().<span class="ident">unwrap</span>();
 
                 <span class="ident">rt</span>.<span class="ident">block_on</span>(<span class="kw">async</span> {
-                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">setup</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">db</span>::<span class="ident">new</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">setup</span> <span class="op">=</span> [<span class="op">&lt;</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">db</span> <span class="ident">_test_api</span> <span class="op">&gt;</span>]().<span class="kw">await</span><span class="question-mark">?</span>;
                     <span class="kw">let</span> <span class="ident">table</span> <span class="op">=</span> <span class="ident">setup</span>.<span class="ident">create_type_table</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">sql_type</span>).<span class="kw">await</span><span class="question-mark">?</span>;
 
                     $(

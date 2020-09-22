@@ -73,9 +73,11 @@
 <span id="73">73</span>
 <span id="74">74</span>
 <span id="75">75</span>
+<span id="76">76</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">ast</span>::{<span class="ident">Column</span>, <span class="ident">Expression</span>};
 
+<span class="doccomment">/// Defines a grouping for the `GROUP BY` statement.</span>
 <span class="kw">pub</span> <span class="kw">type</span> <span class="ident">GroupByDefinition</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Expression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>;
 
 <span class="doccomment">/// A list of definitions for the `GROUP BY` statement</span>

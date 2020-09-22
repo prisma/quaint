@@ -53,6 +53,8 @@
 <span id="53">53</span>
 <span id="54">54</span>
 <span id="55">55</span>
+<span id="56">56</span>
+<span id="57">57</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! An abstract syntax tree for SQL queries.</span>
 <span class="doccomment">//!</span>
@@ -65,6 +67,7 @@
 <span class="kw">mod</span> <span class="ident">compare</span>;
 <span class="kw">mod</span> <span class="ident">conditions</span>;
 <span class="kw">mod</span> <span class="ident">conjunctive</span>;
+<span class="kw">mod</span> <span class="ident">cte</span>;
 <span class="kw">mod</span> <span class="ident">delete</span>;
 <span class="kw">mod</span> <span class="ident">expression</span>;
 <span class="kw">mod</span> <span class="ident">function</span>;
@@ -88,6 +91,7 @@
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">compare</span>::{<span class="ident">Comparable</span>, <span class="ident">Compare</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">conditions</span>::<span class="ident">ConditionTree</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">conjunctive</span>::<span class="ident">Conjunctive</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">cte</span>::{<span class="ident">CommonTableExpression</span>, <span class="ident">IntoCommonTableExpression</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">delete</span>::<span class="ident">Delete</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">expression</span>::<span class="kw-2">*</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">function</span>::<span class="kw-2">*</span>;
@@ -99,7 +103,7 @@
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">ops</span>::<span class="kw-2">*</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">ordering</span>::{<span class="ident">IntoOrderDefinition</span>, <span class="ident">Order</span>, <span class="ident">OrderDefinition</span>, <span class="ident">Orderable</span>, <span class="ident">Ordering</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">over</span>::<span class="kw-2">*</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">query</span>::<span class="ident">Query</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">query</span>::{<span class="ident">Query</span>, <span class="ident">SelectQuery</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">row</span>::<span class="ident">Row</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">select</span>::<span class="ident">Select</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">table</span>::<span class="kw-2">*</span>;
