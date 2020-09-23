@@ -425,7 +425,7 @@
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mysql&quot;</span>)]</span>
             <span class="ident">ConnectionInfo</span>::<span class="ident">Mysql</span>(<span class="ident">url</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">url</span>.<span class="ident">dbname</span>(),
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mssql&quot;</span>)]</span>
-            <span class="ident">ConnectionInfo</span>::<span class="ident">Mssql</span>(<span class="ident">url</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">url</span>.<span class="ident">dbname</span>(),
+            <span class="ident">ConnectionInfo</span>::<span class="ident">Mssql</span>(<span class="ident">url</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">url</span>.<span class="ident">schema</span>(),
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sqlite&quot;</span>)]</span>
             <span class="ident">ConnectionInfo</span>::<span class="ident">Sqlite</span> { <span class="ident">db_name</span>, .. } <span class="op">=</span><span class="op">&gt;</span> <span class="ident">db_name</span>,
         }

@@ -1405,36 +1405,11 @@
 <span id="1405">1405</span>
 <span id="1406">1406</span>
 <span id="1407">1407</span>
-<span id="1408">1408</span>
-<span id="1409">1409</span>
-<span id="1410">1410</span>
-<span id="1411">1411</span>
-<span id="1412">1412</span>
-<span id="1413">1413</span>
-<span id="1414">1414</span>
-<span id="1415">1415</span>
-<span id="1416">1416</span>
-<span id="1417">1417</span>
-<span id="1418">1418</span>
-<span id="1419">1419</span>
-<span id="1420">1420</span>
-<span id="1421">1421</span>
-<span id="1422">1422</span>
-<span id="1423">1423</span>
-<span id="1424">1424</span>
-<span id="1425">1425</span>
-<span id="1426">1426</span>
-<span id="1427">1427</span>
-<span id="1428">1428</span>
-<span id="1429">1429</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">super</span>::<span class="ident">Visitor</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">prelude</span>::<span class="ident">Query</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">ast</span>::{
-        <span class="ident">Column</span>, <span class="ident">Expression</span>, <span class="ident">ExpressionKind</span>, <span class="ident">Insert</span>, <span class="ident">IntoRaw</span>, <span class="ident">Merge</span>, <span class="ident">OnConflict</span>, <span class="ident">Order</span>, <span class="ident">Ordering</span>, <span class="ident">Row</span>, <span class="ident">Table</span>, <span class="ident">TableType</span>,
-        <span class="ident">Values</span>,
-    },
+    <span class="ident">ast</span>::{<span class="ident">Column</span>, <span class="ident">Expression</span>, <span class="ident">ExpressionKind</span>, <span class="ident">Insert</span>, <span class="ident">IntoRaw</span>, <span class="ident">Merge</span>, <span class="ident">OnConflict</span>, <span class="ident">Order</span>, <span class="ident">Ordering</span>, <span class="ident">Row</span>, <span class="ident">Values</span>},
     <span class="ident">error</span>::{<span class="ident">Error</span>, <span class="ident">ErrorKind</span>},
     <span class="ident">prelude</span>::<span class="ident">Average</span>,
     <span class="ident">visitor</span>, <span class="ident">Value</span>,
@@ -1790,25 +1765,6 @@
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="doccomment">/// A database table identifier</span>
-    <span class="kw">fn</span> <span class="ident">visit_table</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">table</span>: <span class="ident">Table</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>, <span class="ident">include_alias</span>: <span class="ident">bool</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">visitor</span>::<span class="prelude-ty">Result</span> {
-        <span class="kw">match</span> <span class="ident">table</span>.<span class="ident">typ</span> {
-            <span class="ident">TableType</span>::<span class="ident">Table</span>(<span class="ident">table_name</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">delimited_identifiers</span>(<span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">table_name</span>])<span class="question-mark">?</span>,
-            <span class="ident">TableType</span>::<span class="ident">Values</span>(<span class="ident">values</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">visit_values</span>(<span class="ident">values</span>)<span class="question-mark">?</span>,
-            <span class="ident">TableType</span>::<span class="ident">Query</span>(<span class="ident">select</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">surround_with</span>(<span class="string">&quot;(&quot;</span>, <span class="string">&quot;)&quot;</span>, <span class="op">|</span><span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">s</span><span class="op">|</span> <span class="ident">s</span>.<span class="ident">visit_select</span>(<span class="ident">select</span>))<span class="question-mark">?</span>,
-        };
-
-        <span class="kw">if</span> <span class="ident">include_alias</span> {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">alias</span>) <span class="op">=</span> <span class="ident">table</span>.<span class="ident">alias</span> {
-                <span class="self">self</span>.<span class="ident">write</span>(<span class="string">&quot; AS &quot;</span>)<span class="question-mark">?</span>;
-
-                <span class="self">self</span>.<span class="ident">delimited_identifiers</span>(<span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">alias</span>])<span class="question-mark">?</span>;
-            };
-        }
-
-        <span class="prelude-val">Ok</span>(())
-    }
-
     <span class="kw">fn</span> <span class="ident">visit_average</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">avg</span>: <span class="ident">Average</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">visitor</span>::<span class="prelude-ty">Result</span> {
         <span class="self">self</span>.<span class="ident">write</span>(<span class="string">&quot;AVG&quot;</span>)<span class="question-mark">?</span>;
 
@@ -1984,7 +1940,7 @@
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_select_fields_from</span>() {
-        <span class="kw">let</span> <span class="ident">expected_sql</span> <span class="op">=</span> <span class="string">&quot;SELECT [paw], [nose] FROM [musti]&quot;</span>;
+        <span class="kw">let</span> <span class="ident">expected_sql</span> <span class="op">=</span> <span class="string">&quot;SELECT [paw], [nose] FROM [cat].[musti]&quot;</span>;
         <span class="kw">let</span> <span class="ident">query</span> <span class="op">=</span> <span class="ident">Select</span>::<span class="ident">from_table</span>((<span class="string">&quot;cat&quot;</span>, <span class="string">&quot;musti&quot;</span>)).<span class="ident">column</span>(<span class="string">&quot;paw&quot;</span>).<span class="ident">column</span>(<span class="string">&quot;nose&quot;</span>);
         <span class="kw">let</span> (<span class="ident">sql</span>, <span class="ident">params</span>) <span class="op">=</span> <span class="ident">Mssql</span>::<span class="ident">build</span>(<span class="ident">query</span>).<span class="ident">unwrap</span>();
 
