@@ -271,3 +271,65 @@ async fn garbage_datetime_values(api: &mut dyn TestApi) -> crate::Result<()> {
 
     Ok(())
 }
+
+#[test_each_connector]
+async fn should_pick_up_partially_failed_raw_cmd_scripts(api: &mut dyn TestApi) -> crate::Result<()> {
+    let conn = api.conn();
+
+    let result = conn.raw_cmd("SELECT YOLO; SELECT 1;").await;
+
+    assert!(result.is_err());
+
+    let result = conn.raw_cmd("SELECT 1; SELECT NULL; SELECT YOLO; SELECT 2;").await;
+
+    assert!(result.is_err());
+
+    if api.conn().connection_info().sql_family().is_mysql() {
+        let error_message = result.unwrap_err().to_string();
+        assert_eq!(error_message, "Error accessing result set, column not found: YOLO");
+    }
+
+    Ok(())
+}
+
+#[test_each_connector(tags("mysql"))]
+async fn should_execute_multi_statement_queries_with_raw_cmd(api: &mut dyn TestApi) -> crate::Result<()> {
+    let conn = api.conn();
+
+    conn.raw_cmd(
+        "
+        CREATE TEMPORARY TABLE `testtable` (id INTEGER PRIMARY KEY);
+        CREATE TEMPORARY TABLE `testtable2` (id INTEGER PRIMARY KEY);
+        INSERT INTO `testtable` (id) VALUES (51);
+        INSERT INTO `testtable2` (id) VALUES (52);
+        ",
+    )
+    .await
+    .unwrap();
+
+    let results = conn
+        .query(Select::from_table("testtable").column("id").into())
+        .await
+        .unwrap();
+
+    let results: Vec<i64> = results
+        .into_iter()
+        .map(|row| row.get("id").unwrap().as_i64().unwrap())
+        .collect();
+
+    assert_eq!(results, &[51]);
+
+    let results = conn
+        .query(Select::from_table("testtable2").column("id").into())
+        .await
+        .unwrap();
+
+    let results: Vec<i64> = results
+        .into_iter()
+        .map(|row| row.get("id").unwrap().as_i64().unwrap())
+        .collect();
+
+    assert_eq!(results, &[52]);
+
+    Ok(())
+}
