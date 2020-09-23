@@ -24,6 +24,9 @@ Might become lazy one day.</p>
 transaction will be rolled back by default when dropped.</p>
 </td></tr></table><h2 id='enums' class='section-header'><a href="#enums">Enums</a></h2>
 <table><tr class='module-item'><td><a class="enum" href="enum.ConnectionInfo.html" title='quaint::connector::ConnectionInfo enum'>ConnectionInfo</a></td><td class='docblock-short'><p>General information about a SQL connection.</p>
+</td></tr><tr class='module-item'><td><a class="enum" href="enum.IsolationLevel.html" title='quaint::connector::IsolationLevel enum'>IsolationLevel</a></td><td class='docblock-short'><p>Controls the locking and row versioning behavior of Transact-SQL statements
+issued by a connection to SQL Server. Read more from the <a href="https://docs.microsoft.com/en-us/sql/t-sql/statements/set-transaction-isolation-level-transact-sql?view=sql-server-ver15">SQL Server
+documentation</a>.</p>
 </td></tr><tr class='module-item'><td><a class="enum" href="enum.SqlFamily.html" title='quaint::connector::SqlFamily enum'>SqlFamily</a></td><td class='docblock-short'><p>One of the supported SQL variants.</p>
 </td></tr><tr class='module-item'><td><a class="enum" href="enum.SslAcceptMode.html" title='quaint::connector::SslAcceptMode enum'>SslAcceptMode</a></td><td class='docblock-short'></td></tr></table><h2 id='traits' class='section-header'><a href="#traits">Traits</a></h2>
 <table><tr class='module-item'><td><a class="trait" href="trait.GetRow.html" title='quaint::connector::GetRow trait'>GetRow</a></td><td class='docblock-short'></td></tr><tr class='module-item'><td><a class="trait" href="trait.Queryable.html" title='quaint::connector::Queryable trait'>Queryable</a></td><td class='docblock-short'><p>Represents a connection or a transaction that can be queried.</p>

@@ -1,0 +1,3 @@
+(function() {var implementors = {};
+implementors["quaint"] = [{"text":"impl <a class=\"trait\" href=\"https://doc.rust-lang.org/nightly/core/str/trait.FromStr.html\" title=\"trait core::str::FromStr\">FromStr</a> for <a class=\"enum\" href=\"quaint/connector/enum.IsolationLevel.html\" title=\"enum quaint::connector::IsolationLevel\">IsolationLevel</a>","synthetic":false,"types":["quaint::connector::mssql::IsolationLevel"]}];
+if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()

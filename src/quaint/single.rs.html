@@ -187,6 +187,28 @@
 <span id="187">187</span>
 <span id="188">188</span>
 <span id="189">189</span>
+<span id="190">190</span>
+<span id="191">191</span>
+<span id="192">192</span>
+<span id="193">193</span>
+<span id="194">194</span>
+<span id="195">195</span>
+<span id="196">196</span>
+<span id="197">197</span>
+<span id="198">198</span>
+<span id="199">199</span>
+<span id="200">200</span>
+<span id="201">201</span>
+<span id="202">202</span>
+<span id="203">203</span>
+<span id="204">204</span>
+<span id="205">205</span>
+<span id="206">206</span>
+<span id="207">207</span>
+<span id="208">208</span>
+<span id="209">209</span>
+<span id="210">210</span>
+<span id="211">211</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! A single connection abstraction to a SQL database.</span>
 
@@ -287,6 +309,28 @@
     <span class="doccomment">/// - `connect_timeout` defined in seconds (default: 5). Connecting to a</span>
     <span class="doccomment">///   database will return a `ConnectTimeout` error if taking more than the</span>
     <span class="doccomment">///   defined value.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Microsoft SQL Server:</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// - `encrypt` if set to `true` encrypts all traffic over TLS. If `false`, only</span>
+    <span class="doccomment">///   the login details are encrypted.</span>
+    <span class="doccomment">/// - `user` sets the login name.</span>
+    <span class="doccomment">/// - `password` sets the login password.</span>
+    <span class="doccomment">/// - `database` sets the database to connect to.</span>
+    <span class="doccomment">/// - `trustServerCertificate` if set to `true`, accepts any kind of certificate</span>
+    <span class="doccomment">///   from the server.</span>
+    <span class="doccomment">/// - `socketTimeout` defined in seconds. If set, a query will return a</span>
+    <span class="doccomment">///   `Timeout` error if it fails to resolve before given time.</span>
+    <span class="doccomment">/// - `connectTimeout` defined in seconds (default: 5). Connecting to a</span>
+    <span class="doccomment">///   database will return a `ConnectTimeout` error if taking more than the</span>
+    <span class="doccomment">///   defined value.</span>
+    <span class="doccomment">/// - `connectionLimit` defines the maximum number of connections opened to the</span>
+    <span class="doccomment">///   database.</span>
+    <span class="doccomment">/// - `schema` the name of the lookup schema. Only stored to the connection,</span>
+    <span class="doccomment">///   must be used in every query to be effective.</span>
+    <span class="doccomment">/// - `isolationLevel` the transaction isolation level. Possible values:</span>
+    <span class="doccomment">///   `READ UNCOMMITTED`, `READ COMMITTED`, `REPEATABLE READ`, `SNAPSHOT`,</span>
+    <span class="doccomment">///   `SERIALIZABLE`.</span>
     <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">url_str</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">crate</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">inner</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">url_str</span> {
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sqlite&quot;</span>)]</span>

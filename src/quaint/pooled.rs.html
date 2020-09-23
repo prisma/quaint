@@ -413,6 +413,11 @@
 <span id="413">413</span>
 <span id="414">414</span>
 <span id="415">415</span>
+<span id="416">416</span>
+<span id="417">417</span>
+<span id="418">418</span>
+<span id="419">419</span>
+<span id="420">420</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! # A connection pool to a SQL database.</span>
 <span class="doccomment">//!</span>
@@ -514,8 +519,13 @@
 <span class="doccomment">//! - `connectTimeout` defined in seconds (default: 5). Connecting to a</span>
 <span class="doccomment">//!   database will return a `ConnectTimeout` error if taking more than the</span>
 <span class="doccomment">//!   defined value.</span>
-<span class="doccomment">//! - `connection:imit` defines the maximum number of connections opened to the</span>
+<span class="doccomment">//! - `connectionLimit` defines the maximum number of connections opened to the</span>
 <span class="doccomment">//!   database.</span>
+<span class="doccomment">//! - `schema` the name of the lookup schema. Only stored to the connection,</span>
+<span class="doccomment">//!   must be used in every query to be effective.</span>
+<span class="doccomment">//! - `isolationLevel` the transaction isolation level. Possible values:</span>
+<span class="doccomment">//!   `READ UNCOMMITTED`, `READ COMMITTED`, `REPEATABLE READ`, `SNAPSHOT`,</span>
+<span class="doccomment">//!   `SERIALIZABLE`.</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! Example of a JDBC connection string:</span>
 <span class="doccomment">//!</span>
