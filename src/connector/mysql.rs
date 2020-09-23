@@ -2,7 +2,11 @@ mod conversion;
 mod error;
 
 use async_trait::async_trait;
-use mysql_async::{self as my, prelude::{Query as _, Queryable as _}, Conn};
+use mysql_async::{
+    self as my,
+    prelude::{Query as _, Queryable as _},
+    Conn,
+};
 use percent_encoding::percent_decode;
 use std::{borrow::Cow, future::Future, path::Path, time::Duration};
 use tokio::time::timeout;
@@ -185,9 +189,10 @@ impl MysqlUrl {
     }
 
     pub(crate) fn to_opts_builder(&self) -> my::OptsBuilder {
-        let mut config = my::OptsBuilder::default().user(Some(self.username()))
-        .pass(self.password())
-        .db_name(Some(self.dbname()));
+        let mut config = my::OptsBuilder::default()
+            .user(Some(self.username()))
+            .pass(self.password())
+            .db_name(Some(self.dbname()));
 
         match self.socket() {
             Some(ref socket) => {
@@ -278,15 +283,9 @@ impl Queryable for Mysql {
         metrics::query("mysql.query_raw", sql, params, move || async move {
             let mut conn = self.get_conn().await?;
             let stmt = self.timeout(conn.prep(sql)).await?;
-            let rows: Vec<my::Row> = self
-                .timeout(conn.exec(&stmt, conversion::conv_params(params)?))
-                .await?;
+            let rows: Vec<my::Row> = self.timeout(conn.exec(&stmt, conversion::conv_params(params)?)).await?;
 
-            let columns = stmt
-                .columns()
-                .iter()
-                .map(|s| s.name_str().into_owned())
-                .collect();
+            let columns = stmt.columns().iter().map(|s| s.name_str().into_owned()).collect();
 
             let last_id = conn.last_insert_id();
             let mut result_set = ResultSet::new(columns, Vec::new());
@@ -307,8 +306,7 @@ impl Queryable for Mysql {
     async fn execute_raw(&self, sql: &str, params: &[Value<'_>]) -> crate::Result<u64> {
         metrics::query("mysql.execute_raw", sql, params, move || async move {
             let mut conn = self.get_conn().await?;
-            self
-                .timeout(conn.exec_drop(sql, conversion::conv_params(params)?))
+            self.timeout(conn.exec_drop(sql, conversion::conv_params(params)?))
                 .await?;
             Ok(conn.affected_rows())
         })
@@ -327,7 +325,7 @@ impl Queryable for Mysql {
 
                     if result.is_empty() {
                         result.map(drop).await?;
-                        break
+                        break;
                     }
                 }
 
