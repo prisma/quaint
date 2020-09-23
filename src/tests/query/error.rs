@@ -292,23 +292,26 @@ async fn should_pick_up_partially_failed_raw_cmd_scripts(api: &mut dyn TestApi) 
     Ok(())
 }
 
-#[test_each_connector(tags("mysql"))]
+#[test_each_connector]
 async fn should_execute_multi_statement_queries_with_raw_cmd(api: &mut dyn TestApi) -> crate::Result<()> {
+    let (table_name_1, create_table_1) = api.render_create_table("testtable", "id INTEGER PRIMARY KEY");
+    let (table_name_2, create_table_2) = api.render_create_table("testtable2", "id INTEGER PRIMARY KEY");
     let conn = api.conn();
 
-    conn.raw_cmd(
-        "
-        CREATE TEMPORARY TABLE `testtable` (id INTEGER PRIMARY KEY);
-        CREATE TEMPORARY TABLE `testtable2` (id INTEGER PRIMARY KEY);
-        INSERT INTO `testtable` (id) VALUES (51);
-        INSERT INTO `testtable2` (id) VALUES (52);
-        ",
-    )
-    .await
-    .unwrap();
+    let query = format!(
+        r#"
+        {};
+        {};
+        INSERT INTO {} (id) VALUES (51);
+        INSERT INTO {} (id) VALUES (52);
+        "#,
+        create_table_1, create_table_2, table_name_1, table_name_2,
+    );
+
+    conn.raw_cmd(&query).await.unwrap();
 
     let results = conn
-        .query(Select::from_table("testtable").column("id").into())
+        .query(Select::from_table(table_name_1).column("id").into())
         .await
         .unwrap();
 
@@ -320,7 +323,7 @@ async fn should_execute_multi_statement_queries_with_raw_cmd(api: &mut dyn TestA
     assert_eq!(results, &[51]);
 
     let results = conn
-        .query(Select::from_table("testtable2").column("id").into())
+        .query(Select::from_table(table_name_2).column("id").into())
         .await
         .unwrap();
 
