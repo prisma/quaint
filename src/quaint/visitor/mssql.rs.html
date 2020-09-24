@@ -1587,7 +1587,7 @@
                 <span class="self">self</span>.<span class="ident">visit_parameterized</span>(<span class="ident">limit</span>)<span class="question-mark">?</span>;
                 <span class="self">self</span>.<span class="ident">write</span>(<span class="string">&quot; ROWS ONLY&quot;</span>)
             }
-            (<span class="prelude-val">None</span>, <span class="prelude-val">Some</span>(<span class="ident">offset</span>)) <span class="op">=</span><span class="op">&gt;</span> {
+            (<span class="prelude-val">None</span>, <span class="prelude-val">Some</span>(<span class="ident">offset</span>)) <span class="kw">if</span> <span class="self">self</span>.<span class="ident">order_by_set</span> <span class="op">|</span><span class="op">|</span> <span class="ident">offset</span>.<span class="ident">as_i64</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">i</span><span class="op">|</span> <span class="ident">i</span> <span class="op">&gt;</span> <span class="number">0</span>).<span class="ident">unwrap_or</span>(<span class="bool-val">false</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="ident">add_ordering</span>(<span class="self">self</span>)<span class="question-mark">?</span>;
 
                 <span class="self">self</span>.<span class="ident">write</span>(<span class="string">&quot; OFFSET &quot;</span>)<span class="question-mark">?</span>;
@@ -1603,7 +1603,7 @@
                 <span class="self">self</span>.<span class="ident">visit_parameterized</span>(<span class="ident">limit</span>)<span class="question-mark">?</span>;
                 <span class="self">self</span>.<span class="ident">write</span>(<span class="string">&quot; ROWS ONLY&quot;</span>)
             }
-            (<span class="prelude-val">None</span>, <span class="prelude-val">None</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(()),
+            (<span class="prelude-val">None</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(()),
         }
     }
 
