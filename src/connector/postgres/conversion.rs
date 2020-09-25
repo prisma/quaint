@@ -569,6 +569,8 @@ impl<'a> ToSql for Value<'a> {
             (Value::Array(vec), _) => vec.as_ref().map(|vec| vec.to_sql(ty, out)),
             #[cfg(feature = "json-1")]
             (Value::Json(value), _) => value.as_ref().map(|value| value.to_sql(ty, out)),
+            #[cfg(feature = "json-1")]
+            (Value::Xml(value), _) => value.as_ref().map(|value| value.to_sql(ty, out)),
             #[cfg(feature = "uuid-0_8")]
             (Value::Uuid(value), _) => value.map(|value| value.to_sql(ty, out)),
             #[cfg(feature = "chrono-0_4")]
