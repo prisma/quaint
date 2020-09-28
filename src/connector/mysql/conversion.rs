@@ -265,7 +265,7 @@ impl TakeRow for my::Row {
                     let date = NaiveDate::from_ymd(year.into(), month.into(), day.into());
                     let dt = NaiveDateTime::new(date, time);
 
-                    Value::datetime(DateTime::<Utc>::from_utc(dt, Utc))
+                    Value::datetime(DateTime::<Utc>::from_utc(dt, Utc).into())
                 }
                 #[cfg(feature = "chrono-0_4")]
                 my::Value::Time(is_neg, days, hours, minutes, seconds, micros) => {

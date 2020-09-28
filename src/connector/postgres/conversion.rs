@@ -144,7 +144,7 @@ impl GetRow for PostgresRow {
                     Some(val) => {
                         let ts: NaiveDateTime = val;
                         let dt = DateTime::<Utc>::from_utc(ts, Utc);
-                        Value::datetime(dt)
+                        Value::datetime(dt.into())
                     }
                     None => Value::DateTime(None),
                 },
@@ -152,7 +152,7 @@ impl GetRow for PostgresRow {
                 PostgresType::TIMESTAMPTZ => match row.try_get(i)? {
                     Some(val) => {
                         let ts: DateTime<Utc> = val;
-                        Value::datetime(ts)
+                        Value::datetime(ts.into())
                     }
                     None => Value::DateTime(None),
                 },
@@ -254,7 +254,7 @@ impl GetRow for PostgresRow {
 
                         let dates = val
                             .into_iter()
-                            .map(|x| Value::datetime(DateTime::<Utc>::from_utc(x, Utc)));
+                            .map(|x| Value::datetime(DateTime::<Utc>::from_utc(x, Utc).into()));
 
                         Value::array(dates)
                     }
@@ -303,7 +303,7 @@ impl GetRow for PostgresRow {
                 PostgresType::TIMESTAMPTZ_ARRAY => match row.try_get(i)? {
                     Some(val) => {
                         let val: Vec<DateTime<Utc>> = val;
-                        let dates = val.into_iter().map(Value::datetime);
+                        let dates = val.into_iter().map(|v| Value::datetime(v.into()));
                         Value::array(dates)
                     }
                     None => Value::Array(None),

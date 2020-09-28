@@ -18,7 +18,7 @@ use serde_json::{Number, Value as JsonValue};
 use uuid::Uuid;
 
 #[cfg(feature = "chrono-0_4")]
-use chrono::{DateTime, NaiveDate, NaiveTime, Utc};
+use chrono::{DateTime, FixedOffset, NaiveDate, NaiveTime};
 
 /// A value written to the query as-is without parameterization.
 #[derive(Debug, Clone, PartialEq)]
@@ -70,7 +70,7 @@ pub enum Value<'a> {
     Uuid(Option<Uuid>),
     #[cfg(feature = "chrono-0_4")]
     /// A datetime value.
-    DateTime(Option<DateTime<Utc>>),
+    DateTime(Option<DateTime<FixedOffset>>),
     #[cfg(feature = "chrono-0_4")]
     /// A date value.
     Date(Option<NaiveDate>),
@@ -252,7 +252,7 @@ impl<'a> Value<'a> {
 
     /// Creates a new datetime value.
     #[cfg(feature = "chrono-0_4")]
-    pub fn datetime(value: DateTime<Utc>) -> Self {
+    pub fn datetime(value: DateTime<FixedOffset>) -> Self {
         Value::DateTime(Some(value))
     }
 
@@ -467,7 +467,7 @@ impl<'a> Value<'a> {
 
     /// Returns a `DateTime` if the value is a `DateTime`, otherwise `None`.
     #[cfg(feature = "chrono-0_4")]
-    pub fn as_datetime(&self) -> Option<DateTime<Utc>> {
+    pub fn as_datetime(&self) -> Option<DateTime<FixedOffset>> {
         match self {
             Value::DateTime(dt) => dt.clone(),
             _ => None,
@@ -570,7 +570,7 @@ value!(val: usize, Integer, i64::try_from(val).unwrap());
 value!(val: i32, Integer, i64::try_from(val).unwrap());
 value!(val: &'a [u8], Bytes, val.into());
 #[cfg(feature = "chrono-0_4")]
-value!(val: DateTime<Utc>, DateTime, val);
+value!(val: DateTime<FixedOffset>, DateTime, val);
 #[cfg(feature = "chrono-0_4")]
 value!(val: chrono::NaiveTime, Time, val);
 #[cfg(feature = "chrono-0_4")]
@@ -636,10 +636,10 @@ impl<'a> TryFrom<Value<'a>> for bool {
 }
 
 #[cfg(feature = "chrono-0_4")]
-impl<'a> TryFrom<Value<'a>> for DateTime<Utc> {
+impl<'a> TryFrom<Value<'a>> for DateTime<FixedOffset> {
     type Error = Error;
 
-    fn try_from(value: Value<'a>) -> Result<DateTime<Utc>, Self::Error> {
+    fn try_from(value: Value<'a>) -> Result<DateTime<FixedOffset>, Self::Error> {
         value
             .as_datetime()
             .ok_or_else(|| Error::builder(ErrorKind::conversion("Not a datetime")).build())

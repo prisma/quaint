@@ -71,14 +71,14 @@ impl TryFrom<ColumnData<'static>> for Value<'static> {
             dt @ ColumnData::DateTime(_) => {
                 use tiberius::time::chrono::{DateTime, NaiveDateTime, Utc};
 
-                let dt = NaiveDateTime::from_sql(&dt)?.map(|dt| DateTime::<Utc>::from_utc(dt, Utc));
+                let dt = NaiveDateTime::from_sql(&dt)?.map(|dt| DateTime::<Utc>::from_utc(dt, Utc).into());
                 Value::DateTime(dt)
             }
             #[cfg(feature = "chrono-0_4")]
             dt @ ColumnData::SmallDateTime(_) => {
                 use tiberius::time::chrono::{DateTime, NaiveDateTime, Utc};
 
-                let dt = NaiveDateTime::from_sql(&dt)?.map(|dt| DateTime::<Utc>::from_utc(dt, Utc));
+                let dt = NaiveDateTime::from_sql(&dt)?.map(|dt| DateTime::<Utc>::from_utc(dt, Utc).into());
                 Value::DateTime(dt)
             }
             #[cfg(feature = "chrono-0_4")]
@@ -96,7 +96,7 @@ impl TryFrom<ColumnData<'static>> for Value<'static> {
             dt @ ColumnData::DateTime2(_) => {
                 use tiberius::time::chrono::{DateTime, NaiveDateTime, Utc};
 
-                let dt = NaiveDateTime::from_sql(&dt)?.map(|dt| DateTime::<Utc>::from_utc(dt, Utc));
+                let dt = NaiveDateTime::from_sql(&dt)?.map(|dt| DateTime::<Utc>::from_utc(dt, Utc).into());
 
                 Value::DateTime(dt)
             }
@@ -104,7 +104,7 @@ impl TryFrom<ColumnData<'static>> for Value<'static> {
             dt @ ColumnData::DateTimeOffset(_) => {
                 use tiberius::time::chrono::{DateTime, Utc};
 
-                Value::DateTime(DateTime::<Utc>::from_sql(&dt)?)
+                Value::DateTime(DateTime::<Utc>::from_sql(&dt)?.map(Into::into))
             }
             ColumnData::Xml(_) => panic!("XML not supprted yet"),
         };
