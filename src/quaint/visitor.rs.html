@@ -1135,7 +1135,7 @@
                                 <span class="self">self</span>.<span class="ident">write</span>(<span class="string">&quot;.*&quot;</span>)<span class="question-mark">?</span>;
                             }
                             <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> {
-                                <span class="self">self</span>.<span class="ident">visit_table</span>(<span class="kw-2">*</span><span class="ident">table</span>.<span class="ident">clone</span>(), <span class="bool-val">false</span>)<span class="question-mark">?</span>;
+                                <span class="self">self</span>.<span class="ident">visit_table</span>(<span class="ident">table</span>.<span class="ident">clone</span>(), <span class="bool-val">false</span>)<span class="question-mark">?</span>;
                                 <span class="self">self</span>.<span class="ident">write</span>(<span class="string">&quot;.*&quot;</span>)<span class="question-mark">?</span>;
                             }
                         },
@@ -1152,7 +1152,7 @@
                     <span class="self">self</span>.<span class="ident">write</span>(<span class="string">&quot;, &quot;</span>)<span class="question-mark">?</span>;
                 }
 
-                <span class="self">self</span>.<span class="ident">visit_table</span>(<span class="kw-2">*</span><span class="ident">table</span>, <span class="bool-val">true</span>)<span class="question-mark">?</span>;
+                <span class="self">self</span>.<span class="ident">visit_table</span>(<span class="ident">table</span>, <span class="bool-val">true</span>)<span class="question-mark">?</span>;
             }
 
             <span class="kw">if</span> <span class="op">!</span><span class="ident">select</span>.<span class="ident">joins</span>.<span class="ident">is_empty</span>() {

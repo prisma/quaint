@@ -271,7 +271,7 @@ previous condition with <code>OR</code>. See
     .<span class="ident">value</span>(<span class="macro">val</span><span class="macro">!</span>(<span class="number">1</span>).<span class="ident">alias</span>(<span class="string">&quot;val&quot;</span>))
     .<span class="ident">into_cte</span>(<span class="string">&quot;one&quot;</span>)
     .<span class="ident">column</span>(<span class="string">&quot;val&quot;</span>);
-     
+
 <span class="kw">let</span> <span class="ident">query</span> <span class="op">=</span> <span class="ident">Select</span>::<span class="ident">from_table</span>(<span class="string">&quot;one&quot;</span>)
     .<span class="ident">column</span>(<span class="string">&quot;val&quot;</span>)
     .<span class="ident">with</span>(<span class="ident">cte</span>);

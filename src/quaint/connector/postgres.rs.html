@@ -943,7 +943,7 @@
     }
 
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">cache</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">LruCache</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">Statement</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">query_params</span>.<span class="ident">pg_bouncer</span> <span class="op">=</span><span class="op">=</span> <span class="bool-val">true</span> {
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">query_params</span>.<span class="ident">pg_bouncer</span> {
             <span class="ident">LruCache</span>::<span class="ident">new</span>(<span class="number">0</span>)
         } <span class="kw">else</span> {
             <span class="ident">LruCache</span>::<span class="ident">new</span>(<span class="self">self</span>.<span class="ident">query_params</span>.<span class="ident">statement_cache_size</span>)
