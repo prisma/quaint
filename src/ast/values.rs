@@ -67,7 +67,7 @@ pub enum Value<'a> {
     Json(Option<serde_json::Value>),
     #[cfg(feature = "xml")]
     /// A XML value.
-    Xml(Option<String>),
+    Xml(Option<Cow<'a, str>>),
     #[cfg(feature = "uuid-0_8")]
     /// An UUID value.
     Uuid(Option<Uuid>),
@@ -165,7 +165,7 @@ impl<'a> From<Value<'a>> for serde_json::Value {
             #[cfg(feature = "json-1")]
             Value::Json(v) => v,
             #[cfg(feature = "xml")]
-            Value::Xml(s) => s.map(|s| serde_json::Value::String(s)),
+            Value::Xml(cow) => cow.map(|cow| serde_json::Value::String(cow.into_owned())),
             #[cfg(feature = "array")]
             Value::Array(v) => {
                 v.map(|v| serde_json::Value::Array(v.into_iter().map(serde_json::Value::from).collect()))

@@ -151,6 +151,10 @@ impl<'a> Visitor<'a> for Mssql<'a> {
                 let s = format!("CONVERT(time, N'{}')", time);
                 self.write(s)
             }),
+            #[cfg(feature = "xml")]
+            // Style 3 is keep all whitespace + internal DTD processing:
+            // https://docs.microsoft.com/en-us/sql/t-sql/functions/cast-and-convert-transact-sql?redirectedfrom=MSDN&view=sql-server-ver15#xml-styles
+            Value::Xml(cow) => cow.map(|cow| self.write(format!("CONVERT(XML, N'{}', 3)", cow))),
         };
 
         match res {
@@ -163,7 +167,7 @@ impl<'a> Visitor<'a> for Mssql<'a> {
         let add_ordering = |this: &mut Self| {
             if !this.order_by_set {
                 this.write(" ORDER BY ")?;
-                this.visit_ordering(Ordering::new(vec![((1.raw().into(), None))]))?;
+                this.visit_ordering(Ordering::new(vec![(1.raw().into(), None)]))?;
             }
 
             Ok::<(), crate::error::Error>(())
@@ -179,7 +183,7 @@ impl<'a> Visitor<'a> for Mssql<'a> {
                 self.visit_parameterized(limit)?;
                 self.write(" ROWS ONLY")
             }
-            (None, Some(offset)) => {
+            (None, Some(offset)) if self.order_by_set || offset.as_i64().map(|i| i > 0).unwrap_or(false) => {
                 add_ordering(self)?;
 
                 self.write(" OFFSET ")?;
@@ -195,7 +199,7 @@ impl<'a> Visitor<'a> for Mssql<'a> {
                 self.visit_parameterized(limit)?;
                 self.write(" ROWS ONLY")
             }
-            (None, None) => Ok(()),
+            (None, _) => Ok(()),
         }
     }
 

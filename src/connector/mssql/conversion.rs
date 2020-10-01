@@ -3,7 +3,7 @@ use crate::{
     error::{Error, ErrorKind},
 };
 use rust_decimal::{prelude::FromPrimitive, Decimal};
-use std::convert::TryFrom;
+use std::{borrow::Cow, convert::TryFrom};
 use tiberius::{ColumnData, FromSql, IntoSql, ToSql};
 
 pub fn conv_params<'a>(params: &'a [Value<'a>]) -> crate::Result<Vec<&'a dyn ToSql>> {
@@ -106,7 +106,8 @@ impl TryFrom<ColumnData<'static>> for Value<'static> {
 
                 Value::DateTime(DateTime::<Utc>::from_sql(&dt)?)
             }
-            ColumnData::Xml(_) => panic!("XML not supprted yet"),
+            #[cfg(feature = "xml")]
+            ColumnData::Xml(cow) => Value::Xml(cow.map(|xml_data| Cow::Owned(xml_data.into_owned().into_string()))),
         };
 
         Ok(res)
