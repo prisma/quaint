@@ -139,7 +139,6 @@ impl<'de> Deserializer<'de> for ValueDeserializer<'de> {
 
             #[cfg(feature = "xml")]
             Value::Xml(None) => visitor.visit_none(),
-
             #[cfg(feature = "xml")]
             Value::Xml(Some(s)) => visitor.visit_string(s.into_owned()),
 
