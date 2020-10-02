@@ -355,15 +355,15 @@
 
     <span class="kw">fn</span> <span class="ident">try_from</span>(<span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">crate</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">params</span> <span class="op">=</span> <span class="ident">SqliteParams</span>::<span class="ident">try_from</span>(<span class="ident">path</span>)<span class="question-mark">?</span>;
+        <span class="kw">let</span> <span class="ident">file_path</span> <span class="op">=</span> <span class="ident">params</span>.<span class="ident">file_path</span>;
 
-        <span class="kw">let</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">rusqlite</span>::<span class="ident">Connection</span>::<span class="ident">open_in_memory</span>()<span class="question-mark">?</span>;
+        <span class="kw">let</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">rusqlite</span>::<span class="ident">Connection</span>::<span class="ident">open</span>(<span class="ident">file_path</span>.<span class="ident">as_str</span>())<span class="question-mark">?</span>;
 
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">timeout</span>) <span class="op">=</span> <span class="ident">params</span>.<span class="ident">socket_timeout</span> {
             <span class="ident">conn</span>.<span class="ident">busy_timeout</span>(<span class="ident">timeout</span>)<span class="question-mark">?</span>;
         };
 
         <span class="kw">let</span> <span class="ident">client</span> <span class="op">=</span> <span class="ident">Mutex</span>::<span class="ident">new</span>(<span class="ident">conn</span>);
-        <span class="kw">let</span> <span class="ident">file_path</span> <span class="op">=</span> <span class="ident">params</span>.<span class="ident">file_path</span>;
 
         <span class="prelude-val">Ok</span>(<span class="ident">Sqlite</span> { <span class="ident">client</span>, <span class="ident">file_path</span> })
     }
