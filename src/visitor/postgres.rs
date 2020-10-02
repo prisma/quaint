@@ -206,7 +206,7 @@ impl<'a> Visitor<'a> for Postgres<'a> {
             #[cfg(feature = "json-1")]
             _ if left.is_json_value() => "::jsonb",
             #[cfg(feature = "xml")]
-            _ if left.is_json_value() => "::xml",
+            _ if left.is_xml_value() => "::xml",
             _ => "",
         };
 
@@ -214,7 +214,7 @@ impl<'a> Visitor<'a> for Postgres<'a> {
             #[cfg(feature = "json-1")]
             _ if right.is_json_value() => "::jsonb",
             #[cfg(feature = "xml")]
-            _ if right.is_json_value() => "::xml",
+            _ if right.is_xml_value() => "::xml",
             _ => "",
         };
 
@@ -462,10 +462,11 @@ mod tests {
     fn equality_with_a_xml_value() {
         let expected = expected_values(
             r#"SELECT "users".* FROM "users" WHERE "xmlField"::xml = $1"#,
-            vec![XmlString("<wurst>salat</wurst>".into())],
+            vec![Value::xml("<salad>wurst</salad>")],
         );
 
-        let query = Select::from_table("users").so_that(Column::from("jsonField").equals(serde_json::json!({"a":"b"})));
+        let query =
+            Select::from_table("users").so_that(Column::from("xmlField").equals(Value::xml("<salad>wurst</salad>")));
         let (sql, params) = Postgres::build(query).unwrap();
 
         assert_eq!(expected.0, sql);
@@ -477,12 +478,12 @@ mod tests {
     fn equality_with_a_lhs_xml_value() {
         // A bit artificial, but checks if the ::jsonb casting is done correctly on the right side as well.
         let expected = expected_values(
-            r#"SELECT "users".* FROM "users" WHERE $1 = "jsonField"::jsonb"#,
-            vec![serde_json::json!({"a": "b"})],
+            r#"SELECT "users".* FROM "users" WHERE $1 = "xmlField"::xml"#,
+            vec![Value::xml("<salad>wurst</salad>")],
         );
 
-        let value_expr: Expression = Value::json(serde_json::json!({"a":"b"})).into();
-        let query = Select::from_table("users").so_that(value_expr.equals(Column::from("jsonField")));
+        let value_expr: Expression = Value::xml("<salad>wurst</salad>").into();
+        let query = Select::from_table("users").so_that(value_expr.equals(Column::from("xmlField")));
         let (sql, params) = Postgres::build(query).unwrap();
 
         assert_eq!(expected.0, sql);
@@ -493,12 +494,12 @@ mod tests {
     #[test]
     fn difference_with_a_xml_value() {
         let expected = expected_values(
-            r#"SELECT "users".* FROM "users" WHERE "jsonField"::jsonb <> $1"#,
-            vec![serde_json::json!({"a": "b"})],
+            r#"SELECT "users".* FROM "users" WHERE "xmlField"::xml <> $1"#,
+            vec![Value::xml("<salad>wurst</salad>")],
         );
 
-        let query =
-            Select::from_table("users").so_that(Column::from("jsonField").not_equals(serde_json::json!({"a":"b"})));
+        let query = Select::from_table("users")
+            .so_that(Column::from("xmlField").not_equals(Value::xml("<salad>wurst</salad>")));
         let (sql, params) = Postgres::build(query).unwrap();
 
         assert_eq!(expected.0, sql);
@@ -509,12 +510,12 @@ mod tests {
     #[test]
     fn difference_with_a_lhs_xml_value() {
         let expected = expected_values(
-            r#"SELECT "users".* FROM "users" WHERE $1 <> "jsonField"::jsonb"#,
-            vec![serde_json::json!({"a": "b"})],
+            r#"SELECT "users".* FROM "users" WHERE $1 <> "xmlField"::xml"#,
+            vec![Value::xml("<salad>wurst</salad>")],
         );
 
-        let value_expr: Expression = Value::json(serde_json::json!({"a":"b"})).into();
-        let query = Select::from_table("users").so_that(value_expr.not_equals(Column::from("jsonField")));
+        let value_expr: Expression = Value::xml("<salad>wurst</salad>").into();
+        let query = Select::from_table("users").so_that(value_expr.not_equals(Column::from("xmlField")));
         let (sql, params) = Postgres::build(query).unwrap();
 
         assert_eq!(expected.0, sql);
