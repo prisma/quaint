@@ -25,6 +25,18 @@ pub fn conv_params<'a>(params: &'a [Value<'a>]) -> Vec<&'a (dyn types::ToSql + S
     params.iter().map(|x| x as &(dyn ToSql + Sync)).collect::<Vec<_>>()
 }
 
+struct XmlString(pub String);
+
+impl<'a> FromSql<'a> for XmlString {
+    fn from_sql(_ty: &PostgresType, raw: &'a [u8]) -> Result<XmlString, Box<dyn std::error::Error + Sync + Send>> {
+        Ok(XmlString(String::from_utf8(raw.to_owned()).unwrap().into()))
+    }
+
+    fn accepts(ty: &PostgresType) -> bool {
+        ty == &PostgresType::XML
+    }
+}
+
 struct EnumString {
     value: String,
 }
@@ -407,16 +419,16 @@ impl GetRow for PostgresRow {
                 #[cfg(feature = "xml")]
                 PostgresType::XML => match row.try_get(i)? {
                     Some(val) => {
-                        let val: String = val;
-                        Value::xml(val)
+                        let val: XmlString = val;
+                        Value::xml(val.0)
                     }
                     None => Value::Xml(None),
                 },
                 #[cfg(feature = "array")]
                 PostgresType::XML_ARRAY => match row.try_get(i)? {
                     Some(val) => {
-                        let val: Vec<String> = val;
-                        Value::array(val)
+                        let val: Vec<XmlString> = val;
+                        Value::array(val.into_iter().map(|v| v.0))
                     }
                     None => Value::Array(None),
                 },
