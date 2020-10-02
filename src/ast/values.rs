@@ -281,6 +281,15 @@ impl<'a> Value<'a> {
         Value::Json(Some(value))
     }
 
+    /// Creates a new XML value.
+    #[cfg(feature = "xml")]
+    pub fn xml<T>(value: T) -> Self
+    where
+        T: Into<Cow<'a, str>>,
+    {
+        Value::Xml(Some(value.into()))
+    }
+
     /// `true` if the `Value` is null.
     pub fn is_null(&self) -> bool {
         match self {

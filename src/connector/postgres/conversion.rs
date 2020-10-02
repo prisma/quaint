@@ -404,6 +404,22 @@ impl GetRow for PostgresRow {
                     }
                     None => Value::Array(None),
                 },
+                #[cfg(feature = "xml")]
+                PostgresType::XML => match row.try_get(i)? {
+                    Some(val) => {
+                        let val: String = val;
+                        Value::xml(val)
+                    }
+                    None => Value::Xml(None),
+                },
+                #[cfg(feature = "array")]
+                PostgresType::XML_ARRAY => match row.try_get(i)? {
+                    Some(val) => {
+                        let val: Vec<String> = val;
+                        Value::array(val)
+                    }
+                    None => Value::Array(None),
+                },
                 ref x => match x.kind() {
                     Kind::Enum(_) => match row.try_get(i)? {
                         Some(val) => {
