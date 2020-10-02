@@ -221,17 +221,10 @@ impl<'a> Visitor<'a> for Postgres<'a> {
         self.visit_expression(left)?;
         self.write(left_cast)?;
         self.write(" = ")?;
-<<<<<<< Updated upstream
-
-        if left_is_json {
-            self.write("::jsonb")?;
-        }
-=======
         self.visit_expression(right)?;
         self.write(right_cast)?;
->>>>>>> Stashed changes
 
-        self.visit_expression(right)
+        Ok(())
     }
 
     fn visit_not_equals(&mut self, left: Expression<'a>, right: Expression<'a>) -> visitor::Result {
@@ -255,17 +248,10 @@ impl<'a> Visitor<'a> for Postgres<'a> {
         self.visit_expression(left)?;
         self.write(left_cast)?;
         self.write(" <> ")?;
-<<<<<<< Updated upstream
-
-        if left_is_json {
-            self.write("::jsonb")?;
-        }
-=======
         self.visit_expression(right)?;
         self.write(right_cast)?;
->>>>>>> Stashed changes
 
-        self.visit_expression(right)
+        Ok(())
     }
 
     #[cfg(not(feature = "json-1"))]
@@ -424,6 +410,23 @@ mod tests {
 
     #[cfg(feature = "json-1")]
     #[test]
+    fn equality_with_a_lhs_json_value() {
+        // A bit artificial, but checks if the ::jsonb casting is done correctly on the right side as well.
+        let expected = expected_values(
+            r#"SELECT "users".* FROM "users" WHERE $1 = "jsonField"::jsonb"#,
+            vec![serde_json::json!({"a": "b"})],
+        );
+
+        let value_expr: Expression = Value::json(serde_json::json!({"a":"b"})).into();
+        let query = Select::from_table("users").so_that(value_expr.equals(Column::from("jsonField")));
+        let (sql, params) = Postgres::build(query).unwrap();
+
+        assert_eq!(expected.0, sql);
+        assert_eq!(expected.1, params);
+    }
+
+    #[cfg(feature = "json-1")]
+    #[test]
     fn difference_with_a_json_value() {
         let expected = expected_values(
             r#"SELECT "users".* FROM "users" WHERE "jsonField"::jsonb <> $1"#,
@@ -438,8 +441,6 @@ mod tests {
         assert_eq!(expected.1, params);
     }
 
-<<<<<<< Updated upstream
-=======
     #[cfg(feature = "json-1")]
     #[test]
     fn difference_with_a_lhs_json_value() {
@@ -520,7 +521,6 @@ mod tests {
         assert_eq!(expected.1, params);
     }
 
->>>>>>> Stashed changes
     #[test]
     fn test_raw_null() {
         let (sql, params) = Postgres::build(Select::default().value(Value::Text(None).raw())).unwrap();

@@ -49,6 +49,15 @@ impl<'a> Expression<'a> {
         }
     }
 
+    #[cfg(feature = "xml")]
+    pub(crate) fn is_xml_value(&self) -> bool {
+        match &self.kind {
+            ExpressionKind::Parameterized(Value::Xml(_)) => true,
+            ExpressionKind::Value(expr) => expr.is_xml_value(),
+            _ => false,
+        }
+    }
+
     pub(crate) fn is_asterisk(&self) -> bool {
         matches!(self.kind, ExpressionKind::Asterisk(_))
     }
