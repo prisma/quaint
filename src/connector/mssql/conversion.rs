@@ -46,6 +46,8 @@ impl<'a> ToSql for Value<'a> {
             Value::Date(val) => val.to_sql(),
             #[cfg(feature = "chrono-0_4")]
             Value::Time(val) => val.to_sql(),
+            #[cfg(feature = "xml")]
+            Value::Xml(val) => val.to_sql(),
             p => todo!("Type {:?} is not supported", p),
         }
     }
