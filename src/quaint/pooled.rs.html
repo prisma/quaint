@@ -418,6 +418,7 @@
 <span id="418">418</span>
 <span id="419">419</span>
 <span id="420">420</span>
+<span id="421">421</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! # A connection pool to a SQL database.</span>
 <span class="doccomment">//!</span>
@@ -508,7 +509,8 @@
 <span class="doccomment">//! of snake_case.</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! - `encrypt` if set to `true` encrypts all traffic over TLS. If `false`, only</span>
-<span class="doccomment">//!   the login details are encrypted.</span>
+<span class="doccomment">//!   the login details are encrypted. A special value `DANGER_PLAINTEXT` will</span>
+<span class="doccomment">//!   disable TLS completely, including sending login credentials as plaintext.</span>
 <span class="doccomment">//! - `user` sets the login name.</span>
 <span class="doccomment">//! - `password` sets the login password.</span>
 <span class="doccomment">//! - `database` sets the database to connect to.</span>
