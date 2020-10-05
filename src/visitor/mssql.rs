@@ -79,15 +79,41 @@ impl<'a> Visitor<'a> for Mssql<'a> {
     }
 
     fn visit_equals(&mut self, left: Expression<'a>, right: Expression<'a>) -> visitor::Result {
-        match (left.kind, right.kind) {
+        match (&left.kind, &right.kind) {
             // we can't compare with tuples, so we'll convert it to an AND
             (ExpressionKind::Row(left), ExpressionKind::Row(right)) => {
-                self.visit_multiple_tuple_comparison(left, Values::from(iter::once(right)), false)?;
+                self.visit_multiple_tuple_comparison(left.clone(), Values::from(iter::once(right.clone())), false)?;
             }
-            (left_kind, right_kind) => {
-                self.visit_expression(Expression::from(left_kind))?;
+            (_left_kind, _right_kind) => {
+                #[cfg(feature = "xml")]
+                let left_xml = left.is_xml_value();
+
+                match self {
+                    #[cfg(feature = "xml")]
+                    _ if right.is_xml_value() => {
+                        self.surround_with("CAST(", " AS NVARCHAR(MAX))", |x| x.visit_expression(left))?
+                    }
+                    _ => self.visit_expression(left)?,
+                };
+
+                // self.visit_expression(left)?;
+                // self.write(left_cast)?;
                 self.write(" = ")?;
-                self.visit_expression(Expression::from(right_kind))?;
+
+                match self {
+                    #[cfg(feature = "xml")]
+                    _ if left_xml => {
+                        self.surround_with("CAST(", " AS NVARCHAR(MAX))", |x| x.visit_expression(right))?
+                    }
+                    _ => self.visit_expression(right)?,
+                };
+
+                // self.visit_expression(right)?;
+                // self.write(right_cast)?;
+
+                // self.visit_expression(Expression::from(left_kind))?;
+                // self.write(" = ")?;
+                // self.visit_expression(Expression::from(right_kind))?;
             }
         }
 
