@@ -112,10 +112,10 @@ impl<'a> Visitor<'a> for Mssql<'a> {
     }
 
     fn visit_not_equals(&mut self, left: Expression<'a>, right: Expression<'a>) -> visitor::Result {
-        match (left.kind, right.kind) {
+        match (&left.kind, &right.kind) {
             // we can't compare with tuples, so we'll convert it to an AND
             (ExpressionKind::Row(left), ExpressionKind::Row(right)) => {
-                self.visit_multiple_tuple_comparison(left, Values::from(iter::once(right)), true)?;
+                self.visit_multiple_tuple_comparison(left.clone(), Values::from(iter::once(right.clone())), true)?;
             }
             (_left_kind, _right_kind) => {
                 #[cfg(feature = "xml")]
