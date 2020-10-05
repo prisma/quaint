@@ -664,6 +664,69 @@ mod tests {
         assert_eq!(default_params(expected.1), params);
     }
 
+    #[cfg(feature = "xml")]
+    #[test]
+    fn equality_with_a_xml_value() {
+        let expected = expected_values(
+            r#"SELECT [users].* FROM [users] WHERE CAST([xmlField] AS NVARCHAR(MAX)) = @P1"#,
+            vec![Value::xml("<cat>meow</cat>")],
+        );
+
+        let query = Select::from_table("users").so_that(Column::from("xmlField").equals(Value::xml("<cat>meow</cat>")));
+        let (sql, params) = Mssql::build(query).unwrap();
+
+        assert_eq!(expected.0, sql);
+        assert_eq!(expected.1, params);
+    }
+
+    #[cfg(feature = "xml")]
+    #[test]
+    fn equality_with_a_lhs_xml_value() {
+        let expected = expected_values(
+            r#"SELECT [users].* FROM [users] WHERE @P1 = CAST([xmlField] AS NVARCHAR(MAX))"#,
+            vec![Value::xml("<cat>meow</cat>")],
+        );
+
+        let value_expr: Expression = Value::xml("<cat>meow</cat>").into();
+        let query = Select::from_table("users").so_that(value_expr.equals(Column::from("xmlField")));
+        let (sql, params) = Mssql::build(query).unwrap();
+
+        assert_eq!(expected.0, sql);
+        assert_eq!(expected.1, params);
+    }
+
+    #[cfg(feature = "xml")]
+    #[test]
+    fn difference_with_a_xml_value() {
+        let expected = expected_values(
+            r#"SELECT [users].* FROM [users] WHERE CAST([xmlField] AS NVARCHAR(MAX)) <> @P1"#,
+            vec![Value::xml("<cat>meow</cat>")],
+        );
+
+        let query =
+            Select::from_table("users").so_that(Column::from("xmlField").not_equals(Value::xml("<cat>meow</cat>")));
+        let (sql, params) = Mssql::build(query).unwrap();
+
+        assert_eq!(expected.0, sql);
+        assert_eq!(expected.1, params);
+    }
+
+    #[cfg(feature = "xml")]
+    #[test]
+    fn difference_with_a_lhs_xml_value() {
+        let expected = expected_values(
+            r#"SELECT [users].* FROM [users] WHERE @P1 <> CAST([xmlField] AS NVARCHAR(MAX))"#,
+            vec![Value::xml("<cat>meow</cat>")],
+        );
+
+        let value_expr: Expression = Value::xml("<cat>meow</cat>").into();
+        let query = Select::from_table("users").so_that(value_expr.not_equals(Column::from("xmlField")));
+        let (sql, params) = Mssql::build(query).unwrap();
+
+        assert_eq!(expected.0, sql);
+        assert_eq!(expected.1, params);
+    }
+
     #[test]
     fn test_select_and() {
         let expected_sql = "SELECT [naukio].* FROM [naukio] WHERE ([word] = @P1 AND [age] < @P2 AND [paw] = @P3)";

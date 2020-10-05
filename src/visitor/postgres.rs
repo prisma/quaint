@@ -476,7 +476,6 @@ mod tests {
     #[cfg(feature = "xml")]
     #[test]
     fn equality_with_a_lhs_xml_value() {
-        // A bit artificial, but checks if the ::jsonb casting is done correctly on the right side as well.
         let expected = expected_values(
             r#"SELECT "users".* FROM "users" WHERE $1 = "xmlField"::text"#,
             vec![Value::xml("<salad>wurst</salad>")],
