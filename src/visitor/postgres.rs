@@ -201,12 +201,12 @@ impl<'a> Visitor<'a> for Postgres<'a> {
     }
 
     fn visit_equals(&mut self, left: Expression<'a>, right: Expression<'a>) -> visitor::Result {
-        // LHS must be cast to json if the right is a json value and vice versa.
+        // LHS must be cast to json/xml-text if the right is a json/xml-text value and vice versa.
         let right_cast = match left {
             #[cfg(feature = "json-1")]
             _ if left.is_json_value() => "::jsonb",
             #[cfg(feature = "xml")]
-            _ if left.is_xml_value() => "::xml",
+            _ if left.is_xml_value() => "::text",
             _ => "",
         };
 
@@ -214,7 +214,7 @@ impl<'a> Visitor<'a> for Postgres<'a> {
             #[cfg(feature = "json-1")]
             _ if right.is_json_value() => "::jsonb",
             #[cfg(feature = "xml")]
-            _ if right.is_xml_value() => "::xml",
+            _ if right.is_xml_value() => "::text",
             _ => "",
         };
 
@@ -228,12 +228,12 @@ impl<'a> Visitor<'a> for Postgres<'a> {
     }
 
     fn visit_not_equals(&mut self, left: Expression<'a>, right: Expression<'a>) -> visitor::Result {
-        // LHS must be cast to json if the right is a json value and vice versa.
+        // LHS must be cast to json/xml-text if the right is a json/xml-text value and vice versa.
         let right_cast = match left {
             #[cfg(feature = "json-1")]
             _ if left.is_json_value() => "::jsonb",
             #[cfg(feature = "xml")]
-            _ if left.is_xml_value() => "::xml",
+            _ if left.is_xml_value() => "::text",
             _ => "",
         };
 
@@ -241,7 +241,7 @@ impl<'a> Visitor<'a> for Postgres<'a> {
             #[cfg(feature = "json-1")]
             _ if right.is_json_value() => "::jsonb",
             #[cfg(feature = "xml")]
-            _ if right.is_xml_value() => "::xml",
+            _ if right.is_xml_value() => "::text",
             _ => "",
         };
 
@@ -461,7 +461,7 @@ mod tests {
     #[test]
     fn equality_with_a_xml_value() {
         let expected = expected_values(
-            r#"SELECT "users".* FROM "users" WHERE "xmlField"::xml = $1"#,
+            r#"SELECT "users".* FROM "users" WHERE "xmlField"::text = $1"#,
             vec![Value::xml("<salad>wurst</salad>")],
         );
 
@@ -478,7 +478,7 @@ mod tests {
     fn equality_with_a_lhs_xml_value() {
         // A bit artificial, but checks if the ::jsonb casting is done correctly on the right side as well.
         let expected = expected_values(
-            r#"SELECT "users".* FROM "users" WHERE $1 = "xmlField"::xml"#,
+            r#"SELECT "users".* FROM "users" WHERE $1 = "xmlField"::text"#,
             vec![Value::xml("<salad>wurst</salad>")],
         );
 
@@ -494,7 +494,7 @@ mod tests {
     #[test]
     fn difference_with_a_xml_value() {
         let expected = expected_values(
-            r#"SELECT "users".* FROM "users" WHERE "xmlField"::xml <> $1"#,
+            r#"SELECT "users".* FROM "users" WHERE "xmlField"::text <> $1"#,
             vec![Value::xml("<salad>wurst</salad>")],
         );
 
@@ -510,7 +510,7 @@ mod tests {
     #[test]
     fn difference_with_a_lhs_xml_value() {
         let expected = expected_values(
-            r#"SELECT "users".* FROM "users" WHERE $1 <> "xmlField"::xml"#,
+            r#"SELECT "users".* FROM "users" WHERE $1 <> "xmlField"::text"#,
             vec![Value::xml("<salad>wurst</salad>")],
         );
 
