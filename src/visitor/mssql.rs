@@ -1,4 +1,5 @@
 use super::Visitor;
+use crate::prelude::Aliasable;
 use crate::prelude::Query;
 use crate::{
     ast::{Column, Expression, ExpressionKind, Insert, IntoRaw, Merge, OnConflict, Order, Ordering, Row, Values},
@@ -79,18 +80,32 @@ impl<'a> Visitor<'a> for Mssql<'a> {
     }
 
     fn visit_equals(&mut self, left: Expression<'a>, right: Expression<'a>) -> visitor::Result {
-        match (&left.kind, &right.kind) {
+        match (left.kind, right.kind) {
             // we can't compare with tuples, so we'll convert it to an AND
             (ExpressionKind::Row(left), ExpressionKind::Row(right)) => {
-                self.visit_multiple_tuple_comparison(left.clone(), Values::from(iter::once(right.clone())), false)?;
+                self.visit_multiple_tuple_comparison(left, Values::from(iter::once(right)), false)?;
             }
-            (_left_kind, _right_kind) => {
+            (left_kind, right_kind) => {
+                let (l_alias, r_alias) = (left.alias, right.alias);
+
                 #[cfg(feature = "xml")]
-                let left_xml = left.is_xml_value();
+                let (left_xml, right_xml) = (left_kind.is_xml_value(), right_kind.is_xml_value());
+
+                let mut left = Expression::from(left_kind);
+
+                if let Some(alias) = l_alias {
+                    left = left.alias(alias);
+                }
+
+                let mut right = Expression::from(right_kind);
+
+                if let Some(alias) = r_alias {
+                    right = right.alias(alias);
+                }
 
                 match self {
                     #[cfg(feature = "xml")]
-                    _ if right.is_xml_value() => {
+                    _ if right_xml => {
                         self.surround_with("CAST(", " AS NVARCHAR(MAX))", |x| x.visit_expression(left))?
                     }
                     _ => self.visit_expression(left)?,
@@ -112,18 +127,32 @@ impl<'a> Visitor<'a> for Mssql<'a> {
     }
 
     fn visit_not_equals(&mut self, left: Expression<'a>, right: Expression<'a>) -> visitor::Result {
-        match (&left.kind, &right.kind) {
+        match (left.kind, right.kind) {
             // we can't compare with tuples, so we'll convert it to an AND
             (ExpressionKind::Row(left), ExpressionKind::Row(right)) => {
-                self.visit_multiple_tuple_comparison(left.clone(), Values::from(iter::once(right.clone())), true)?;
+                self.visit_multiple_tuple_comparison(left, Values::from(iter::once(right)), true)?;
             }
-            (_left_kind, _right_kind) => {
+            (left_kind, right_kind) => {
+                let (l_alias, r_alias) = (left.alias, right.alias);
+
                 #[cfg(feature = "xml")]
-                let left_xml = left.is_xml_value();
+                let (left_xml, right_xml) = (left_kind.is_xml_value(), right_kind.is_xml_value());
+
+                let mut left = Expression::from(left_kind);
+
+                if let Some(alias) = l_alias {
+                    left = left.alias(alias);
+                }
+
+                let mut right = Expression::from(right_kind);
+
+                if let Some(alias) = r_alias {
+                    right = right.alias(alias);
+                }
 
                 match self {
                     #[cfg(feature = "xml")]
-                    _ if right.is_xml_value() => {
+                    _ if right_xml => {
                         self.surround_with("CAST(", " AS NVARCHAR(MAX))", |x| x.visit_expression(left))?
                     }
                     _ => self.visit_expression(left)?,
