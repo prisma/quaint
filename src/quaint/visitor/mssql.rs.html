@@ -1405,8 +1405,139 @@
 <span id="1405">1405</span>
 <span id="1406">1406</span>
 <span id="1407">1407</span>
+<span id="1408">1408</span>
+<span id="1409">1409</span>
+<span id="1410">1410</span>
+<span id="1411">1411</span>
+<span id="1412">1412</span>
+<span id="1413">1413</span>
+<span id="1414">1414</span>
+<span id="1415">1415</span>
+<span id="1416">1416</span>
+<span id="1417">1417</span>
+<span id="1418">1418</span>
+<span id="1419">1419</span>
+<span id="1420">1420</span>
+<span id="1421">1421</span>
+<span id="1422">1422</span>
+<span id="1423">1423</span>
+<span id="1424">1424</span>
+<span id="1425">1425</span>
+<span id="1426">1426</span>
+<span id="1427">1427</span>
+<span id="1428">1428</span>
+<span id="1429">1429</span>
+<span id="1430">1430</span>
+<span id="1431">1431</span>
+<span id="1432">1432</span>
+<span id="1433">1433</span>
+<span id="1434">1434</span>
+<span id="1435">1435</span>
+<span id="1436">1436</span>
+<span id="1437">1437</span>
+<span id="1438">1438</span>
+<span id="1439">1439</span>
+<span id="1440">1440</span>
+<span id="1441">1441</span>
+<span id="1442">1442</span>
+<span id="1443">1443</span>
+<span id="1444">1444</span>
+<span id="1445">1445</span>
+<span id="1446">1446</span>
+<span id="1447">1447</span>
+<span id="1448">1448</span>
+<span id="1449">1449</span>
+<span id="1450">1450</span>
+<span id="1451">1451</span>
+<span id="1452">1452</span>
+<span id="1453">1453</span>
+<span id="1454">1454</span>
+<span id="1455">1455</span>
+<span id="1456">1456</span>
+<span id="1457">1457</span>
+<span id="1458">1458</span>
+<span id="1459">1459</span>
+<span id="1460">1460</span>
+<span id="1461">1461</span>
+<span id="1462">1462</span>
+<span id="1463">1463</span>
+<span id="1464">1464</span>
+<span id="1465">1465</span>
+<span id="1466">1466</span>
+<span id="1467">1467</span>
+<span id="1468">1468</span>
+<span id="1469">1469</span>
+<span id="1470">1470</span>
+<span id="1471">1471</span>
+<span id="1472">1472</span>
+<span id="1473">1473</span>
+<span id="1474">1474</span>
+<span id="1475">1475</span>
+<span id="1476">1476</span>
+<span id="1477">1477</span>
+<span id="1478">1478</span>
+<span id="1479">1479</span>
+<span id="1480">1480</span>
+<span id="1481">1481</span>
+<span id="1482">1482</span>
+<span id="1483">1483</span>
+<span id="1484">1484</span>
+<span id="1485">1485</span>
+<span id="1486">1486</span>
+<span id="1487">1487</span>
+<span id="1488">1488</span>
+<span id="1489">1489</span>
+<span id="1490">1490</span>
+<span id="1491">1491</span>
+<span id="1492">1492</span>
+<span id="1493">1493</span>
+<span id="1494">1494</span>
+<span id="1495">1495</span>
+<span id="1496">1496</span>
+<span id="1497">1497</span>
+<span id="1498">1498</span>
+<span id="1499">1499</span>
+<span id="1500">1500</span>
+<span id="1501">1501</span>
+<span id="1502">1502</span>
+<span id="1503">1503</span>
+<span id="1504">1504</span>
+<span id="1505">1505</span>
+<span id="1506">1506</span>
+<span id="1507">1507</span>
+<span id="1508">1508</span>
+<span id="1509">1509</span>
+<span id="1510">1510</span>
+<span id="1511">1511</span>
+<span id="1512">1512</span>
+<span id="1513">1513</span>
+<span id="1514">1514</span>
+<span id="1515">1515</span>
+<span id="1516">1516</span>
+<span id="1517">1517</span>
+<span id="1518">1518</span>
+<span id="1519">1519</span>
+<span id="1520">1520</span>
+<span id="1521">1521</span>
+<span id="1522">1522</span>
+<span id="1523">1523</span>
+<span id="1524">1524</span>
+<span id="1525">1525</span>
+<span id="1526">1526</span>
+<span id="1527">1527</span>
+<span id="1528">1528</span>
+<span id="1529">1529</span>
+<span id="1530">1530</span>
+<span id="1531">1531</span>
+<span id="1532">1532</span>
+<span id="1533">1533</span>
+<span id="1534">1534</span>
+<span id="1535">1535</span>
+<span id="1536">1536</span>
+<span id="1537">1537</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">super</span>::<span class="ident">Visitor</span>;
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">prelude</span>::<span class="ident">Aliasable</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">prelude</span>::<span class="ident">Query</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">ast</span>::{<span class="ident">Column</span>, <span class="ident">Expression</span>, <span class="ident">ExpressionKind</span>, <span class="ident">Insert</span>, <span class="ident">IntoRaw</span>, <span class="ident">Merge</span>, <span class="ident">OnConflict</span>, <span class="ident">Order</span>, <span class="ident">Ordering</span>, <span class="ident">Row</span>, <span class="ident">Values</span>},
@@ -1493,9 +1624,40 @@
                 <span class="self">self</span>.<span class="ident">visit_multiple_tuple_comparison</span>(<span class="ident">left</span>, <span class="ident">Values</span>::<span class="ident">from</span>(<span class="ident">iter</span>::<span class="ident">once</span>(<span class="ident">right</span>)), <span class="bool-val">false</span>)<span class="question-mark">?</span>;
             }
             (<span class="ident">left_kind</span>, <span class="ident">right_kind</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="ident">Expression</span>::<span class="ident">from</span>(<span class="ident">left_kind</span>))<span class="question-mark">?</span>;
+                <span class="kw">let</span> (<span class="ident">l_alias</span>, <span class="ident">r_alias</span>) <span class="op">=</span> (<span class="ident">left</span>.<span class="ident">alias</span>, <span class="ident">right</span>.<span class="ident">alias</span>);
+
+                <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;xml&quot;</span>)]</span>
+                <span class="kw">let</span> (<span class="ident">left_xml</span>, <span class="ident">right_xml</span>) <span class="op">=</span> (<span class="ident">left_kind</span>.<span class="ident">is_xml_value</span>(), <span class="ident">right_kind</span>.<span class="ident">is_xml_value</span>());
+
+                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">left</span> <span class="op">=</span> <span class="ident">Expression</span>::<span class="ident">from</span>(<span class="ident">left_kind</span>);
+
+                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">alias</span>) <span class="op">=</span> <span class="ident">l_alias</span> {
+                    <span class="ident">left</span> <span class="op">=</span> <span class="ident">left</span>.<span class="ident">alias</span>(<span class="ident">alias</span>);
+                }
+
+                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">right</span> <span class="op">=</span> <span class="ident">Expression</span>::<span class="ident">from</span>(<span class="ident">right_kind</span>);
+
+                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">alias</span>) <span class="op">=</span> <span class="ident">r_alias</span> {
+                    <span class="ident">right</span> <span class="op">=</span> <span class="ident">right</span>.<span class="ident">alias</span>(<span class="ident">alias</span>);
+                }
+
+                <span class="kw">match</span> <span class="self">self</span> {
+                    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;xml&quot;</span>)]</span>
+                    <span class="kw">_</span> <span class="kw">if</span> <span class="ident">right_xml</span> <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="self">self</span>.<span class="ident">surround_with</span>(<span class="string">&quot;CAST(&quot;</span>, <span class="string">&quot; AS NVARCHAR(MAX))&quot;</span>, <span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">visit_expression</span>(<span class="ident">left</span>))<span class="question-mark">?</span>
+                    }
+                    <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="ident">left</span>)<span class="question-mark">?</span>,
+                };
+
                 <span class="self">self</span>.<span class="ident">write</span>(<span class="string">&quot; = &quot;</span>)<span class="question-mark">?</span>;
-                <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="ident">Expression</span>::<span class="ident">from</span>(<span class="ident">right_kind</span>))<span class="question-mark">?</span>;
+
+                <span class="kw">match</span> <span class="self">self</span> {
+                    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;xml&quot;</span>)]</span>
+                    <span class="kw">_</span> <span class="kw">if</span> <span class="ident">left_xml</span> <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="self">self</span>.<span class="ident">surround_with</span>(<span class="string">&quot;CAST(&quot;</span>, <span class="string">&quot; AS NVARCHAR(MAX))&quot;</span>, <span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">visit_expression</span>(<span class="ident">right</span>))<span class="question-mark">?</span>
+                    }
+                    <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="ident">right</span>)<span class="question-mark">?</span>,
+                };
             }
         }
 
@@ -1509,9 +1671,40 @@
                 <span class="self">self</span>.<span class="ident">visit_multiple_tuple_comparison</span>(<span class="ident">left</span>, <span class="ident">Values</span>::<span class="ident">from</span>(<span class="ident">iter</span>::<span class="ident">once</span>(<span class="ident">right</span>)), <span class="bool-val">true</span>)<span class="question-mark">?</span>;
             }
             (<span class="ident">left_kind</span>, <span class="ident">right_kind</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="ident">Expression</span>::<span class="ident">from</span>(<span class="ident">left_kind</span>))<span class="question-mark">?</span>;
+                <span class="kw">let</span> (<span class="ident">l_alias</span>, <span class="ident">r_alias</span>) <span class="op">=</span> (<span class="ident">left</span>.<span class="ident">alias</span>, <span class="ident">right</span>.<span class="ident">alias</span>);
+
+                <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;xml&quot;</span>)]</span>
+                <span class="kw">let</span> (<span class="ident">left_xml</span>, <span class="ident">right_xml</span>) <span class="op">=</span> (<span class="ident">left_kind</span>.<span class="ident">is_xml_value</span>(), <span class="ident">right_kind</span>.<span class="ident">is_xml_value</span>());
+
+                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">left</span> <span class="op">=</span> <span class="ident">Expression</span>::<span class="ident">from</span>(<span class="ident">left_kind</span>);
+
+                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">alias</span>) <span class="op">=</span> <span class="ident">l_alias</span> {
+                    <span class="ident">left</span> <span class="op">=</span> <span class="ident">left</span>.<span class="ident">alias</span>(<span class="ident">alias</span>);
+                }
+
+                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">right</span> <span class="op">=</span> <span class="ident">Expression</span>::<span class="ident">from</span>(<span class="ident">right_kind</span>);
+
+                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">alias</span>) <span class="op">=</span> <span class="ident">r_alias</span> {
+                    <span class="ident">right</span> <span class="op">=</span> <span class="ident">right</span>.<span class="ident">alias</span>(<span class="ident">alias</span>);
+                }
+
+                <span class="kw">match</span> <span class="self">self</span> {
+                    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;xml&quot;</span>)]</span>
+                    <span class="kw">_</span> <span class="kw">if</span> <span class="ident">right_xml</span> <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="self">self</span>.<span class="ident">surround_with</span>(<span class="string">&quot;CAST(&quot;</span>, <span class="string">&quot; AS NVARCHAR(MAX))&quot;</span>, <span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">visit_expression</span>(<span class="ident">left</span>))<span class="question-mark">?</span>
+                    }
+                    <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="ident">left</span>)<span class="question-mark">?</span>,
+                };
+
                 <span class="self">self</span>.<span class="ident">write</span>(<span class="string">&quot; &lt;&gt; &quot;</span>)<span class="question-mark">?</span>;
-                <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="ident">Expression</span>::<span class="ident">from</span>(<span class="ident">right_kind</span>))<span class="question-mark">?</span>;
+
+                <span class="kw">match</span> <span class="self">self</span> {
+                    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;xml&quot;</span>)]</span>
+                    <span class="kw">_</span> <span class="kw">if</span> <span class="ident">left_xml</span> <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="self">self</span>.<span class="ident">surround_with</span>(<span class="string">&quot;CAST(&quot;</span>, <span class="string">&quot; AS NVARCHAR(MAX))&quot;</span>, <span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">visit_expression</span>(<span class="ident">right</span>))<span class="question-mark">?</span>
+                    }
+                    <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="ident">right</span>)<span class="question-mark">?</span>,
+                };
             }
         }
 
@@ -1559,6 +1752,10 @@
                 <span class="kw">let</span> <span class="ident">s</span> <span class="op">=</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;CONVERT(time, N&#39;{}&#39;)&quot;</span>, <span class="ident">time</span>);
                 <span class="self">self</span>.<span class="ident">write</span>(<span class="ident">s</span>)
             }),
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;xml&quot;</span>)]</span>
+            <span class="comment">// Style 3 is keep all whitespace + internal DTD processing:</span>
+            <span class="comment">// https://docs.microsoft.com/en-us/sql/t-sql/functions/cast-and-convert-transact-sql?redirectedfrom=MSDN&amp;view=sql-server-ver15#xml-styles</span>
+            <span class="ident">Value</span>::<span class="ident">Xml</span>(<span class="ident">cow</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">cow</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">cow</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">write</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;CONVERT(XML, N&#39;{}&#39;, 3)&quot;</span>, <span class="ident">cow</span>))),
         };
 
         <span class="kw">match</span> <span class="ident">res</span> {
@@ -2032,6 +2229,69 @@
 
         <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">expected</span>.<span class="number">0</span>, <span class="ident">sql</span>);
         <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">default_params</span>(<span class="ident">expected</span>.<span class="number">1</span>), <span class="ident">params</span>);
+    }
+
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;xml&quot;</span>)]</span>
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="kw">fn</span> <span class="ident">equality_with_a_xml_value</span>() {
+        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="ident">expected_values</span>(
+            <span class="string">r#&quot;SELECT [users].* FROM [users] WHERE CAST([xmlField] AS NVARCHAR(MAX)) = @P1&quot;#</span>,
+            <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">Value</span>::<span class="ident">xml</span>(<span class="string">&quot;&lt;cat&gt;meow&lt;/cat&gt;&quot;</span>)],
+        );
+
+        <span class="kw">let</span> <span class="ident">query</span> <span class="op">=</span> <span class="ident">Select</span>::<span class="ident">from_table</span>(<span class="string">&quot;users&quot;</span>).<span class="ident">so_that</span>(<span class="ident">Column</span>::<span class="ident">from</span>(<span class="string">&quot;xmlField&quot;</span>).<span class="ident">equals</span>(<span class="ident">Value</span>::<span class="ident">xml</span>(<span class="string">&quot;&lt;cat&gt;meow&lt;/cat&gt;&quot;</span>)));
+        <span class="kw">let</span> (<span class="ident">sql</span>, <span class="ident">params</span>) <span class="op">=</span> <span class="ident">Mssql</span>::<span class="ident">build</span>(<span class="ident">query</span>).<span class="ident">unwrap</span>();
+
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">expected</span>.<span class="number">0</span>, <span class="ident">sql</span>);
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">expected</span>.<span class="number">1</span>, <span class="ident">params</span>);
+    }
+
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;xml&quot;</span>)]</span>
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="kw">fn</span> <span class="ident">equality_with_a_lhs_xml_value</span>() {
+        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="ident">expected_values</span>(
+            <span class="string">r#&quot;SELECT [users].* FROM [users] WHERE @P1 = CAST([xmlField] AS NVARCHAR(MAX))&quot;#</span>,
+            <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">Value</span>::<span class="ident">xml</span>(<span class="string">&quot;&lt;cat&gt;meow&lt;/cat&gt;&quot;</span>)],
+        );
+
+        <span class="kw">let</span> <span class="ident">value_expr</span>: <span class="ident">Expression</span> <span class="op">=</span> <span class="ident">Value</span>::<span class="ident">xml</span>(<span class="string">&quot;&lt;cat&gt;meow&lt;/cat&gt;&quot;</span>).<span class="ident">into</span>();
+        <span class="kw">let</span> <span class="ident">query</span> <span class="op">=</span> <span class="ident">Select</span>::<span class="ident">from_table</span>(<span class="string">&quot;users&quot;</span>).<span class="ident">so_that</span>(<span class="ident">value_expr</span>.<span class="ident">equals</span>(<span class="ident">Column</span>::<span class="ident">from</span>(<span class="string">&quot;xmlField&quot;</span>)));
+        <span class="kw">let</span> (<span class="ident">sql</span>, <span class="ident">params</span>) <span class="op">=</span> <span class="ident">Mssql</span>::<span class="ident">build</span>(<span class="ident">query</span>).<span class="ident">unwrap</span>();
+
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">expected</span>.<span class="number">0</span>, <span class="ident">sql</span>);
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">expected</span>.<span class="number">1</span>, <span class="ident">params</span>);
+    }
+
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;xml&quot;</span>)]</span>
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="kw">fn</span> <span class="ident">difference_with_a_xml_value</span>() {
+        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="ident">expected_values</span>(
+            <span class="string">r#&quot;SELECT [users].* FROM [users] WHERE CAST([xmlField] AS NVARCHAR(MAX)) &lt;&gt; @P1&quot;#</span>,
+            <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">Value</span>::<span class="ident">xml</span>(<span class="string">&quot;&lt;cat&gt;meow&lt;/cat&gt;&quot;</span>)],
+        );
+
+        <span class="kw">let</span> <span class="ident">query</span> <span class="op">=</span>
+            <span class="ident">Select</span>::<span class="ident">from_table</span>(<span class="string">&quot;users&quot;</span>).<span class="ident">so_that</span>(<span class="ident">Column</span>::<span class="ident">from</span>(<span class="string">&quot;xmlField&quot;</span>).<span class="ident">not_equals</span>(<span class="ident">Value</span>::<span class="ident">xml</span>(<span class="string">&quot;&lt;cat&gt;meow&lt;/cat&gt;&quot;</span>)));
+        <span class="kw">let</span> (<span class="ident">sql</span>, <span class="ident">params</span>) <span class="op">=</span> <span class="ident">Mssql</span>::<span class="ident">build</span>(<span class="ident">query</span>).<span class="ident">unwrap</span>();
+
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">expected</span>.<span class="number">0</span>, <span class="ident">sql</span>);
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">expected</span>.<span class="number">1</span>, <span class="ident">params</span>);
+    }
+
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;xml&quot;</span>)]</span>
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="kw">fn</span> <span class="ident">difference_with_a_lhs_xml_value</span>() {
+        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="ident">expected_values</span>(
+            <span class="string">r#&quot;SELECT [users].* FROM [users] WHERE @P1 &lt;&gt; CAST([xmlField] AS NVARCHAR(MAX))&quot;#</span>,
+            <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">Value</span>::<span class="ident">xml</span>(<span class="string">&quot;&lt;cat&gt;meow&lt;/cat&gt;&quot;</span>)],
+        );
+
+        <span class="kw">let</span> <span class="ident">value_expr</span>: <span class="ident">Expression</span> <span class="op">=</span> <span class="ident">Value</span>::<span class="ident">xml</span>(<span class="string">&quot;&lt;cat&gt;meow&lt;/cat&gt;&quot;</span>).<span class="ident">into</span>();
+        <span class="kw">let</span> <span class="ident">query</span> <span class="op">=</span> <span class="ident">Select</span>::<span class="ident">from_table</span>(<span class="string">&quot;users&quot;</span>).<span class="ident">so_that</span>(<span class="ident">value_expr</span>.<span class="ident">not_equals</span>(<span class="ident">Column</span>::<span class="ident">from</span>(<span class="string">&quot;xmlField&quot;</span>)));
+        <span class="kw">let</span> (<span class="ident">sql</span>, <span class="ident">params</span>) <span class="op">=</span> <span class="ident">Mssql</span>::<span class="ident">build</span>(<span class="ident">query</span>).<span class="ident">unwrap</span>();
+
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">expected</span>.<span class="number">0</span>, <span class="ident">sql</span>);
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">expected</span>.<span class="number">1</span>, <span class="ident">params</span>);
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
