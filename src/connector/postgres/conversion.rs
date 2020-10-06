@@ -424,7 +424,7 @@ impl GetRow for PostgresRow {
                     }
                     None => Value::Xml(None),
                 },
-                #[cfg(feature = "array")]
+                #[cfg(all(feature = "array", feature = "xml"))]
                 PostgresType::XML_ARRAY => match row.try_get(i)? {
                     Some(val) => {
                         let val: Vec<XmlString> = val;
