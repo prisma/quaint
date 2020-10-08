@@ -158,7 +158,6 @@
 <span id="158">158</span>
 <span id="159">159</span>
 <span id="160">160</span>
-<span id="161">161</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">error</span>::{<span class="ident">DatabaseConstraint</span>, <span class="ident">Error</span>, <span class="ident">ErrorKind</span>};
 
@@ -216,7 +215,7 @@
                     .<span class="ident">split</span>(<span class="string">&#39; &#39;</span>)
                     .<span class="ident">last</span>()
                     .<span class="ident">unwrap</span>()
-                    .<span class="ident">split</span>(<span class="string">&quot;&#39;&quot;</span>)
+                    .<span class="ident">split</span>(<span class="string">&#39;\&#39;&#39;</span>)
                     .<span class="ident">nth</span>(<span class="number">1</span>)
                     .<span class="ident">unwrap</span>();
 
@@ -232,13 +231,12 @@
             <span class="ident">tiberius</span>::<span class="ident">error</span>::<span class="ident">Error</span>::<span class="ident">Server</span>(<span class="ident">e</span>) <span class="kw">if</span> <span class="ident">e</span>.<span class="ident">code</span>() <span class="op">=</span><span class="op">=</span> <span class="number">547</span> <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">let</span> <span class="ident">index</span> <span class="op">=</span> <span class="ident">e</span>
                     .<span class="ident">message</span>()
-                    .<span class="ident">split</span>(<span class="string">&#39;.&#39;</span>)
-                    .<span class="ident">nth</span>(<span class="number">0</span>)
+                    .<span class="ident">split</span>(<span class="string">&#39;.&#39;</span>).<span class="ident">next</span>()
                     .<span class="ident">unwrap</span>()
                     .<span class="ident">split_whitespace</span>()
                     .<span class="ident">last</span>()
                     .<span class="ident">unwrap</span>()
-                    .<span class="ident">split</span>(<span class="string">&quot;\&quot;&quot;</span>)
+                    .<span class="ident">split</span>(<span class="string">&#39;\&quot;&#39;</span>)
                     .<span class="ident">nth</span>(<span class="number">1</span>)
                     .<span class="ident">unwrap</span>();
 
@@ -257,7 +255,7 @@
                 <span class="kw">let</span> <span class="ident">index</span> <span class="op">=</span> <span class="ident">splitted</span>.<span class="ident">nth</span>(<span class="number">1</span>).<span class="ident">unwrap</span>().<span class="ident">to_string</span>();
 
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">builder</span> <span class="op">=</span> <span class="ident">Error</span>::<span class="ident">builder</span>(<span class="ident">ErrorKind</span>::<span class="ident">UniqueConstraintViolation</span> {
-                    <span class="ident">constraint</span>: <span class="ident">DatabaseConstraint</span>::<span class="ident">Index</span>(<span class="ident">index</span>.<span class="ident">to_string</span>()),
+                    <span class="ident">constraint</span>: <span class="ident">DatabaseConstraint</span>::<span class="ident">Index</span>(<span class="ident">index</span>),
                 });
 
                 <span class="ident">builder</span>.<span class="ident">set_original_code</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">e</span>.<span class="ident">code</span>()));
@@ -278,7 +276,7 @@
                 <span class="kw">let</span> <span class="ident">column_name</span> <span class="op">=</span> <span class="ident">e</span>.<span class="ident">message</span>().<span class="ident">split</span>(<span class="string">&#39;\&#39;&#39;</span>).<span class="ident">nth</span>(<span class="number">3</span>).<span class="ident">unwrap</span>().<span class="ident">to_string</span>();
 
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">builder</span> <span class="op">=</span> <span class="ident">Error</span>::<span class="ident">builder</span>(<span class="ident">ErrorKind</span>::<span class="ident">LengthMismatch</span> {
-                    <span class="ident">column</span>: <span class="prelude-val">Some</span>(<span class="ident">column_name</span>.<span class="ident">to_owned</span>()),
+                    <span class="ident">column</span>: <span class="prelude-val">Some</span>(<span class="ident">column_name</span>),
                 });
 
                 <span class="ident">builder</span>.<span class="ident">set_original_code</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">e</span>.<span class="ident">code</span>()));

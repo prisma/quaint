@@ -1894,7 +1894,7 @@
 
         <span class="self">self</span>.<span class="ident">visit_column</span>(<span class="ident">Column</span>::<span class="ident">from</span>(<span class="ident">cte</span>.<span class="ident">identifier</span>.<span class="ident">into_owned</span>()))<span class="question-mark">?</span>;
 
-        <span class="kw">if</span> <span class="ident">cols</span>.<span class="ident">len</span>() <span class="op">&gt;</span> <span class="number">0</span> {
+        <span class="kw">if</span> <span class="op">!</span><span class="ident">cols</span>.<span class="ident">is_empty</span>() {
             <span class="self">self</span>.<span class="ident">write</span>(<span class="string">&quot; &quot;</span>)<span class="question-mark">?</span>;
             <span class="self">self</span>.<span class="ident">visit_row</span>(<span class="ident">Row</span>::<span class="ident">from</span>(<span class="ident">cols</span>))<span class="question-mark">?</span>;
         }

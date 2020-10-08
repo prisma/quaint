@@ -370,7 +370,7 @@
                             <span class="kw">let</span> <span class="ident">msg</span> <span class="op">=</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Value {} not supported&quot;</span>, <span class="ident">n</span>);
                             <span class="kw">let</span> <span class="ident">kind</span> <span class="op">=</span> <span class="ident">ErrorKind</span>::<span class="ident">conversion</span>(<span class="ident">msg</span>);
 
-                            <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">builder</span>(<span class="ident">kind</span>).<span class="ident">build</span>())<span class="question-mark">?</span>
+                            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">builder</span>(<span class="ident">kind</span>).<span class="ident">build</span>())
                         }
                         <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Value</span>::<span class="ident">Integer</span>(<span class="prelude-val">None</span>),
                     },
@@ -464,7 +464,7 @@
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">builder</span> <span class="op">=</span> <span class="ident">Error</span>::<span class="ident">builder</span>(<span class="ident">kind</span>);
                 <span class="ident">builder</span>.<span class="ident">set_original_message</span>(<span class="ident">msg</span>);
 
-                <span class="prelude-val">Err</span>(<span class="ident">RusqlError</span>::<span class="ident">ToSqlConversionFailure</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">builder</span>.<span class="ident">build</span>())))<span class="question-mark">?</span>
+                <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">RusqlError</span>::<span class="ident">ToSqlConversionFailure</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">builder</span>.<span class="ident">build</span>())))
             }
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;json-1&quot;</span>)]</span>
             <span class="ident">Value</span>::<span class="ident">Json</span>(<span class="ident">value</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">value</span>.<span class="ident">as_ref</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">value</span><span class="op">|</span> {
