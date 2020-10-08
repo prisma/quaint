@@ -154,7 +154,7 @@ impl<'a> From<Value<'a>> for serde_json::Value {
             Value::Text(cow) => cow.map(|cow| serde_json::Value::String(cow.into_owned())),
             Value::Bytes(bytes) => bytes.map(|bytes| serde_json::Value::String(base64::encode(&bytes))),
             Value::Enum(cow) => cow.map(|cow| serde_json::Value::String(cow.into_owned())),
-            Value::Boolean(b) => b.map(|b| serde_json::Value::Bool(b)),
+            Value::Boolean(b) => b.map(serde_json::Value::Bool),
             Value::Char(c) => c.map(|c| {
                 let bytes = [c as u8];
                 let s = std::str::from_utf8(&bytes)
@@ -319,10 +319,7 @@ impl<'a> Value<'a> {
 
     /// `true` if the `Value` is text.
     pub fn is_text(&self) -> bool {
-        match self {
-            Value::Text(_) => true,
-            _ => false,
-        }
+        matches!(self, Value::Text(_))
     }
 
     /// Returns a &str if the value is text, otherwise `None`.
@@ -337,7 +334,7 @@ impl<'a> Value<'a> {
     /// Returns a char if the value is a char, otherwise `None`.
     pub fn as_char(&self) -> Option<char> {
         match self {
-            Value::Char(c) => c.clone(),
+            Value::Char(c) => *c,
             _ => None,
         }
     }
@@ -363,10 +360,7 @@ impl<'a> Value<'a> {
 
     /// Returns whether this value is the `Bytes` variant.
     pub fn is_bytes(&self) -> bool {
-        match self {
-            Value::Bytes(_) => true,
-            _ => false,
-        }
+        matches!(self, Value::Bytes(_))
     }
 
     /// Returns a bytes slice if the value is text or a byte slice, otherwise `None`.
@@ -398,7 +392,7 @@ impl<'a> Value<'a> {
     /// Returns an i64 if the value is an integer, otherwise `None`.
     pub fn as_i64(&self) -> Option<i64> {
         match self {
-            Value::Integer(i) => i.clone(),
+            Value::Integer(i) => *i,
             _ => None,
         }
     }
