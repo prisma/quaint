@@ -383,10 +383,7 @@ impl<'a> Value<'a> {
 
     /// `true` if the `Value` is an integer.
     pub fn is_integer(&self) -> bool {
-        match self {
-            Value::Integer(_) => true,
-            _ => false,
-        }
+        matches!(self, Value::Integer(_))
     }
 
     /// Returns an i64 if the value is an integer, otherwise `None`.
@@ -399,10 +396,7 @@ impl<'a> Value<'a> {
 
     /// `true` if the `Value` is a real value.
     pub fn is_real(&self) -> bool {
-        match self {
-            Value::Real(_) => true,
-            _ => false,
-        }
+        matches!(self, Value::Real(_))
     }
 
     /// Returns a f64 if the value is a real value and the underlying decimal can be converted, otherwise `None`.
@@ -416,7 +410,7 @@ impl<'a> Value<'a> {
     /// Returns a decimal if the value is a real value, otherwise `None`.
     pub fn as_decimal(&self) -> Option<Decimal> {
         match self {
-            Value::Real(d) => d.clone(),
+            Value::Real(d) => *d,
             _ => None,
         }
     }
@@ -434,7 +428,7 @@ impl<'a> Value<'a> {
     /// Returns a bool if the value is a boolean, otherwise `None`.
     pub fn as_bool(&self) -> Option<bool> {
         match self {
-            Value::Boolean(b) => b.clone(),
+            Value::Boolean(b) => *b,
             // For schemas which don't tag booleans
             Value::Integer(Some(i)) if *i == 0 || *i == 1 => Some(*i == 1),
             _ => None,
@@ -444,26 +438,20 @@ impl<'a> Value<'a> {
     /// `true` if the `Value` is an Array.
     #[cfg(feature = "array")]
     pub fn is_array(&self) -> bool {
-        match self {
-            Value::Array(_) => true,
-            _ => false,
-        }
+        matches!(self, Value::Array(_))
     }
 
     /// `true` if the `Value` is of UUID type.
     #[cfg(feature = "uuid-0_8")]
     pub fn is_uuid(&self) -> bool {
-        match self {
-            Value::Uuid(_) => true,
-            _ => false,
-        }
+        matches!(self, Value::Uuid(_))
     }
 
     /// Returns an UUID if the value is of UUID type, otherwise `None`.
     #[cfg(feature = "uuid-0_8")]
     pub fn as_uuid(&self) -> Option<Uuid> {
         match self {
-            Value::Uuid(u) => u.clone(),
+            Value::Uuid(u) => *u,
             _ => None,
         }
     }
@@ -471,17 +459,14 @@ impl<'a> Value<'a> {
     /// `true` if the `Value` is a DateTime.
     #[cfg(feature = "chrono-0_4")]
     pub fn is_datetime(&self) -> bool {
-        match self {
-            Value::DateTime(_) => true,
-            _ => false,
-        }
+        matches!(self, Value::DateTime(_))
     }
 
     /// Returns a `DateTime` if the value is a `DateTime`, otherwise `None`.
     #[cfg(feature = "chrono-0_4")]
     pub fn as_datetime(&self) -> Option<DateTime<Utc>> {
         match self {
-            Value::DateTime(dt) => dt.clone(),
+            Value::DateTime(dt) => *dt,
             _ => None,
         }
     }
@@ -489,17 +474,14 @@ impl<'a> Value<'a> {
     /// `true` if the `Value` is a Date.
     #[cfg(feature = "chrono-0_4")]
     pub fn is_date(&self) -> bool {
-        match self {
-            Value::Date(_) => true,
-            _ => false,
-        }
+        matches!(self, Value::Date(_))
     }
 
     /// Returns a `NaiveDate` if the value is a `Date`, otherwise `None`.
     #[cfg(feature = "chrono-0_4")]
     pub fn as_date(&self) -> Option<NaiveDate> {
         match self {
-            Value::Date(dt) => dt.clone(),
+            Value::Date(dt) => *dt,
             _ => None,
         }
     }
@@ -507,17 +489,14 @@ impl<'a> Value<'a> {
     /// `true` if the `Value` is a `Time`.
     #[cfg(feature = "chrono-0_4")]
     pub fn is_time(&self) -> bool {
-        match self {
-            Value::Time(_) => true,
-            _ => false,
-        }
+        matches!(self, Value::Time(_))
     }
 
     /// Returns a `NaiveTime` if the value is a `Time`, otherwise `None`.
     #[cfg(feature = "chrono-0_4")]
     pub fn as_time(&self) -> Option<NaiveTime> {
         match self {
-            Value::Time(time) => time.clone(),
+            Value::Time(time) => *time,
             _ => None,
         }
     }
@@ -525,10 +504,7 @@ impl<'a> Value<'a> {
     /// `true` if the `Value` is a JSON value.
     #[cfg(feature = "json-1")]
     pub fn is_json(&self) -> bool {
-        match self {
-            Value::Json(_) => true,
-            _ => false,
-        }
+        matches!(self, Value::Json(_))
     }
 
     /// Returns a reference to a JSON Value if of Json type, otherwise `None`.
