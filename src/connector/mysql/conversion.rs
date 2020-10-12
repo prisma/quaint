@@ -11,7 +11,7 @@ use mysql_async::{
 };
 use std::convert::TryFrom;
 
-pub fn conv_params<'a>(params: &[Value<'a>]) -> crate::Result<my::Params> {
+pub fn conv_params(params: &[Value<'_>]) -> crate::Result<my::Params> {
     if params.is_empty() {
         // If we don't use explicit 'Empty',
         // mysql crashes with 'internal error: entered unreachable code'
@@ -63,7 +63,7 @@ pub fn conv_params<'a>(params: &[Value<'a>]) -> crate::Result<my::Params> {
                     let mut builder = Error::builder(kind);
                     builder.set_original_message(msg);
 
-                    return Err(builder.build())
+                    return Err(builder.build());
                 }
                 #[cfg(feature = "uuid-0_8")]
                 Value::Uuid(u) => u.map(|u| my::Value::Bytes(u.to_hyphenated().to_string().into_bytes())),
@@ -276,12 +276,12 @@ impl TakeRow for my::Row {
                 my::Value::Time(is_neg, days, hours, minutes, seconds, micros) => {
                     if is_neg {
                         let kind = ErrorKind::conversion("Failed to convert a negative time");
-                        return Err(Error::builder(kind).build())
+                        return Err(Error::builder(kind).build());
                     }
 
                     if days != 0 {
                         let kind = ErrorKind::conversion("Failed to read a MySQL `time` as duration");
-                        return Err(Error::builder(kind).build())
+                        return Err(Error::builder(kind).build());
                     }
 
                     let time = NaiveTime::from_hms_micro(hours.into(), minutes.into(), seconds.into(), micros);
@@ -310,7 +310,7 @@ impl TakeRow for my::Row {
                         );
 
                         let kind = ErrorKind::conversion(msg);
-                        return Err(Error::builder(kind).build())
+                        return Err(Error::builder(kind).build());
                     }
                 },
                 #[cfg(not(feature = "chrono-0_4"))]
