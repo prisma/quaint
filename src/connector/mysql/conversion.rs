@@ -11,7 +11,7 @@ use mysql_async::{
 };
 use std::convert::TryFrom;
 
-pub fn conv_params<'a>(params: &[Value<'a>]) -> crate::Result<my::Params> {
+pub fn conv_params(params: &[Value<'_>]) -> crate::Result<my::Params> {
     if params.is_empty() {
         // If we don't use explicit 'Empty',
         // mysql crashes with 'internal error: entered unreachable code'
