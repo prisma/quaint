@@ -24,14 +24,14 @@ pub fn conv_params<'a>(params: &[Value<'a>]) -> crate::Result<my::Params> {
                 Value::Integer(i) => i.map(my::Value::Int),
                 Value::Real(f) => match f {
                     Some(f) => {
-                        let floating = f.to_string().parse::<f64>().map_err(|_| {
-                            let msg = "Decimal is not a f64.";
-                            let kind = ErrorKind::conversion(msg);
+                        // let floating = f.to_string().parse::<f64>().map_err(|_| {
+                        //     let msg = "Decimal is not a f64.";
+                        //     let kind = ErrorKind::conversion(msg);
 
-                            Error::builder(kind).build()
-                        })?;
+                        //     Error::builder(kind).build()
+                        // })?;
 
-                        Some(my::Value::Double(floating))
+                        Some(my::Value::Bytes(f.to_string().as_bytes().to_vec()))
                     }
                     None => None,
                 },
@@ -63,7 +63,7 @@ pub fn conv_params<'a>(params: &[Value<'a>]) -> crate::Result<my::Params> {
                     let mut builder = Error::builder(kind);
                     builder.set_original_message(msg);
 
-                    return Err(builder.build())
+                    return Err(builder.build());
                 }
                 #[cfg(feature = "uuid-0_8")]
                 Value::Uuid(u) => u.map(|u| my::Value::Bytes(u.to_hyphenated().to_string().into_bytes())),
@@ -276,12 +276,12 @@ impl TakeRow for my::Row {
                 my::Value::Time(is_neg, days, hours, minutes, seconds, micros) => {
                     if is_neg {
                         let kind = ErrorKind::conversion("Failed to convert a negative time");
-                        return Err(Error::builder(kind).build())
+                        return Err(Error::builder(kind).build());
                     }
 
                     if days != 0 {
                         let kind = ErrorKind::conversion("Failed to read a MySQL `time` as duration");
-                        return Err(Error::builder(kind).build())
+                        return Err(Error::builder(kind).build());
                     }
 
                     let time = NaiveTime::from_hms_micro(hours.into(), minutes.into(), seconds.into(), micros);
@@ -310,7 +310,7 @@ impl TakeRow for my::Row {
                         );
 
                         let kind = ErrorKind::conversion(msg);
-                        return Err(Error::builder(kind).build())
+                        return Err(Error::builder(kind).build());
                     }
                 },
                 #[cfg(not(feature = "chrono-0_4"))]
