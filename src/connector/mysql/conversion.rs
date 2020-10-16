@@ -23,16 +23,7 @@ pub fn conv_params<'a>(params: &[Value<'a>]) -> crate::Result<my::Params> {
             let res = match pv {
                 Value::Integer(i) => i.map(my::Value::Int),
                 Value::Real(f) => match f {
-                    Some(f) => {
-                        // let floating = f.to_string().parse::<f64>().map_err(|_| {
-                        //     let msg = "Decimal is not a f64.";
-                        //     let kind = ErrorKind::conversion(msg);
-
-                        //     Error::builder(kind).build()
-                        // })?;
-
-                        Some(my::Value::Bytes(f.to_string().as_bytes().to_vec()))
-                    }
+                    Some(f) => Some(my::Value::Bytes(f.to_string().as_bytes().to_vec())),
                     None => None,
                 },
                 Value::Text(s) => s.clone().map(|s| my::Value::Bytes((&*s).as_bytes().to_vec())),
