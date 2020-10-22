@@ -402,6 +402,7 @@
 <span id="402">402</span>
 <span id="403">403</span>
 <span id="404">404</span>
+<span id="405">405</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">mod</span> <span class="ident">conversion</span>;
 <span class="kw">mod</span> <span class="ident">error</span>;
@@ -504,7 +505,8 @@
         <span class="self">self</span>.<span class="ident">url</span>.<span class="ident">port</span>().<span class="ident">unwrap_or</span>(<span class="number">3306</span>)
     }
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">connect_timeout</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span> {
+    <span class="doccomment">/// The connection timeout.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">connect_timeout</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">query_params</span>.<span class="ident">connect_timeout</span>
     }
 
