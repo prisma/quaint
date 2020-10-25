@@ -1535,13 +1535,15 @@
 <span id="1535">1535</span>
 <span id="1536">1536</span>
 <span id="1537">1537</span>
+<span id="1538">1538</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">super</span>::<span class="ident">Visitor</span>;
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;array&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;postgresql&quot;</span>))]</span>
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">error</span>::{<span class="ident">Error</span>, <span class="ident">ErrorKind</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">prelude</span>::<span class="ident">Aliasable</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">prelude</span>::<span class="ident">Query</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">ast</span>::{<span class="ident">Column</span>, <span class="ident">Expression</span>, <span class="ident">ExpressionKind</span>, <span class="ident">Insert</span>, <span class="ident">IntoRaw</span>, <span class="ident">Merge</span>, <span class="ident">OnConflict</span>, <span class="ident">Order</span>, <span class="ident">Ordering</span>, <span class="ident">Row</span>, <span class="ident">Values</span>},
-    <span class="ident">error</span>::{<span class="ident">Error</span>, <span class="ident">ErrorKind</span>},
     <span class="ident">prelude</span>::<span class="ident">Average</span>,
     <span class="ident">visitor</span>, <span class="ident">Value</span>,
 };

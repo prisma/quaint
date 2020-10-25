@@ -103,23 +103,8 @@
 <span id="103">103</span>
 <span id="104">104</span>
 <span id="105">105</span>
-<span id="106">106</span>
-<span id="107">107</span>
-<span id="108">108</span>
-<span id="109">109</span>
-<span id="110">110</span>
-<span id="111">111</span>
-<span id="112">112</span>
-<span id="113">113</span>
-<span id="114">114</span>
-<span id="115">115</span>
-<span id="116">116</span>
-<span id="117">117</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">ast</span>::<span class="ident">Value</span>,
-    <span class="ident">error</span>::{<span class="ident">Error</span>, <span class="ident">ErrorKind</span>},
-};
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">ast</span>::<span class="ident">Value</span>;
 <span class="kw">use</span> <span class="ident">rust_decimal</span>::{<span class="ident">prelude</span>::<span class="ident">FromPrimitive</span>, <span class="ident">Decimal</span>};
 <span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">borrow</span>::<span class="ident">Cow</span>, <span class="ident">convert</span>::<span class="ident">TryFrom</span>};
 <span class="kw">use</span> <span class="ident">tiberius</span>::{<span class="ident">ColumnData</span>, <span class="ident">FromSql</span>, <span class="ident">IntoSql</span>, <span class="ident">ToSql</span>};
@@ -128,17 +113,7 @@
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">converted</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">with_capacity</span>(<span class="ident">params</span>.<span class="ident">len</span>());
 
     <span class="kw">for</span> <span class="ident">param</span> <span class="kw">in</span> <span class="ident">params</span>.<span class="ident">iter</span>() {
-        <span class="kw">if</span> <span class="ident">param</span>.<span class="ident">is_array</span>() {
-            <span class="kw">let</span> <span class="ident">msg</span> <span class="op">=</span> <span class="string">&quot;Arrays are not supported in T-SQL.&quot;</span>;
-            <span class="kw">let</span> <span class="ident">kind</span> <span class="op">=</span> <span class="ident">ErrorKind</span>::<span class="ident">conversion</span>(<span class="ident">msg</span>);
-
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">builder</span> <span class="op">=</span> <span class="ident">Error</span>::<span class="ident">builder</span>(<span class="ident">kind</span>);
-            <span class="ident">builder</span>.<span class="ident">set_original_message</span>(<span class="ident">msg</span>);
-
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">builder</span>.<span class="ident">build</span>());
-        } <span class="kw">else</span> {
-            <span class="ident">converted</span>.<span class="ident">push</span>(<span class="ident">param</span> <span class="kw">as</span> <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">ToSql</span>)
-        }
+        <span class="ident">converted</span>.<span class="ident">push</span>(<span class="ident">param</span> <span class="kw">as</span> <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">ToSql</span>)
     }
 
     <span class="prelude-val">Ok</span>(<span class="ident">converted</span>)
@@ -166,6 +141,7 @@
             <span class="ident">Value</span>::<span class="ident">Time</span>(<span class="ident">val</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">val</span>.<span class="ident">to_sql</span>(),
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;xml&quot;</span>)]</span>
             <span class="ident">Value</span>::<span class="ident">Xml</span>(<span class="ident">val</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">val</span>.<span class="ident">to_sql</span>(),
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;array&quot;</span>)]</span>
             <span class="ident">p</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">todo</span><span class="macro">!</span>(<span class="string">&quot;Type {:?} is not supported&quot;</span>, <span class="ident">p</span>),
         }
     }
