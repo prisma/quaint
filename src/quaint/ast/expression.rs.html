@@ -389,19 +389,6 @@
 <span id="389">389</span>
 <span id="390">390</span>
 <span id="391">391</span>
-<span id="392">392</span>
-<span id="393">393</span>
-<span id="394">394</span>
-<span id="395">395</span>
-<span id="396">396</span>
-<span id="397">397</span>
-<span id="398">398</span>
-<span id="399">399</span>
-<span id="400">400</span>
-<span id="401">401</span>
-<span id="402">402</span>
-<span id="403">403</span>
-<span id="404">404</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">ast</span>::<span class="kw-2">*</span>;
 <span class="kw">use</span> <span class="ident">either</span>::<span class="ident">Either</span>;
@@ -498,49 +485,36 @@
 
     <span class="doccomment">/// Finds all comparisons between a tuple and a selection. If returning some</span>
     <span class="doccomment">/// CTEs, they should be handled in the calling layer.</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">convert_tuple_selects_to_ctes</span>(
-        <span class="self">self</span>,
-        <span class="ident">level</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">usize</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> (<span class="self">Self</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">CommonTableExpression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>) {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">convert_tuple_selects_to_ctes</span>(<span class="self">self</span>, <span class="ident">level</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> (<span class="self">Self</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">CommonTableExpression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>) {
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">kind</span> {
-            <span class="ident">ExpressionKind</span>::<span class="ident">Selection</span>(<span class="ident">SelectQuery</span>::<span class="ident">Select</span>(<span class="ident">select</span>)) <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="kw">let</span> <span class="ident">select</span> <span class="op">=</span> <span class="ident">select</span>.<span class="ident">convert_tuple_selects_to_ctes</span>(<span class="ident">level</span>);
+            <span class="ident">ExpressionKind</span>::<span class="ident">Selection</span>(<span class="ident">s</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="kw">let</span> (<span class="ident">selection</span>, <span class="ident">ctes</span>) <span class="op">=</span> <span class="ident">s</span>.<span class="ident">convert_tuple_selects_to_ctes</span>(<span class="ident">level</span>);
 
                 <span class="kw">let</span> <span class="ident">expr</span> <span class="op">=</span> <span class="ident">Expression</span> {
-                    <span class="ident">kind</span>: <span class="ident">ExpressionKind</span>::<span class="ident">Selection</span>(<span class="ident">SelectQuery</span>::<span class="ident">Select</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">select</span>))),
+                    <span class="ident">kind</span>: <span class="ident">ExpressionKind</span>::<span class="ident">Selection</span>(<span class="ident">selection</span>),
                     <span class="ident">alias</span>: <span class="self">self</span>.<span class="ident">alias</span>,
                 };
 
-                (<span class="ident">expr</span>, <span class="prelude-val">None</span>)
-            }
-            <span class="ident">ExpressionKind</span>::<span class="ident">Selection</span>(<span class="ident">SelectQuery</span>::<span class="ident">Union</span>(<span class="ident">union</span>)) <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="kw">let</span> <span class="ident">union</span> <span class="op">=</span> <span class="ident">union</span>.<span class="ident">convert_tuple_selects_into_ctes</span>(<span class="ident">level</span>);
-
-                <span class="kw">let</span> <span class="ident">expr</span> <span class="op">=</span> <span class="ident">Expression</span> {
-                    <span class="ident">kind</span>: <span class="ident">ExpressionKind</span>::<span class="ident">Selection</span>(<span class="ident">SelectQuery</span>::<span class="ident">Union</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">union</span>))),
-                    <span class="ident">alias</span>: <span class="self">self</span>.<span class="ident">alias</span>,
-                };
-
-                (<span class="ident">expr</span>, <span class="prelude-val">None</span>)
+                (<span class="ident">expr</span>, <span class="ident">ctes</span>)
             }
             <span class="ident">ExpressionKind</span>::<span class="ident">Compare</span>(<span class="ident">compare</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">compare</span>.<span class="ident">convert_tuple_select_to_cte</span>(<span class="ident">level</span>) {
-                <span class="comment">// Conversion happened</span>
-                <span class="ident">Either</span>::<span class="ident">Left</span>((<span class="ident">comp</span>, <span class="ident">cte</span>)) <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="kw">let</span> <span class="ident">expr</span> <span class="op">=</span> <span class="ident">Expression</span> {
-                        <span class="ident">kind</span>: <span class="ident">ExpressionKind</span>::<span class="ident">Compare</span>(<span class="ident">comp</span>),
-                        <span class="ident">alias</span>: <span class="self">self</span>.<span class="ident">alias</span>,
-                    };
-
-                    (<span class="ident">expr</span>, <span class="prelude-val">Some</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="ident">cte</span>]))
-                }
                 <span class="comment">// No conversion</span>
-                <span class="ident">Either</span>::<span class="ident">Right</span>(<span class="ident">compare</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">Either</span>::<span class="ident">Left</span>(<span class="ident">compare</span>) <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">let</span> <span class="ident">expr</span> <span class="op">=</span> <span class="ident">Expression</span> {
                         <span class="ident">kind</span>: <span class="ident">ExpressionKind</span>::<span class="ident">Compare</span>(<span class="ident">compare</span>),
                         <span class="ident">alias</span>: <span class="self">self</span>.<span class="ident">alias</span>,
                     };
 
-                    (<span class="ident">expr</span>, <span class="prelude-val">None</span>)
+                    (<span class="ident">expr</span>, <span class="ident">Vec</span>::<span class="ident">new</span>())
+                }
+                <span class="comment">// Conversion happened</span>
+                <span class="ident">Either</span>::<span class="ident">Right</span>((<span class="ident">comp</span>, <span class="ident">ctes</span>)) <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="kw">let</span> <span class="ident">expr</span> <span class="op">=</span> <span class="ident">Expression</span> {
+                        <span class="ident">kind</span>: <span class="ident">ExpressionKind</span>::<span class="ident">Compare</span>(<span class="ident">comp</span>),
+                        <span class="ident">alias</span>: <span class="self">self</span>.<span class="ident">alias</span>,
+                    };
+
+                    (<span class="ident">expr</span>, <span class="ident">ctes</span>)
                 }
             },
             <span class="ident">ExpressionKind</span>::<span class="ident">ConditionTree</span>(<span class="ident">tree</span>) <span class="op">=</span><span class="op">&gt;</span> {
@@ -553,7 +527,7 @@
 
                 (<span class="ident">expr</span>, <span class="ident">ctes</span>)
             }
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> (<span class="self">self</span>, <span class="prelude-val">None</span>),
+            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> (<span class="self">self</span>, <span class="ident">Vec</span>::<span class="ident">new</span>()),
         }
     }
 }

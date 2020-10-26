@@ -1536,6 +1536,9 @@
 <span id="1536">1536</span>
 <span id="1537">1537</span>
 <span id="1538">1538</span>
+<span id="1539">1539</span>
+<span id="1540">1540</span>
+<span id="1541">1541</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">super</span>::<span class="ident">Visitor</span>;
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;array&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;postgresql&quot;</span>))]</span>
@@ -1609,7 +1612,10 @@
         <span class="kw">match</span> <span class="ident">query</span> {
             <span class="comment">// Finding possible `(a, b) (NOT) IN (SELECT x, y ...)` comparisons,</span>
             <span class="comment">// and replacing them with common table expressions.</span>
-            <span class="ident">Query</span>::<span class="ident">Select</span>(<span class="ident">select</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">select</span>.<span class="ident">convert_tuple_selects_to_ctes</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="number">0</span>).<span class="ident">into</span>(),
+            <span class="ident">Query</span>::<span class="ident">Select</span>(<span class="ident">select</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">select</span>
+                .<span class="ident">convert_tuple_selects_to_ctes</span>(<span class="bool-val">true</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="number">0</span>)
+                .<span class="ident">expect_left</span>(<span class="string">&quot;Top-level query was right&quot;</span>)
+                .<span class="ident">into</span>(),
             <span class="comment">// Replacing the `ON CONFLICT DO NOTHING` clause with a `MERGE` statement.</span>
             <span class="ident">Query</span>::<span class="ident">Insert</span>(<span class="ident">insert</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">insert</span>.<span class="ident">on_conflict</span> {
                 <span class="prelude-val">Some</span>(<span class="ident">OnConflict</span>::<span class="ident">DoNothing</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Merge</span>::<span class="ident">try_from</span>(<span class="kw-2">*</span><span class="ident">insert</span>).<span class="ident">unwrap</span>().<span class="ident">into</span>(),
