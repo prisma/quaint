@@ -224,6 +224,11 @@
 <span id="224">224</span>
 <span id="225">225</span>
 <span id="226">226</span>
+<span id="227">227</span>
+<span id="228">228</span>
+<span id="229">229</span>
+<span id="230">230</span>
+<span id="231">231</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! A single connection abstraction to a SQL database.</span>
 
@@ -270,6 +275,11 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// All parameters should be given in the query string format:</span>
     <span class="doccomment">/// `?key1=val1&amp;key2=val2`. All parameters are optional.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// As a special case, Microsoft SQL Server connections use the JDBC URI</span>
+    <span class="doccomment">/// format:</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// `jdbc:sqlserver://host\instance:port;key1=val1;key2=val2;`</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// SQLite:</span>
     <span class="doccomment">///</span>
@@ -375,13 +385,13 @@
                 <span class="ident">Arc</span>::<span class="ident">new</span>(<span class="ident">psql</span>) <span class="kw">as</span> <span class="ident">Arc</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Queryable</span><span class="op">&gt;</span>
             }
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mssql&quot;</span>)]</span>
-            <span class="ident">s</span> <span class="kw">if</span> <span class="ident">s</span>.<span class="ident">starts_with</span>(<span class="string">&quot;jdbc:sqlserver&quot;</span>) <span class="op">|</span><span class="op">|</span> <span class="ident">s</span>.<span class="ident">starts_with</span>(<span class="string">&quot;sqlserver&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">s</span> <span class="kw">if</span> <span class="ident">s</span>.<span class="ident">starts_with</span>(<span class="string">&quot;jdbc:sqlserver&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="ident">connector</span>::<span class="ident">MssqlUrl</span>::<span class="ident">new</span>(<span class="ident">s</span>)<span class="question-mark">?</span>;
                 <span class="kw">let</span> <span class="ident">psql</span> <span class="op">=</span> <span class="ident">connector</span>::<span class="ident">Mssql</span>::<span class="ident">new</span>(<span class="ident">url</span>).<span class="kw">await</span><span class="question-mark">?</span>;
 
                 <span class="ident">Arc</span>::<span class="ident">new</span>(<span class="ident">psql</span>) <span class="kw">as</span> <span class="ident">Arc</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Queryable</span><span class="op">&gt;</span>
             }
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unimplemented</span><span class="macro">!</span>(<span class="string">&quot;Supported url schemes: file or sqlite, mysql, postgresql or sqlserver.&quot;</span>),
+            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unimplemented</span><span class="macro">!</span>(<span class="string">&quot;Supported url schemes: file or sqlite, mysql, postgresql or jdbc:sqlserver.&quot;</span>),
         };
 
         <span class="kw">let</span> <span class="ident">connection_info</span> <span class="op">=</span> <span class="ident">Arc</span>::<span class="ident">new</span>(<span class="ident">ConnectionInfo</span>::<span class="ident">from_url</span>(<span class="ident">url_str</span>)<span class="question-mark">?</span>);
