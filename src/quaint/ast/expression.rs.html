@@ -389,9 +389,17 @@
 <span id="389">389</span>
 <span id="390">390</span>
 <span id="391">391</span>
+<span id="392">392</span>
+<span id="393">393</span>
+<span id="394">394</span>
+<span id="395">395</span>
+<span id="396">396</span>
+<span id="397">397</span>
+<span id="398">398</span>
+<span id="399">399</span>
+<span id="400">400</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">ast</span>::<span class="kw-2">*</span>;
-<span class="kw">use</span> <span class="ident">either</span>::<span class="ident">Either</span>;
 <span class="kw">use</span> <span class="ident">query</span>::<span class="ident">SelectQuery</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">borrow</span>::<span class="ident">Cow</span>;
 
@@ -414,6 +422,7 @@
         <span class="self">self</span>.<span class="ident">alias</span>.<span class="ident">as_ref</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="ident">s</span>.<span class="ident">as_ref</span>())
     }
 
+    <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">dead_code</span>)]</span>
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">row</span>(<span class="ident">row</span>: <span class="ident">Row</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="self">Self</span> {
             <span class="ident">kind</span>: <span class="ident">ExpressionKind</span>::<span class="ident">Row</span>(<span class="ident">row</span>),
@@ -425,6 +434,7 @@
         <span class="self">Self</span>::<span class="ident">selection</span>(<span class="ident">SelectQuery</span>::<span class="ident">Union</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">union</span>)))
     }
 
+    <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">dead_code</span>)]</span>
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">selection</span>(<span class="ident">selection</span>: <span class="ident">SelectQuery</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="self">Self</span> {
             <span class="ident">kind</span>: <span class="ident">ExpressionKind</span>::<span class="ident">Selection</span>(<span class="ident">selection</span>),
@@ -432,8 +442,9 @@
         }
     }
 
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;json-1&quot;</span>)]</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">is_json_value</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;json&quot;</span>)]</span>
+    <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">dead_code</span>)]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_json_value</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
         <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">kind</span> {
             <span class="ident">ExpressionKind</span>::<span class="ident">Parameterized</span>(<span class="ident">Value</span>::<span class="ident">Json</span>(<span class="kw">_</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
             <span class="ident">ExpressionKind</span>::<span class="ident">Value</span>(<span class="ident">expr</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">expr</span>.<span class="ident">is_json_value</span>(),
@@ -441,19 +452,22 @@
         }
     }
 
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;xml&quot;</span>)]</span>
+    <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">dead_code</span>)]</span>
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">is_xml_value</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
         <span class="self">self</span>.<span class="ident">kind</span>.<span class="ident">is_xml_value</span>()
     }
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">is_asterisk</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">dead_code</span>)]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_asterisk</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
         <span class="macro">matches</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">kind</span>, <span class="ident">ExpressionKind</span>::<span class="ident">Asterisk</span>(<span class="kw">_</span>))
     }
 
+    <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">dead_code</span>)]</span>
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">is_row</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
         <span class="macro">matches</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">kind</span>, <span class="ident">ExpressionKind</span>::<span class="ident">Row</span>(<span class="kw">_</span>))
     }
 
+    <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">dead_code</span>)]</span>
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">into_row</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Row</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">kind</span> {
             <span class="ident">ExpressionKind</span>::<span class="ident">Row</span>(<span class="ident">row</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">row</span>),
@@ -461,6 +475,7 @@
         }
     }
 
+    <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">dead_code</span>)]</span>
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">into_selection</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">SelectQuery</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">kind</span> {
             <span class="ident">ExpressionKind</span>::<span class="ident">Selection</span>(<span class="ident">selection</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">selection</span>),
@@ -468,6 +483,7 @@
         }
     }
 
+    <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">dead_code</span>)]</span>
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">into_column</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Column</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">kind</span> {
             <span class="ident">ExpressionKind</span>::<span class="ident">Column</span>(<span class="ident">column</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="kw-2">*</span><span class="ident">column</span>),
@@ -475,16 +491,19 @@
         }
     }
 
+    <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">dead_code</span>)]</span>
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">is_selection</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
         <span class="macro">matches</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">kind</span>, <span class="ident">ExpressionKind</span>::<span class="ident">Selection</span>(<span class="kw">_</span>))
     }
 
+    <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">dead_code</span>)]</span>
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">is_column</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
         <span class="macro">matches</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">kind</span>, <span class="ident">ExpressionKind</span>::<span class="ident">Column</span>(<span class="kw">_</span>))
     }
 
     <span class="doccomment">/// Finds all comparisons between a tuple and a selection. If returning some</span>
     <span class="doccomment">/// CTEs, they should be handled in the calling layer.</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mssql&quot;</span>)]</span>
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">convert_tuple_selects_to_ctes</span>(<span class="self">self</span>, <span class="ident">level</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> (<span class="self">Self</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">CommonTableExpression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>) {
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">kind</span> {
             <span class="ident">ExpressionKind</span>::<span class="ident">Selection</span>(<span class="ident">s</span>) <span class="op">=</span><span class="op">&gt;</span> {
@@ -499,7 +518,7 @@
             }
             <span class="ident">ExpressionKind</span>::<span class="ident">Compare</span>(<span class="ident">compare</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">compare</span>.<span class="ident">convert_tuple_select_to_cte</span>(<span class="ident">level</span>) {
                 <span class="comment">// No conversion</span>
-                <span class="ident">Either</span>::<span class="ident">Left</span>(<span class="ident">compare</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">either</span>::<span class="ident">Either</span>::<span class="ident">Left</span>(<span class="ident">compare</span>) <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">let</span> <span class="ident">expr</span> <span class="op">=</span> <span class="ident">Expression</span> {
                         <span class="ident">kind</span>: <span class="ident">ExpressionKind</span>::<span class="ident">Compare</span>(<span class="ident">compare</span>),
                         <span class="ident">alias</span>: <span class="self">self</span>.<span class="ident">alias</span>,
@@ -508,7 +527,7 @@
                     (<span class="ident">expr</span>, <span class="ident">Vec</span>::<span class="ident">new</span>())
                 }
                 <span class="comment">// Conversion happened</span>
-                <span class="ident">Either</span>::<span class="ident">Right</span>((<span class="ident">comp</span>, <span class="ident">ctes</span>)) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">either</span>::<span class="ident">Either</span>::<span class="ident">Right</span>((<span class="ident">comp</span>, <span class="ident">ctes</span>)) <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">let</span> <span class="ident">expr</span> <span class="op">=</span> <span class="ident">Expression</span> {
                         <span class="ident">kind</span>: <span class="ident">ExpressionKind</span>::<span class="ident">Compare</span>(<span class="ident">comp</span>),
                         <span class="ident">alias</span>: <span class="self">self</span>.<span class="ident">alias</span>,
@@ -562,7 +581,6 @@
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">ExpressionKind</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;xml&quot;</span>)]</span>
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">is_xml_value</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
         <span class="kw">match</span> <span class="self">self</span> {
             <span class="self">Self</span>::<span class="ident">Parameterized</span>(<span class="ident">Value</span>::<span class="ident">Xml</span>(<span class="kw">_</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,

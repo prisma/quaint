@@ -411,8 +411,6 @@
 <span id="411">411</span>
 <span id="412">412</span>
 <span id="413">413</span>
-<span id="414">414</span>
-<span id="415">415</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! # A connection pool to a SQL database.</span>
 <span class="doccomment">//!</span>
@@ -558,8 +556,6 @@
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">connector</span>::<span class="ident">ConnectionInfo</span>;
 <span class="kw">use</span> <span class="ident">mobc</span>::<span class="ident">Pool</span>;
 <span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">sync</span>::<span class="ident">Arc</span>, <span class="ident">time</span>::<span class="ident">Duration</span>};
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sqlite&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mysql&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;postgresql&quot;</span>))]</span>
-<span class="kw">use</span> <span class="ident">url</span>::<span class="ident">Url</span>;
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sqlite&quot;</span>)]</span>
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">convert</span>::<span class="ident">TryFrom</span>;
@@ -750,7 +746,7 @@
             }
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mysql&quot;</span>)]</span>
             <span class="ident">s</span> <span class="kw">if</span> <span class="ident">s</span>.<span class="ident">starts_with</span>(<span class="string">&quot;mysql&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="kw">crate</span>::<span class="ident">connector</span>::<span class="ident">MysqlUrl</span>::<span class="ident">new</span>(<span class="ident">Url</span>::<span class="ident">parse</span>(<span class="ident">s</span>)<span class="question-mark">?</span>)<span class="question-mark">?</span>;
+                <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="kw">crate</span>::<span class="ident">connector</span>::<span class="ident">MysqlUrl</span>::<span class="ident">new</span>(<span class="ident">url</span>::<span class="ident">Url</span>::<span class="ident">parse</span>(<span class="ident">s</span>)<span class="question-mark">?</span>)<span class="question-mark">?</span>;
                 <span class="kw">let</span> <span class="ident">connection_limit</span> <span class="op">=</span> <span class="ident">url</span>.<span class="ident">connection_limit</span>();
                 <span class="kw">let</span> <span class="ident">connect_timeout</span> <span class="op">=</span> <span class="ident">url</span>.<span class="ident">connect_timeout</span>();
 
@@ -769,7 +765,7 @@
             }
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;postgresql&quot;</span>)]</span>
             <span class="ident">s</span> <span class="kw">if</span> <span class="ident">s</span>.<span class="ident">starts_with</span>(<span class="string">&quot;postgres&quot;</span>) <span class="op">|</span><span class="op">|</span> <span class="ident">s</span>.<span class="ident">starts_with</span>(<span class="string">&quot;postgresql&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="kw">crate</span>::<span class="ident">connector</span>::<span class="ident">PostgresUrl</span>::<span class="ident">new</span>(<span class="ident">Url</span>::<span class="ident">parse</span>(<span class="ident">s</span>)<span class="question-mark">?</span>)<span class="question-mark">?</span>;
+                <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="kw">crate</span>::<span class="ident">connector</span>::<span class="ident">PostgresUrl</span>::<span class="ident">new</span>(<span class="ident">url</span>::<span class="ident">Url</span>::<span class="ident">parse</span>(<span class="ident">s</span>)<span class="question-mark">?</span>)<span class="question-mark">?</span>;
                 <span class="kw">let</span> <span class="ident">connection_limit</span> <span class="op">=</span> <span class="ident">url</span>.<span class="ident">connection_limit</span>();
                 <span class="kw">let</span> <span class="ident">connect_timeout</span> <span class="op">=</span> <span class="ident">url</span>.<span class="ident">connect_timeout</span>();
 

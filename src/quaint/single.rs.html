@@ -227,8 +227,6 @@
 <span id="227">227</span>
 <span id="228">228</span>
 <span id="229">229</span>
-<span id="230">230</span>
-<span id="231">231</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! A single connection abstraction to a SQL database.</span>
 
@@ -240,8 +238,6 @@
 };
 <span class="kw">use</span> <span class="ident">async_trait</span>::<span class="ident">async_trait</span>;
 <span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">fmt</span>, <span class="ident">sync</span>::<span class="ident">Arc</span>};
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sqlite&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mysql&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;postgresql&quot;</span>))]</span>
-<span class="kw">use</span> <span class="ident">url</span>::<span class="ident">Url</span>;
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sqlite&quot;</span>)]</span>
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">convert</span>::<span class="ident">TryFrom</span>;
@@ -373,14 +369,14 @@
             }
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mysql&quot;</span>)]</span>
             <span class="ident">s</span> <span class="kw">if</span> <span class="ident">s</span>.<span class="ident">starts_with</span>(<span class="string">&quot;mysql&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="ident">connector</span>::<span class="ident">MysqlUrl</span>::<span class="ident">new</span>(<span class="ident">Url</span>::<span class="ident">parse</span>(<span class="ident">s</span>)<span class="question-mark">?</span>)<span class="question-mark">?</span>;
+                <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="ident">connector</span>::<span class="ident">MysqlUrl</span>::<span class="ident">new</span>(<span class="ident">url</span>::<span class="ident">Url</span>::<span class="ident">parse</span>(<span class="ident">s</span>)<span class="question-mark">?</span>)<span class="question-mark">?</span>;
                 <span class="kw">let</span> <span class="ident">mysql</span> <span class="op">=</span> <span class="ident">connector</span>::<span class="ident">Mysql</span>::<span class="ident">new</span>(<span class="ident">url</span>)<span class="question-mark">?</span>;
 
                 <span class="ident">Arc</span>::<span class="ident">new</span>(<span class="ident">mysql</span>) <span class="kw">as</span> <span class="ident">Arc</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Queryable</span><span class="op">&gt;</span>
             }
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;postgresql&quot;</span>)]</span>
             <span class="ident">s</span> <span class="kw">if</span> <span class="ident">s</span>.<span class="ident">starts_with</span>(<span class="string">&quot;postgres&quot;</span>) <span class="op">|</span><span class="op">|</span> <span class="ident">s</span>.<span class="ident">starts_with</span>(<span class="string">&quot;postgresql&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="ident">connector</span>::<span class="ident">PostgresUrl</span>::<span class="ident">new</span>(<span class="ident">Url</span>::<span class="ident">parse</span>(<span class="ident">s</span>)<span class="question-mark">?</span>)<span class="question-mark">?</span>;
+                <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="ident">connector</span>::<span class="ident">PostgresUrl</span>::<span class="ident">new</span>(<span class="ident">url</span>::<span class="ident">Url</span>::<span class="ident">parse</span>(<span class="ident">s</span>)<span class="question-mark">?</span>)<span class="question-mark">?</span>;
                 <span class="kw">let</span> <span class="ident">psql</span> <span class="op">=</span> <span class="ident">connector</span>::<span class="ident">PostgreSql</span>::<span class="ident">new</span>(<span class="ident">url</span>).<span class="kw">await</span><span class="question-mark">?</span>;
                 <span class="ident">Arc</span>::<span class="ident">new</span>(<span class="ident">psql</span>) <span class="kw">as</span> <span class="ident">Arc</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Queryable</span><span class="op">&gt;</span>
             }

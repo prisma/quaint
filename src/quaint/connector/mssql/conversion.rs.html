@@ -100,9 +100,6 @@
 <span id="100">100</span>
 <span id="101">101</span>
 <span id="102">102</span>
-<span id="103">103</span>
-<span id="104">104</span>
-<span id="105">105</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">ast</span>::<span class="ident">Value</span>;
 <span class="kw">use</span> <span class="ident">rust_decimal</span>::{<span class="ident">prelude</span>::<span class="ident">FromPrimitive</span>, <span class="ident">Decimal</span>};
@@ -129,20 +126,18 @@
             <span class="ident">Value</span>::<span class="ident">Enum</span>(<span class="ident">val</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">val</span>.<span class="ident">to_sql</span>(),
             <span class="ident">Value</span>::<span class="ident">Boolean</span>(<span class="ident">val</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">val</span>.<span class="ident">to_sql</span>(),
             <span class="ident">Value</span>::<span class="ident">Char</span>(<span class="ident">val</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">val</span>.<span class="ident">as_ref</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">val</span><span class="op">|</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">val</span>)).<span class="ident">into_sql</span>(),
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;json-1&quot;</span>)]</span>
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;json&quot;</span>)]</span>
             <span class="ident">Value</span>::<span class="ident">Json</span>(<span class="ident">val</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">val</span>.<span class="ident">as_ref</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">val</span><span class="op">|</span> <span class="ident">serde_json</span>::<span class="ident">to_string</span>(<span class="kw-2">&amp;</span><span class="ident">val</span>).<span class="ident">unwrap</span>()).<span class="ident">into_sql</span>(),
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;uuid-0_8&quot;</span>)]</span>
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;uuid&quot;</span>)]</span>
             <span class="ident">Value</span>::<span class="ident">Uuid</span>(<span class="ident">val</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">val</span>.<span class="ident">to_sql</span>(),
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;chrono-0_4&quot;</span>)]</span>
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;chrono&quot;</span>)]</span>
             <span class="ident">Value</span>::<span class="ident">DateTime</span>(<span class="ident">val</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">val</span>.<span class="ident">to_sql</span>(),
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;chrono-0_4&quot;</span>)]</span>
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;chrono&quot;</span>)]</span>
             <span class="ident">Value</span>::<span class="ident">Date</span>(<span class="ident">val</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">val</span>.<span class="ident">to_sql</span>(),
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;chrono-0_4&quot;</span>)]</span>
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;chrono&quot;</span>)]</span>
             <span class="ident">Value</span>::<span class="ident">Time</span>(<span class="ident">val</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">val</span>.<span class="ident">to_sql</span>(),
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;xml&quot;</span>)]</span>
             <span class="ident">Value</span>::<span class="ident">Xml</span>(<span class="ident">val</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">val</span>.<span class="ident">to_sql</span>(),
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;array&quot;</span>)]</span>
-            <span class="ident">p</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">todo</span><span class="macro">!</span>(<span class="string">&quot;Type {:?} is not supported&quot;</span>, <span class="ident">p</span>),
+            <span class="ident">Value</span>::<span class="ident">Array</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;Arrays are not supported on SQL Server.&quot;</span>),
         }
     }
 }
@@ -163,32 +158,32 @@
             <span class="ident">ColumnData</span>::<span class="ident">Guid</span>(<span class="ident">uuid</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Value</span>::<span class="ident">Uuid</span>(<span class="ident">uuid</span>),
             <span class="ident">ColumnData</span>::<span class="ident">Binary</span>(<span class="ident">bytes</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Value</span>::<span class="ident">Bytes</span>(<span class="ident">bytes</span>),
             <span class="ident">numeric</span> @ <span class="ident">ColumnData</span>::<span class="ident">Numeric</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Value</span>::<span class="ident">Real</span>(<span class="ident">Decimal</span>::<span class="ident">from_sql</span>(<span class="kw-2">&amp;</span><span class="ident">numeric</span>)<span class="question-mark">?</span>),
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;chrono-0_4&quot;</span>)]</span>
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;chrono&quot;</span>)]</span>
             <span class="ident">dt</span> @ <span class="ident">ColumnData</span>::<span class="ident">DateTime</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">use</span> <span class="ident">tiberius</span>::<span class="ident">time</span>::<span class="ident">chrono</span>::{<span class="ident">DateTime</span>, <span class="ident">NaiveDateTime</span>, <span class="ident">Utc</span>};
 
                 <span class="kw">let</span> <span class="ident">dt</span> <span class="op">=</span> <span class="ident">NaiveDateTime</span>::<span class="ident">from_sql</span>(<span class="kw-2">&amp;</span><span class="ident">dt</span>)<span class="question-mark">?</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">dt</span><span class="op">|</span> <span class="ident">DateTime</span>::<span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span>::<span class="ident">from_utc</span>(<span class="ident">dt</span>, <span class="ident">Utc</span>));
                 <span class="ident">Value</span>::<span class="ident">DateTime</span>(<span class="ident">dt</span>)
             }
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;chrono-0_4&quot;</span>)]</span>
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;chrono&quot;</span>)]</span>
             <span class="ident">dt</span> @ <span class="ident">ColumnData</span>::<span class="ident">SmallDateTime</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">use</span> <span class="ident">tiberius</span>::<span class="ident">time</span>::<span class="ident">chrono</span>::{<span class="ident">DateTime</span>, <span class="ident">NaiveDateTime</span>, <span class="ident">Utc</span>};
 
                 <span class="kw">let</span> <span class="ident">dt</span> <span class="op">=</span> <span class="ident">NaiveDateTime</span>::<span class="ident">from_sql</span>(<span class="kw-2">&amp;</span><span class="ident">dt</span>)<span class="question-mark">?</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">dt</span><span class="op">|</span> <span class="ident">DateTime</span>::<span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span>::<span class="ident">from_utc</span>(<span class="ident">dt</span>, <span class="ident">Utc</span>));
                 <span class="ident">Value</span>::<span class="ident">DateTime</span>(<span class="ident">dt</span>)
             }
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;chrono-0_4&quot;</span>)]</span>
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;chrono&quot;</span>)]</span>
             <span class="ident">dt</span> @ <span class="ident">ColumnData</span>::<span class="ident">Time</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">use</span> <span class="ident">tiberius</span>::<span class="ident">time</span>::<span class="ident">chrono</span>::<span class="ident">NaiveTime</span>;
 
                 <span class="ident">Value</span>::<span class="ident">Time</span>(<span class="ident">NaiveTime</span>::<span class="ident">from_sql</span>(<span class="kw-2">&amp;</span><span class="ident">dt</span>)<span class="question-mark">?</span>)
             }
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;chrono-0_4&quot;</span>)]</span>
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;chrono&quot;</span>)]</span>
             <span class="ident">dt</span> @ <span class="ident">ColumnData</span>::<span class="ident">Date</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">use</span> <span class="ident">tiberius</span>::<span class="ident">time</span>::<span class="ident">chrono</span>::<span class="ident">NaiveDate</span>;
                 <span class="ident">Value</span>::<span class="ident">Date</span>(<span class="ident">NaiveDate</span>::<span class="ident">from_sql</span>(<span class="kw-2">&amp;</span><span class="ident">dt</span>)<span class="question-mark">?</span>)
             }
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;chrono-0_4&quot;</span>)]</span>
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;chrono&quot;</span>)]</span>
             <span class="ident">dt</span> @ <span class="ident">ColumnData</span>::<span class="ident">DateTime2</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">use</span> <span class="ident">tiberius</span>::<span class="ident">time</span>::<span class="ident">chrono</span>::{<span class="ident">DateTime</span>, <span class="ident">NaiveDateTime</span>, <span class="ident">Utc</span>};
 
@@ -196,13 +191,12 @@
 
                 <span class="ident">Value</span>::<span class="ident">DateTime</span>(<span class="ident">dt</span>)
             }
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;chrono-0_4&quot;</span>)]</span>
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;chrono&quot;</span>)]</span>
             <span class="ident">dt</span> @ <span class="ident">ColumnData</span>::<span class="ident">DateTimeOffset</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">use</span> <span class="ident">tiberius</span>::<span class="ident">time</span>::<span class="ident">chrono</span>::{<span class="ident">DateTime</span>, <span class="ident">Utc</span>};
 
                 <span class="ident">Value</span>::<span class="ident">DateTime</span>(<span class="ident">DateTime</span>::<span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span>::<span class="ident">from_sql</span>(<span class="kw-2">&amp;</span><span class="ident">dt</span>)<span class="question-mark">?</span>)
             }
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;xml&quot;</span>)]</span>
             <span class="ident">ColumnData</span>::<span class="ident">Xml</span>(<span class="ident">cow</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Value</span>::<span class="ident">Xml</span>(<span class="ident">cow</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">xml_data</span><span class="op">|</span> <span class="ident">Cow</span>::<span class="ident">Owned</span>(<span class="ident">xml_data</span>.<span class="ident">into_owned</span>().<span class="ident">into_string</span>()))),
         };
 

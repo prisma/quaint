@@ -595,15 +595,6 @@
 <span id="595">595</span>
 <span id="596">596</span>
 <span id="597">597</span>
-<span id="598">598</span>
-<span id="599">599</span>
-<span id="600">600</span>
-<span id="601">601</span>
-<span id="602">602</span>
-<span id="603">603</span>
-<span id="604">604</span>
-<span id="605">605</span>
-<span id="606">606</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">ast</span>::<span class="kw-2">*</span>,
@@ -683,9 +674,9 @@
             <span class="ident">Value</span>::<span class="ident">Bytes</span>(<span class="ident">b</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">b</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">b</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">write</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;E&#39;{}&#39;&quot;</span>, <span class="ident">hex</span>::<span class="ident">encode</span>(<span class="ident">b</span>)))),
             <span class="ident">Value</span>::<span class="ident">Boolean</span>(<span class="ident">b</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">b</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">b</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">write</span>(<span class="ident">b</span>)),
             <span class="ident">Value</span>::<span class="ident">Char</span>(<span class="ident">c</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">c</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">c</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">write</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;&#39;{}&#39;&quot;</span>, <span class="ident">c</span>))),
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;json-1&quot;</span>)]</span>
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;json&quot;</span>)]</span>
             <span class="ident">Value</span>::<span class="ident">Json</span>(<span class="ident">j</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">j</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">j</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">write</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;&#39;{}&#39;&quot;</span>, <span class="ident">serde_json</span>::<span class="ident">to_string</span>(<span class="kw-2">&amp;</span><span class="ident">j</span>).<span class="ident">unwrap</span>()))),
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;array&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;postgresql&quot;</span>))]</span>
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;postgresql&quot;</span>)]</span>
             <span class="ident">Value</span>::<span class="ident">Array</span>(<span class="ident">ary</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ary</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">ary</span><span class="op">|</span> {
                 <span class="self">self</span>.<span class="ident">surround_with</span>(<span class="string">&quot;&#39;{&quot;</span>, <span class="string">&quot;}&#39;&quot;</span>, <span class="op">|</span><span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">s</span><span class="op">|</span> {
                     <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">ary</span>.<span class="ident">len</span>();
@@ -701,15 +692,14 @@
                     <span class="prelude-val">Ok</span>(())
                 })
             }),
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;uuid-0_8&quot;</span>)]</span>
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;uuid&quot;</span>)]</span>
             <span class="ident">Value</span>::<span class="ident">Uuid</span>(<span class="ident">uuid</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">uuid</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">uuid</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">write</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;&#39;{}&#39;&quot;</span>, <span class="ident">uuid</span>.<span class="ident">to_hyphenated</span>().<span class="ident">to_string</span>()))),
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;chrono-0_4&quot;</span>)]</span>
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;chrono&quot;</span>)]</span>
             <span class="ident">Value</span>::<span class="ident">DateTime</span>(<span class="ident">dt</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">dt</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">dt</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">write</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;&#39;{}&#39;&quot;</span>, <span class="ident">dt</span>.<span class="ident">to_rfc3339</span>(),))),
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;chrono-0_4&quot;</span>)]</span>
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;chrono&quot;</span>)]</span>
             <span class="ident">Value</span>::<span class="ident">Date</span>(<span class="ident">date</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">date</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">date</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">write</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;&#39;{}&#39;&quot;</span>, <span class="ident">date</span>))),
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;chrono-0_4&quot;</span>)]</span>
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;chrono&quot;</span>)]</span>
             <span class="ident">Value</span>::<span class="ident">Time</span>(<span class="ident">time</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">time</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">time</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">write</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;&#39;{}&#39;&quot;</span>, <span class="ident">time</span>))),
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;xml&quot;</span>)]</span>
             <span class="ident">Value</span>::<span class="ident">Xml</span>(<span class="ident">cow</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">cow</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">cow</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">write</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;&#39;{}&#39;&quot;</span>, <span class="ident">cow</span>))),
         };
 
@@ -810,17 +800,15 @@
     <span class="kw">fn</span> <span class="ident">visit_equals</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">left</span>: <span class="ident">Expression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>, <span class="ident">right</span>: <span class="ident">Expression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">visitor</span>::<span class="prelude-ty">Result</span> {
         <span class="comment">// LHS must be cast to json/xml-text if the right is a json/xml-text value and vice versa.</span>
         <span class="kw">let</span> <span class="ident">right_cast</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">left</span> {
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;json-1&quot;</span>)]</span>
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;json&quot;</span>)]</span>
             <span class="kw">_</span> <span class="kw">if</span> <span class="ident">left</span>.<span class="ident">is_json_value</span>() <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;::jsonb&quot;</span>,
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;xml&quot;</span>)]</span>
             <span class="kw">_</span> <span class="kw">if</span> <span class="ident">left</span>.<span class="ident">is_xml_value</span>() <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;::text&quot;</span>,
             <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;&quot;</span>,
         };
 
         <span class="kw">let</span> <span class="ident">left_cast</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">right</span> {
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;json-1&quot;</span>)]</span>
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;json&quot;</span>)]</span>
             <span class="kw">_</span> <span class="kw">if</span> <span class="ident">right</span>.<span class="ident">is_json_value</span>() <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;::jsonb&quot;</span>,
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;xml&quot;</span>)]</span>
             <span class="kw">_</span> <span class="kw">if</span> <span class="ident">right</span>.<span class="ident">is_xml_value</span>() <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;::text&quot;</span>,
             <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;&quot;</span>,
         };
@@ -837,17 +825,15 @@
     <span class="kw">fn</span> <span class="ident">visit_not_equals</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">left</span>: <span class="ident">Expression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>, <span class="ident">right</span>: <span class="ident">Expression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">visitor</span>::<span class="prelude-ty">Result</span> {
         <span class="comment">// LHS must be cast to json/xml-text if the right is a json/xml-text value and vice versa.</span>
         <span class="kw">let</span> <span class="ident">right_cast</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">left</span> {
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;json-1&quot;</span>)]</span>
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;json&quot;</span>)]</span>
             <span class="kw">_</span> <span class="kw">if</span> <span class="ident">left</span>.<span class="ident">is_json_value</span>() <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;::jsonb&quot;</span>,
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;xml&quot;</span>)]</span>
             <span class="kw">_</span> <span class="kw">if</span> <span class="ident">left</span>.<span class="ident">is_xml_value</span>() <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;::text&quot;</span>,
             <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;&quot;</span>,
         };
 
         <span class="kw">let</span> <span class="ident">left_cast</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">right</span> {
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;json-1&quot;</span>)]</span>
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;json&quot;</span>)]</span>
             <span class="kw">_</span> <span class="kw">if</span> <span class="ident">right</span>.<span class="ident">is_json_value</span>() <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;::jsonb&quot;</span>,
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;xml&quot;</span>)]</span>
             <span class="kw">_</span> <span class="kw">if</span> <span class="ident">right</span>.<span class="ident">is_xml_value</span>() <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;::text&quot;</span>,
             <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;&quot;</span>,
         };
@@ -993,7 +979,7 @@
         <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">expected_sql</span>, <span class="ident">sql</span>);
     }
 
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;json-1&quot;</span>)]</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;json&quot;</span>)]</span>
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">equality_with_a_json_value</span>() {
         <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="ident">expected_values</span>(
@@ -1008,7 +994,7 @@
         <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">expected</span>.<span class="number">1</span>, <span class="ident">params</span>);
     }
 
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;json-1&quot;</span>)]</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;json&quot;</span>)]</span>
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">equality_with_a_lhs_json_value</span>() {
         <span class="comment">// A bit artificial, but checks if the ::jsonb casting is done correctly on the right side as well.</span>
@@ -1025,7 +1011,7 @@
         <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">expected</span>.<span class="number">1</span>, <span class="ident">params</span>);
     }
 
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;json-1&quot;</span>)]</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;json&quot;</span>)]</span>
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">difference_with_a_json_value</span>() {
         <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="ident">expected_values</span>(
@@ -1041,7 +1027,7 @@
         <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">expected</span>.<span class="number">1</span>, <span class="ident">params</span>);
     }
 
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;json-1&quot;</span>)]</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;json&quot;</span>)]</span>
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">difference_with_a_lhs_json_value</span>() {
         <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="ident">expected_values</span>(
@@ -1057,7 +1043,6 @@
         <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">expected</span>.<span class="number">1</span>, <span class="ident">params</span>);
     }
 
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;xml&quot;</span>)]</span>
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">equality_with_a_xml_value</span>() {
         <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="ident">expected_values</span>(
@@ -1073,7 +1058,6 @@
         <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">expected</span>.<span class="number">1</span>, <span class="ident">params</span>);
     }
 
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;xml&quot;</span>)]</span>
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">equality_with_a_lhs_xml_value</span>() {
         <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="ident">expected_values</span>(
@@ -1089,7 +1073,6 @@
         <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">expected</span>.<span class="number">1</span>, <span class="ident">params</span>);
     }
 
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;xml&quot;</span>)]</span>
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">difference_with_a_xml_value</span>() {
         <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="ident">expected_values</span>(
@@ -1105,7 +1088,6 @@
         <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">expected</span>.<span class="number">1</span>, <span class="ident">params</span>);
     }
 
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;xml&quot;</span>)]</span>
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">difference_with_a_lhs_xml_value</span>() {
         <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="ident">expected_values</span>(
@@ -1175,7 +1157,7 @@
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;json-1&quot;</span>)]</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;json&quot;</span>)]</span>
     <span class="kw">fn</span> <span class="ident">test_raw_json</span>() {
         <span class="kw">let</span> (<span class="ident">sql</span>, <span class="ident">params</span>) <span class="op">=</span>
             <span class="ident">Postgres</span>::<span class="ident">build</span>(<span class="ident">Select</span>::<span class="ident">default</span>().<span class="ident">value</span>(<span class="ident">serde_json</span>::<span class="macro">json</span><span class="macro">!</span>({ <span class="string">&quot;foo&quot;</span>: <span class="string">&quot;bar&quot;</span> }).<span class="ident">raw</span>())).<span class="ident">unwrap</span>();
@@ -1184,7 +1166,7 @@
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;uuid-0_8&quot;</span>)]</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;uuid&quot;</span>)]</span>
     <span class="kw">fn</span> <span class="ident">test_raw_uuid</span>() {
         <span class="kw">let</span> <span class="ident">uuid</span> <span class="op">=</span> <span class="ident">uuid</span>::<span class="ident">Uuid</span>::<span class="ident">new_v4</span>();
         <span class="kw">let</span> (<span class="ident">sql</span>, <span class="ident">params</span>) <span class="op">=</span> <span class="ident">Postgres</span>::<span class="ident">build</span>(<span class="ident">Select</span>::<span class="ident">default</span>().<span class="ident">value</span>(<span class="ident">uuid</span>.<span class="ident">raw</span>())).<span class="ident">unwrap</span>();
@@ -1195,7 +1177,7 @@
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;chrono-0_4&quot;</span>)]</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;chrono&quot;</span>)]</span>
     <span class="kw">fn</span> <span class="ident">test_raw_datetime</span>() {
         <span class="kw">let</span> <span class="ident">dt</span> <span class="op">=</span> <span class="ident">chrono</span>::<span class="ident">Utc</span>::<span class="ident">now</span>();
         <span class="kw">let</span> (<span class="ident">sql</span>, <span class="ident">params</span>) <span class="op">=</span> <span class="ident">Postgres</span>::<span class="ident">build</span>(<span class="ident">Select</span>::<span class="ident">default</span>().<span class="ident">value</span>(<span class="ident">dt</span>.<span class="ident">raw</span>())).<span class="ident">unwrap</span>();

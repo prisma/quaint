@@ -146,6 +146,7 @@
 <span id="146">146</span>
 <span id="147">147</span>
 <span id="148">148</span>
+<span id="149">149</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">ast</span>::{<span class="ident">Expression</span>, <span class="ident">Query</span>, <span class="ident">Select</span>};
 <span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">collections</span>::<span class="ident">BTreeSet</span>, <span class="ident">fmt</span>};
@@ -266,6 +267,7 @@
     <span class="doccomment">/// Finds all comparisons between tuples and selects in the queries and</span>
     <span class="doccomment">/// converts them to common table expressions for making the query</span>
     <span class="doccomment">/// compatible with databases not supporting tuples.</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mssql&quot;</span>)]</span>
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">convert_tuple_selects_into_ctes</span>(
         <span class="kw-2">mut</span> <span class="self">self</span>,
         <span class="ident">top_level</span>: <span class="ident">bool</span>,
