@@ -57,8 +57,8 @@ pooled = ["mobc"]
 serde-support = ["serde", "chrono_/serde"]
 sqlite = ["rusqlite", "libsqlite3-sys", "tokio/sync"]
 tracing-log = ["tracing", "tracing-core"]
-bigdecimal = ["bigdecimal_", "num-bigint", "tiberius/bigdecimal"]
-chrono = ["chrono_", "tiberius/chrono"]
+bigdecimal = ["bigdecimal_", "num-bigint"]
+chrono = ["chrono_"]
 
 [dependencies]
 async-trait = "0.1"
@@ -116,7 +116,7 @@ optional = true
 
 [dependencies.tiberius]
 version = "0.4.14"
-features = ["sql-browser-tokio"]
+features = ["sql-browser-tokio", "chrono", "bigdecimal"]
 optional = true
 
 [dependencies.tokio-postgres]
