@@ -1,5 +1,8 @@
+mod from;
+
 use crate::ast::*;
 use crate::error::{Error, ErrorKind};
+pub use from::FromValue;
 
 #[cfg(feature = "bigdecimal")]
 use bigdecimal::{BigDecimal, FromPrimitive, ToPrimitive};

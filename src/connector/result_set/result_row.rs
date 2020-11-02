@@ -1,5 +1,5 @@
 use crate::{
-    ast::Value,
+    ast::{FromValue, Value},
     error::{Error, ErrorKind},
 };
 use std::sync::Arc;
@@ -45,11 +45,20 @@ impl ResultRow {
     /// Take a value from a certain position in the row, if having a value in
     /// that position. Usage documentation in
     /// [ResultRowRef](struct.ResultRowRef.html).
-    pub fn at(&self, i: usize) -> Option<&Value<'static>> {
+    pub fn at<'a, T>(&'a self, i: usize) -> crate::Result<Option<T>>
+    where
+        T: FromValue<'a>,
+    {
         if self.values.len() <= i {
-            None
+            let kind = ErrorKind::value_out_of_range(format!(
+                "Index out of bounds. Was: {}, maximum: {}",
+                i,
+                self.values.len()
+            ));
+
+            Err(Error::builder(kind).build())
         } else {
-            Some(&self.values[i])
+            Ok(T::from_value_ref(&self.values[i])?)
         }
     }
 

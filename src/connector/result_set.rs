@@ -1,7 +1,5 @@
-mod index;
 mod result_row;
 
-pub use index::*;
 pub use result_row::*;
 
 use crate::{ast::Value, error::*};

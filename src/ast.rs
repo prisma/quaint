@@ -52,4 +52,4 @@ pub use table::*;
 pub use union::Union;
 pub use update::*;
 pub(crate) use values::Params;
-pub use values::{IntoRaw, Raw, Value, Values};
+pub use values::{FromValue, IntoRaw, Raw, Value, Values};
