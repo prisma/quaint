@@ -257,70 +257,23 @@
 <span id="254">254</span>
 <span id="255">255</span>
 <span id="256">256</span>
-<span id="257">257</span>
-<span id="258">258</span>
-<span id="259">259</span>
-<span id="260">260</span>
-<span id="261">261</span>
-<span id="262">262</span>
-<span id="263">263</span>
-<span id="264">264</span>
-<span id="265">265</span>
-<span id="266">266</span>
-<span id="267">267</span>
-<span id="268">268</span>
-<span id="269">269</span>
-<span id="270">270</span>
-<span id="271">271</span>
-<span id="272">272</span>
-<span id="273">273</span>
-<span id="274">274</span>
-<span id="275">275</span>
-<span id="276">276</span>
-<span id="277">277</span>
-<span id="278">278</span>
-<span id="279">279</span>
-<span id="280">280</span>
-<span id="281">281</span>
-<span id="282">282</span>
-<span id="283">283</span>
-<span id="284">284</span>
-<span id="285">285</span>
-<span id="286">286</span>
-<span id="287">287</span>
-<span id="288">288</span>
-<span id="289">289</span>
-<span id="290">290</span>
-<span id="291">291</span>
-<span id="292">292</span>
-<span id="293">293</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="doccomment">//! We implement the postgres conversions here to fix a disastrous dependency hell.</span>
-
+<span class="kw">use</span> <span class="ident">bigdecimal</span>::{<span class="ident">BigDecimal</span>, <span class="ident">ToPrimitive</span>, <span class="ident">Zero</span>};
 <span class="kw">use</span> <span class="ident">byteorder</span>::{<span class="ident">BigEndian</span>, <span class="ident">ReadBytesExt</span>};
 <span class="kw">use</span> <span class="ident">bytes</span>::{<span class="ident">BufMut</span>, <span class="ident">BytesMut</span>};
+<span class="kw">use</span> <span class="ident">num_bigint</span>::{<span class="ident">BigInt</span>, <span class="ident">Sign</span>};
 <span class="kw">use</span> <span class="ident">postgres_types</span>::{<span class="ident">to_sql_checked</span>, <span class="ident">FromSql</span>, <span class="ident">IsNull</span>, <span class="ident">ToSql</span>, <span class="ident">Type</span>};
-<span class="kw">use</span> <span class="ident">rust_decimal</span>::{<span class="ident">prelude</span>::<span class="ident">Zero</span>, <span class="ident">Decimal</span>};
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">convert</span>::<span class="ident">TryInto</span>;
-<span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">error</span>, <span class="ident">fmt</span>, <span class="ident">io</span>::<span class="ident">Cursor</span>};
-
-<span class="kw">const</span> <span class="ident">MAX_PRECISION</span>: <span class="ident">u32</span> <span class="op">=</span> <span class="number">28</span>;
+<span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">cmp</span>, <span class="ident">convert</span>::<span class="ident">TryInto</span>, <span class="ident">error</span>, <span class="ident">fmt</span>, <span class="ident">io</span>::<span class="ident">Cursor</span>};
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">DecimalWrapper</span>(<span class="kw">pub</span> <span class="ident">Decimal</span>);
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">DecimalWrapper</span>(<span class="kw">pub</span> <span class="ident">BigDecimal</span>);
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">InvalidDecimal</span> {
-    <span class="ident">inner</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-}
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">InvalidDecimal</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>);
 
 <span class="kw">impl</span> <span class="ident">fmt</span>::<span class="ident">Display</span> <span class="kw">for</span> <span class="ident">InvalidDecimal</span> {
     <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">fmt</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt</span>::<span class="ident">Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">msg</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">inner</span> {
-            <span class="ident">fmt</span>.<span class="ident">write_fmt</span>(<span class="macro">format_args</span><span class="macro">!</span>(<span class="string">&quot;Invalid Decimal: {}&quot;</span>, <span class="ident">msg</span>))
-        } <span class="kw">else</span> {
-            <span class="ident">fmt</span>.<span class="ident">write_str</span>(<span class="string">&quot;Invalid Decimal&quot;</span>)
-        }
+        <span class="ident">fmt</span>.<span class="ident">write_fmt</span>(<span class="macro">format_args</span><span class="macro">!</span>(<span class="string">&quot;Invalid Decimal: {}&quot;</span>, <span class="self">self</span>.<span class="number">0</span>))
     }
 }
 
@@ -333,89 +286,57 @@
     <span class="ident">digits</span>: <span class="ident">D</span>,
 }
 
-<span class="kw">fn</span> <span class="ident">from_postgres</span><span class="op">&lt;</span><span class="ident">D</span>: <span class="ident">ExactSizeIterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="ident">u16</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">dec</span>: <span class="ident">PostgresDecimal</span><span class="op">&lt;</span><span class="ident">D</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Decimal</span>, <span class="ident">InvalidDecimal</span><span class="op">&gt;</span> {
+<span class="kw">fn</span> <span class="ident">from_postgres</span><span class="op">&lt;</span><span class="ident">D</span>: <span class="ident">ExactSizeIterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="ident">u16</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">dec</span>: <span class="ident">PostgresDecimal</span><span class="op">&lt;</span><span class="ident">D</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">BigDecimal</span>, <span class="ident">InvalidDecimal</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">PostgresDecimal</span> {
-        <span class="ident">neg</span>,
-        <span class="ident">scale</span>,
-        <span class="ident">digits</span>,
-        <span class="ident">weight</span>,
+        <span class="ident">neg</span>, <span class="ident">digits</span>, <span class="ident">weight</span>, ..
     } <span class="op">=</span> <span class="ident">dec</span>;
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">digits</span> <span class="op">=</span> <span class="ident">digits</span>.<span class="ident">into_iter</span>().<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>();
-
-    <span class="kw">let</span> <span class="ident">fractionals_part_count</span> <span class="op">=</span> <span class="ident">digits</span>.<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">i32</span> <span class="op">+</span> (<span class="op">-</span><span class="ident">weight</span> <span class="kw">as</span> <span class="ident">i32</span>) <span class="op">-</span> <span class="number">1</span>;
-    <span class="kw">let</span> <span class="ident">integers_part_count</span> <span class="op">=</span> <span class="ident">weight</span> <span class="kw">as</span> <span class="ident">i32</span> <span class="op">+</span> <span class="number">1</span>;
-
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">Decimal</span>::<span class="ident">zero</span>();
-
-    <span class="comment">// adding integer part</span>
-    <span class="kw">if</span> <span class="ident">integers_part_count</span> <span class="op">&gt;</span> <span class="number">0</span> {
-        <span class="kw">let</span> (<span class="ident">start_integers</span>, <span class="ident">last</span>) <span class="op">=</span> <span class="kw">if</span> <span class="ident">integers_part_count</span> <span class="op">&gt;</span> <span class="ident">digits</span>.<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">i32</span> {
-            (<span class="ident">integers_part_count</span> <span class="op">-</span> <span class="ident">digits</span>.<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">i32</span>, <span class="ident">digits</span>.<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">i32</span>)
-        } <span class="kw">else</span> {
-            (<span class="number">0</span>, <span class="ident">integers_part_count</span>)
-        };
-
-        <span class="kw">let</span> <span class="ident">integers</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">digits</span>.<span class="ident">drain</span>(..<span class="ident">last</span> <span class="kw">as</span> <span class="ident">usize</span>).<span class="ident">collect</span>();
-
-        <span class="kw">for</span> <span class="ident">digit</span> <span class="kw">in</span> <span class="ident">integers</span> {
-            <span class="ident">result</span> <span class="kw-2">*</span><span class="op">=</span> <span class="ident">Decimal</span>::<span class="ident">from_i128_with_scale</span>(<span class="number">10i128</span>.<span class="ident">pow</span>(<span class="number">4</span>), <span class="number">0</span>);
-            <span class="ident">result</span> <span class="op">+</span><span class="op">=</span> <span class="ident">Decimal</span>::<span class="ident">new</span>(<span class="ident">digit</span> <span class="kw">as</span> <span class="ident">i64</span>, <span class="number">0</span>);
-        }
-
-        <span class="ident">result</span> <span class="kw-2">*</span><span class="op">=</span> <span class="ident">Decimal</span>::<span class="ident">from_i128_with_scale</span>(<span class="number">10i128</span>.<span class="ident">pow</span>(<span class="number">4</span> <span class="op">*</span> <span class="ident">start_integers</span> <span class="kw">as</span> <span class="ident">u32</span>), <span class="number">0</span>);
+    <span class="kw">if</span> <span class="ident">digits</span>.<span class="ident">len</span>() <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
+        <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="number">0u64</span>.<span class="ident">into</span>());
     }
 
-    <span class="comment">// adding fractional part</span>
-    <span class="kw">if</span> <span class="ident">fractionals_part_count</span> <span class="op">&gt;</span> <span class="number">0</span> {
-        <span class="kw">let</span> <span class="ident">dec</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">digits</span>.<span class="ident">into_iter</span>().<span class="ident">collect</span>();
-        <span class="kw">let</span> <span class="ident">start_fractionals</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">weight</span> <span class="op">&lt;</span> <span class="number">0</span> { (<span class="op">-</span><span class="ident">weight</span> <span class="kw">as</span> <span class="ident">u32</span>) <span class="op">-</span> <span class="number">1</span> } <span class="kw">else</span> { <span class="number">0</span> };
+    <span class="kw">let</span> <span class="ident">sign</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">neg</span> {
+        <span class="bool-val">false</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Sign</span>::<span class="ident">Plus</span>,
+        <span class="bool-val">true</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Sign</span>::<span class="ident">Minus</span>,
+    };
 
-        <span class="kw">for</span> (<span class="ident">i</span>, <span class="ident">digit</span>) <span class="kw">in</span> <span class="ident">dec</span>.<span class="ident">into_iter</span>().<span class="ident">enumerate</span>() {
-            <span class="kw">let</span> <span class="ident">fract_pow</span> <span class="op">=</span> <span class="number">4</span> <span class="op">*</span> (<span class="ident">i</span> <span class="kw">as</span> <span class="ident">u32</span> <span class="op">+</span> <span class="number">1</span> <span class="op">+</span> <span class="ident">start_fractionals</span>);
+    <span class="comment">// weight is 0 if the decimal point falls after the first base-10000 digit</span>
+    <span class="kw">let</span> <span class="ident">scale</span> <span class="op">=</span> (<span class="ident">digits</span>.<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">i64</span> <span class="op">-</span> <span class="ident">weight</span> <span class="kw">as</span> <span class="ident">i64</span> <span class="op">-</span> <span class="number">1</span>) <span class="op">*</span> <span class="number">4</span>;
 
-            <span class="kw">if</span> <span class="ident">fract_pow</span> <span class="op">&lt;</span><span class="op">=</span> <span class="ident">MAX_PRECISION</span> {
-                <span class="ident">result</span> <span class="op">+</span><span class="op">=</span> <span class="ident">Decimal</span>::<span class="ident">new</span>(<span class="ident">digit</span> <span class="kw">as</span> <span class="ident">i64</span>, <span class="number">0</span>) <span class="op">/</span> <span class="ident">Decimal</span>::<span class="ident">from_i128_with_scale</span>(<span class="number">10i128</span>.<span class="ident">pow</span>(<span class="ident">fract_pow</span>), <span class="number">0</span>);
-            } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">fract_pow</span> <span class="op">=</span><span class="op">=</span> <span class="ident">MAX_PRECISION</span> <span class="op">+</span> <span class="number">4</span> {
-                <span class="comment">// rounding last digit</span>
-                <span class="kw">if</span> <span class="ident">digit</span> <span class="op">&gt;</span><span class="op">=</span> <span class="number">5000</span> {
-                    <span class="ident">result</span> <span class="op">+</span><span class="op">=</span> <span class="ident">Decimal</span>::<span class="ident">new</span>(<span class="number">1</span> <span class="kw">as</span> <span class="ident">i64</span>, <span class="number">0</span>) <span class="op">/</span> <span class="ident">Decimal</span>::<span class="ident">from_i128_with_scale</span>(<span class="number">10i128</span>.<span class="ident">pow</span>(<span class="ident">MAX_PRECISION</span>), <span class="number">0</span>);
-                }
-            }
-        }
+    <span class="comment">// no optimized algorithm for base-10 so use base-100 for faster processing</span>
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cents</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">with_capacity</span>(<span class="ident">digits</span>.<span class="ident">len</span>() <span class="op">*</span> <span class="number">2</span>);
+
+    <span class="kw">for</span> <span class="ident">digit</span> <span class="kw">in</span> <span class="ident">digits</span> {
+        <span class="ident">cents</span>.<span class="ident">push</span>((<span class="ident">digit</span> <span class="op">/</span> <span class="number">100</span>) <span class="kw">as</span> <span class="ident">u8</span>);
+        <span class="ident">cents</span>.<span class="ident">push</span>((<span class="ident">digit</span> <span class="op">%</span> <span class="number">100</span>) <span class="kw">as</span> <span class="ident">u8</span>);
     }
 
-    <span class="ident">result</span>.<span class="ident">set_sign_negative</span>(<span class="ident">neg</span>);
+    <span class="kw">let</span> <span class="ident">bigint</span> <span class="op">=</span> <span class="ident">BigInt</span>::<span class="ident">from_radix_be</span>(<span class="ident">sign</span>, <span class="kw-2">&amp;</span><span class="ident">cents</span>, <span class="number">100</span>)
+        .<span class="ident">ok_or</span>(<span class="ident">InvalidDecimal</span>(<span class="string">&quot;PostgresDecimal contained an out-of-range digit&quot;</span>))<span class="question-mark">?</span>;
 
-    <span class="comment">// Rescale to the postgres value, automatically rounding as needed.</span>
-    <span class="ident">result</span>.<span class="ident">rescale</span>(<span class="ident">scale</span> <span class="kw">as</span> <span class="ident">u32</span>);
-
-    <span class="prelude-val">Ok</span>(<span class="ident">result</span>)
+    <span class="prelude-val">Ok</span>(<span class="ident">BigDecimal</span>::<span class="ident">new</span>(<span class="ident">bigint</span>, <span class="ident">scale</span>))
 }
 
-<span class="kw">fn</span> <span class="ident">to_postgres</span>(<span class="ident">decimal</span>: <span class="ident">Decimal</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PostgresDecimal</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">i16</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+<span class="kw">fn</span> <span class="ident">to_postgres</span>(<span class="ident">decimal</span>: <span class="kw-2">&amp;</span><span class="ident">BigDecimal</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">crate</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">PostgresDecimal</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">i16</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">if</span> <span class="ident">decimal</span>.<span class="ident">is_zero</span>() {
-        <span class="kw">return</span> <span class="ident">PostgresDecimal</span> {
+        <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">PostgresDecimal</span> {
             <span class="ident">neg</span>: <span class="bool-val">false</span>,
             <span class="ident">weight</span>: <span class="number">0</span>,
             <span class="ident">scale</span>: <span class="number">0</span>,
-            <span class="ident">digits</span>: <span class="macro">vec</span><span class="macro">!</span>[<span class="number">0</span>],
-        };
+            <span class="ident">digits</span>: <span class="macro">vec</span><span class="macro">!</span>[],
+        });
     }
 
-    <span class="kw">let</span> <span class="ident">scale</span> <span class="op">=</span> <span class="ident">decimal</span>.<span class="ident">scale</span>() <span class="kw">as</span> <span class="ident">u16</span>;
+    <span class="comment">// NOTE: this unfortunately copies the BigInt internally</span>
+    <span class="kw">let</span> (<span class="ident">integer</span>, <span class="ident">exp</span>) <span class="op">=</span> <span class="ident">decimal</span>.<span class="ident">as_bigint_and_exponent</span>();
 
-    <span class="comment">// A serialized version of the decimal number. The resulting byte array</span>
-    <span class="comment">// will have the following representation:</span>
-    <span class="comment">//</span>
-    <span class="comment">// Bytes 1-4: flags</span>
-    <span class="comment">// Bytes 5-8: lo portion of m</span>
-    <span class="comment">// Bytes 9-12: mid portion of m</span>
-    <span class="comment">// Bytes 13-16: high portion of m</span>
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">mantissa</span> <span class="op">=</span> <span class="ident">u128</span>::<span class="ident">from_le_bytes</span>(<span class="ident">decimal</span>.<span class="ident">serialize</span>());
+    <span class="comment">// scale is only nonzero when we have fractional digits</span>
+    <span class="comment">// since `exp` is the _negative_ decimal exponent, it tells us</span>
+    <span class="comment">// exactly what our scale should be</span>
+    <span class="kw">let</span> <span class="ident">scale</span>: <span class="ident">u16</span> <span class="op">=</span> <span class="ident">cmp</span>::<span class="ident">max</span>(<span class="number">0</span>, <span class="ident">exp</span>).<span class="ident">try_into</span>()<span class="question-mark">?</span>;
 
-    <span class="comment">// chop off the flags</span>
-    <span class="ident">mantissa</span> <span class="op">&gt;</span><span class="op">&gt;</span><span class="op">=</span> <span class="number">32</span>;
+    <span class="kw">let</span> (<span class="ident">sign</span>, <span class="ident">uint</span>) <span class="op">=</span> <span class="ident">integer</span>.<span class="ident">into_parts</span>();
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">mantissa</span> <span class="op">=</span> <span class="ident">uint</span>.<span class="ident">to_u128</span>().<span class="ident">unwrap</span>();
 
     <span class="comment">// If our scale is not a multiple of 4, we need to go to the next</span>
     <span class="comment">// multiple.</span>
@@ -448,12 +369,17 @@
         <span class="ident">digits</span>.<span class="ident">pop</span>();
     }
 
-    <span class="ident">PostgresDecimal</span> {
-        <span class="ident">neg</span>: <span class="ident">decimal</span>.<span class="ident">is_sign_negative</span>(),
+    <span class="kw">let</span> <span class="ident">neg</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">sign</span> {
+        <span class="ident">Sign</span>::<span class="ident">Plus</span> <span class="op">|</span> <span class="ident">Sign</span>::<span class="ident">NoSign</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
+        <span class="ident">Sign</span>::<span class="ident">Minus</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
+    };
+
+    <span class="prelude-val">Ok</span>(<span class="ident">PostgresDecimal</span> {
+        <span class="ident">neg</span>,
         <span class="ident">scale</span>,
         <span class="ident">weight</span>,
         <span class="ident">digits</span>,
-    }
+    })
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">FromSql</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">DecimalWrapper</span> {
@@ -552,7 +478,7 @@
             <span class="ident">weight</span>,
             <span class="ident">scale</span>,
             <span class="ident">digits</span>,
-        } <span class="op">=</span> <span class="ident">to_postgres</span>(<span class="self">self</span>.<span class="number">0</span>);
+        } <span class="op">=</span> <span class="ident">to_postgres</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span>)<span class="question-mark">?</span>;
 
         <span class="kw">let</span> <span class="ident">num_digits</span> <span class="op">=</span> <span class="ident">digits</span>.<span class="ident">len</span>();
 

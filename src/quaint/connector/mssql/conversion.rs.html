@@ -103,9 +103,24 @@
 <span id="100">100</span>
 <span id="101">101</span>
 <span id="102">102</span>
+<span id="103">103</span>
+<span id="104">104</span>
+<span id="105">105</span>
+<span id="106">106</span>
+<span id="107">107</span>
+<span id="108">108</span>
+<span id="109">109</span>
+<span id="110">110</span>
+<span id="111">111</span>
+<span id="112">112</span>
+<span id="113">113</span>
+<span id="114">114</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">ast</span>::<span class="ident">Value</span>;
-<span class="kw">use</span> <span class="ident">rust_decimal</span>::{<span class="ident">prelude</span>::<span class="ident">FromPrimitive</span>, <span class="ident">Decimal</span>};
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;bigdecimal&quot;</span>))]</span>
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">error</span>::<span class="kw-2">*</span>;
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;bigdecimal&quot;</span>)]</span>
+<span class="kw">use</span> <span class="ident">bigdecimal</span>::<span class="ident">BigDecimal</span>;
 <span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">borrow</span>::<span class="ident">Cow</span>, <span class="ident">convert</span>::<span class="ident">TryFrom</span>};
 <span class="kw">use</span> <span class="ident">tiberius</span>::{<span class="ident">ColumnData</span>, <span class="ident">FromSql</span>, <span class="ident">IntoSql</span>, <span class="ident">ToSql</span>};
 
@@ -123,12 +138,17 @@
     <span class="kw">fn</span> <span class="ident">to_sql</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ColumnData</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="self">self</span> {
             <span class="ident">Value</span>::<span class="ident">Integer</span>(<span class="ident">val</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">val</span>.<span class="ident">to_sql</span>(),
-            <span class="ident">Value</span>::<span class="ident">Real</span>(<span class="ident">val</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">val</span>.<span class="ident">to_sql</span>(),
+            <span class="ident">Value</span>::<span class="ident">Float</span>(<span class="ident">val</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">val</span>.<span class="ident">to_sql</span>(),
+            <span class="ident">Value</span>::<span class="ident">Double</span>(<span class="ident">val</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">val</span>.<span class="ident">to_sql</span>(),
             <span class="ident">Value</span>::<span class="ident">Text</span>(<span class="ident">val</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">val</span>.<span class="ident">to_sql</span>(),
             <span class="ident">Value</span>::<span class="ident">Bytes</span>(<span class="ident">val</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">val</span>.<span class="ident">to_sql</span>(),
             <span class="ident">Value</span>::<span class="ident">Enum</span>(<span class="ident">val</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">val</span>.<span class="ident">to_sql</span>(),
             <span class="ident">Value</span>::<span class="ident">Boolean</span>(<span class="ident">val</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">val</span>.<span class="ident">to_sql</span>(),
             <span class="ident">Value</span>::<span class="ident">Char</span>(<span class="ident">val</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">val</span>.<span class="ident">as_ref</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">val</span><span class="op">|</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">val</span>)).<span class="ident">into_sql</span>(),
+            <span class="ident">Value</span>::<span class="ident">Xml</span>(<span class="ident">val</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">val</span>.<span class="ident">to_sql</span>(),
+            <span class="ident">Value</span>::<span class="ident">Array</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;Arrays are not supported on SQL Server.&quot;</span>),
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;bigdecimal&quot;</span>)]</span>
+            <span class="ident">Value</span>::<span class="ident">Numeric</span>(<span class="ident">val</span>) <span class="op">=</span><span class="op">&gt;</span> (<span class="kw-2">*</span><span class="ident">val</span>).<span class="ident">to_sql</span>(),
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;json&quot;</span>)]</span>
             <span class="ident">Value</span>::<span class="ident">Json</span>(<span class="ident">val</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">val</span>.<span class="ident">as_ref</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">val</span><span class="op">|</span> <span class="ident">serde_json</span>::<span class="ident">to_string</span>(<span class="kw-2">&amp;</span><span class="ident">val</span>).<span class="ident">unwrap</span>()).<span class="ident">into_sql</span>(),
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;uuid&quot;</span>)]</span>
@@ -139,8 +159,6 @@
             <span class="ident">Value</span>::<span class="ident">Date</span>(<span class="ident">val</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">val</span>.<span class="ident">to_sql</span>(),
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;chrono&quot;</span>)]</span>
             <span class="ident">Value</span>::<span class="ident">Time</span>(<span class="ident">val</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">val</span>.<span class="ident">to_sql</span>(),
-            <span class="ident">Value</span>::<span class="ident">Xml</span>(<span class="ident">val</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">val</span>.<span class="ident">to_sql</span>(),
-            <span class="ident">Value</span>::<span class="ident">Array</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;Arrays are not supported on SQL Server.&quot;</span>),
         }
     }
 }
@@ -154,13 +172,19 @@
             <span class="ident">ColumnData</span>::<span class="ident">I16</span>(<span class="ident">num</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Value</span>::<span class="ident">Integer</span>(<span class="ident">num</span>.<span class="ident">map</span>(<span class="ident">i64</span>::<span class="ident">from</span>)),
             <span class="ident">ColumnData</span>::<span class="ident">I32</span>(<span class="ident">num</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Value</span>::<span class="ident">Integer</span>(<span class="ident">num</span>.<span class="ident">map</span>(<span class="ident">i64</span>::<span class="ident">from</span>)),
             <span class="ident">ColumnData</span>::<span class="ident">I64</span>(<span class="ident">num</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Value</span>::<span class="ident">Integer</span>(<span class="ident">num</span>.<span class="ident">map</span>(<span class="ident">i64</span>::<span class="ident">from</span>)),
-            <span class="ident">ColumnData</span>::<span class="ident">F32</span>(<span class="ident">num</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Value</span>::<span class="ident">Real</span>(<span class="ident">num</span>.<span class="ident">and_then</span>(<span class="ident">Decimal</span>::<span class="ident">from_f32</span>)),
-            <span class="ident">ColumnData</span>::<span class="ident">F64</span>(<span class="ident">num</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Value</span>::<span class="ident">Real</span>(<span class="ident">num</span>.<span class="ident">and_then</span>(<span class="ident">Decimal</span>::<span class="ident">from_f64</span>)),
+            <span class="ident">ColumnData</span>::<span class="ident">F32</span>(<span class="ident">num</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Value</span>::<span class="ident">Float</span>(<span class="ident">num</span>),
+            <span class="ident">ColumnData</span>::<span class="ident">F64</span>(<span class="ident">num</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Value</span>::<span class="ident">Double</span>(<span class="ident">num</span>),
             <span class="ident">ColumnData</span>::<span class="ident">Bit</span>(<span class="ident">b</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Value</span>::<span class="ident">Boolean</span>(<span class="ident">b</span>),
             <span class="ident">ColumnData</span>::<span class="ident">String</span>(<span class="ident">s</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Value</span>::<span class="ident">Text</span>(<span class="ident">s</span>),
             <span class="ident">ColumnData</span>::<span class="ident">Guid</span>(<span class="ident">uuid</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Value</span>::<span class="ident">Uuid</span>(<span class="ident">uuid</span>),
             <span class="ident">ColumnData</span>::<span class="ident">Binary</span>(<span class="ident">bytes</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Value</span>::<span class="ident">Bytes</span>(<span class="ident">bytes</span>),
-            <span class="ident">numeric</span> @ <span class="ident">ColumnData</span>::<span class="ident">Numeric</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Value</span>::<span class="ident">Real</span>(<span class="ident">Decimal</span>::<span class="ident">from_sql</span>(<span class="kw-2">&amp;</span><span class="ident">numeric</span>)<span class="question-mark">?</span>),
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;bigdecimal&quot;</span>)]</span>
+            <span class="ident">numeric</span> @ <span class="ident">ColumnData</span>::<span class="ident">Numeric</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Value</span>::<span class="ident">Numeric</span>(<span class="ident">BigDecimal</span>::<span class="ident">from_sql</span>(<span class="kw-2">&amp;</span><span class="ident">numeric</span>)<span class="question-mark">?</span>),
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;bigdecimal&quot;</span>))]</span>
+            <span class="ident">_numeric</span> @ <span class="ident">ColumnData</span>::<span class="ident">Numeric</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="kw">let</span> <span class="ident">kind</span> <span class="op">=</span> <span class="ident">ErrorKind</span>::<span class="ident">conversion</span>(<span class="string">&quot;Please enable `bigdecimal` feature to read numeric values&quot;</span>);
+                <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">builder</span>(<span class="ident">kind</span>).<span class="ident">build</span>());
+            }
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;chrono&quot;</span>)]</span>
             <span class="ident">dt</span> @ <span class="ident">ColumnData</span>::<span class="ident">DateTime</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">use</span> <span class="ident">tiberius</span>::<span class="ident">time</span>::<span class="ident">chrono</span>::{<span class="ident">DateTime</span>, <span class="ident">NaiveDateTime</span>, <span class="ident">Utc</span>};

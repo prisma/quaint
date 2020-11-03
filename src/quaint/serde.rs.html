@@ -318,6 +318,16 @@
 <span id="315">315</span>
 <span id="316">316</span>
 <span id="317">317</span>
+<span id="318">318</span>
+<span id="319">319</span>
+<span id="320">320</span>
+<span id="321">321</span>
+<span id="322">322</span>
+<span id="323">323</span>
+<span id="324">324</span>
+<span id="325">325</span>
+<span id="326">326</span>
+<span id="327">327</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Convert results from the database into any type implementing `serde::Deserialize`.</span>
 
@@ -440,8 +450,18 @@
             <span class="ident">Value</span>::<span class="ident">Boolean</span>(<span class="prelude-val">None</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">visitor</span>.<span class="ident">visit_none</span>(),
             <span class="ident">Value</span>::<span class="ident">Char</span>(<span class="prelude-val">Some</span>(<span class="ident">c</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">visitor</span>.<span class="ident">visit_char</span>(<span class="ident">c</span>),
             <span class="ident">Value</span>::<span class="ident">Char</span>(<span class="prelude-val">None</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">visitor</span>.<span class="ident">visit_none</span>(),
-            <span class="ident">Value</span>::<span class="ident">Real</span>(<span class="prelude-val">Some</span>(<span class="ident">real</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">visitor</span>.<span class="ident">visit_f64</span>(<span class="ident">real</span>.<span class="ident">to_string</span>().<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>()),
-            <span class="ident">Value</span>::<span class="ident">Real</span>(<span class="prelude-val">None</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">visitor</span>.<span class="ident">visit_none</span>(),
+            <span class="ident">Value</span>::<span class="ident">Float</span>(<span class="prelude-val">Some</span>(<span class="ident">num</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">visitor</span>.<span class="ident">visit_f64</span>(<span class="ident">num</span> <span class="kw">as</span> <span class="ident">f64</span>),
+            <span class="ident">Value</span>::<span class="ident">Float</span>(<span class="prelude-val">None</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">visitor</span>.<span class="ident">visit_none</span>(),
+            <span class="ident">Value</span>::<span class="ident">Double</span>(<span class="prelude-val">Some</span>(<span class="ident">num</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">visitor</span>.<span class="ident">visit_f64</span>(<span class="ident">num</span>),
+            <span class="ident">Value</span>::<span class="ident">Double</span>(<span class="prelude-val">None</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">visitor</span>.<span class="ident">visit_none</span>(),
+
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;bigdecimal&quot;</span>)]</span>
+            <span class="ident">Value</span>::<span class="ident">Numeric</span>(<span class="prelude-val">Some</span>(<span class="ident">num</span>)) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">bigdecimal</span>::<span class="ident">ToPrimitive</span>;
+                <span class="ident">visitor</span>.<span class="ident">visit_f64</span>(<span class="ident">num</span>.<span class="ident">to_f64</span>().<span class="ident">unwrap</span>())
+            }
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;bigdecimal&quot;</span>)]</span>
+            <span class="ident">Value</span>::<span class="ident">Numeric</span>(<span class="prelude-val">None</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">visitor</span>.<span class="ident">visit_none</span>(),
 
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;uuid&quot;</span>)]</span>
             <span class="ident">Value</span>::<span class="ident">Uuid</span>(<span class="prelude-val">Some</span>(<span class="ident">uuid</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">visitor</span>.<span class="ident">visit_string</span>(<span class="ident">uuid</span>.<span class="ident">to_string</span>()),
@@ -611,7 +631,7 @@
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">deserialize_cat</span>() {
         <span class="kw">let</span> <span class="ident">row</span> <span class="op">=</span> <span class="ident">make_row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-            (<span class="string">&quot;age&quot;</span>, <span class="ident">Value</span>::<span class="ident">real</span>(<span class="string">&quot;18.800001&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>())),
+            (<span class="string">&quot;age&quot;</span>, <span class="ident">Value</span>::<span class="ident">numeric</span>(<span class="string">&quot;18.800001&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>())),
             (<span class="string">&quot;birthday&quot;</span>, <span class="ident">Value</span>::<span class="ident">datetime</span>(<span class="string">&quot;2019-08-01T20:00:00Z&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>())),
             (
                 <span class="string">&quot;human&quot;</span>,
