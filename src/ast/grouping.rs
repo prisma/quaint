@@ -37,13 +37,6 @@ pub trait IntoGroupByDefinition<'a> {
     fn into_group_by_definition(self) -> GroupByDefinition<'a>;
 }
 
-impl<'a> IntoGroupByDefinition<'a> for &'a str {
-    fn into_group_by_definition(self) -> GroupByDefinition<'a> {
-        let column: Column = self.into();
-        column.into()
-    }
-}
-
 impl<'a> IntoGroupByDefinition<'a> for (&'a str, &'a str) {
     fn into_group_by_definition(self) -> GroupByDefinition<'a> {
         let column: Column = self.into();
@@ -51,26 +44,20 @@ impl<'a> IntoGroupByDefinition<'a> for (&'a str, &'a str) {
     }
 }
 
-impl<'a> IntoGroupByDefinition<'a> for Column<'a> {
+impl<'a, T> IntoGroupByDefinition<'a> for T
+where
+    T: Into<Expression<'a>>,
+{
     fn into_group_by_definition(self) -> GroupByDefinition<'a> {
         self.into()
     }
 }
 
-impl<'a> IntoGroupByDefinition<'a> for GroupByDefinition<'a> {
-    fn into_group_by_definition(self) -> GroupByDefinition<'a> {
-        self
-    }
-}
-
-impl<'a> Groupable<'a> for Column<'a> {
+impl<'a, T> Groupable<'a> for T
+where
+    T: Into<Expression<'a>>,
+{
     fn group(self) -> GroupByDefinition<'a> {
         self.into()
-    }
-}
-
-impl<'a> Groupable<'a> for &'a str {
-    fn group(self) -> GroupByDefinition<'a> {
-        Column::from(self).group()
     }
 }
