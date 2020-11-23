@@ -453,6 +453,8 @@
 <span id="450">450</span>
 <span id="451">451</span>
 <span id="452">452</span>
+<span id="453">453</span>
+<span id="454">454</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">mod</span> <span class="ident">conversion</span>;
 <span class="kw">mod</span> <span class="ident">error</span>;
@@ -741,30 +743,32 @@
             <span class="kw">let</span> <span class="ident">params</span> <span class="op">=</span> <span class="ident">conversion</span>::<span class="ident">conv_params</span>(<span class="ident">params</span>)<span class="question-mark">?</span>;
             <span class="kw">let</span> <span class="ident">query</span> <span class="op">=</span> <span class="ident">client</span>.<span class="ident">query</span>(<span class="ident">sql</span>, <span class="ident">params</span>.<span class="ident">as_slice</span>());
 
-            <span class="kw">let</span> <span class="ident">results</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">timeout</span>(<span class="ident">query</span>).<span class="ident">await</span><span class="question-mark">?</span>;
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">results</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">timeout</span>(<span class="ident">query</span>).<span class="ident">await</span><span class="question-mark">?</span>.<span class="ident">into_results</span>().<span class="ident">await</span><span class="question-mark">?</span>;
+            <span class="kw">match</span> <span class="ident">results</span>.<span class="ident">pop</span>() {
+                <span class="prelude-val">Some</span>(<span class="ident">rows</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">columns_set</span> <span class="op">=</span> <span class="bool-val">false</span>;
+                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">columns</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">result_rows</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">with_capacity</span>(<span class="ident">rows</span>.<span class="ident">len</span>());
 
-            <span class="kw">let</span> <span class="ident">columns</span> <span class="op">=</span> <span class="ident">results</span>
-                .<span class="ident">columns</span>()
-                .<span class="ident">unwrap_or</span>(<span class="kw-2">&amp;</span>[])
-                .<span class="ident">iter</span>()
-                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">c</span><span class="op">|</span> <span class="ident">c</span>.<span class="ident">name</span>().<span class="ident">to_string</span>())
-                .<span class="ident">collect</span>();
+                    <span class="kw">for</span> <span class="ident">row</span> <span class="kw">in</span> <span class="ident">rows</span>.<span class="ident">into_iter</span>() {
+                        <span class="kw">if</span> <span class="op">!</span><span class="ident">columns_set</span> {
+                            <span class="ident">columns</span> <span class="op">=</span> <span class="ident">row</span>.<span class="ident">columns</span>().<span class="ident">iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">c</span><span class="op">|</span> <span class="ident">c</span>.<span class="ident">name</span>().<span class="ident">to_string</span>()).<span class="ident">collect</span>();
+                            <span class="ident">columns_set</span> <span class="op">=</span> <span class="bool-val">true</span>;
+                        }
 
-            <span class="kw">let</span> <span class="ident">rows</span> <span class="op">=</span> <span class="ident">results</span>.<span class="ident">into_first_result</span>().<span class="ident">await</span><span class="question-mark">?</span>;
+                        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">values</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Value</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">with_capacity</span>(<span class="ident">row</span>.<span class="ident">len</span>());
 
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">ResultSet</span>::<span class="ident">new</span>(<span class="ident">columns</span>, <span class="ident">Vec</span>::<span class="ident">new</span>());
+                        <span class="kw">for</span> <span class="ident">val</span> <span class="kw">in</span> <span class="ident">row</span>.<span class="ident">into_iter</span>() {
+                            <span class="ident">values</span>.<span class="ident">push</span>(<span class="ident">Value</span>::<span class="ident">try_from</span>(<span class="ident">val</span>)<span class="question-mark">?</span>);
+                        }
 
-            <span class="kw">for</span> <span class="ident">row</span> <span class="kw">in</span> <span class="ident">rows</span> {
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">values</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Value</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">with_capacity</span>(<span class="ident">row</span>.<span class="ident">len</span>());
+                        <span class="ident">result_rows</span>.<span class="ident">push</span>(<span class="ident">values</span>);
+                    }
 
-                <span class="kw">for</span> <span class="ident">val</span> <span class="kw">in</span> <span class="ident">row</span>.<span class="ident">into_iter</span>() {
-                    <span class="ident">values</span>.<span class="ident">push</span>(<span class="ident">Value</span>::<span class="ident">try_from</span>(<span class="ident">val</span>)<span class="question-mark">?</span>);
+                    <span class="prelude-val">Ok</span>(<span class="ident">ResultSet</span>::<span class="ident">new</span>(<span class="ident">columns</span>, <span class="ident">result_rows</span>))
                 }
-
-                <span class="ident">result</span>.<span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">values</span>);
+                <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">ResultSet</span>::<span class="ident">new</span>(<span class="ident">Vec</span>::<span class="ident">new</span>(), <span class="ident">Vec</span>::<span class="ident">new</span>())),
             }
-
-            <span class="prelude-val">Ok</span>(<span class="ident">result</span>)
         })
         .<span class="ident">await</span>
     }
