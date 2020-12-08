@@ -917,7 +917,7 @@ pub trait Visitor<'a> {
             }
             FunctionType::Maximum(max) => {
                 self.write("MAX")?;
-                self.surround_with("(", ")", |ref mut s| s.visit_column(max.column))?;
+                self.surround_with("(", ")", |ref mut s| s.visit_expression(*max.expr))?;
             }
         };
 

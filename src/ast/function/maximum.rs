@@ -1,10 +1,10 @@
 use super::Function;
-use crate::ast::Column;
+use crate::prelude::Expression;
 
 /// A represention of the `MAX` function in the database.
 #[derive(Debug, Clone, PartialEq)]
 pub struct Maximum<'a> {
-    pub(crate) column: Column<'a>,
+    pub(crate) expr: Box<Expression<'a>>,
 }
 
 /// Calculates the maximum value of a numeric column.
@@ -18,10 +18,13 @@ pub struct Maximum<'a> {
 /// # Ok(())
 /// # }
 /// ```
-pub fn max<'a, C>(col: C) -> Function<'a>
+pub fn max<'a, T>(expr: T) -> Function<'a>
 where
-    C: Into<Column<'a>>,
+    T: Into<Expression<'a>>,
 {
-    let fun = Maximum { column: col.into() };
-    fun.into()
+    let func = Maximum {
+        expr: Box::new(expr.into()),
+    };
+
+    func.into()
 }
