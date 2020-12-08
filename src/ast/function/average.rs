@@ -1,10 +1,10 @@
 use super::Function;
-use crate::ast::Column;
+use crate::prelude::Expression;
 
 /// A representation of the `AVG` function in the database.
 #[derive(Debug, Clone, PartialEq)]
 pub struct Average<'a> {
-    pub(crate) column: Column<'a>,
+    pub(crate) expr: Box<Expression<'a>>,
 }
 
 /// Calculates the average value of a numeric column.
@@ -17,11 +17,13 @@ pub struct Average<'a> {
 /// assert_eq!("SELECT AVG(`age`) FROM `users`", sql);
 /// # Ok(())
 /// # }
-/// ```
-pub fn avg<'a, C>(col: C) -> Function<'a>
+/// ```q
+pub fn avg<'a, T>(expr: T) -> Function<'a>
 where
-    C: Into<Column<'a>>,
+    T: Into<Expression<'a>>,
 {
-    let fun = Average { column: col.into() };
+    let fun = Average {
+        expr: Box::new(expr.into()),
+    };
     fun.into()
 }

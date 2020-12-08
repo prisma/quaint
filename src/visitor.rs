@@ -871,7 +871,7 @@ pub trait Visitor<'a> {
 
     fn visit_average(&mut self, avg: Average<'a>) -> Result {
         self.write("AVG")?;
-        self.surround_with("(", ")", |ref mut s| s.visit_column(avg.column))?;
+        self.surround_with("(", ")", |ref mut s| s.visit_expression(*avg.expr))?;
         Ok(())
     }
 
