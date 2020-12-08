@@ -17,7 +17,7 @@ pub struct Average<'a> {
 /// assert_eq!("SELECT AVG(`age`) FROM `users`", sql);
 /// # Ok(())
 /// # }
-/// ```q
+/// ```
 pub fn avg<'a, T>(expr: T) -> Function<'a>
 where
     T: Into<Expression<'a>>,
