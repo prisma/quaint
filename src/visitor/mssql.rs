@@ -444,7 +444,7 @@ impl<'a> Visitor<'a> for Mssql<'a> {
 
             s.surround_with("(", ")", |ref mut s| {
                 s.write("DECIMAL(32,16),")?;
-                s.visit_column(avg.column)
+                s.visit_expression(*avg.expr)
             })
         })?;
 
