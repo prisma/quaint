@@ -1,10 +1,10 @@
 use super::Function;
-use crate::ast::Column;
+use crate::prelude::Expression;
 
 /// A represention of the `MIN` function in the database.
 #[derive(Debug, Clone, PartialEq)]
 pub struct Minimum<'a> {
-    pub(crate) column: Column<'a>,
+    pub(crate) expr: Box<Expression<'a>>,
 }
 
 /// Calculates the minimum value of a numeric column.
@@ -18,10 +18,12 @@ pub struct Minimum<'a> {
 /// # Ok(())
 /// # }
 /// ```
-pub fn min<'a, C>(col: C) -> Function<'a>
+pub fn min<'a, T>(expr: T) -> Function<'a>
 where
-    C: Into<Column<'a>>,
+    T: Into<Expression<'a>>,
 {
-    let fun = Minimum { column: col.into() };
+    let fun = Minimum {
+        expr: Box::new(expr.into()),
+    };
     fun.into()
 }

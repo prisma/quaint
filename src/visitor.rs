@@ -913,7 +913,7 @@ pub trait Visitor<'a> {
             }
             FunctionType::Minimum(min) => {
                 self.write("MIN")?;
-                self.surround_with("(", ")", |ref mut s| s.visit_column(min.column))?;
+                self.surround_with("(", ")", |ref mut s| s.visit_expression(*min.expr))?;
             }
             FunctionType::Maximum(max) => {
                 self.write("MAX")?;
