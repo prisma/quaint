@@ -376,7 +376,7 @@
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mysql&quot;</span>)]</span>
             <span class="ident">s</span> <span class="kw">if</span> <span class="ident">s</span>.<span class="ident">starts_with</span>(<span class="string">&quot;mysql&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="ident">connector</span>::<span class="ident">MysqlUrl</span>::<span class="ident">new</span>(<span class="ident">url</span>::<span class="ident">Url</span>::<span class="ident">parse</span>(<span class="ident">s</span>)<span class="question-mark">?</span>)<span class="question-mark">?</span>;
-                <span class="kw">let</span> <span class="ident">mysql</span> <span class="op">=</span> <span class="ident">connector</span>::<span class="ident">Mysql</span>::<span class="ident">new</span>(<span class="ident">url</span>)<span class="question-mark">?</span>;
+                <span class="kw">let</span> <span class="ident">mysql</span> <span class="op">=</span> <span class="ident">connector</span>::<span class="ident">Mysql</span>::<span class="ident">new</span>(<span class="ident">url</span>).<span class="ident">await</span><span class="question-mark">?</span>;
 
                 <span class="ident">Arc</span>::<span class="ident">new</span>(<span class="ident">mysql</span>) <span class="kw">as</span> <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">dyn</span> <span class="ident">Queryable</span><span class="op">&gt;</span>
             }
