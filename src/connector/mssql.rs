@@ -405,17 +405,29 @@ impl MssqlUrl {
             .map(|level| IsolationLevel::from_str(&level))
             .transpose()?;
 
-        let connect_timeout = props
+        let mut connect_timeout = props
             .remove("logintimeout")
             .or_else(|| props.remove("connecttimeout"))
             .or_else(|| props.remove("connectiontimeout"))
             .map(|param| param.parse().map(Duration::from_secs))
             .transpose()?;
 
-        let pool_timeout = props
+        match connect_timeout {
+            None => connect_timeout = Some(Duration::from_secs(5)),
+            Some(dur) if dur.as_secs() == 0 => connect_timeout = None,
+            _ => (),
+        }
+
+        let mut pool_timeout = props
             .remove("pooltimeout")
             .map(|param| param.parse().map(Duration::from_secs))
             .transpose()?;
+
+        match pool_timeout {
+            None => pool_timeout = Some(Duration::from_secs(5)),
+            Some(dur) if dur.as_secs() == 0 => pool_timeout = None,
+            _ => (),
+        }
 
         let socket_timeout = props
             .remove("sockettimeout")

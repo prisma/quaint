@@ -115,8 +115,8 @@ impl MysqlUrl {
         let mut use_ssl = false;
         let mut socket = None;
         let mut socket_timeout = None;
-        let mut connect_timeout = None;
-        let mut pool_timeout = None;
+        let mut connect_timeout = Some(Duration::from_secs(5));
+        let mut pool_timeout = Some(Duration::from_secs(5));
 
         for (k, v) in url.query_pairs() {
             match k.as_ref() {
@@ -150,15 +150,23 @@ impl MysqlUrl {
                 }
                 "connect_timeout" => {
                     let as_int = v
-                        .parse()
+                        .parse::<u64>()
                         .map_err(|_| Error::builder(ErrorKind::InvalidConnectionArguments).build())?;
-                    connect_timeout = Some(Duration::from_secs(as_int));
+
+                    connect_timeout = match as_int {
+                        0 => None,
+                        _ => Some(Duration::from_secs(as_int)),
+                    };
                 }
                 "pool_timeout" => {
                     let as_int = v
-                        .parse()
+                        .parse::<u64>()
                         .map_err(|_| Error::builder(ErrorKind::InvalidConnectionArguments).build())?;
-                    pool_timeout = Some(Duration::from_secs(as_int));
+
+                    pool_timeout = match as_int {
+                        0 => None,
+                        _ => Some(Duration::from_secs(as_int)),
+                    };
                 }
                 "sslaccept" => {
                     match v.as_ref() {

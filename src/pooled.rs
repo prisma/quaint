@@ -55,9 +55,10 @@
 //!   `Timeout` error if it fails to resolve before given time.
 //! - `connect_timeout` defined in seconds. Connecting to a
 //!   database will return a `ConnectTimeout` error if taking more than the
-//!   defined value.
+//!   defined value. Defaults to 5 seconds, if set to 0, no timeout.
 //! - `pool_timeout` defined in seconds. If all connections are in use, the
 //!   database will return a `PoolTimeout` error after waiting for the given time.
+//!   If set to zero, no timeout.
 //! - `pgbouncer` either `true` or `false`. If set, allows usage with the
 //!   pgBouncer connection pool in transaction mode. Additionally a transaction
 //!   is required for every query for the mode to work. When starting a new
@@ -83,9 +84,10 @@
 //!   `Timeout` error if it fails to resolve before given time.
 //! - `connect_timeout` defined in seconds. Connecting to a
 //!   database will return a `ConnectTimeout` error if taking more than the
-//!   defined value.
+//!   defined value. Defaults to 5 seconds, if set to 0, no timeout.
 //! - `pool_timeout` defined in seconds. If all connections are in use, the
 //!   database will return a `PoolTimeout` error after waiting for the given time.
+//!   If set to zero, no timeout.
 //!
 //! ## Microsoft SQL Server
 //!
@@ -99,11 +101,12 @@
 //!   from the server.
 //! - `socketTimeout` defined in seconds. If set, a query will return a
 //!   `Timeout` error if it fails to resolve before given time.
-//! - `connectTimeout` defined in seconds. Connecting to a
+//! - `connectTimeout` defined in seconds (default: 5). Connecting to a
 //!   database will return a `ConnectTimeout` error if taking more than the
-//!   defined value.
-//! - `pool_timeout` defined in seconds. If all connections are in use, the
-//!   database will return a `PoolTimeout` error after waiting for the given time.
+//!   defined value. Defaults to 5 seconds, disabled if set to zero.
+//! - `poolTimeout` defined in seconds. If all connections are in use, the
+//!   database will return a `Timeout` error after waiting for the given time.
+//!   If set to zero, no timeout.
 //! - `connectionLimit` defines the maximum number of connections opened to the
 //!   database.
 //! - `schema` the name of the lookup schema. Only stored to the connection,
@@ -425,7 +428,7 @@ impl Quaint {
     pub async fn check_out(&self) -> crate::Result<PooledConnection> {
         let inner = match self.pool_timeout {
             Some(duration) => {
-                let res = self.inner.get_timeout(duration).await;
+                let res = crate::connector::metrics::check_out(self.inner.get_timeout(duration)).await;
 
                 match res {
                     Ok(conn) => conn,

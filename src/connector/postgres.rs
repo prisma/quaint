@@ -249,8 +249,8 @@ impl PostgresUrl {
         let mut ssl_mode = SslMode::Prefer;
         let mut host = None;
         let mut socket_timeout = None;
-        let mut connect_timeout = None;
-        let mut pool_timeout = None;
+        let mut connect_timeout = Some(Duration::from_secs(5));
+        let mut pool_timeout = Some(Duration::from_secs(5));
         let mut pg_bouncer = false;
         let mut statement_cache_size = 500;
 
@@ -331,13 +331,23 @@ impl PostgresUrl {
                     let as_int = v
                         .parse()
                         .map_err(|_| Error::builder(ErrorKind::InvalidConnectionArguments).build())?;
-                    connect_timeout = Some(Duration::from_secs(as_int));
+
+                    if as_int == 0 {
+                        connect_timeout = None;
+                    } else {
+                        connect_timeout = Some(Duration::from_secs(as_int));
+                    }
                 }
                 "pool_timeout" => {
                     let as_int = v
                         .parse()
                         .map_err(|_| Error::builder(ErrorKind::InvalidConnectionArguments).build())?;
-                    pool_timeout = Some(Duration::from_secs(as_int));
+
+                    if as_int == 0 {
+                        pool_timeout = None;
+                    } else {
+                        pool_timeout = Some(Duration::from_secs(as_int));
+                    }
                 }
                 _ => {
                     #[cfg(not(feature = "tracing-log"))]

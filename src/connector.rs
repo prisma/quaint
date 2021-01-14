@@ -25,8 +25,10 @@ pub(crate) mod postgres;
 #[cfg(feature = "sqlite")]
 pub(crate) mod sqlite;
 
+#[cfg(any(feature = "mssql", feature = "postgresql", feature = "mysql"))]
 use std::time::Duration;
 
+#[cfg(any(feature = "mssql", feature = "postgresql", feature = "mysql"))]
 use crate::error::{Error, ErrorKind};
 
 #[cfg(feature = "mysql")]
@@ -35,6 +37,7 @@ pub use self::mysql::*;
 pub use self::postgres::*;
 pub use self::result_set::*;
 pub use connection_info::*;
+#[cfg(any(feature = "mssql", feature = "postgresql", feature = "mysql"))]
 use futures::Future;
 #[cfg(feature = "mssql")]
 pub use mssql::*;
@@ -46,6 +49,7 @@ pub use transaction::*;
 #[allow(unused_imports)]
 pub(crate) use type_identifier::*;
 
+#[cfg(any(feature = "mssql", feature = "postgresql", feature = "mysql"))]
 async fn connect_timeout<T, F, E>(duration: Option<Duration>, f: F) -> crate::Result<T>
 where
     F: Future<Output = std::result::Result<T, E>>,
