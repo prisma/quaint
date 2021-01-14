@@ -139,7 +139,10 @@ mod manager;
 
 pub use manager::*;
 
-use crate::connector::ConnectionInfo;
+use crate::{
+    connector::ConnectionInfo,
+    error::{Error, ErrorKind},
+};
 use mobc::Pool;
 use std::{sync::Arc, time::Duration};
 
@@ -399,7 +402,46 @@ impl Quaint {
     /// Reserve a connection from the pool.
     pub async fn check_out(&self) -> crate::Result<PooledConnection> {
         let inner = match self.connect_timeout {
-            Some(duration) => self.inner.get_timeout(duration).await?,
+            Some(duration) => {
+                let res = self.inner.get_timeout(duration).await;
+
+                match res {
+                    Ok(conn) => conn,
+                    Err(e) => match e {
+                        mobc::Error::Timeout => {
+                            let state = self.inner.state().await;
+
+                            match (state.max_open, state.in_use) {
+                                // We are at least close to a saturation.
+                                (max_open, in_use) if max_open - in_use <= 2 && in_use > 0 => {
+                                    let message = format!(
+                                        "Fetching a connection from the pool timed out. The pool was saturated, please consider increasing the `connection_limit`. Current limit: `{}`, connections in use: `{}`.",
+                                        max_open,
+                                        in_use,
+                                    );
+
+                                    return Err(Error::builder(ErrorKind::Timeout(message)).build());
+                                }
+                                // The server is just not responding.
+                                (max_open, in_use) => {
+                                    let message = format!(
+                                        "Fetching a connection from the pool timed out. Creating a new connection timed out. Current limit: `{}`, connections in use: `{}`.",
+                                        max_open,
+                                        in_use,
+                                    );
+
+                                    return Err(Error::builder(ErrorKind::Timeout(message)).build());
+                                }
+                            }
+                        }
+                        mobc::Error::Inner(e) => return Err(e),
+                        e @ mobc::Error::BadConn => {
+                            let error = Error::builder(ErrorKind::ConnectionError(Box::new(e))).build();
+                            return Err(error);
+                        }
+                    },
+                }
+            }
             None => self.inner.get().await?,
         };
 
