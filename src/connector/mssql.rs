@@ -73,6 +73,7 @@ pub(crate) struct MssqlQueryParams {
     connection_limit: Option<usize>,
     socket_timeout: Option<Duration>,
     connect_timeout: Option<Duration>,
+    pool_timeout: Option<Duration>,
     transaction_isolation_level: Option<IsolationLevel>,
 }
 
@@ -146,6 +147,11 @@ impl MssqlUrl {
         self.query_params.connect_timeout()
     }
 
+    /// A pool check_out timeout.
+    pub fn pool_timeout(&self) -> Option<Duration> {
+        self.query_params.pool_timeout()
+    }
+
     /// The isolation level of a transaction.
     pub fn transaction_isolation_level(&self) -> Option<IsolationLevel> {
         self.query_params.transaction_isolation_level
@@ -214,6 +220,10 @@ impl MssqlQueryParams {
     fn connection_limit(&self) -> Option<usize> {
         self.connection_limit
     }
+
+    fn pool_timeout(&self) -> Option<Duration> {
+        self.pool_timeout
+    }
 }
 
 /// A connector interface for the SQL Server database.
@@ -231,7 +241,7 @@ impl Mssql {
         let config = Config::from_jdbc_string(&url.connection_string)?;
 
         let tcp = TcpStream::connect_named(&config).await?;
-        let client = Client::connect(config, tcp.compat_write()).await?;
+        let client = super::connect_timeout(url.connect_timeout(), Client::connect(config, tcp.compat_write())).await?;
         let socket_timeout = url.socket_timeout();
 
         let this = Self {
@@ -402,6 +412,11 @@ impl MssqlUrl {
             .map(|param| param.parse().map(Duration::from_secs))
             .transpose()?;
 
+        let pool_timeout = props
+            .remove("pooltimeout")
+            .map(|param| param.parse().map(Duration::from_secs))
+            .transpose()?;
+
         let socket_timeout = props
             .remove("sockettimeout")
             .map(|param| param.parse().map(Duration::from_secs))
@@ -431,6 +446,7 @@ impl MssqlUrl {
             connection_limit,
             socket_timeout,
             connect_timeout,
+            pool_timeout,
             transaction_isolation_level,
         })
     }

@@ -25,7 +25,6 @@ pub struct Mysql {
     pub(crate) conn: Mutex<my::Conn>,
     pub(crate) url: MysqlUrl,
     socket_timeout: Option<Duration>,
-    connect_timeout: Option<Duration>,
 }
 
 /// Wraps a connection url and exposes the parsing logic used by quaint, including default values.
@@ -105,6 +104,11 @@ impl MysqlUrl {
         self.query_params.connect_timeout
     }
 
+    /// The pool check_out timeout
+    pub fn pool_timeout(&self) -> Option<Duration> {
+        self.query_params.pool_timeout
+    }
+
     fn parse_query_params(url: &Url) -> Result<MysqlUrlQueryParams, Error> {
         let mut connection_limit = None;
         let mut ssl_opts = my::SslOpts::default();
@@ -112,6 +116,7 @@ impl MysqlUrl {
         let mut socket = None;
         let mut socket_timeout = None;
         let mut connect_timeout = None;
+        let mut pool_timeout = None;
 
         for (k, v) in url.query_pairs() {
             match k.as_ref() {
@@ -149,6 +154,12 @@ impl MysqlUrl {
                         .map_err(|_| Error::builder(ErrorKind::InvalidConnectionArguments).build())?;
                     connect_timeout = Some(Duration::from_secs(as_int));
                 }
+                "pool_timeout" => {
+                    let as_int = v
+                        .parse()
+                        .map_err(|_| Error::builder(ErrorKind::InvalidConnectionArguments).build())?;
+                    pool_timeout = Some(Duration::from_secs(as_int));
+                }
                 "sslaccept" => {
                     match v.as_ref() {
                         "strict" => {}
@@ -182,6 +193,7 @@ impl MysqlUrl {
             socket,
             connect_timeout,
             socket_timeout,
+            pool_timeout,
         })
     }
 
@@ -224,15 +236,17 @@ pub(crate) struct MysqlUrlQueryParams {
     socket: Option<String>,
     socket_timeout: Option<Duration>,
     connect_timeout: Option<Duration>,
+    pool_timeout: Option<Duration>,
 }
 
 impl Mysql {
     /// Create a new MySQL connection using `OptsBuilder` from the `mysql` crate.
     pub async fn new(url: MysqlUrl) -> crate::Result<Self> {
+        let conn = super::connect_timeout(url.connect_timeout(), my::Conn::new(url.to_opts_builder())).await?;
+
         Ok(Self {
             socket_timeout: url.query_params.socket_timeout,
-            connect_timeout: url.query_params.connect_timeout,
-            conn: Mutex::new(my::Conn::new(url.to_opts_builder()).await?),
+            conn: Mutex::new(conn),
             url,
         })
     }

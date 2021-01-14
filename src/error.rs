@@ -179,6 +179,10 @@ impl ErrorKind {
     pub(crate) fn database_url_is_invalid(msg: impl Into<String>) -> Self {
         Self::DatabaseUrlIsInvalid(msg.into())
     }
+
+    pub fn connect_timeout(msg: impl Into<String>) -> Self {
+        Self::ConnectTimeout(msg.into())
+    }
 }
 
 impl From<Error> for ErrorKind {

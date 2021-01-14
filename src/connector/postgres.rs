@@ -227,6 +227,10 @@ impl PostgresUrl {
         self.query_params.connect_timeout
     }
 
+    pub fn pool_timeout(&self) -> Option<Duration> {
+        self.query_params.pool_timeout
+    }
+
     pub(crate) fn cache(&self) -> LruCache<String, Statement> {
         if self.query_params.pg_bouncer {
             LruCache::new(0)
@@ -246,6 +250,7 @@ impl PostgresUrl {
         let mut host = None;
         let mut socket_timeout = None;
         let mut connect_timeout = None;
+        let mut pool_timeout = None;
         let mut pg_bouncer = false;
         let mut statement_cache_size = 500;
 
@@ -328,6 +333,12 @@ impl PostgresUrl {
                         .map_err(|_| Error::builder(ErrorKind::InvalidConnectionArguments).build())?;
                     connect_timeout = Some(Duration::from_secs(as_int));
                 }
+                "pool_timeout" => {
+                    let as_int = v
+                        .parse()
+                        .map_err(|_| Error::builder(ErrorKind::InvalidConnectionArguments).build())?;
+                    pool_timeout = Some(Duration::from_secs(as_int));
+                }
                 _ => {
                     #[cfg(not(feature = "tracing-log"))]
                     trace!("Discarding connection string param: {}", k);
@@ -349,6 +360,7 @@ impl PostgresUrl {
             ssl_mode,
             host,
             connect_timeout,
+            pool_timeout,
             socket_timeout,
             pg_bouncer,
             statement_cache_size,
@@ -394,6 +406,7 @@ pub(crate) struct PostgresUrlQueryParams {
     host: Option<String>,
     socket_timeout: Option<Duration>,
     connect_timeout: Option<Duration>,
+    pool_timeout: Option<Duration>,
     statement_cache_size: usize,
 }
 
@@ -420,7 +433,7 @@ impl PostgreSql {
         }
 
         let tls = MakeTlsConnector::new(tls_builder.build()?);
-        let (client, conn) = config.connect(tls).await?;
+        let (client, conn) = super::connect_timeout(url.connect_timeout(), config.connect(tls)).await?;
 
         tokio::spawn(conn.map(|r| match r {
             Ok(_) => (),
