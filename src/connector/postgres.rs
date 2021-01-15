@@ -225,8 +225,14 @@ impl PostgresUrl {
         self.query_params.connect_timeout
     }
 
+    /// Pool check_out timeout
     pub fn pool_timeout(&self) -> Option<Duration> {
         self.query_params.pool_timeout
+    }
+
+    /// The socket timeout
+    pub fn socket_timeout(&self) -> Option<Duration> {
+        self.query_params.socket_timeout
     }
 
     pub(crate) fn cache(&self) -> LruCache<String, Statement> {

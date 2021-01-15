@@ -187,6 +187,7 @@ impl ErrorKind {
         Self::DatabaseUrlIsInvalid(msg.into())
     }
 
+    #[cfg(feature = "pooled")]
     pub(crate) fn pool_timeout(max_open: u64, in_use: u64) -> Self {
         Self::PoolTimeout { max_open, in_use }
     }
