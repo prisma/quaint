@@ -434,14 +434,7 @@ impl Quaint {
                     Ok(conn) => conn,
                     Err(mobc::Error::Timeout) => {
                         let state = self.inner.state().await;
-
-                        let message = format!(
-                            "Fetching a connection from the pool timed out. The pool was fully saturated, please consider increasing the `connection_limit`. Current limit: {}, connections in use: {}.",
-                            state.max_open,
-                            state.in_use,
-                        );
-
-                        return Err(Error::builder(ErrorKind::Timeout(message)).build());
+                        return Err(Error::builder(ErrorKind::pool_timeout(state.max_open, state.in_use)).build());
                     }
                     Err(mobc::Error::Inner(e)) => return Err(e),
                     Err(e @ mobc::Error::BadConn) => {

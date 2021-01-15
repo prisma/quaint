@@ -150,6 +150,13 @@ pub enum ErrorKind {
     #[error("Connect timed out ({0})")]
     ConnectTimeout(String),
 
+    #[error(
+        "Timed out fetching a connection from the pool (connection limit: {}, in use: {})",
+        max_open,
+        in_use
+    )]
+    PoolTimeout { max_open: u64, in_use: u64 },
+
     #[error("Operation timed out ({0})")]
     Timeout(String),
 
@@ -180,8 +187,12 @@ impl ErrorKind {
         Self::DatabaseUrlIsInvalid(msg.into())
     }
 
-    pub fn connect_timeout(msg: impl Into<String>) -> Self {
+    pub(crate) fn connect_timeout(msg: impl Into<String>) -> Self {
         Self::ConnectTimeout(msg.into())
+    }
+
+    pub(crate) fn pool_timeout(max_open: u64, in_use: u64) -> Self {
+        Self::PoolTimeout { max_open, in_use }
     }
 }
 
