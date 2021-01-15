@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/error.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>error.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings"></script><script src="../../storage.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../favicon-16x16.png">
-<link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../../quaint/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><span class="help-button">?</span>
+<link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../../quaint/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
@@ -270,29 +270,6 @@
 <span id="267">267</span>
 <span id="268">268</span>
 <span id="269">269</span>
-<span id="270">270</span>
-<span id="271">271</span>
-<span id="272">272</span>
-<span id="273">273</span>
-<span id="274">274</span>
-<span id="275">275</span>
-<span id="276">276</span>
-<span id="277">277</span>
-<span id="278">278</span>
-<span id="279">279</span>
-<span id="280">280</span>
-<span id="281">281</span>
-<span id="282">282</span>
-<span id="283">283</span>
-<span id="284">284</span>
-<span id="285">285</span>
-<span id="286">286</span>
-<span id="287">287</span>
-<span id="288">288</span>
-<span id="289">289</span>
-<span id="290">290</span>
-<span id="291">291</span>
-<span id="292">292</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Error module</span>
 <span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">borrow</span>::<span class="ident">Cow</span>, <span class="ident">fmt</span>, <span class="ident">io</span>, <span class="ident">num</span>};
@@ -384,7 +361,7 @@
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Error</span>)]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">ErrorKind</span> {
     <span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;Error querying the database: {}&quot;</span>, <span class="ident">_0</span>)]</span>
-    <span class="ident">QueryError</span>(<span class="ident">Box</span><span class="op">&lt;</span><span class="ident">dyn</span> <span class="ident">std</span>::<span class="ident">error</span>::<span class="ident">Error</span> <span class="op">+</span> <span class="ident">Send</span> <span class="op">+</span> <span class="ident">Sync</span> <span class="op">+</span> <span class="lifetime">&#39;static</span><span class="op">&gt;</span>),
+    <span class="ident">QueryError</span>(<span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">std</span>::<span class="ident">error</span>::<span class="ident">Error</span> <span class="op">+</span> <span class="ident">Send</span> <span class="op">+</span> <span class="ident">Sync</span> <span class="op">+</span> <span class="lifetime">&#39;static</span><span class="op">&gt;</span>),
 
     <span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;Database &#39;{}&#39; does not exist.&quot;</span>, <span class="ident">db_name</span>)]</span>
     <span class="ident">DatabaseDoesNotExist</span> { <span class="ident">db_name</span>: <span class="ident">String</span> },
@@ -414,10 +391,10 @@
     <span class="ident">ForeignKeyConstraintViolation</span> { <span class="ident">constraint</span>: <span class="ident">DatabaseConstraint</span> },
 
     <span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;Error creating a database connection.&quot;</span>)]</span>
-    <span class="ident">ConnectionError</span>(<span class="ident">Box</span><span class="op">&lt;</span><span class="ident">dyn</span> <span class="ident">std</span>::<span class="ident">error</span>::<span class="ident">Error</span> <span class="op">+</span> <span class="ident">Send</span> <span class="op">+</span> <span class="ident">Sync</span> <span class="op">+</span> <span class="lifetime">&#39;static</span><span class="op">&gt;</span>),
+    <span class="ident">ConnectionError</span>(<span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">std</span>::<span class="ident">error</span>::<span class="ident">Error</span> <span class="op">+</span> <span class="ident">Send</span> <span class="op">+</span> <span class="ident">Sync</span> <span class="op">+</span> <span class="lifetime">&#39;static</span><span class="op">&gt;</span>),
 
     <span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;Error reading the column value: {}&quot;</span>, <span class="ident">_0</span>)]</span>
-    <span class="ident">ColumnReadFailure</span>(<span class="ident">Box</span><span class="op">&lt;</span><span class="ident">dyn</span> <span class="ident">std</span>::<span class="ident">error</span>::<span class="ident">Error</span> <span class="op">+</span> <span class="ident">Send</span> <span class="op">+</span> <span class="ident">Sync</span> <span class="op">+</span> <span class="lifetime">&#39;static</span><span class="op">&gt;</span>),
+    <span class="ident">ColumnReadFailure</span>(<span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">std</span>::<span class="ident">error</span>::<span class="ident">Error</span> <span class="op">+</span> <span class="ident">Send</span> <span class="op">+</span> <span class="ident">Sync</span> <span class="op">+</span> <span class="lifetime">&#39;static</span><span class="op">&gt;</span>),
 
     <span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;Error accessing result set, index out of bounds: {}&quot;</span>, <span class="ident">_0</span>)]</span>
     <span class="ident">ResultIndexOutOfBounds</span>(<span class="ident">usize</span>),
@@ -443,11 +420,18 @@
     <span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;Error in an I/O operation: {0}&quot;</span>)]</span>
     <span class="ident">IoError</span>(<span class="ident">io</span>::<span class="ident">Error</span>),
 
-    <span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;Connect timed out ({0})&quot;</span>)]</span>
-    <span class="ident">ConnectTimeout</span>(<span class="ident">String</span>),
+    <span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;Timed out when connecting to the database.&quot;</span>)]</span>
+    <span class="ident">ConnectTimeout</span>,
 
-    <span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;Operation timed out ({0})&quot;</span>)]</span>
-    <span class="ident">Timeout</span>(<span class="ident">String</span>),
+    <span class="attribute">#[<span class="ident">error</span>(
+        <span class="string">&quot;Timed out fetching a connection from the pool (connection limit: {}, in use: {})&quot;</span>,
+        <span class="ident">max_open</span>,
+        <span class="ident">in_use</span>
+    )]</span>
+    <span class="ident">PoolTimeout</span> { <span class="ident">max_open</span>: <span class="ident">u64</span>, <span class="ident">in_use</span>: <span class="ident">u64</span> },
+
+    <span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;Timed out during query execution.&quot;</span>)]</span>
+    <span class="ident">SocketTimeout</span>,
 
     <span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;Error opening a TLS connection. {}&quot;</span>, <span class="ident">message</span>)]</span>
     <span class="ident">TlsError</span> { <span class="ident">message</span>: <span class="ident">String</span> },
@@ -474,6 +458,11 @@
     <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">dead_code</span>)]</span>
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">database_url_is_invalid</span>(<span class="ident">msg</span>: <span class="kw">impl</span> <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="self">Self</span>::<span class="ident">DatabaseUrlIsInvalid</span>(<span class="ident">msg</span>.<span class="ident">into</span>())
+    }
+
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;pooled&quot;</span>)]</span>
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">pool_timeout</span>(<span class="ident">max_open</span>: <span class="ident">u64</span>, <span class="ident">in_use</span>: <span class="ident">u64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+        <span class="self">Self</span>::<span class="ident">PoolTimeout</span> { <span class="ident">max_open</span>, <span class="ident">in_use</span> }
     }
 }
 
@@ -518,41 +507,6 @@
 <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">connection_string</span>::<span class="ident">Error</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Error</span> {
     <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">err</span>: <span class="ident">connection_string</span>::<span class="ident">Error</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Error</span> {
         <span class="self">Self</span>::<span class="ident">builder</span>(<span class="ident">ErrorKind</span>::<span class="ident">DatabaseUrlIsInvalid</span>(<span class="ident">err</span>.<span class="ident">to_string</span>())).<span class="ident">build</span>()
-    }
-}
-
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;pooled&quot;</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;docs&quot;</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;pooled&quot;</span>)))]</span>
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">mobc</span>::<span class="ident">Error</span><span class="op">&lt;</span><span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Error</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">e</span>: <span class="ident">mobc</span>::<span class="ident">Error</span><span class="op">&lt;</span><span class="ident">Error</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-        <span class="kw">match</span> <span class="ident">e</span> {
-            <span class="ident">mobc</span>::<span class="ident">Error</span>::<span class="ident">Inner</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">e</span>,
-            <span class="ident">mobc</span>::<span class="ident">Error</span>::<span class="ident">Timeout</span> <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="kw">let</span> <span class="ident">kind</span> <span class="op">=</span> <span class="ident">ErrorKind</span>::<span class="ident">Timeout</span>(<span class="string">&quot;mobc timeout&quot;</span>.<span class="ident">into</span>());
-
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">builder</span> <span class="op">=</span> <span class="ident">Error</span>::<span class="ident">builder</span>(<span class="ident">kind</span>);
-                <span class="ident">builder</span>.<span class="ident">set_original_message</span>(<span class="string">&quot;Connection timed out.&quot;</span>);
-
-                <span class="ident">builder</span>.<span class="ident">build</span>()
-            }
-            <span class="ident">e</span> @ <span class="ident">mobc</span>::<span class="ident">Error</span>::<span class="ident">BadConn</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Error</span>::<span class="ident">builder</span>(<span class="ident">ErrorKind</span>::<span class="ident">ConnectionError</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">e</span>))).<span class="ident">build</span>(),
-        }
-    }
-}
-
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;postgresql&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mysql&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mssql&quot;</span>))]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(
-    <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;docs&quot;</span>,
-    <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;postgresql&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mysql&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mssql&quot;</span>))
-)]</span>
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">tokio</span>::<span class="ident">time</span>::<span class="ident">Elapsed</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Error</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="kw">_</span>: <span class="ident">tokio</span>::<span class="ident">time</span>::<span class="ident">Elapsed</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-        <span class="kw">let</span> <span class="ident">kind</span> <span class="op">=</span> <span class="ident">ErrorKind</span>::<span class="ident">Timeout</span>(<span class="string">&quot;tokio timeout&quot;</span>.<span class="ident">into</span>());
-
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">builder</span> <span class="op">=</span> <span class="ident">Error</span>::<span class="ident">builder</span>(<span class="ident">kind</span>);
-        <span class="ident">builder</span>.<span class="ident">set_original_message</span>(<span class="string">&quot;Query timed out.&quot;</span>);
-
-        <span class="ident">builder</span>.<span class="ident">build</span>()
     }
 }
 
