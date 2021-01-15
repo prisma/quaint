@@ -426,24 +426,22 @@ impl Quaint {
 
     /// Reserve a connection from the pool.
     pub async fn check_out(&self) -> crate::Result<PooledConnection> {
-        let inner = match self.pool_timeout {
-            Some(duration) => {
-                let res = crate::connector::metrics::check_out(self.inner.get_timeout(duration)).await;
+        let res = match self.pool_timeout {
+            Some(duration) => crate::connector::metrics::check_out(self.inner.get_timeout(duration)).await,
+            None => crate::connector::metrics::check_out(self.inner.get()).await,
+        };
 
-                match res {
-                    Ok(conn) => conn,
-                    Err(mobc::Error::Timeout) => {
-                        let state = self.inner.state().await;
-                        return Err(Error::builder(ErrorKind::pool_timeout(state.max_open, state.in_use)).build());
-                    }
-                    Err(mobc::Error::Inner(e)) => return Err(e),
-                    Err(e @ mobc::Error::BadConn) => {
-                        let error = Error::builder(ErrorKind::ConnectionError(Box::new(e))).build();
-                        return Err(error);
-                    }
-                }
+        let inner = match res {
+            Ok(conn) => conn,
+            Err(mobc::Error::Timeout) => {
+                let state = self.inner.state().await;
+                return Err(Error::builder(ErrorKind::pool_timeout(state.max_open, state.in_use)).build());
             }
-            None => self.inner.get().await?,
+            Err(mobc::Error::Inner(e)) => return Err(e),
+            Err(e @ mobc::Error::BadConn) => {
+                let error = Error::builder(ErrorKind::ConnectionError(Box::new(e))).build();
+                return Err(error);
+            }
         };
 
         Ok(PooledConnection { inner })

@@ -7,8 +7,8 @@ use mysql_async::{
     prelude::{Query as _, Queryable as _},
 };
 use percent_encoding::percent_decode;
-use std::{borrow::Cow, future::Future, path::Path, time::Duration};
-use tokio::{sync::Mutex, time::timeout};
+use std::{borrow::Cow, path::Path, time::Duration};
+use tokio::sync::Mutex;
 use url::Url;
 
 use crate::{
@@ -250,31 +250,13 @@ pub(crate) struct MysqlUrlQueryParams {
 impl Mysql {
     /// Create a new MySQL connection using `OptsBuilder` from the `mysql` crate.
     pub async fn new(url: MysqlUrl) -> crate::Result<Self> {
-        let conn = super::connect_timeout(url.connect_timeout(), my::Conn::new(url.to_opts_builder())).await?;
+        let conn = super::timeout::connect(url.connect_timeout(), my::Conn::new(url.to_opts_builder())).await?;
 
         Ok(Self {
             socket_timeout: url.query_params.socket_timeout,
             conn: Mutex::new(conn),
             url,
         })
-    }
-
-    async fn timeout<T, F, E>(&self, f: F) -> crate::Result<T>
-    where
-        F: Future<Output = std::result::Result<T, E>>,
-        E: Into<Error>,
-    {
-        match self.socket_timeout {
-            Some(duration) => match timeout(duration, f).await {
-                Ok(Ok(result)) => Ok(result),
-                Ok(Err(err)) => Err(err.into()),
-                Err(to) => Err(to.into()),
-            },
-            None => match f.await {
-                Ok(result) => Ok(result),
-                Err(err) => Err(err.into()),
-            },
-        }
     }
 }
 
@@ -295,8 +277,10 @@ impl Queryable for Mysql {
     async fn query_raw(&self, sql: &str, params: &[Value<'_>]) -> crate::Result<ResultSet> {
         metrics::query("mysql.query_raw", sql, params, move || async move {
             let mut conn = self.conn.lock().await;
-            let stmt = self.timeout(conn.prep(sql)).await?;
-            let rows: Vec<my::Row> = self.timeout(conn.exec(&stmt, conversion::conv_params(params)?)).await?;
+            let stmt = super::timeout::socket(self.socket_timeout, conn.prep(sql)).await?;
+
+            let rows: Vec<my::Row> =
+                super::timeout::socket(self.socket_timeout, conn.exec(&stmt, conversion::conv_params(params)?)).await?;
 
             let columns = stmt.columns().iter().map(|s| s.name_str().into_owned()).collect();
 
@@ -319,8 +303,13 @@ impl Queryable for Mysql {
     async fn execute_raw(&self, sql: &str, params: &[Value<'_>]) -> crate::Result<u64> {
         metrics::query("mysql.execute_raw", sql, params, move || async move {
             let mut conn = self.conn.lock().await;
-            self.timeout(conn.exec_drop(sql, conversion::conv_params(params)?))
-                .await?;
+
+            super::timeout::socket(
+                self.socket_timeout,
+                conn.exec_drop(sql, conversion::conv_params(params)?),
+            )
+            .await?;
+
             Ok(conn.affected_rows())
         })
         .await
@@ -345,7 +334,7 @@ impl Queryable for Mysql {
                 crate::Result::<()>::Ok(())
             };
 
-            self.timeout(fut).await?;
+            super::timeout::socket(self.socket_timeout, fut).await?;
 
             Ok(())
         })
@@ -354,7 +343,7 @@ impl Queryable for Mysql {
 
     async fn version(&self) -> crate::Result<Option<String>> {
         let query = r#"SELECT @@GLOBAL.version version"#;
-        let rows = self.query_raw(query, &[]).await?;
+        let rows = super::timeout::socket(self.socket_timeout, self.query_raw(query, &[])).await?;
 
         let version_string = rows
             .get(0)

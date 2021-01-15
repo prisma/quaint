@@ -16,10 +16,8 @@ use postgres_native_tls::MakeTlsConnector;
 use std::{
     borrow::{Borrow, Cow},
     fs,
-    future::Future,
     time::Duration,
 };
-use tokio::time::timeout;
 use tokio_postgres::{config::SslMode, Client, Config, Statement};
 use url::Url;
 
@@ -443,7 +441,7 @@ impl PostgreSql {
         }
 
         let tls = MakeTlsConnector::new(tls_builder.build()?);
-        let (client, conn) = super::connect_timeout(url.connect_timeout(), config.connect(tls)).await?;
+        let (client, conn) = super::timeout::connect(url.connect_timeout(), config.connect(tls)).await?;
 
         tokio::spawn(conn.map(|r| match r {
             Ok(_) => (),
@@ -481,24 +479,6 @@ impl PostgreSql {
             pg_bouncer: url.query_params.pg_bouncer,
             statement_cache: Mutex::new(url.cache()),
         })
-    }
-
-    async fn timeout<T, F, E>(&self, f: F) -> crate::Result<T>
-    where
-        F: Future<Output = std::result::Result<T, E>>,
-        E: Into<Error>,
-    {
-        match self.socket_timeout {
-            Some(duration) => match timeout(duration, f).await {
-                Ok(Ok(result)) => Ok(result),
-                Ok(Err(err)) => Err(err.into()),
-                Err(to) => Err(to.into()),
-            },
-            None => match f.await {
-                Ok(result) => Ok(result),
-                Err(err) => Err(err.into()),
-            },
-        }
     }
 
     async fn fetch_cached(&self, sql: &str) -> crate::Result<Statement> {
@@ -549,7 +529,7 @@ impl PostgreSql {
                     );
                 }
 
-                let stmt = self.timeout(self.client.0.prepare(sql)).await?;
+                let stmt = super::timeout::socket(self.socket_timeout, self.client.0.prepare(sql)).await?;
                 cache.insert(sql.to_string(), stmt.clone());
                 Ok(stmt)
             }
@@ -575,9 +555,11 @@ impl Queryable for PostgreSql {
         metrics::query("postgres.query_raw", sql, params, move || async move {
             let stmt = self.fetch_cached(sql).await?;
 
-            let rows = self
-                .timeout(self.client.0.query(&stmt, conversion::conv_params(params).as_slice()))
-                .await?;
+            let rows = super::timeout::socket(
+                self.socket_timeout,
+                self.client.0.query(&stmt, conversion::conv_params(params).as_slice()),
+            )
+            .await?;
 
             let mut result = ResultSet::new(stmt.to_column_names(), Vec::new());
 
@@ -594,9 +576,11 @@ impl Queryable for PostgreSql {
         metrics::query("postgres.execute_raw", sql, params, move || async move {
             let stmt = self.fetch_cached(sql).await?;
 
-            let changes = self
-                .timeout(self.client.0.execute(&stmt, conversion::conv_params(params).as_slice()))
-                .await?;
+            let changes = super::timeout::socket(
+                self.socket_timeout,
+                self.client.0.execute(&stmt, conversion::conv_params(params).as_slice()),
+            )
+            .await?;
 
             Ok(changes)
         })
@@ -605,7 +589,7 @@ impl Queryable for PostgreSql {
 
     async fn raw_cmd(&self, cmd: &str) -> crate::Result<()> {
         metrics::query("postgres.raw_cmd", cmd, &[], move || async move {
-            self.timeout(self.client.0.simple_query(cmd)).await?;
+            super::timeout::socket(self.socket_timeout, self.client.0.simple_query(cmd)).await?;
 
             Ok(())
         })
