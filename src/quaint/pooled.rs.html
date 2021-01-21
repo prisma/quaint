@@ -455,6 +455,7 @@
 <span id="452">452</span>
 <span id="453">453</span>
 <span id="454">454</span>
+<span id="455">455</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! # A connection pool to a SQL database.</span>
 <span class="doccomment">//!</span>
@@ -759,6 +760,7 @@
             .<span class="ident">max_open</span>(<span class="self">self</span>.<span class="ident">connection_limit</span> <span class="kw">as</span> <span class="ident">u64</span>)
             .<span class="ident">max_idle</span>(<span class="self">self</span>.<span class="ident">max_idle</span>.<span class="ident">unwrap_or</span>(<span class="self">self</span>.<span class="ident">connection_limit</span> <span class="kw">as</span> <span class="ident">u64</span>))
             .<span class="ident">max_idle_lifetime</span>(<span class="self">self</span>.<span class="ident">max_idle_lifetime</span>)
+            .<span class="ident">get_timeout</span>(<span class="prelude-val">None</span>) <span class="comment">// we handle timeouts here</span>
             .<span class="ident">health_check_interval</span>(<span class="self">self</span>.<span class="ident">health_check_interval</span>)
             .<span class="ident">test_on_check_out</span>(<span class="self">self</span>.<span class="ident">test_on_check_out</span>)
             .<span class="ident">build</span>(<span class="self">self</span>.<span class="ident">manager</span>);
