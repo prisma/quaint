@@ -492,7 +492,7 @@
 <span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">convert</span>::<span class="ident">TryFrom</span>, <span class="ident">fmt</span>, <span class="ident">str</span>::<span class="ident">FromStr</span>, <span class="ident">time</span>::<span class="ident">Duration</span>};
 <span class="kw">use</span> <span class="ident">tiberius</span>::<span class="kw-2">*</span>;
 <span class="kw">use</span> <span class="ident">tokio</span>::<span class="ident">net</span>::<span class="ident">TcpStream</span>;
-<span class="kw">use</span> <span class="ident">tokio_util</span>::<span class="ident">compat</span>::{<span class="ident">Compat</span>, <span class="ident">Tokio02AsyncWriteCompatExt</span>};
+<span class="kw">use</span> <span class="ident">tokio_util</span>::<span class="ident">compat</span>::{<span class="ident">Compat</span>, <span class="ident">TokioAsyncWriteCompatExt</span>};
 
 <span class="doccomment">/// Wraps a connection url and exposes the parsing logic used by Quaint,</span>
 <span class="doccomment">/// including default values.</span>
