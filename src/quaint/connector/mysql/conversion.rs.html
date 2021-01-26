@@ -345,6 +345,8 @@
 <span id="342">342</span>
 <span id="343">343</span>
 <span id="344">344</span>
+<span id="345">345</span>
+<span id="346">346</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">ast</span>::<span class="ident">Value</span>,
@@ -523,8 +525,7 @@
     }
 
     <span class="kw">fn</span> <span class="ident">is_bool</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-        (<span class="self">self</span>.<span class="ident">column_type</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">ColumnType</span>::<span class="ident">MYSQL_TYPE_TINY</span> <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">column_length</span>() <span class="op">=</span><span class="op">=</span> <span class="number">1</span>)
-            <span class="op">|</span><span class="op">|</span> (<span class="self">self</span>.<span class="ident">column_type</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">ColumnType</span>::<span class="ident">MYSQL_TYPE_BIT</span> <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">column_length</span>() <span class="op">=</span><span class="op">=</span> <span class="number">1</span>)
+        <span class="self">self</span>.<span class="ident">column_type</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">ColumnType</span>::<span class="ident">MYSQL_TYPE_BIT</span> <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">column_length</span>() <span class="op">=</span><span class="op">=</span> <span class="number">1</span>
     }
 
     <span class="kw">fn</span> <span class="ident">is_json</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
@@ -591,10 +592,13 @@
 
                     <span class="ident">Value</span>::<span class="ident">numeric</span>(<span class="ident">dec</span>)
                 }
+                <span class="ident">my</span>::<span class="ident">Value</span>::<span class="ident">Bytes</span>(<span class="ident">b</span>) <span class="kw">if</span> <span class="ident">column</span>.<span class="ident">is_bool</span>() <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">b</span>.<span class="ident">as_slice</span>() {
+                    [<span class="number">0</span>] <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Value</span>::<span class="ident">boolean</span>(<span class="bool-val">false</span>),
+                    <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Value</span>::<span class="ident">boolean</span>(<span class="bool-val">true</span>),
+                },
                 <span class="comment">// https://dev.mysql.com/doc/internals/en/character-set.html</span>
                 <span class="ident">my</span>::<span class="ident">Value</span>::<span class="ident">Bytes</span>(<span class="ident">b</span>) <span class="kw">if</span> <span class="ident">column</span>.<span class="ident">character_set</span>() <span class="op">=</span><span class="op">=</span> <span class="number">63</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Value</span>::<span class="ident">bytes</span>(<span class="ident">b</span>),
                 <span class="ident">my</span>::<span class="ident">Value</span>::<span class="ident">Bytes</span>(<span class="ident">s</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Value</span>::<span class="ident">text</span>(<span class="ident">String</span>::<span class="ident">from_utf8</span>(<span class="ident">s</span>)<span class="question-mark">?</span>),
-                <span class="ident">my</span>::<span class="ident">Value</span>::<span class="ident">Int</span>(<span class="ident">i</span>) <span class="kw">if</span> <span class="ident">column</span>.<span class="ident">is_bool</span>() <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Value</span>::<span class="ident">boolean</span>(<span class="ident">i</span> <span class="op">=</span><span class="op">=</span> <span class="number">1</span>),
                 <span class="ident">my</span>::<span class="ident">Value</span>::<span class="ident">Int</span>(<span class="ident">i</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Value</span>::<span class="ident">integer</span>(<span class="ident">i</span>),
                 <span class="ident">my</span>::<span class="ident">Value</span>::<span class="ident">UInt</span>(<span class="ident">i</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Value</span>::<span class="ident">integer</span>(<span class="ident">i64</span>::<span class="ident">try_from</span>(<span class="ident">i</span>).<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> {
                     <span class="kw">let</span> <span class="ident">msg</span> <span class="op">=</span> <span class="string">&quot;Unsigned integers larger than 9_223_372_036_854_775_807 are currently not handled.&quot;</span>;
