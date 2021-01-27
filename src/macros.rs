@@ -161,7 +161,7 @@ macro_rules! expression {
 /// A test-generator to test types in the defined database.
 #[cfg(test)]
 macro_rules! test_type {
-    ($name:ident($db:ident, $sql_type:literal, $(($input:expr, $output:expr)),+ $(,)?)) => {
+    ($name:ident($db:ident, $sql_type:literal, $(($input:expr, $output:expr$(,)?)),+ $(,)?)) => {
         paste::item! {
             #[test]
             fn [< test_type_ $name >] () -> crate::Result<()> {

@@ -123,16 +123,46 @@ test_type!(double_decimal(
 test_type!(bit1(
     mysql,
     "bit(1)",
-    (Value::Bytes(None), Value::Boolean(None)),
+    (Value::Text(None), Value::Boolean(None)),
     (Value::integer(0), Value::boolean(false)),
     (Value::integer(1), Value::boolean(true)),
+    (Value::text("1"), Value::boolean(true)),
 ));
 
 test_type!(bit64(
     mysql,
     "bit(64)",
-    Value::Bytes(None),
-    Value::bytes(vec![0, 0, 0, 0, 0, 6, 107, 58])
+    (Value::Text(None), Value::Text(None)),
+    (
+        Value::text("011001"),
+        Value::text("0000000000000000000000000000000000000000000000000000000000011001"),
+    ),
+    (
+        Value::text("0000000000000000000000000000000000000000000000000000000000011001"),
+        Value::text("0000000000000000000000000000000000000000000000000000000000011001"),
+    )
+));
+
+test_type!(bit37(
+    mysql,
+    "bit(37)",
+    (Value::Text(None), Value::Text(None)),
+    (
+        Value::text("0000000000000000000000000000000000000001"),
+        Value::text("0000000000000000000000000000000000000001"),
+    ),
+    (
+        Value::text("1"),
+        Value::text("0000000000000000000000000000000000000001"),
+    ),
+    (
+        Value::text("0001000000000000000000000000000000011001"),
+        Value::text("0001000000000000000000000000000000011001"),
+    ),
+    (
+        Value::text("1000000000000000000000000000000011001"),
+        Value::text("0001000000000000000000000000000000011001"),
+    )
 ));
 
 test_type!(char(mysql, "char(255)", Value::Text(None), Value::text("foobar")));

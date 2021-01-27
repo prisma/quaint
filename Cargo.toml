@@ -54,7 +54,7 @@ postgresql = [
 
 json = ["serde_json", "base64"]
 mssql = ["tiberius", "uuid", "chrono", "tokio-util", "tokio/time", "tokio/net", "either"]
-mysql = ["mysql_async", "tokio/time"]
+mysql = ["mysql_async", "tokio/time", "bit-vec"]
 pooled = ["mobc"]
 serde-support = ["serde", "chrono/serde"]
 sqlite = ["rusqlite", "libsqlite3-sys", "tokio/sync"]

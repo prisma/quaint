@@ -3,6 +3,7 @@ use crate::{
     connector::{queryable::TakeRow, TypeIdentifier},
     error::{Error, ErrorKind},
 };
+use bit_vec::BitVec;
 #[cfg(feature = "chrono")]
 use chrono::{DateTime, Datelike, NaiveDate, NaiveDateTime, NaiveTime, Timelike, Utc};
 use mysql_async::{
@@ -11,7 +12,7 @@ use mysql_async::{
 };
 use std::convert::TryFrom;
 
-pub fn conv_params<'a>(params: &[Value<'a>]) -> crate::Result<my::Params> {
+pub fn conv_params<'a>(params: &[Value<'a>], columns: &[my::Column]) -> crate::Result<my::Params> {
     if params.is_empty() {
         // If we don't use explicit 'Empty',
         // mysql crashes with 'internal error: entered unreachable code'
@@ -19,11 +20,42 @@ pub fn conv_params<'a>(params: &[Value<'a>]) -> crate::Result<my::Params> {
     } else {
         let mut values = Vec::with_capacity(params.len());
 
-        for pv in params {
+        for (pv, column) in params.iter().zip(columns.iter()) {
+            dbg!(&column);
             let res = match pv {
                 Value::Integer(i) => i.map(my::Value::Int),
                 Value::Float(f) => f.map(my::Value::Float),
                 Value::Double(f) => f.map(my::Value::Double),
+
+                // // We convert strings of 0s and 1s in for Bit columns to a packed bits representation.
+                // Value::Text(Some(s)) if column.flags().contains(ColumnFlags::BINARY_FLAG) => {
+                //     // We trust the length of the input string matches the
+                //     // expected column length. That info is not in the prepared
+                //     // statement).
+                //     let bytes_len = if s.len() % 8 == 0 { s.len() / 8 } else { s.len() / 8 + 1 };
+
+                //     // Initialize an empty bitvec of the right size
+                //     let mut bits = BitVec::from_elem(bytes_len * 8, false);
+
+                //     // Set the bits one by one from the end
+                //     for (idx, char) in s.chars().rev().enumerate() {
+                //         match char {
+                //             '0' => (), // bits are already zeroed out
+                //             '1' => bits.set((bits.len() - 1) - idx, true),
+                //             other => {
+                //                 let err = Error::builder(ErrorKind::ConversionError(
+                //                     format!("Character not '0' or '1' for MySQL Bit value: '{}'", other).into(),
+                //                 ));
+
+                //                 let err = err.build();
+
+                //                 return Err(err);
+                //             }
+                //         }
+                //     }
+
+                //     Some(my::Value::Bytes(bits.to_bytes()))
+                // }
                 Value::Text(s) => s.clone().map(|s| my::Value::Bytes((&*s).as_bytes().to_vec())),
                 Value::Bytes(bytes) => bytes.clone().map(|bytes| my::Value::Bytes(bytes.into_owned())),
                 Value::Enum(s) => s.clone().map(|s| my::Value::Bytes((&*s).as_bytes().to_vec())),
@@ -161,17 +193,17 @@ impl TypeIdentifier for my::Column {
         is_defined_text || is_bytes_but_text
     }
 
+    fn is_bits(&self) -> bool {
+        self.column_type() == ColumnType::MYSQL_TYPE_BIT && self.column_length() > 1
+    }
+
     fn is_bytes(&self) -> bool {
         use ColumnType::*;
 
-        let is_a_blob = matches!(
+        matches!(
             self.column_type(),
             MYSQL_TYPE_TINY_BLOB | MYSQL_TYPE_MEDIUM_BLOB | MYSQL_TYPE_LONG_BLOB | MYSQL_TYPE_BLOB
-        ) && self.character_set() == 63;
-
-        let is_bits = self.column_type() == MYSQL_TYPE_BIT && self.column_length() > 1;
-
-        is_a_blob || is_bits
+        ) && self.character_set() == 63
     }
 
     fn is_bool(&self) -> bool {
@@ -246,6 +278,21 @@ impl TakeRow for my::Row {
                     [0] => Value::boolean(false),
                     _ => Value::boolean(true),
                 },
+                my::Value::NULL if column.is_bits() => Value::Text(None),
+                my::Value::Bytes(bytes) if column.is_bits() => {
+                    let bits = BitVec::from_bytes(&bytes);
+                    let mut s = String::with_capacity(bits.len());
+
+                    for bit in bits {
+                        if bit {
+                            s.push('1');
+                        } else {
+                            s.push('0');
+                        }
+                    }
+
+                    Value::text(s)
+                }
                 // https://dev.mysql.com/doc/internals/en/character-set.html
                 my::Value::Bytes(b) if column.character_set() == 63 => Value::bytes(b),
                 my::Value::Bytes(s) => Value::text(String::from_utf8(s)?),

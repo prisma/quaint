@@ -7,6 +7,10 @@ pub(crate) trait TypeIdentifier {
     fn is_time(&self) -> bool;
     fn is_date(&self) -> bool;
     fn is_text(&self) -> bool;
+    // Match a bit vector.
+    fn is_bits(&self) -> bool {
+        false
+    }
     fn is_bytes(&self) -> bool;
     fn is_bool(&self) -> bool;
     fn is_json(&self) -> bool;

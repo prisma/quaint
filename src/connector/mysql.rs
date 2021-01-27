@@ -284,8 +284,11 @@ impl Queryable for Mysql {
             let mut conn = self.conn.lock().await;
             let stmt = super::timeout::socket(self.socket_timeout, conn.prep(sql)).await?;
 
-            let rows: Vec<my::Row> =
-                super::timeout::socket(self.socket_timeout, conn.exec(&stmt, conversion::conv_params(params)?)).await?;
+            let rows: Vec<my::Row> = super::timeout::socket(
+                self.socket_timeout,
+                conn.exec(&stmt, conversion::conv_params(params, stmt.params())?),
+            )
+            .await?;
 
             let columns = stmt.columns().iter().map(|s| s.name_str().into_owned()).collect();
 
@@ -309,11 +312,16 @@ impl Queryable for Mysql {
         metrics::query("mysql.execute_raw", sql, params, move || async move {
             let mut conn = self.conn.lock().await;
 
-            super::timeout::socket(
-                self.socket_timeout,
-                conn.exec_drop(sql, conversion::conv_params(params)?),
-            )
-            .await?;
+            let fut = async {
+                let stmt = conn.prep(sql).await?;
+
+                crate::Result::Ok(
+                    conn.exec_drop(&stmt, conversion::conv_params(params, stmt.params())?)
+                        .await?,
+                )
+            };
+
+            super::timeout::socket(self.socket_timeout, fut).await?;
 
             Ok(conn.affected_rows())
         })
