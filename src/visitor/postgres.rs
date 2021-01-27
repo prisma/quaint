@@ -614,7 +614,7 @@ mod tests {
             .value("foo", "bar")
             .value("baz", default_value());
 
-        let (sql, params) = Postgres::build(insert).unwrap();
+        let (sql, _) = Postgres::build(insert).unwrap();
 
         assert_eq!("INSERT INTO \"foo\" (\"foo\",\"baz\") VALUES ($1,DEFAULT)", sql);
     }

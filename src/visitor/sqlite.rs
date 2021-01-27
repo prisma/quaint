@@ -778,7 +778,7 @@ mod tests {
             .value("foo", "bar")
             .value("baz", default_value());
 
-        let (sql, params) = Sqlite::build(insert).unwrap();
+        let (sql, _) = Sqlite::build(insert).unwrap();
 
         assert_eq!("INSERT INTO `foo` (`foo`, `baz`) VALUES (?,DEFAULT)", sql);
     }

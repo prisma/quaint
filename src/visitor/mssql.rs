@@ -1653,7 +1653,7 @@ mod tests {
             .value("foo", "bar")
             .value("baz", default_value());
 
-        let (sql, params) = Mssql::build(insert).unwrap();
+        let (sql, _) = Mssql::build(insert).unwrap();
 
         assert_eq!("INSERT INTO [foo] ([foo],[baz]) VALUES (@P1,DEFAULT)", sql);
     }
