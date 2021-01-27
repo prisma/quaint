@@ -402,6 +402,16 @@
 <span id="399">399</span>
 <span id="400">400</span>
 <span id="401">401</span>
+<span id="402">402</span>
+<span id="403">403</span>
+<span id="404">404</span>
+<span id="405">405</span>
+<span id="406">406</span>
+<span id="407">407</span>
+<span id="408">408</span>
+<span id="409">409</span>
+<span id="410">410</span>
+<span id="411">411</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">ast</span>::<span class="kw-2">*</span>;
 <span class="kw">use</span> <span class="ident">query</span>::<span class="ident">SelectQuery</span>;
@@ -583,6 +593,8 @@
     <span class="ident">Compare</span>(<span class="ident">Compare</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>),
     <span class="doccomment">/// A single value, column, row or a nested select</span>
     <span class="ident">Value</span>(<span class="ident">Box</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>),
+    <span class="doccomment">/// DEFAULT keyword, e.g. for `INSERT INTO ... VALUES (..., DEFAULT, ...)`</span>
+    <span class="ident">Default</span>,
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">ExpressionKind</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
@@ -599,6 +611,14 @@
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">asterisk</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Expression</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span><span class="op">&gt;</span> {
     <span class="ident">Expression</span> {
         <span class="ident">kind</span>: <span class="ident">ExpressionKind</span>::<span class="ident">Asterisk</span>(<span class="prelude-val">None</span>),
+        <span class="ident">alias</span>: <span class="prelude-val">None</span>,
+    }
+}
+
+<span class="doccomment">/// A quick alias to create a default value expression.</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">default_value</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Expression</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span><span class="op">&gt;</span> {
+    <span class="ident">Expression</span> {
+        <span class="ident">kind</span>: <span class="ident">ExpressionKind</span>::<span class="ident">Default</span>,
         <span class="ident">alias</span>: <span class="prelude-val">None</span>,
     }
 }
