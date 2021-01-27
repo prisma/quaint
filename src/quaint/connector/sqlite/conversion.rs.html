@@ -275,6 +275,9 @@
 <span id="272">272</span>
 <span id="273">273</span>
 <span id="274">274</span>
+<span id="275">275</span>
+<span id="276">276</span>
+<span id="277">277</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">ast</span>::<span class="ident">Value</span>,
@@ -338,7 +341,10 @@
     }
 
     <span class="kw">fn</span> <span class="ident">is_datetime</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-        <span class="macro">matches</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">decl_type</span>(), <span class="prelude-val">Some</span>(<span class="string">&quot;DATETIME&quot;</span>) <span class="op">|</span> <span class="prelude-val">Some</span>(<span class="string">&quot;datetime&quot;</span>))
+        <span class="macro">matches</span><span class="macro">!</span>(
+            <span class="self">self</span>.<span class="ident">decl_type</span>(),
+            <span class="prelude-val">Some</span>(<span class="string">&quot;DATETIME&quot;</span>) <span class="op">|</span> <span class="prelude-val">Some</span>(<span class="string">&quot;datetime&quot;</span>) <span class="op">|</span> <span class="prelude-val">Some</span>(<span class="string">&quot;TIMESTAMP&quot;</span>) <span class="op">|</span> <span class="prelude-val">Some</span>(<span class="string">&quot;timestamp&quot;</span>)
+        )
     }
 
     <span class="kw">fn</span> <span class="ident">is_time</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
