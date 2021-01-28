@@ -40,17 +40,17 @@ impl From<rusqlite::Error> for Error {
                 },
                 Some(description),
             ) => {
-                let splitted: Vec<&str> = description.split(": ").collect();
+                let constraint = description
+                    .split(": ")
+                    .nth(1)
+                    .map(|s| s.split(", "))
+                    .map(|i| i.flat_map(|s| s.split('.').last()))
+                    .map(|i| i.map(ToString::to_string).collect::<Vec<_>>())
+                    .map(DatabaseConstraint::Fields)
+                    .unwrap_or(DatabaseConstraint::CannotParse);
 
-                let field_names: Vec<String> = splitted[1]
-                    .split(", ")
-                    .map(|s| s.split('.').last().unwrap())
-                    .map(|s| s.to_string())
-                    .collect();
-
-                let mut builder = Error::builder(ErrorKind::UniqueConstraintViolation {
-                    constraint: DatabaseConstraint::Fields(field_names),
-                });
+                let kind = ErrorKind::UniqueConstraintViolation { constraint };
+                let mut builder = Error::builder(kind);
 
                 builder.set_original_code("2067");
                 builder.set_original_message(description);
@@ -65,17 +65,17 @@ impl From<rusqlite::Error> for Error {
                 },
                 Some(description),
             ) => {
-                let splitted: Vec<&str> = description.split(": ").collect();
+                let constraint = description
+                    .split(": ")
+                    .nth(1)
+                    .map(|s| s.split(", "))
+                    .map(|i| i.flat_map(|s| s.split('.').last()))
+                    .map(|i| i.map(ToString::to_string).collect::<Vec<_>>())
+                    .map(DatabaseConstraint::Fields)
+                    .unwrap_or(DatabaseConstraint::CannotParse);
 
-                let field_names: Vec<String> = splitted[1]
-                    .split(", ")
-                    .map(|s| s.split('.').last().unwrap())
-                    .map(|s| s.to_string())
-                    .collect();
-
-                let mut builder = Error::builder(ErrorKind::UniqueConstraintViolation {
-                    constraint: DatabaseConstraint::Fields(field_names),
-                });
+                let kind = ErrorKind::UniqueConstraintViolation { constraint };
+                let mut builder = Error::builder(kind);
 
                 builder.set_original_code("1555");
                 builder.set_original_message(description);
@@ -90,17 +90,17 @@ impl From<rusqlite::Error> for Error {
                 },
                 Some(description),
             ) => {
-                let splitted: Vec<&str> = description.split(": ").collect();
+                let constraint = description
+                    .split(": ")
+                    .nth(1)
+                    .map(|s| s.split(", "))
+                    .map(|i| i.flat_map(|s| s.split('.').last()))
+                    .map(|i| i.map(ToString::to_string).collect::<Vec<_>>())
+                    .map(DatabaseConstraint::Fields)
+                    .unwrap_or(DatabaseConstraint::CannotParse);
 
-                let field_names: Vec<String> = splitted[1]
-                    .split(", ")
-                    .map(|s| s.split('.').last().unwrap())
-                    .map(|s| s.to_string())
-                    .collect();
-
-                let mut builder = Error::builder(ErrorKind::NullConstraintViolation {
-                    constraint: DatabaseConstraint::Fields(field_names),
-                });
+                let kind = ErrorKind::NullConstraintViolation { constraint };
+                let mut builder = Error::builder(kind);
 
                 builder.set_original_code("1299");
                 builder.set_original_message(description);
@@ -144,27 +144,30 @@ impl From<rusqlite::Error> for Error {
 
             rusqlite::Error::SqliteFailure(ffi::Error { extended_code, .. }, ref description) => match description {
                 Some(d) if d.starts_with("no such table") => {
-                    let table = d.split(": ").last().unwrap().into();
+                    let table = d.split(": ").last().into();
+                    let kind = ErrorKind::TableDoesNotExist { table };
 
-                    let mut builder = Error::builder(ErrorKind::TableDoesNotExist { table });
+                    let mut builder = Error::builder(kind);
                     builder.set_original_code(format!("{}", extended_code));
                     builder.set_original_message(d);
 
                     builder.build()
                 }
                 Some(d) if d.contains("has no column named") => {
-                    let column = d.split(" has no column named ").last().unwrap().into();
+                    let column = d.split(" has no column named ").last().into();
+                    let kind = ErrorKind::ColumnNotFound { column };
 
-                    let mut builder = Error::builder(ErrorKind::ColumnNotFound { column });
+                    let mut builder = Error::builder(kind);
                     builder.set_original_code(format!("{}", extended_code));
                     builder.set_original_message(d);
 
                     builder.build()
                 }
                 Some(d) if d.starts_with("no such column: ") => {
-                    let column = d.split("no such column: ").last().unwrap().into();
+                    let column = d.split("no such column: ").last().into();
+                    let kind = ErrorKind::ColumnNotFound { column };
 
-                    let mut builder = Error::builder(ErrorKind::ColumnNotFound { column });
+                    let mut builder = Error::builder(kind);
                     builder.set_original_code(format!("{}", extended_code));
                     builder.set_original_message(d);
 
