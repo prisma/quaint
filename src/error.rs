@@ -10,6 +10,18 @@ pub enum DatabaseConstraint {
     CannotParse,
 }
 
+impl DatabaseConstraint {
+    pub(crate) fn fields<I, S>(names: I) -> Self
+    where
+        I: IntoIterator<Item = S>,
+        S: ToString,
+    {
+        let fields = names.into_iter().map(|s| s.to_string()).collect();
+
+        Self::Fields(fields)
+    }
+}
+
 impl fmt::Display for DatabaseConstraint {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {

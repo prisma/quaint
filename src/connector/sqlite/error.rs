@@ -45,8 +45,7 @@ impl From<rusqlite::Error> for Error {
                     .nth(1)
                     .map(|s| s.split(", "))
                     .map(|i| i.flat_map(|s| s.split('.').last()))
-                    .map(|i| i.map(ToString::to_string).collect::<Vec<_>>())
-                    .map(DatabaseConstraint::Fields)
+                    .map(|i| DatabaseConstraint::fields(i))
                     .unwrap_or(DatabaseConstraint::CannotParse);
 
                 let kind = ErrorKind::UniqueConstraintViolation { constraint };
@@ -70,8 +69,7 @@ impl From<rusqlite::Error> for Error {
                     .nth(1)
                     .map(|s| s.split(", "))
                     .map(|i| i.flat_map(|s| s.split('.').last()))
-                    .map(|i| i.map(ToString::to_string).collect::<Vec<_>>())
-                    .map(DatabaseConstraint::Fields)
+                    .map(DatabaseConstraint::fields)
                     .unwrap_or(DatabaseConstraint::CannotParse);
 
                 let kind = ErrorKind::UniqueConstraintViolation { constraint };
@@ -95,8 +93,7 @@ impl From<rusqlite::Error> for Error {
                     .nth(1)
                     .map(|s| s.split(", "))
                     .map(|i| i.flat_map(|s| s.split('.').last()))
-                    .map(|i| i.map(ToString::to_string).collect::<Vec<_>>())
-                    .map(DatabaseConstraint::Fields)
+                    .map(DatabaseConstraint::fields)
                     .unwrap_or(DatabaseConstraint::CannotParse);
 
                 let kind = ErrorKind::NullConstraintViolation { constraint };

@@ -30,8 +30,7 @@ impl From<my::Error> for Error {
                     .split_whitespace()
                     .nth(17)
                     .and_then(|s| s.split('`').nth(1))
-                    .map(ToString::to_string)
-                    .map(|field| DatabaseConstraint::Fields(vec![field]))
+                    .map(|s| DatabaseConstraint::fields(Some(s)))
                     .unwrap_or(DatabaseConstraint::CannotParse);
 
                 let kind = ErrorKind::ForeignKeyConstraintViolation { constraint };
@@ -74,8 +73,7 @@ impl From<my::Error> for Error {
                     .split_whitespace()
                     .nth(1)
                     .and_then(|s| s.split('\'').nth(1))
-                    .map(|s| vec![s.to_string()])
-                    .map(DatabaseConstraint::Fields)
+                    .map(|s| DatabaseConstraint::fields(Some(s)))
                     .unwrap_or(DatabaseConstraint::CannotParse);
 
                 let kind = ErrorKind::NullConstraintViolation { constraint };

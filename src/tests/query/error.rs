@@ -106,7 +106,7 @@ async fn null_constraint_violation(api: &mut dyn TestApi) -> crate::Result<()> {
 
     match err.kind() {
         ErrorKind::NullConstraintViolation { constraint } => {
-            assert_eq!(&DatabaseConstraint::Fields(vec![String::from("id1")]), constraint)
+            assert_eq!(&DatabaseConstraint::fields(Some("id1")), constraint)
         }
         _ => panic!(err),
     }
@@ -123,7 +123,7 @@ async fn null_constraint_violation(api: &mut dyn TestApi) -> crate::Result<()> {
 
     match err.kind() {
         ErrorKind::NullConstraintViolation { constraint } => {
-            assert_eq!(&DatabaseConstraint::Fields(vec![String::from("id2")]), constraint);
+            assert_eq!(&DatabaseConstraint::fields(Some("id2")), constraint);
         }
         _ => panic!(err),
     }

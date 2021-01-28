@@ -38,8 +38,7 @@ impl From<tiberius::error::Error> for Error {
                     .split_whitespace()
                     .nth(7)
                     .and_then(|s| s.split('\'').nth(1))
-                    .map(|column| vec![column.to_string()])
-                    .map(DatabaseConstraint::Fields)
+                    .map(|s| DatabaseConstraint::fields(Some(s)))
                     .unwrap_or(DatabaseConstraint::CannotParse);
 
                 let kind = ErrorKind::NullConstraintViolation { constraint };

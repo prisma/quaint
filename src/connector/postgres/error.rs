@@ -30,10 +30,8 @@ impl From<tokio_postgres::error::Error> for Error {
                 let constraint = detail
                     .as_ref()
                     .and_then(|d| d.split(")=(").nth(0))
-                    .and_then(|d| d.split(" (").nth(1))
-                    .map(|s| s.replace("\"", ""))
-                    .map(|s| s.split(", ").map(ToString::to_string).collect::<Vec<_>>())
-                    .map(DatabaseConstraint::Fields)
+                    .and_then(|d| d.split(" (").nth(1).map(|s| s.replace("\"", "")))
+                    .map(|s| DatabaseConstraint::fields(s.split(", ")))
                     .unwrap_or(DatabaseConstraint::CannotParse);
 
                 let kind = ErrorKind::UniqueConstraintViolation { constraint };
@@ -56,9 +54,8 @@ impl From<tokio_postgres::error::Error> for Error {
 
                 let constraint = db_error
                     .as_ref()
-                    .and_then(|e| e.column())
-                    .map(|column| vec![column.to_string()])
-                    .map(DatabaseConstraint::Fields)
+                    .map(|e| e.column())
+                    .map(DatabaseConstraint::fields)
                     .unwrap_or(DatabaseConstraint::CannotParse);
 
                 let kind = ErrorKind::NullConstraintViolation { constraint };
@@ -79,7 +76,7 @@ impl From<tokio_postgres::error::Error> for Error {
                 match db_error.as_ref().and_then(|e| e.column()) {
                     Some(column) => {
                         let mut builder = Error::builder(ErrorKind::ForeignKeyConstraintViolation {
-                            constraint: DatabaseConstraint::Fields(vec![column.to_owned()]),
+                            constraint: DatabaseConstraint::fields(Some(column)),
                         });
 
                         builder.set_original_code(code);
