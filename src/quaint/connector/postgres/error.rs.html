@@ -315,6 +315,7 @@
 <span id="312">312</span>
 <span id="313">313</span>
 <span id="314">314</span>
+<span id="315">315</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">error</span>::{<span class="ident">DatabaseConstraint</span>, <span class="ident">Error</span>, <span class="ident">ErrorKind</span>, <span class="ident">Name</span>};
 
@@ -504,8 +505,9 @@
                     .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">m</span><span class="op">|</span> <span class="ident">m</span>.<span class="ident">split_whitespace</span>().<span class="ident">nth</span>(<span class="number">1</span>))
                     .<span class="ident">map</span>(<span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="ident">s</span>.<span class="ident">split</span>(<span class="string">&#39;\&quot;&#39;</span>))
                     .<span class="ident">and_then</span>(<span class="op">|</span><span class="kw-2">mut</span> <span class="ident">s</span><span class="op">|</span> <span class="kw">match</span> (<span class="ident">s</span>.<span class="ident">next</span>(), <span class="ident">s</span>.<span class="ident">next</span>()) {
-                        (<span class="prelude-val">Some</span>(<span class="ident">column</span>), <span class="kw">_</span>) <span class="op">|</span> (<span class="kw">_</span>, <span class="prelude-val">Some</span>(<span class="ident">column</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">column</span>),
-                        (<span class="prelude-val">None</span>, <span class="prelude-val">None</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
+                        (<span class="prelude-val">Some</span>(<span class="ident">column</span>), <span class="kw">_</span>) <span class="kw">if</span> <span class="op">!</span><span class="ident">column</span>.<span class="ident">is_empty</span>() <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">column</span>),
+                        (<span class="kw">_</span>, <span class="prelude-val">Some</span>(<span class="ident">column</span>)) <span class="kw">if</span> <span class="op">!</span><span class="ident">column</span>.<span class="ident">is_empty</span>() <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">column</span>),
+                        (<span class="kw">_</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
                     })
                     .<span class="ident">into</span>();
 
