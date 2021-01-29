@@ -217,6 +217,7 @@
 <span id="214">214</span>
 <span id="215">215</span>
 <span id="216">216</span>
+<span id="217">217</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">error</span>::{<span class="ident">DatabaseConstraint</span>, <span class="ident">Error</span>, <span class="ident">ErrorKind</span>};
 <span class="kw">use</span> <span class="ident">mysql_async</span> <span class="kw">as</span> <span class="ident">my</span>;
@@ -233,6 +234,7 @@
                     .<span class="ident">split_whitespace</span>()
                     .<span class="ident">last</span>()
                     .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="ident">s</span>.<span class="ident">split</span>(<span class="string">&#39;\&#39;&#39;</span>).<span class="ident">nth</span>(<span class="number">1</span>))
+                    .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="ident">s</span>.<span class="ident">split</span>(<span class="string">&#39;.&#39;</span>).<span class="ident">last</span>())
                     .<span class="ident">map</span>(<span class="ident">ToString</span>::<span class="ident">to_string</span>)
                     .<span class="ident">map</span>(<span class="ident">DatabaseConstraint</span>::<span class="ident">Index</span>)
                     .<span class="ident">unwrap_or</span>(<span class="ident">DatabaseConstraint</span>::<span class="ident">CannotParse</span>);
