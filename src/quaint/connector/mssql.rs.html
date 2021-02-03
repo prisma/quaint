@@ -476,6 +476,18 @@
 <span id="473">473</span>
 <span id="474">474</span>
 <span id="475">475</span>
+<span id="476">476</span>
+<span id="477">477</span>
+<span id="478">478</span>
+<span id="479">479</span>
+<span id="480">480</span>
+<span id="481">481</span>
+<span id="482">482</span>
+<span id="483">483</span>
+<span id="484">484</span>
+<span id="485">485</span>
+<span id="486">486</span>
+<span id="487">487</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">mod</span> <span class="ident">conversion</span>;
 <span class="kw">mod</span> <span class="ident">error</span>;
@@ -718,13 +730,25 @@
     <span class="doccomment">/// Creates a new connection to SQL Server.</span>
     <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">url</span>: <span class="ident">MssqlUrl</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">crate</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">config</span> <span class="op">=</span> <span class="ident">Config</span>::<span class="ident">from_jdbc_string</span>(<span class="kw-2">&amp;</span><span class="ident">url</span>.<span class="ident">connection_string</span>)<span class="question-mark">?</span>;
-
         <span class="kw">let</span> <span class="ident">tcp</span> <span class="op">=</span> <span class="ident">TcpStream</span>::<span class="ident">connect_named</span>(<span class="kw-2">&amp;</span><span class="ident">config</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-
-        <span class="kw">let</span> <span class="ident">client</span> <span class="op">=</span>
-            <span class="kw">super</span>::<span class="ident">timeout</span>::<span class="ident">connect</span>(<span class="ident">url</span>.<span class="ident">connect_timeout</span>(), <span class="ident">Client</span>::<span class="ident">connect</span>(<span class="ident">config</span>, <span class="ident">tcp</span>.<span class="ident">compat_write</span>())).<span class="kw">await</span><span class="question-mark">?</span>;
-
         <span class="kw">let</span> <span class="ident">socket_timeout</span> <span class="op">=</span> <span class="ident">url</span>.<span class="ident">socket_timeout</span>();
+
+        <span class="kw">let</span> <span class="ident">connecting</span> <span class="op">=</span> <span class="kw">async</span> {
+            <span class="kw">match</span> <span class="ident">Client</span>::<span class="ident">connect</span>(<span class="ident">config</span>, <span class="ident">tcp</span>.<span class="ident">compat_write</span>()).<span class="kw">await</span> {
+                <span class="prelude-val">Ok</span>(<span class="ident">client</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">client</span>),
+                <span class="prelude-val">Err</span>(<span class="ident">tiberius</span>::<span class="ident">error</span>::<span class="ident">Error</span>::<span class="ident">Routing</span> { <span class="ident">host</span>, <span class="ident">port</span> }) <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">config</span> <span class="op">=</span> <span class="ident">Config</span>::<span class="ident">from_jdbc_string</span>(<span class="kw-2">&amp;</span><span class="ident">url</span>.<span class="ident">connection_string</span>)<span class="question-mark">?</span>;
+                    <span class="ident">config</span>.<span class="ident">host</span>(<span class="ident">host</span>);
+                    <span class="ident">config</span>.<span class="ident">port</span>(<span class="ident">port</span>);
+
+                    <span class="kw">let</span> <span class="ident">tcp</span> <span class="op">=</span> <span class="ident">TcpStream</span>::<span class="ident">connect_named</span>(<span class="kw-2">&amp;</span><span class="ident">config</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+                    <span class="ident">Client</span>::<span class="ident">connect</span>(<span class="ident">config</span>, <span class="ident">tcp</span>.<span class="ident">compat_write</span>()).<span class="kw">await</span>
+                }
+                <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>),
+            }
+        };
+
+        <span class="kw">let</span> <span class="ident">client</span> <span class="op">=</span> <span class="kw">super</span>::<span class="ident">timeout</span>::<span class="ident">connect</span>(<span class="ident">url</span>.<span class="ident">connect_timeout</span>(), <span class="ident">connecting</span>).<span class="kw">await</span><span class="question-mark">?</span>;
 
         <span class="kw">let</span> <span class="ident">this</span> <span class="op">=</span> <span class="self">Self</span> {
             <span class="ident">client</span>: <span class="ident">Mutex</span>::<span class="ident">new</span>(<span class="ident">client</span>),
