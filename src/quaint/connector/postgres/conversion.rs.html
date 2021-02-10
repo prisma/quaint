@@ -717,6 +717,23 @@
 <span id="714">714</span>
 <span id="715">715</span>
 <span id="716">716</span>
+<span id="717">717</span>
+<span id="718">718</span>
+<span id="719">719</span>
+<span id="720">720</span>
+<span id="721">721</span>
+<span id="722">722</span>
+<span id="723">723</span>
+<span id="724">724</span>
+<span id="725">725</span>
+<span id="726">726</span>
+<span id="727">727</span>
+<span id="728">728</span>
+<span id="729">729</span>
+<span id="730">730</span>
+<span id="731">731</span>
+<span id="732">732</span>
+<span id="733">733</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;bigdecimal&quot;</span>)]</span>
 <span class="kw">mod</span> <span class="ident">decimal</span>;
@@ -1219,12 +1236,29 @@
         <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="kw">match</span> (<span class="self">self</span>, <span class="ident">ty</span>) {
             (<span class="ident">Value</span>::<span class="ident">Integer</span>(<span class="ident">integer</span>), <span class="kw-2">&amp;</span><span class="ident">PostgresType</span>::<span class="ident">INT2</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">integer</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">integer</span><span class="op">|</span> (<span class="ident">integer</span> <span class="kw">as</span> <span class="ident">i16</span>).<span class="ident">to_sql</span>(<span class="ident">ty</span>, <span class="ident">out</span>)),
             (<span class="ident">Value</span>::<span class="ident">Integer</span>(<span class="ident">integer</span>), <span class="kw-2">&amp;</span><span class="ident">PostgresType</span>::<span class="ident">INT4</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">integer</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">integer</span><span class="op">|</span> (<span class="ident">integer</span> <span class="kw">as</span> <span class="ident">i32</span>).<span class="ident">to_sql</span>(<span class="ident">ty</span>, <span class="ident">out</span>)),
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;bigdecimal&quot;</span>)]</span>
+            (<span class="ident">Value</span>::<span class="ident">Integer</span>(<span class="ident">integer</span>), <span class="kw-2">&amp;</span><span class="ident">PostgresType</span>::<span class="ident">NUMERIC</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">integer</span>
+                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">integer</span><span class="op">|</span> <span class="ident">BigDecimal</span>::<span class="ident">from_i64</span>(<span class="ident">integer</span>).<span class="ident">unwrap</span>())
+                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">bd</span><span class="op">|</span> <span class="ident">DecimalWrapper</span>(<span class="ident">bd</span>))
+                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">dw</span><span class="op">|</span> <span class="ident">dw</span>.<span class="ident">to_sql</span>(<span class="ident">ty</span>, <span class="ident">out</span>)),
             (<span class="ident">Value</span>::<span class="ident">Integer</span>(<span class="ident">integer</span>), <span class="kw-2">&amp;</span><span class="ident">PostgresType</span>::<span class="ident">TEXT</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="ident">integer</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">integer</span><span class="op">|</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">integer</span>).<span class="ident">to_sql</span>(<span class="ident">ty</span>, <span class="ident">out</span>))
             }
             (<span class="ident">Value</span>::<span class="ident">Integer</span>(<span class="ident">integer</span>), <span class="kw-2">&amp;</span><span class="ident">PostgresType</span>::<span class="ident">OID</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">integer</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">integer</span><span class="op">|</span> (<span class="ident">integer</span> <span class="kw">as</span> <span class="ident">u32</span>).<span class="ident">to_sql</span>(<span class="ident">ty</span>, <span class="ident">out</span>)),
             (<span class="ident">Value</span>::<span class="ident">Integer</span>(<span class="ident">integer</span>), <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">integer</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">integer</span><span class="op">|</span> (<span class="ident">integer</span> <span class="kw">as</span> <span class="ident">i64</span>).<span class="ident">to_sql</span>(<span class="ident">ty</span>, <span class="ident">out</span>)),
+            (<span class="ident">Value</span>::<span class="ident">Float</span>(<span class="ident">float</span>), <span class="kw-2">&amp;</span><span class="ident">PostgresType</span>::<span class="ident">FLOAT8</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">float</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">float</span><span class="op">|</span> (<span class="ident">float</span> <span class="kw">as</span> <span class="ident">f64</span>).<span class="ident">to_sql</span>(<span class="ident">ty</span>, <span class="ident">out</span>)),
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;bigdecimal&quot;</span>)]</span>
+            (<span class="ident">Value</span>::<span class="ident">Float</span>(<span class="ident">float</span>), <span class="kw-2">&amp;</span><span class="ident">PostgresType</span>::<span class="ident">NUMERIC</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">float</span>
+                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">float</span><span class="op">|</span> <span class="ident">BigDecimal</span>::<span class="ident">from_f32</span>(<span class="ident">float</span>).<span class="ident">unwrap</span>())
+                .<span class="ident">map</span>(<span class="ident">DecimalWrapper</span>)
+                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">dw</span><span class="op">|</span> <span class="ident">dw</span>.<span class="ident">to_sql</span>(<span class="ident">ty</span>, <span class="ident">out</span>)),
             (<span class="ident">Value</span>::<span class="ident">Float</span>(<span class="ident">float</span>), <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">float</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">float</span><span class="op">|</span> <span class="ident">float</span>.<span class="ident">to_sql</span>(<span class="ident">ty</span>, <span class="ident">out</span>)),
+            (<span class="ident">Value</span>::<span class="ident">Double</span>(<span class="ident">double</span>), <span class="kw-2">&amp;</span><span class="ident">PostgresType</span>::<span class="ident">FLOAT4</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">double</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">double</span><span class="op">|</span> (<span class="ident">double</span> <span class="kw">as</span> <span class="ident">f32</span>).<span class="ident">to_sql</span>(<span class="ident">ty</span>, <span class="ident">out</span>)),
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;bigdecimal&quot;</span>)]</span>
+            (<span class="ident">Value</span>::<span class="ident">Double</span>(<span class="ident">double</span>), <span class="kw-2">&amp;</span><span class="ident">PostgresType</span>::<span class="ident">NUMERIC</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">double</span>
+                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">double</span><span class="op">|</span> <span class="ident">BigDecimal</span>::<span class="ident">from_f64</span>(<span class="ident">double</span>).<span class="ident">unwrap</span>())
+                .<span class="ident">map</span>(<span class="ident">DecimalWrapper</span>)
+                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">dw</span><span class="op">|</span> <span class="ident">dw</span>.<span class="ident">to_sql</span>(<span class="ident">ty</span>, <span class="ident">out</span>)),
             (<span class="ident">Value</span>::<span class="ident">Double</span>(<span class="ident">double</span>), <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">double</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">double</span><span class="op">|</span> <span class="ident">double</span>.<span class="ident">to_sql</span>(<span class="ident">ty</span>, <span class="ident">out</span>)),
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;bigdecimal&quot;</span>)]</span>
             (<span class="ident">Value</span>::<span class="ident">Numeric</span>(<span class="ident">decimal</span>), <span class="kw-2">&amp;</span><span class="ident">PostgresType</span>::<span class="ident">FLOAT4</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">decimal</span>.<span class="ident">as_ref</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">decimal</span><span class="op">|</span> {
