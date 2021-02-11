@@ -78,10 +78,10 @@ impl Manager for QuaintManager {
     async fn connect(&self) -> crate::Result<Self::Connection> {
         let conn = match self {
             #[cfg(feature = "sqlite")]
-            QuaintManager::Sqlite { url, db_name } => {
+            QuaintManager::Sqlite { url, .. } => {
                 use crate::connector::Sqlite;
 
-                let mut conn = Sqlite::new(&url)?;
+                let conn = Sqlite::new(&url)?;
 
                 Ok(Box::new(conn) as Self::Connection)
             }

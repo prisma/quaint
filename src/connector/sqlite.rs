@@ -10,8 +10,7 @@ use crate::{
     visitor::{self, Visitor},
 };
 use async_trait::async_trait;
-use rusqlite::NO_PARAMS;
-use std::{collections::HashSet, convert::TryFrom, path::Path, time::Duration};
+use std::{convert::TryFrom, path::Path, time::Duration};
 use tokio::sync::Mutex;
 
 pub(crate) const DEFAULT_SQLITE_SCHEMA_NAME: &str = "main";
@@ -22,6 +21,7 @@ pub struct Sqlite {
     pub(crate) client: Mutex<rusqlite::Connection>,
     /// This is not a `PathBuf` because we need to `ATTACH` the database to the path, and this can
     /// only be done with UTF-8 paths. This is `None` for purely in-memory databases.
+    #[allow(dead_code)]
     pub(crate) file_path: Option<String>,
 }
 
