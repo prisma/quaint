@@ -238,7 +238,7 @@ mod tests {
 
     #[tokio::test]
     async fn in_memory_sqlite_works() {
-        let conn = Sqlite::new_in_memory("quaint".into()).unwrap();
+        let conn = Sqlite::new_in_memory().unwrap();
 
         conn.raw_cmd("CREATE TABLE test (id INTEGER PRIMARY KEY, txt TEXT NOT NULL);")
             .await
@@ -255,7 +255,7 @@ mod tests {
         assert_eq!(result.get("txt").unwrap(), &Value::text("henlo"));
 
         // Check that we do get a separate, new database.
-        let other_conn = Sqlite::new_in_memory("quaint".into()).unwrap();
+        let other_conn = Sqlite::new_in_memory().unwrap();
 
         let err = other_conn.select(select).await.unwrap_err();
         assert!(matches!(err.kind(), ErrorKind::TableDoesNotExist { .. }));
