@@ -19,10 +19,6 @@ pub(crate) const DEFAULT_SQLITE_SCHEMA_NAME: &str = "main";
 #[cfg_attr(feature = "docs", doc(cfg(feature = "sqlite")))]
 pub struct Sqlite {
     pub(crate) client: Mutex<rusqlite::Connection>,
-    /// This is not a `PathBuf` because we need to `ATTACH` the database to the path, and this can
-    /// only be done with UTF-8 paths. This is `None` for purely in-memory databases.
-    #[allow(dead_code)]
-    pub(crate) file_path: Option<String>,
 }
 
 /// Wraps a connection url and exposes the parsing logic used by Quaint,
@@ -117,7 +113,6 @@ impl TryFrom<&str> for Sqlite {
 
         Ok(Sqlite {
             client,
-            file_path: Some(file_path),
         })
     }
 }
@@ -134,7 +129,6 @@ impl Sqlite {
 
         Ok(Sqlite {
             client: Mutex::new(client),
-            file_path: None,
         })
     }
 }
