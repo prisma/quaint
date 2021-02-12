@@ -123,9 +123,8 @@ impl Sqlite {
     }
 
     /// Open a new SQLite database in memory.
-    pub fn new_in_memory(attached_name: String) -> crate::Result<Sqlite> {
+    pub fn new_in_memory() -> crate::Result<Sqlite> {
         let client = rusqlite::Connection::open_in_memory()?;
-        rusqlite::Connection::execute(&client, "ATTACH DATABASE ':memory:' AS ?", &[&attached_name])?;
 
         Ok(Sqlite {
             client: Mutex::new(client),
