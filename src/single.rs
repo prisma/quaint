@@ -132,7 +132,9 @@ impl Quaint {
             #[cfg(feature = "sqlite")]
             s if s.starts_with("file") || s.starts_with("sqlite") => {
                 let params = connector::SqliteParams::try_from(s)?;
-                let sqlite = connector::Sqlite::new(&params.file_path)?;
+                let mut sqlite = connector::Sqlite::new(&params.file_path)?;
+
+                sqlite.attach_database(&params.db_name).await?;
 
                 Arc::new(sqlite) as Arc<dyn Queryable>
             }
