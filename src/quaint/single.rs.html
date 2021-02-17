@@ -229,7 +229,6 @@
 <span id="226">226</span>
 <span id="227">227</span>
 <span id="228">228</span>
-<span id="229">229</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! A single connection abstraction to a SQL database.</span>
 
@@ -401,12 +400,11 @@
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sqlite&quot;</span>)]</span>
     <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;docs&quot;</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">sqlite</span>)))]</span>
     <span class="doccomment">/// Open a new SQLite database in memory.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_in_memory</span>(<span class="ident">attached_name</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">crate</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Quaint</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">attached_name</span> <span class="op">=</span> <span class="ident">attached_name</span>.<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">DEFAULT_SQLITE_SCHEMA_NAME</span>.<span class="ident">into</span>());
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_in_memory</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="kw">crate</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Quaint</span><span class="op">&gt;</span> {
 
         <span class="prelude-val">Ok</span>(<span class="ident">Quaint</span> {
-            <span class="ident">inner</span>: <span class="ident">Arc</span>::<span class="ident">new</span>(<span class="ident">connector</span>::<span class="ident">Sqlite</span>::<span class="ident">new_in_memory</span>(<span class="ident">attached_name</span>.<span class="ident">clone</span>())<span class="question-mark">?</span>),
-            <span class="ident">connection_info</span>: <span class="ident">Arc</span>::<span class="ident">new</span>(<span class="ident">ConnectionInfo</span>::<span class="ident">InMemorySqlite</span> { <span class="ident">db_name</span>: <span class="ident">attached_name</span> }),
+            <span class="ident">inner</span>: <span class="ident">Arc</span>::<span class="ident">new</span>(<span class="ident">connector</span>::<span class="ident">Sqlite</span>::<span class="ident">new_in_memory</span>()<span class="question-mark">?</span>),
+            <span class="ident">connection_info</span>: <span class="ident">Arc</span>::<span class="ident">new</span>(<span class="ident">ConnectionInfo</span>::<span class="ident">InMemorySqlite</span> { <span class="ident">db_name</span>: <span class="ident">DEFAULT_SQLITE_SCHEMA_NAME</span>.<span class="ident">to_owned</span>() }),
         })
     }
 

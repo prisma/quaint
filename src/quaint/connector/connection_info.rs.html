@@ -411,7 +411,7 @@
     <span class="ident">Sqlite</span> {
         <span class="doccomment">/// The filesystem path of the SQLite database.</span>
         <span class="ident">file_path</span>: <span class="ident">String</span>,
-        <span class="doccomment">/// The name the database is bound to (with `ATTACH DATABASE`), if available.</span>
+        <span class="doccomment">/// The name the database is bound to - Always &quot;main&quot;</span>
         <span class="ident">db_name</span>: <span class="ident">String</span>,
     },
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sqlite&quot;</span>)]</span>
