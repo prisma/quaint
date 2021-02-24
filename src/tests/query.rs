@@ -377,6 +377,7 @@ async fn table_inner_join(api: &mut dyn TestApi) -> crate::Result<()> {
             .as_str()
             .on((table1.as_str(), "id").equals(Column::from((&table2, "t1_id")))),
     );
+
     let query = Select::from_table(joined_table)
         // Select from a third table to ensure that the JOIN is specifically applied on the table1
         .and_from(&table3)
@@ -469,6 +470,7 @@ async fn table_left_join(api: &mut dyn TestApi) -> crate::Result<()> {
             .as_str()
             .on((&table1, "id").equals(Column::from((&table2, "t1_id")))),
     );
+
     let query = Select::from_table(joined_table)
         // Select from a third table to ensure that the JOIN is specifically applied on the table1
         .and_from(&table3)

@@ -128,6 +128,31 @@ impl<'a> Table<'a> {
         Ok(result)
     }
 
+    /// Adds a `LEFT JOIN` clause to the query, specifically for that table.
+    /// Useful to positionally add a JOIN clause in case you are selecting from multiple tables.
+    ///
+    /// ```rust
+    /// # use quaint::{ast::*, visitor::{Visitor, Sqlite}};
+    /// # fn main() -> Result<(), quaint::error::Error> {
+    /// let join = "posts".alias("p").on(("p", "visible").equals(true));
+    /// let joined_table = Table::from("users").left_join(join);
+    /// let query = Select::from_table(joined_table).and_from("comments");
+    /// let (sql, params) = Sqlite::build(query)?;
+    ///
+    /// assert_eq!(
+    ///     "SELECT `users`.*, `comments.*` FROM `users` LEFT JOIN `posts` AS `p` ON `p`.`visible` = ?, `comments`",
+    ///     sql
+    /// );
+    ///
+    /// assert_eq!(
+    ///     vec![
+    ///         Value::from(true),
+    ///     ],
+    ///     params
+    /// );
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn left_join<J>(mut self, join: J) -> Self
     where
         J: Into<JoinData<'a>>,
@@ -148,6 +173,31 @@ impl<'a> Table<'a> {
         self
     }
 
+    /// Adds an `INNER JOIN` clause to the query, specifically for that table.
+    /// Useful to positionally add a JOIN clause in case you are selecting from multiple tables.
+    ///
+    /// ```rust
+    /// # use quaint::{ast::*, visitor::{Visitor, Sqlite}};
+    /// # fn main() -> Result<(), quaint::error::Error> {
+    /// let join = "posts".alias("p").on(("p", "visible").equals(true));
+    /// let joined_table = Table::from("users").inner_join(join);
+    /// let query = Select::from_table(joined_table).and_from("comments");
+    /// let (sql, params) = Sqlite::build(query)?;
+    ///
+    /// assert_eq!(
+    ///     "SELECT `users`.*, `comments.*` FROM `users` INNER JOIN `posts` AS `p` ON `p`.`visible` = ?, `comments`",
+    ///     sql
+    /// );
+    ///
+    /// assert_eq!(
+    ///     vec![
+    ///         Value::from(true),
+    ///     ],
+    ///     params
+    /// );
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn inner_join<J>(mut self, join: J) -> Self
     where
         J: Into<JoinData<'a>>,
@@ -168,6 +218,31 @@ impl<'a> Table<'a> {
         self
     }
 
+    /// Adds a `RIGHT JOIN` clause to the query, specifically for that table.
+    /// Useful to positionally add a JOIN clause in case you are selecting from multiple tables.
+    ///
+    /// ```rust
+    /// # use quaint::{ast::*, visitor::{Visitor, Sqlite}};
+    /// # fn main() -> Result<(), quaint::error::Error> {
+    /// let join = "posts".alias("p").on(("p", "visible").equals(true));
+    /// let joined_table = Table::from("users").right_join(join);
+    /// let query = Select::from_table(joined_table).and_from("comments");
+    /// let (sql, params) = Sqlite::build(query)?;
+    ///
+    /// assert_eq!(
+    ///     "SELECT `users`.*, `comments.*` FROM `users` RIGHT JOIN `posts` AS `p` ON `p`.`visible` = ?, `comments`",
+    ///     sql
+    /// );
+    ///
+    /// assert_eq!(
+    ///     vec![
+    ///         Value::from(true),
+    ///     ],
+    ///     params
+    /// );
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn right_join<J>(mut self, join: J) -> Self
     where
         J: Into<JoinData<'a>>,
@@ -188,6 +263,31 @@ impl<'a> Table<'a> {
         self
     }
 
+    /// Adds a `FULL JOIN` clause to the query, specifically for that table.
+    /// Useful to positionally add a JOIN clause in case you are selecting from multiple tables.
+    ///
+    /// ```rust
+    /// # use quaint::{ast::*, visitor::{Visitor, Sqlite}};
+    /// # fn main() -> Result<(), quaint::error::Error> {
+    /// let join = "posts".alias("p").on(("p", "visible").equals(true));
+    /// let joined_table = Table::from("users").full_join(join);
+    /// let query = Select::from_table(joined_table).and_from("comments");
+    /// let (sql, params) = Sqlite::build(query)?;
+    ///
+    /// assert_eq!(
+    ///     "SELECT `users`.*, `comments.*` FROM `users` FULL JOIN `posts` AS `p` ON `p`.`visible` = ?, `comments`",
+    ///     sql
+    /// );
+    ///
+    /// assert_eq!(
+    ///     vec![
+    ///         Value::from(true),
+    ///     ],
+    ///     params
+    /// );
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn full_join<J>(mut self, join: J) -> Self
     where
         J: Into<JoinData<'a>>,
