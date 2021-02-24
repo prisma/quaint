@@ -392,6 +392,31 @@ async fn left_join(api: &mut dyn TestApi) -> crate::Result<()> {
 }
 
 #[test_each_connector]
+async fn table_left_join(api: &mut dyn TestApi) -> crate::Result<()> {
+    let table1 = api.create_table("id int, name varchar(255)").await?;
+    let table2 = api.create_table("t1_id int, is_cat int").await?;
+
+    let insert = Insert::multi_into(&table1, vec!["id", "name"])
+        .values(vec![Value::integer(1), Value::text("Musti")])
+        .values(vec![Value::integer(2), Value::text("Belka")]);
+
+    api.conn().insert(insert.into()).await?;
+
+    let insert =
+        Insert::multi_into(&table2, vec!["t1_id", "is_cat"]).values(vec![Value::integer(1), Value::integer(1)]);
+
+    api.conn().insert(insert.into()).await?;
+
+    let join = table2
+        .alias("t1")
+        .on((&table1, "id").equals(Column::from(("t1", "t1_id"))));
+    let joined_table = Table::from(table1).left_join(join);
+    let query = Select::from_table(joined_table);
+
+    let res = api.conn().select(query).await?;
+}
+
+#[test_each_connector]
 async fn limit_no_offset(api: &mut dyn TestApi) -> crate::Result<()> {
     let table = api.create_table("id int, name varchar(255)").await?;
 
