@@ -140,7 +140,7 @@ impl<'a> Table<'a> {
     /// let (sql, params) = Sqlite::build(query)?;
     ///
     /// assert_eq!(
-    ///     "SELECT `users`.*, `comments.*` FROM `users` LEFT JOIN `posts` AS `p` ON `p`.`visible` = ?, `comments`",
+    ///     "SELECT `users`.*, `comments`.* FROM `users` LEFT JOIN `posts` AS `p` ON `p`.`visible` = ?, `comments`",
     ///     sql
     /// );
     ///
@@ -185,7 +185,7 @@ impl<'a> Table<'a> {
     /// let (sql, params) = Sqlite::build(query)?;
     ///
     /// assert_eq!(
-    ///     "SELECT `users`.*, `comments.*` FROM `users` INNER JOIN `posts` AS `p` ON `p`.`visible` = ?, `comments`",
+    ///     "SELECT `users`.*, `comments`.* FROM `users` INNER JOIN `posts` AS `p` ON `p`.`visible` = ?, `comments`",
     ///     sql
     /// );
     ///
@@ -230,7 +230,7 @@ impl<'a> Table<'a> {
     /// let (sql, params) = Sqlite::build(query)?;
     ///
     /// assert_eq!(
-    ///     "SELECT `users`.*, `comments.*` FROM `users` RIGHT JOIN `posts` AS `p` ON `p`.`visible` = ?, `comments`",
+    ///     "SELECT `users`.*, `comments`.* FROM `users` RIGHT JOIN `posts` AS `p` ON `p`.`visible` = ?, `comments`",
     ///     sql
     /// );
     ///
@@ -275,7 +275,7 @@ impl<'a> Table<'a> {
     /// let (sql, params) = Sqlite::build(query)?;
     ///
     /// assert_eq!(
-    ///     "SELECT `users`.*, `comments.*` FROM `users` FULL JOIN `posts` AS `p` ON `p`.`visible` = ?, `comments`",
+    ///     "SELECT `users`.*, `comments`.* FROM `users` FULL JOIN `posts` AS `p` ON `p`.`visible` = ?, `comments`",
     ///     sql
     /// );
     ///
