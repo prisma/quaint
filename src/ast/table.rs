@@ -128,7 +128,10 @@ impl<'a> Table<'a> {
         Ok(result)
     }
 
-    pub fn left_join(mut self, join: JoinData<'a>) -> Self {
+    pub fn left_join<J>(mut self, join: J) -> Self
+    where
+        J: Into<JoinData<'a>>,
+    {
         match self.typ {
             TableType::Table(table_name) => {
                 self.typ = TableType::JoinedTable((table_name, vec![Join::Left(join.into())]))
