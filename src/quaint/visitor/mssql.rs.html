@@ -1661,6 +1661,22 @@
 <span id="1658">1658</span>
 <span id="1659">1659</span>
 <span id="1660">1660</span>
+<span id="1661">1661</span>
+<span id="1662">1662</span>
+<span id="1663">1663</span>
+<span id="1664">1664</span>
+<span id="1665">1665</span>
+<span id="1666">1666</span>
+<span id="1667">1667</span>
+<span id="1668">1668</span>
+<span id="1669">1669</span>
+<span id="1670">1670</span>
+<span id="1671">1671</span>
+<span id="1672">1672</span>
+<span id="1673">1673</span>
+<span id="1674">1674</span>
+<span id="1675">1675</span>
+<span id="1676">1676</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">super</span>::<span class="ident">Visitor</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">error</span>::{<span class="ident">Error</span>, <span class="ident">ErrorKind</span>};
@@ -3320,6 +3336,22 @@
         <span class="kw">let</span> (<span class="ident">sql</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="ident">Mssql</span>::<span class="ident">build</span>(<span class="ident">insert</span>).<span class="ident">unwrap</span>();
 
         <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="string">&quot;INSERT INTO [foo] ([foo],[baz]) VALUES (@P1,DEFAULT)&quot;</span>, <span class="ident">sql</span>);
+    }
+
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="kw">fn</span> <span class="ident">join_is_inserted_positionally</span>() {
+        <span class="kw">let</span> <span class="ident">joined_table</span> <span class="op">=</span> <span class="ident">Table</span>::<span class="ident">from</span>(<span class="string">&quot;User&quot;</span>).<span class="ident">left_join</span>(
+            <span class="string">&quot;Post&quot;</span>
+                .<span class="ident">alias</span>(<span class="string">&quot;p&quot;</span>)
+                .<span class="ident">on</span>((<span class="string">&quot;p&quot;</span>, <span class="string">&quot;userId&quot;</span>).<span class="ident">equals</span>(<span class="ident">Column</span>::<span class="ident">from</span>((<span class="string">&quot;User&quot;</span>, <span class="string">&quot;id&quot;</span>)))),
+        );
+        <span class="kw">let</span> <span class="ident">q</span> <span class="op">=</span> <span class="ident">Select</span>::<span class="ident">from_table</span>(<span class="ident">joined_table</span>).<span class="ident">and_from</span>(<span class="string">&quot;Toto&quot;</span>);
+        <span class="kw">let</span> (<span class="ident">sql</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="ident">Mssql</span>::<span class="ident">build</span>(<span class="ident">q</span>).<span class="ident">unwrap</span>();
+
+        <span class="macro">assert_eq</span><span class="macro">!</span>(
+            <span class="string">&quot;SELECT [User].*, [Toto].* FROM [User] LEFT JOIN [Post] AS [p] ON [p].[userId] = [User].[id], [Toto]&quot;</span>,
+            <span class="ident">sql</span>
+        );
     }
 }
 </pre></div>
