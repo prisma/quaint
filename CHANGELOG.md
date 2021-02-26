@@ -2,6 +2,7 @@
 ## Unreleased
 
 - Added support for `ROW_TO_JSON` function in postgresql
+- Added `build_with_params` function the `Visitor` trait
 
 ## v0.2.0-alpha.13
 

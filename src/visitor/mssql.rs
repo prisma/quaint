@@ -128,17 +128,26 @@ impl<'a> Visitor<'a> for Mssql<'a> {
 
     fn build<Q>(query: Q) -> crate::Result<(String, Vec<Value<'a>>)>
     where
-        Q: Into<crate::ast::Query<'a>>,
+        Q: Into<Query<'a>>,
     {
-        let mut this = Mssql {
+        let params: Vec<Value<'a>> = Vec::with_capacity(128);
+
+        Self::build_with_params(query, params)
+    }
+
+    fn build_with_params<Q>(query: Q, existing_params: Vec<Value<'a>>) -> crate::Result<(String, Vec<Value<'a>>)>
+    where
+        Q: Into<Query<'a>>,
+    {
+        let mut mssql = Mssql {
             query: String::with_capacity(4096),
-            parameters: Vec::with_capacity(128),
+            parameters: existing_params,
             order_by_set: false,
         };
 
-        Mssql::visit_query(&mut this, query.into())?;
+        Mssql::visit_query(&mut mssql, query.into())?;
 
-        Ok((this.query, this.parameters))
+        Ok((mssql.query, mssql.parameters))
     }
 
     fn write<D: std::fmt::Display>(&mut self, s: D) -> visitor::Result {
