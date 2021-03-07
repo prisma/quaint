@@ -367,6 +367,14 @@ impl Quaint {
                     builder.connection_limit(limit);
                 }
 
+                if let Some(max_lifetime) = params.max_connection_lifetime {
+                    builder.max_lifetime(max_lifetime);
+                }
+
+                if let Some(max_idle_lifetime) = params.max_idle_connection_lifetime {
+                    builder.max_idle_lifetime(max_idle_lifetime);
+                }
+
                 Ok(builder)
             }
             #[cfg(feature = "mysql")]
@@ -374,6 +382,8 @@ impl Quaint {
                 let url = crate::connector::MysqlUrl::new(url::Url::parse(s)?)?;
                 let connection_limit = url.connection_limit();
                 let pool_timeout = url.pool_timeout();
+                let max_connection_lifetime = url.max_connection_lifetime();
+                let max_idle_connection_lifetime = url.max_idle_connection_lifetime();
 
                 let manager = QuaintManager::Mysql { url };
                 let mut builder = Builder::new(s, manager)?;
@@ -386,6 +396,14 @@ impl Quaint {
                     builder.pool_timeout(timeout);
                 }
 
+                if let Some(max_lifetime) = max_connection_lifetime {
+                    builder.max_lifetime(max_lifetime);
+                }
+
+                if let Some(max_idle_lifetime) = max_idle_connection_lifetime {
+                    builder.max_idle_lifetime(max_idle_lifetime);
+                }
+
                 Ok(builder)
             }
             #[cfg(feature = "postgresql")]
@@ -393,6 +411,8 @@ impl Quaint {
                 let url = crate::connector::PostgresUrl::new(url::Url::parse(s)?)?;
                 let connection_limit = url.connection_limit();
                 let pool_timeout = url.pool_timeout();
+                let max_connection_lifetime = url.max_connection_lifetime();
+                let max_idle_connection_lifetime = url.max_idle_connection_lifetime();
 
                 let manager = QuaintManager::Postgres { url };
                 let mut builder = Builder::new(s, manager)?;
@@ -405,6 +425,14 @@ impl Quaint {
                     builder.pool_timeout(timeout);
                 }
 
+                if let Some(max_lifetime) = max_connection_lifetime {
+                    builder.max_lifetime(max_lifetime);
+                }
+
+                if let Some(max_idle_lifetime) = max_idle_connection_lifetime {
+                    builder.max_idle_lifetime(max_idle_lifetime);
+                }
+
                 Ok(builder)
             }
             #[cfg(feature = "mssql")]
@@ -412,6 +440,8 @@ impl Quaint {
                 let url = crate::connector::MssqlUrl::new(s)?;
                 let connection_limit = url.connection_limit();
                 let pool_timeout = url.pool_timeout();
+                let max_connection_lifetime = url.max_connection_lifetime();
+                let max_idle_connection_lifetime = url.max_idle_connection_lifetime();
 
                 let manager = QuaintManager::Mssql { url };
                 let mut builder = Builder::new(s, manager)?;
@@ -422,6 +452,14 @@ impl Quaint {
 
                 if let Some(timeout) = pool_timeout {
                     builder.pool_timeout(timeout);
+                }
+
+                if let Some(max_lifetime) = max_connection_lifetime {
+                    builder.max_lifetime(max_lifetime);
+                }
+
+                if let Some(max_idle_lifetime) = max_idle_connection_lifetime {
+                    builder.max_idle_lifetime(max_idle_lifetime);
                 }
 
                 Ok(builder)
