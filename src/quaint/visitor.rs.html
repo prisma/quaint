@@ -1003,6 +1003,11 @@
 <span id="1000">1000</span>
 <span id="1001">1001</span>
 <span id="1002">1002</span>
+<span id="1003">1003</span>
+<span id="1004">1004</span>
+<span id="1005">1005</span>
+<span id="1006">1006</span>
+<span id="1007">1007</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Visitors for reading an abstract SQL syntax tree, generating the query and</span>
 <span class="doccomment">//! gathering parameters in the right order.</span>
@@ -1926,6 +1931,11 @@
             }
             <span class="ident">FunctionType</span>::<span class="ident">AggregateToString</span>(<span class="ident">agg</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="self">self</span>.<span class="ident">visit_aggregate_to_string</span>(<span class="ident">agg</span>.<span class="ident">value</span>.<span class="ident">as_ref</span>().<span class="ident">clone</span>())<span class="question-mark">?</span>;
+            }
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;json&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;postgresql&quot;</span>))]</span>
+            <span class="ident">FunctionType</span>::<span class="ident">RowToJson</span>(<span class="ident">row_to_json</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="self">self</span>.<span class="ident">write</span>(<span class="string">&quot;ROW_TO_JSON&quot;</span>)<span class="question-mark">?</span>;
+                <span class="self">self</span>.<span class="ident">surround_with</span>(<span class="string">&quot;(&quot;</span>, <span class="string">&quot;)&quot;</span>, <span class="op">|</span><span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">s</span><span class="op">|</span> <span class="ident">s</span>.<span class="ident">visit_table</span>(<span class="ident">row_to_json</span>.<span class="ident">expr</span>, <span class="bool-val">false</span>))<span class="question-mark">?</span>
             }
             <span class="ident">FunctionType</span>::<span class="ident">Average</span>(<span class="ident">avg</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="self">self</span>.<span class="ident">visit_average</span>(<span class="ident">avg</span>)<span class="question-mark">?</span>;

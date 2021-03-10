@@ -223,13 +223,6 @@
 <span id="220">220</span>
 <span id="221">221</span>
 <span id="222">222</span>
-<span id="223">223</span>
-<span id="224">224</span>
-<span id="225">225</span>
-<span id="226">226</span>
-<span id="227">227</span>
-<span id="228">228</span>
-<span id="229">229</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! A single connection abstraction to a SQL database.</span>
 
@@ -419,14 +412,7 @@
         <span class="kw">let</span> <span class="ident">family</span> <span class="op">=</span> <span class="ident">info</span>.<span class="ident">sql_family</span>();
         <span class="kw">let</span> <span class="ident">pg_bouncer</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">info</span>.<span class="ident">pg_bouncer</span>() { <span class="string">&quot; in PgBouncer mode&quot;</span> } <span class="kw">else</span> { <span class="string">&quot;&quot;</span> };
 
-        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;tracing-log&quot;</span>))]</span>
-        {
-            <span class="macro">info</span><span class="macro">!</span>(<span class="string">&quot;Starting a {} connection{}.&quot;</span>, <span class="ident">family</span>, <span class="ident">pg_bouncer</span>);
-        }
-        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;tracing-log&quot;</span>)]</span>
-        {
-            <span class="ident">tracing</span>::<span class="macro">info</span><span class="macro">!</span>(<span class="string">&quot;Starting a {} connection{}.&quot;</span>, <span class="ident">family</span>, <span class="ident">pg_bouncer</span>);
-        }
+        <span class="ident">tracing</span>::<span class="macro">info</span><span class="macro">!</span>(<span class="string">&quot;Starting a {} connection{}.&quot;</span>, <span class="ident">family</span>, <span class="ident">pg_bouncer</span>);
     }
 }
 

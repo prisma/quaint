@@ -449,13 +449,6 @@
 <span id="446">446</span>
 <span id="447">447</span>
 <span id="448">448</span>
-<span id="449">449</span>
-<span id="450">450</span>
-<span id="451">451</span>
-<span id="452">452</span>
-<span id="453">453</span>
-<span id="454">454</span>
-<span id="455">455</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! # A connection pool to a SQL database.</span>
 <span class="doccomment">//!</span>
@@ -775,22 +768,13 @@
     <span class="kw">fn</span> <span class="ident">log_start</span>(<span class="ident">info</span>: <span class="kw-2">&amp;</span><span class="ident">ConnectionInfo</span>, <span class="ident">connection_limit</span>: <span class="ident">usize</span>) {
         <span class="kw">let</span> <span class="ident">family</span> <span class="op">=</span> <span class="ident">info</span>.<span class="ident">sql_family</span>();
         <span class="kw">let</span> <span class="ident">pg_bouncer</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">info</span>.<span class="ident">pg_bouncer</span>() { <span class="string">&quot; in PgBouncer mode&quot;</span> } <span class="kw">else</span> { <span class="string">&quot;&quot;</span> };
-        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;tracing-log&quot;</span>))]</span>
-        {
-            <span class="macro">info</span><span class="macro">!</span>(
-                <span class="string">&quot;Starting a {} pool with {} connections{}.&quot;</span>,
-                <span class="ident">family</span>, <span class="ident">connection_limit</span>, <span class="ident">pg_bouncer</span>
-            );
-        }
-        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;tracing-log&quot;</span>)]</span>
-        {
-            <span class="ident">tracing</span>::<span class="macro">info</span><span class="macro">!</span>(
-                <span class="string">&quot;Starting a {} pool with {} connections{}.&quot;</span>,
-                <span class="ident">family</span>,
-                <span class="ident">connection_limit</span>,
-                <span class="ident">pg_bouncer</span>
-            );
-        }
+
+        <span class="ident">tracing</span>::<span class="macro">info</span><span class="macro">!</span>(
+            <span class="string">&quot;Starting a {} pool with {} connections{}.&quot;</span>,
+            <span class="ident">family</span>,
+            <span class="ident">connection_limit</span>,
+            <span class="ident">pg_bouncer</span>
+        );
     }
 }
 
@@ -799,6 +783,7 @@
     <span class="doccomment">/// connection string. See the [module level documentation] for details.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// [module level documentation]: index.html</span>
+    <span class="attribute">#[<span class="ident">tracing</span>::<span class="ident">instrument</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">builder</span>(<span class="ident">url_str</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">crate</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Builder</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="ident">url_str</span> {
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sqlite&quot;</span>)]</span>
@@ -885,6 +870,7 @@
     }
 
     <span class="doccomment">/// Reserve a connection from the pool.</span>
+    <span class="attribute">#[<span class="ident">tracing</span>::<span class="ident">instrument</span>(<span class="ident">name</span> <span class="op">=</span> <span class="string">&quot;fetch_new_connection_from_pool&quot;</span>, <span class="ident">skip</span>(<span class="self">self</span>))]</span>
     <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">check_out</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">crate</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">PooledConnection</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">pool_timeout</span> {
             <span class="prelude-val">Some</span>(<span class="ident">duration</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">crate</span>::<span class="ident">connector</span>::<span class="ident">metrics</span>::<span class="ident">check_out</span>(<span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">get_timeout</span>(<span class="ident">duration</span>)).<span class="kw">await</span>,

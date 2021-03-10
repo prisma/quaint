@@ -64,30 +64,6 @@
 <span id="61">61</span>
 <span id="62">62</span>
 <span id="63">63</span>
-<span id="64">64</span>
-<span id="65">65</span>
-<span id="66">66</span>
-<span id="67">67</span>
-<span id="68">68</span>
-<span id="69">69</span>
-<span id="70">70</span>
-<span id="71">71</span>
-<span id="72">72</span>
-<span id="73">73</span>
-<span id="74">74</span>
-<span id="75">75</span>
-<span id="76">76</span>
-<span id="77">77</span>
-<span id="78">78</span>
-<span id="79">79</span>
-<span id="80">80</span>
-<span id="81">81</span>
-<span id="82">82</span>
-<span id="83">83</span>
-<span id="84">84</span>
-<span id="85">85</span>
-<span id="86">86</span>
-<span id="87">87</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">ast</span>::{<span class="ident">Params</span>, <span class="ident">Value</span>};
 <span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">future</span>::<span class="ident">Future</span>, <span class="ident">time</span>::<span class="ident">Instant</span>};
@@ -112,26 +88,13 @@
             <span class="prelude-val">Err</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;error&quot;</span>,
         };
 
-        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;tracing-log&quot;</span>))]</span>
-        {
-            <span class="macro">info</span><span class="macro">!</span>(
-                <span class="string">&quot;query: \&quot;{}\&quot;, params: {} ({} in {}ms)&quot;</span>,
-                <span class="ident">query</span>,
-                <span class="ident">Params</span>(<span class="ident">params</span>),
-                <span class="ident">result</span>,
-                <span class="ident">start</span>.<span class="ident">elapsed</span>().<span class="ident">as_millis</span>(),
-            );
-        }
-        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;tracing-log&quot;</span>)]</span>
-        {
-            <span class="ident">tracing</span>::<span class="macro">info</span><span class="macro">!</span>(
-                <span class="ident">query</span>,
-                <span class="ident">item_type</span> <span class="op">=</span> <span class="string">&quot;query&quot;</span>,
-                <span class="ident">params</span> <span class="op">=</span> <span class="op">%</span><span class="ident">Params</span>(<span class="ident">params</span>),
-                <span class="ident">duration_ms</span> <span class="op">=</span> <span class="ident">start</span>.<span class="ident">elapsed</span>().<span class="ident">as_millis</span>() <span class="kw">as</span> <span class="ident">u64</span>,
-                <span class="ident">result</span>,
-            )
-        }
+        <span class="ident">tracing</span>::<span class="macro">info</span><span class="macro">!</span>(
+            <span class="ident">query</span>,
+            <span class="ident">item_type</span> <span class="op">=</span> <span class="string">&quot;query&quot;</span>,
+            <span class="ident">params</span> <span class="op">=</span> <span class="op">%</span><span class="ident">Params</span>(<span class="ident">params</span>),
+            <span class="ident">duration_ms</span> <span class="op">=</span> <span class="ident">start</span>.<span class="ident">elapsed</span>().<span class="ident">as_millis</span>() <span class="kw">as</span> <span class="ident">u64</span>,
+            <span class="ident">result</span>,
+        )
     }
 
     <span class="macro">timing</span><span class="macro">!</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}.query.time&quot;</span>, <span class="ident">tag</span>), <span class="ident">start</span>, <span class="ident">end</span>);
@@ -154,22 +117,11 @@
             <span class="prelude-val">Err</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;error&quot;</span>,
         };
 
-        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;tracing-log&quot;</span>))]</span>
-        {
-            <span class="macro">info</span><span class="macro">!</span>(
-                <span class="string">&quot;Fetched a connection from the pool ({} in {}ms)&quot;</span>,
-                <span class="ident">result</span>,
-                <span class="ident">start</span>.<span class="ident">elapsed</span>().<span class="ident">as_millis</span>(),
-            );
-        }
-        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;tracing-log&quot;</span>)]</span>
-        {
-            <span class="ident">tracing</span>::<span class="macro">info</span><span class="macro">!</span>(
-                <span class="ident">message</span> <span class="op">=</span> <span class="string">&quot;Fetched a connection from the pool&quot;</span>,
-                <span class="ident">duration_ms</span> <span class="op">=</span> <span class="ident">start</span>.<span class="ident">elapsed</span>().<span class="ident">as_millis</span>() <span class="kw">as</span> <span class="ident">u64</span>,
-                <span class="ident">result</span>,
-            );
-        }
+        <span class="ident">tracing</span>::<span class="macro">info</span><span class="macro">!</span>(
+            <span class="ident">message</span> <span class="op">=</span> <span class="string">&quot;Fetched a connection from the pool&quot;</span>,
+            <span class="ident">duration_ms</span> <span class="op">=</span> <span class="ident">start</span>.<span class="ident">elapsed</span>().<span class="ident">as_millis</span>() <span class="kw">as</span> <span class="ident">u64</span>,
+            <span class="ident">result</span>,
+        );
     }
 
     <span class="macro">timing</span><span class="macro">!</span>(<span class="string">&quot;pool.check_out&quot;</span>, <span class="ident">start</span>, <span class="ident">end</span>);

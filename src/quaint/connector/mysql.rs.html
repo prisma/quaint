@@ -406,13 +406,6 @@
 <span id="403">403</span>
 <span id="404">404</span>
 <span id="405">405</span>
-<span id="406">406</span>
-<span id="407">407</span>
-<span id="408">408</span>
-<span id="409">409</span>
-<span id="410">410</span>
-<span id="411">411</span>
-<span id="412">412</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">mod</span> <span class="ident">conversion</span>;
 <span class="kw">mod</span> <span class="ident">error</span>;
@@ -470,9 +463,6 @@
         <span class="kw">match</span> <span class="ident">percent_decode</span>(<span class="self">self</span>.<span class="ident">url</span>.<span class="ident">username</span>().<span class="ident">as_bytes</span>()).<span class="ident">decode_utf8</span>() {
             <span class="prelude-val">Ok</span>(<span class="ident">username</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">username</span>,
             <span class="prelude-val">Err</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;tracing-log&quot;</span>))]</span>
-                <span class="macro">warn</span><span class="macro">!</span>(<span class="string">&quot;Couldn&#39;t decode username to UTF-8, using the non-decoded version.&quot;</span>);
-                <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;tracing-log&quot;</span>)]</span>
                 <span class="ident">tracing</span>::<span class="macro">warn</span><span class="macro">!</span>(<span class="string">&quot;Couldn&#39;t decode username to UTF-8, using the non-decoded version.&quot;</span>);
 
                 <span class="self">self</span>.<span class="ident">url</span>.<span class="ident">username</span>().<span class="ident">into</span>()
@@ -598,12 +588,6 @@
                         }
                         <span class="string">&quot;accept_invalid_certs&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {}
                         <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {
-                            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;tracing-log&quot;</span>))]</span>
-                            <span class="macro">debug</span><span class="macro">!</span>(
-                                <span class="string">&quot;Unsupported SSL accept mode {}, defaulting to `accept_invalid_certs`&quot;</span>,
-                                <span class="ident">v</span>
-                            );
-                            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;tracing-log&quot;</span>)]</span>
                             <span class="ident">tracing</span>::<span class="macro">debug</span><span class="macro">!</span>(
                                 <span class="ident">message</span> <span class="op">=</span> <span class="string">&quot;Unsupported SSL accept mode, defaulting to `accept_invalid_certs`&quot;</span>,
                                 <span class="ident">mode</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">v</span>
@@ -612,9 +596,6 @@
                     };
                 }
                 <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;tracing-log&quot;</span>))]</span>
-                    <span class="macro">trace</span><span class="macro">!</span>(<span class="string">&quot;Discarding connection string param: {}&quot;</span>, <span class="ident">k</span>);
-                    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;tracing-log&quot;</span>)]</span>
                     <span class="ident">tracing</span>::<span class="macro">trace</span><span class="macro">!</span>(<span class="ident">message</span> <span class="op">=</span> <span class="string">&quot;Discarding connection string param&quot;</span>, <span class="ident">param</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">k</span>);
                 }
             };
@@ -675,6 +656,7 @@
 
 <span class="kw">impl</span> <span class="ident">Mysql</span> {
     <span class="doccomment">/// Create a new MySQL connection using `OptsBuilder` from the `mysql` crate.</span>
+    <span class="attribute">#[<span class="ident">tracing</span>::<span class="ident">instrument</span>(<span class="ident">name</span> <span class="op">=</span> <span class="string">&quot;new_connection&quot;</span>, <span class="ident">skip</span>(<span class="ident">url</span>))]</span>
     <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">url</span>: <span class="ident">MysqlUrl</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">crate</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">conn</span> <span class="op">=</span> <span class="kw">super</span>::<span class="ident">timeout</span>::<span class="ident">connect</span>(<span class="ident">url</span>.<span class="ident">connect_timeout</span>(), <span class="ident">my</span>::<span class="ident">Conn</span>::<span class="ident">new</span>(<span class="ident">url</span>.<span class="ident">to_opts_builder</span>())).<span class="kw">await</span><span class="question-mark">?</span>;
 
@@ -700,6 +682,7 @@
         <span class="self">self</span>.<span class="ident">execute_raw</span>(<span class="kw-2">&amp;</span><span class="ident">sql</span>, <span class="kw-2">&amp;</span><span class="ident">params</span>).<span class="kw">await</span>
     }
 
+    <span class="attribute">#[<span class="ident">tracing</span>::<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="self">self</span>, <span class="ident">params</span>))]</span>
     <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">query_raw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">sql</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">params</span>: <span class="kw-2">&amp;</span>[<span class="ident">Value</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">crate</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ResultSet</span><span class="op">&gt;</span> {
         <span class="ident">metrics</span>::<span class="ident">query</span>(<span class="string">&quot;mysql.query_raw&quot;</span>, <span class="ident">sql</span>, <span class="ident">params</span>, <span class="kw">move</span> <span class="op">|</span><span class="op">|</span> <span class="kw">async</span> <span class="kw">move</span> {
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">conn</span>.<span class="ident">lock</span>().<span class="kw">await</span>;
@@ -726,6 +709,7 @@
         .<span class="kw">await</span>
     }
 
+    <span class="attribute">#[<span class="ident">tracing</span>::<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="self">self</span>, <span class="ident">params</span>))]</span>
     <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">execute_raw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">sql</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">params</span>: <span class="kw-2">&amp;</span>[<span class="ident">Value</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">crate</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">u64</span><span class="op">&gt;</span> {
         <span class="ident">metrics</span>::<span class="ident">query</span>(<span class="string">&quot;mysql.execute_raw&quot;</span>, <span class="ident">sql</span>, <span class="ident">params</span>, <span class="kw">move</span> <span class="op">|</span><span class="op">|</span> <span class="kw">async</span> <span class="kw">move</span> {
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">conn</span>.<span class="ident">lock</span>().<span class="kw">await</span>;
@@ -741,6 +725,7 @@
         .<span class="kw">await</span>
     }
 
+    <span class="attribute">#[<span class="ident">tracing</span>::<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="self">self</span>))]</span>
     <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">raw_cmd</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">cmd</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">crate</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="ident">metrics</span>::<span class="ident">query</span>(<span class="string">&quot;mysql.raw_cmd&quot;</span>, <span class="ident">cmd</span>, <span class="kw-2">&amp;</span>[], <span class="kw">move</span> <span class="op">|</span><span class="op">|</span> <span class="kw">async</span> <span class="kw">move</span> {
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">conn</span>.<span class="ident">lock</span>().<span class="kw">await</span>;
@@ -767,6 +752,7 @@
         .<span class="kw">await</span>
     }
 
+    <span class="attribute">#[<span class="ident">tracing</span>::<span class="ident">instrument</span>(<span class="ident">skip</span>(<span class="self">self</span>))]</span>
     <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">version</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">crate</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">query</span> <span class="op">=</span> <span class="string">r#&quot;SELECT @@GLOBAL.version version&quot;#</span>;
         <span class="kw">let</span> <span class="ident">rows</span> <span class="op">=</span> <span class="kw">super</span>::<span class="ident">timeout</span>::<span class="ident">socket</span>(<span class="self">self</span>.<span class="ident">socket_timeout</span>, <span class="self">self</span>.<span class="ident">query_raw</span>(<span class="ident">query</span>, <span class="kw-2">&amp;</span>[])).<span class="kw">await</span><span class="question-mark">?</span>;

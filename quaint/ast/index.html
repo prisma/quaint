@@ -32,6 +32,8 @@ window function is applied.</p>
 </td></tr><tr class="module-item"><td><a class="struct" href="struct.Row.html" title="quaint::ast::Row struct">Row</a></td><td class="docblock-short"><p>A collection of values surrounded by parentheses.</p>
 </td></tr><tr class="module-item"><td><a class="struct" href="struct.RowNumber.html" title="quaint::ast::RowNumber struct">RowNumber</a></td><td class="docblock-short"><p>A window function that assigns a sequential integer
 number to each row in the query’s result set.</p>
+</td></tr><tr class="module-item"><td><a class="struct" href="struct.RowToJson.html" title="quaint::ast::RowToJson struct">RowToJson</a></td><td class="docblock-short"><span class="stab portability" title="This is supported on crate feature `postgresql` only"><code>postgresql</code></span><p>A representation of the <code>ROW_TO_JSON</code> function in the database.
+Only for <code>Postgresql</code></p>
 </td></tr><tr class="module-item"><td><a class="struct" href="struct.Select.html" title="quaint::ast::Select struct">Select</a></td><td class="docblock-short"><p>A builder for a <code>SELECT</code> statement.</p>
 </td></tr><tr class="module-item"><td><a class="struct" href="struct.SingleRowInsert.html" title="quaint::ast::SingleRowInsert struct">SingleRowInsert</a></td><td class="docblock-short"><p>A builder for an <code>INSERT</code> statement for a single row.</p>
 </td></tr><tr class="module-item"><td><a class="struct" href="struct.Sum.html" title="quaint::ast::Sum struct">Sum</a></td><td class="docblock-short"><p>A represention of the <code>SUM</code> function in the database.</p>
@@ -78,6 +80,7 @@ compatibility.</p>
 </td></tr><tr class="module-item"><td><a class="fn" href="fn.max.html" title="quaint::ast::max fn">max</a></td><td class="docblock-short"><p>Calculates the maximum value of a numeric column.</p>
 </td></tr><tr class="module-item"><td><a class="fn" href="fn.min.html" title="quaint::ast::min fn">min</a></td><td class="docblock-short"><p>Calculates the minimum value of a numeric column.</p>
 </td></tr><tr class="module-item"><td><a class="fn" href="fn.row_number.html" title="quaint::ast::row_number fn">row_number</a></td><td class="docblock-short"><p>A number from 1 to n in specified order</p>
+</td></tr><tr class="module-item"><td><a class="fn" href="fn.row_to_json.html" title="quaint::ast::row_to_json fn">row_to_json</a></td><td class="docblock-short"><span class="stab portability" title="This is supported on crate feature `postgresql` only"><code>postgresql</code></span><p>Return the given table in <code>JSON</code> format.</p>
 </td></tr><tr class="module-item"><td><a class="fn" href="fn.sum.html" title="quaint::ast::sum fn">sum</a></td><td class="docblock-short"><p>Calculates the sum value of a numeric column.</p>
 </td></tr><tr class="module-item"><td><a class="fn" href="fn.upper.html" title="quaint::ast::upper fn">upper</a></td><td class="docblock-short"><p>Converts the result of the expression into uppercase string.</p>
 </td></tr></table><h2 id="types" class="section-header"><a href="#types">Type Definitions</a></h2>

@@ -68,6 +68,15 @@
 <span id="65">65</span>
 <span id="66">66</span>
 <span id="67">67</span>
+<span id="68">68</span>
+<span id="69">69</span>
+<span id="70">70</span>
+<span id="71">71</span>
+<span id="72">72</span>
+<span id="73">73</span>
+<span id="74">74</span>
+<span id="75">75</span>
+<span id="76">76</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">mod</span> <span class="ident">aggregate_to_string</span>;
 <span class="kw">mod</span> <span class="ident">average</span>;
@@ -76,6 +85,8 @@
 <span class="kw">mod</span> <span class="ident">maximum</span>;
 <span class="kw">mod</span> <span class="ident">minimum</span>;
 <span class="kw">mod</span> <span class="ident">row_number</span>;
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;json&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;postgresql&quot;</span>))]</span>
+<span class="kw">mod</span> <span class="ident">row_to_json</span>;
 <span class="kw">mod</span> <span class="ident">sum</span>;
 <span class="kw">mod</span> <span class="ident">upper</span>;
 
@@ -86,6 +97,8 @@
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">maximum</span>::<span class="kw-2">*</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">minimum</span>::<span class="kw-2">*</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">row_number</span>::<span class="kw-2">*</span>;
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;json&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;postgresql&quot;</span>))]</span>
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">row_to_json</span>::<span class="kw-2">*</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">sum</span>::<span class="kw-2">*</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">upper</span>::<span class="kw-2">*</span>;
 
@@ -102,6 +115,8 @@
 <span class="doccomment">/// A database function type</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">PartialEq</span>)]</span>
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">enum</span> <span class="ident">FunctionType</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;json&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;postgresql&quot;</span>))]</span>
+    <span class="ident">RowToJson</span>(<span class="ident">RowToJson</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>),
     <span class="ident">RowNumber</span>(<span class="ident">RowNumber</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>),
     <span class="ident">Count</span>(<span class="ident">Count</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>),
     <span class="ident">AggregateToString</span>(<span class="ident">AggregateToString</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>),
@@ -124,6 +139,9 @@
         <span class="self">self</span>
     }
 }
+
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;json&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;postgresql&quot;</span>))]</span>
+<span class="macro">function</span><span class="macro">!</span>(<span class="ident">RowToJson</span>);
 
 <span class="macro">function</span><span class="macro">!</span>(
     <span class="ident">RowNumber</span>,
