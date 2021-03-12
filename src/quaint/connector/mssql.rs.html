@@ -930,7 +930,7 @@
             .<span class="ident">transpose</span>()<span class="question-mark">?</span>;
 
         <span class="kw">match</span> <span class="ident">pool_timeout</span> {
-            <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">pool_timeout</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Duration</span>::<span class="ident">from_secs</span>(<span class="number">5</span>)),
+            <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">pool_timeout</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Duration</span>::<span class="ident">from_secs</span>(<span class="number">10</span>)),
             <span class="prelude-val">Some</span>(<span class="ident">dur</span>) <span class="kw">if</span> <span class="ident">dur</span>.<span class="ident">as_secs</span>() <span class="op">=</span><span class="op">=</span> <span class="number">0</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">pool_timeout</span> <span class="op">=</span> <span class="prelude-val">None</span>,
             <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> (),
         }
