@@ -187,13 +187,14 @@ impl Builder {
     fn new(url: &str, manager: QuaintManager) -> crate::Result<Self> {
         let connection_limit = num_cpus::get_physical() * 2 + 1;
         let connection_info = ConnectionInfo::from_url(url)?;
+        let max_idle_lifetime = Duration::from_secs(300)
 
         Ok(Self {
             manager,
             connection_info,
             connection_limit,
             max_idle: None,
-            max_idle_lifetime: None,
+            max_idle_lifetime,
             max_lifetime: None,
             health_check_interval: None,
             test_on_check_out: false,
@@ -270,7 +271,7 @@ impl Builder {
     /// replaced with a new one. The reconnect happens in the next
     /// [`check_out`].
     ///
-    /// - Defaults to not set, meaning idle connections are never reconnected.
+    /// - Defaults to 300 seconds
     ///
     /// # Panics
     ///
