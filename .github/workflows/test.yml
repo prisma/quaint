@@ -77,6 +77,11 @@ jobs:
       - name: Start Databases
         run: docker-compose -f docker-compose.yml up -d
 
+      - name: Sleep for 20s
+        uses: juliangruber/sleep-action@v1
+        with:
+          time: 20s
+
       - name: Run tests
         run: cargo test ${{ matrix.features }}
 
