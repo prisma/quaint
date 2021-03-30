@@ -13,7 +13,20 @@ services:
       - databases
     tmpfs: /pgtmpfs12
 
-  mysql:
+  mysql57:
+    image: mysql:5.7
+    command: mysqld
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: prisma
+      MYSQL_DATABASE: prisma
+    ports:
+      - "3306:3306"
+    networks:
+      - databases
+    tmpfs: /var/lib/mysql5.7
+
+  mysql8:
     image: mysql:8.0.22
     command: mysqld
     restart: always
@@ -22,7 +35,7 @@ services:
       MYSQL_ROOT_PASSWORD: prisma
       MYSQL_DATABASE: prisma
     ports:
-      - "3306:3306"
+      - "3307:3306"
     networks:
       - databases
     tmpfs: /var/lib/mysql8
