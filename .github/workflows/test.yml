@@ -79,3 +79,54 @@ jobs:
 
       - name: Run tests
         run: cargo test ${{ matrix.features }}
+
+  rustdoc:
+    needs: [clippy, format, cargo-test]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/master'
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: nightly
+
+      - uses: actions/cache@v2
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: linux-cargo-rustdoc
+
+      - name: Generate documentation
+        run: |
+          cargo rustdoc --all-features
+      - name: Commit changes
+        run: |
+          git config user.name "GitHub agent"
+          git config user.email "hello@prisma.io"
+
+          rm -rf deploy_docs
+          git clone --branch gh-pages "git@github.com:prisma/quaint.git" deploy_docs > /dev/null 2>&1
+          rm -rf deploy_docs/*
+          mv target/doc/* deploy_docs/
+          echo "<meta http-equiv=refresh content=0;url=quaint/index.html>" > deploy_docs/index.html
+
+          DIFF=$(git status -s)
+          printf "$DIFF\n"
+
+          if [ -z "$DIFF" ]
+          then
+              echo "Nothing to do"
+          else
+              git -C deploy_docs add -A .
+              git -C deploy_docs commit -m "Add changes"
+          fi
+      - name: Push changes
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          branch: gh-pages
+          directory: deploy_docs
