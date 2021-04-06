@@ -783,7 +783,7 @@
         <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Table</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     {
         <span class="ident">Select</span> {
-            <span class="ident">tables</span>: <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">table</span>.<span class="ident">into</span>()],
+            <span class="ident">tables</span>: <span class="macro">vec!</span>[<span class="ident">table</span>.<span class="ident">into</span>()],
             ..<span class="ident">Default</span>::<span class="ident">default</span>()
         }
     }
@@ -1321,7 +1321,7 @@
                 .<span class="ident">iter</span>()
                 .<span class="ident">any</span>(<span class="op">|</span><span class="ident">c</span><span class="op">|</span> <span class="ident">ctes</span>.<span class="ident">iter</span>().<span class="ident">any</span>(<span class="op">|</span><span class="ident">c2</span><span class="op">|</span> <span class="ident">c</span>.<span class="ident">identifier</span> <span class="op">=</span><span class="op">=</span> <span class="ident">c2</span>.<span class="ident">identifier</span>));
 
-            <span class="macro">assert</span><span class="macro">!</span>(<span class="op">!</span><span class="ident">clashing_names</span>);
+            <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">clashing_names</span>);
             <span class="self">self</span>.<span class="ident">ctes</span>.<span class="ident">extend</span>(<span class="ident">ctes</span>);
 
             <span class="ident">either</span>::<span class="ident">Either</span>::<span class="ident">Left</span>(<span class="self">self</span>)

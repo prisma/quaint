@@ -380,7 +380,7 @@
                 <span class="ident">Value</span>::<span class="ident">Bytes</span>(<span class="ident">bytes</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">bytes</span>.<span class="ident">clone</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">bytes</span><span class="op">|</span> <span class="ident">my</span>::<span class="ident">Value</span>::<span class="ident">Bytes</span>(<span class="ident">bytes</span>.<span class="ident">into_owned</span>())),
                 <span class="ident">Value</span>::<span class="ident">Enum</span>(<span class="ident">s</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">s</span>.<span class="ident">clone</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="ident">my</span>::<span class="ident">Value</span>::<span class="ident">Bytes</span>((<span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">s</span>).<span class="ident">as_bytes</span>().<span class="ident">to_vec</span>())),
                 <span class="ident">Value</span>::<span class="ident">Boolean</span>(<span class="ident">b</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">b</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">b</span><span class="op">|</span> <span class="ident">my</span>::<span class="ident">Value</span>::<span class="ident">Int</span>(<span class="ident">b</span> <span class="kw">as</span> <span class="ident">i64</span>)),
-                <span class="ident">Value</span>::<span class="ident">Char</span>(<span class="ident">c</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">c</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">c</span><span class="op">|</span> <span class="ident">my</span>::<span class="ident">Value</span>::<span class="ident">Bytes</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="ident">c</span> <span class="kw">as</span> <span class="ident">u8</span>])),
+                <span class="ident">Value</span>::<span class="ident">Char</span>(<span class="ident">c</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">c</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">c</span><span class="op">|</span> <span class="ident">my</span>::<span class="ident">Value</span>::<span class="ident">Bytes</span>(<span class="macro">vec!</span>[<span class="ident">c</span> <span class="kw">as</span> <span class="ident">u8</span>])),
                 <span class="ident">Value</span>::<span class="ident">Xml</span>(<span class="ident">s</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">s</span> {
                     <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">s</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">my</span>::<span class="ident">Value</span>::<span class="ident">Bytes</span>((<span class="ident">s</span>).<span class="ident">as_bytes</span>().<span class="ident">to_vec</span>())),
                     <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
@@ -447,25 +447,25 @@
     <span class="kw">fn</span> <span class="ident">is_real</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
         <span class="kw">use</span> <span class="ident">ColumnType</span>::<span class="kw-2">*</span>;
 
-        <span class="macro">matches</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">column_type</span>(), <span class="ident">MYSQL_TYPE_DECIMAL</span> <span class="op">|</span> <span class="ident">MYSQL_TYPE_NEWDECIMAL</span>)
+        <span class="macro">matches!</span>(<span class="self">self</span>.<span class="ident">column_type</span>(), <span class="ident">MYSQL_TYPE_DECIMAL</span> <span class="op">|</span> <span class="ident">MYSQL_TYPE_NEWDECIMAL</span>)
     }
 
     <span class="kw">fn</span> <span class="ident">is_float</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
         <span class="kw">use</span> <span class="ident">ColumnType</span>::<span class="kw-2">*</span>;
 
-        <span class="macro">matches</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">column_type</span>(), <span class="ident">MYSQL_TYPE_FLOAT</span>)
+        <span class="macro">matches!</span>(<span class="self">self</span>.<span class="ident">column_type</span>(), <span class="ident">MYSQL_TYPE_FLOAT</span>)
     }
 
     <span class="kw">fn</span> <span class="ident">is_double</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
         <span class="kw">use</span> <span class="ident">ColumnType</span>::<span class="kw-2">*</span>;
 
-        <span class="macro">matches</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">column_type</span>(), <span class="ident">MYSQL_TYPE_DOUBLE</span>)
+        <span class="macro">matches!</span>(<span class="self">self</span>.<span class="ident">column_type</span>(), <span class="ident">MYSQL_TYPE_DOUBLE</span>)
     }
 
     <span class="kw">fn</span> <span class="ident">is_integer</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
         <span class="kw">use</span> <span class="ident">ColumnType</span>::<span class="kw-2">*</span>;
 
-        <span class="macro">matches</span><span class="macro">!</span>(
+        <span class="macro">matches!</span>(
             <span class="self">self</span>.<span class="ident">column_type</span>(),
             <span class="ident">MYSQL_TYPE_TINY</span>
                 <span class="op">|</span> <span class="ident">MYSQL_TYPE_SHORT</span>
@@ -479,7 +479,7 @@
     <span class="kw">fn</span> <span class="ident">is_datetime</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
         <span class="kw">use</span> <span class="ident">ColumnType</span>::<span class="kw-2">*</span>;
 
-        <span class="macro">matches</span><span class="macro">!</span>(
+        <span class="macro">matches!</span>(
             <span class="self">self</span>.<span class="ident">column_type</span>(),
             <span class="ident">MYSQL_TYPE_TIMESTAMP</span> <span class="op">|</span> <span class="ident">MYSQL_TYPE_DATETIME</span> <span class="op">|</span> <span class="ident">MYSQL_TYPE_TIMESTAMP2</span> <span class="op">|</span> <span class="ident">MYSQL_TYPE_DATETIME2</span>
         )
@@ -488,24 +488,24 @@
     <span class="kw">fn</span> <span class="ident">is_time</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
         <span class="kw">use</span> <span class="ident">ColumnType</span>::<span class="kw-2">*</span>;
 
-        <span class="macro">matches</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">column_type</span>(), <span class="ident">MYSQL_TYPE_TIME</span> <span class="op">|</span> <span class="ident">MYSQL_TYPE_TIME2</span>)
+        <span class="macro">matches!</span>(<span class="self">self</span>.<span class="ident">column_type</span>(), <span class="ident">MYSQL_TYPE_TIME</span> <span class="op">|</span> <span class="ident">MYSQL_TYPE_TIME2</span>)
     }
 
     <span class="kw">fn</span> <span class="ident">is_date</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
         <span class="kw">use</span> <span class="ident">ColumnType</span>::<span class="kw-2">*</span>;
 
-        <span class="macro">matches</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">column_type</span>(), <span class="ident">MYSQL_TYPE_DATE</span> <span class="op">|</span> <span class="ident">MYSQL_TYPE_NEWDATE</span>)
+        <span class="macro">matches!</span>(<span class="self">self</span>.<span class="ident">column_type</span>(), <span class="ident">MYSQL_TYPE_DATE</span> <span class="op">|</span> <span class="ident">MYSQL_TYPE_NEWDATE</span>)
     }
 
     <span class="kw">fn</span> <span class="ident">is_text</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
         <span class="kw">use</span> <span class="ident">ColumnType</span>::<span class="kw-2">*</span>;
 
-        <span class="kw">let</span> <span class="ident">is_defined_text</span> <span class="op">=</span> <span class="macro">matches</span><span class="macro">!</span>(
+        <span class="kw">let</span> <span class="ident">is_defined_text</span> <span class="op">=</span> <span class="macro">matches!</span>(
             <span class="self">self</span>.<span class="ident">column_type</span>(),
             <span class="ident">MYSQL_TYPE_VARCHAR</span> <span class="op">|</span> <span class="ident">MYSQL_TYPE_VAR_STRING</span> <span class="op">|</span> <span class="ident">MYSQL_TYPE_STRING</span>
         );
 
-        <span class="kw">let</span> <span class="ident">is_bytes_but_text</span> <span class="op">=</span> <span class="macro">matches</span><span class="macro">!</span>(
+        <span class="kw">let</span> <span class="ident">is_bytes_but_text</span> <span class="op">=</span> <span class="macro">matches!</span>(
             <span class="self">self</span>.<span class="ident">column_type</span>(),
             <span class="ident">MYSQL_TYPE_TINY_BLOB</span> <span class="op">|</span> <span class="ident">MYSQL_TYPE_MEDIUM_BLOB</span> <span class="op">|</span> <span class="ident">MYSQL_TYPE_LONG_BLOB</span> <span class="op">|</span> <span class="ident">MYSQL_TYPE_BLOB</span>
         ) <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">character_set</span>() <span class="op">!</span><span class="op">=</span> <span class="number">63</span>;
@@ -516,7 +516,7 @@
     <span class="kw">fn</span> <span class="ident">is_bytes</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
         <span class="kw">use</span> <span class="ident">ColumnType</span>::<span class="kw-2">*</span>;
 
-        <span class="kw">let</span> <span class="ident">is_a_blob</span> <span class="op">=</span> <span class="macro">matches</span><span class="macro">!</span>(
+        <span class="kw">let</span> <span class="ident">is_a_blob</span> <span class="op">=</span> <span class="macro">matches!</span>(
             <span class="self">self</span>.<span class="ident">column_type</span>(),
             <span class="ident">MYSQL_TYPE_TINY_BLOB</span> <span class="op">|</span> <span class="ident">MYSQL_TYPE_MEDIUM_BLOB</span> <span class="op">|</span> <span class="ident">MYSQL_TYPE_LONG_BLOB</span> <span class="op">|</span> <span class="ident">MYSQL_TYPE_BLOB</span>
         ) <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">character_set</span>() <span class="op">=</span><span class="op">=</span> <span class="number">63</span>;
@@ -613,7 +613,7 @@
                 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;chrono&quot;</span>)]</span>
                 <span class="ident">my</span>::<span class="ident">Value</span>::<span class="ident">Date</span>(<span class="ident">year</span>, <span class="ident">month</span>, <span class="ident">day</span>, <span class="ident">hour</span>, <span class="ident">min</span>, <span class="ident">sec</span>, <span class="ident">micro</span>) <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">if</span> <span class="ident">day</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> <span class="op">|</span><span class="op">|</span> <span class="ident">month</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
-                        <span class="kw">let</span> <span class="ident">msg</span> <span class="op">=</span> <span class="macro">format</span><span class="macro">!</span>(
+                        <span class="kw">let</span> <span class="ident">msg</span> <span class="op">=</span> <span class="macro">format!</span>(
                             <span class="string">&quot;The column `{}` contained an invalid datetime value with either day or month set to zero.&quot;</span>,
                             <span class="ident">column</span>.<span class="ident">name_str</span>()
                         );
@@ -663,7 +663,7 @@
                     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;json&quot;</span>)]</span>
                     <span class="ident">t</span> <span class="kw">if</span> <span class="ident">t</span>.<span class="ident">is_json</span>() <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Value</span>::<span class="ident">Json</span>(<span class="prelude-val">None</span>),
                     <span class="ident">typ</span> <span class="op">=</span><span class="op">&gt;</span> {
-                        <span class="kw">let</span> <span class="ident">msg</span> <span class="op">=</span> <span class="macro">format</span><span class="macro">!</span>(
+                        <span class="kw">let</span> <span class="ident">msg</span> <span class="op">=</span> <span class="macro">format!</span>(
                             <span class="string">&quot;Value of type {:?} is not supported with the current configuration&quot;</span>,
                             <span class="ident">typ</span>
                         );
@@ -674,7 +674,7 @@
                 },
                 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;chrono&quot;</span>))]</span>
                 <span class="ident">typ</span> <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="kw">let</span> <span class="ident">msg</span> <span class="op">=</span> <span class="macro">format</span><span class="macro">!</span>(
+                    <span class="kw">let</span> <span class="ident">msg</span> <span class="op">=</span> <span class="macro">format!</span>(
                         <span class="string">&quot;Value of type {:?} is not supported with the current configuration&quot;</span>,
                         <span class="ident">typ</span>
                     );

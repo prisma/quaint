@@ -451,7 +451,7 @@
 
         <span class="kw">let</span> <span class="ident">sql_family</span> <span class="op">=</span> <span class="ident">SqlFamily</span>::<span class="ident">from_scheme</span>(<span class="ident">url</span>.<span class="ident">scheme</span>()).<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> {
             <span class="kw">let</span> <span class="ident">kind</span> <span class="op">=</span>
-                <span class="ident">ErrorKind</span>::<span class="ident">DatabaseUrlIsInvalid</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{} is not a supported database URL scheme.&quot;</span>, <span class="ident">url</span>.<span class="ident">scheme</span>()));
+                <span class="ident">ErrorKind</span>::<span class="ident">DatabaseUrlIsInvalid</span>(<span class="macro">format!</span>(<span class="string">&quot;{} is not a supported database URL scheme.&quot;</span>, <span class="ident">url</span>.<span class="ident">scheme</span>()));
 
             <span class="ident">Error</span>::<span class="ident">builder</span>(<span class="ident">kind</span>).<span class="ident">build</span>()
         })<span class="question-mark">?</span>;
@@ -471,7 +471,7 @@
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;postgresql&quot;</span>)]</span>
             <span class="ident">SqlFamily</span>::<span class="ident">Postgres</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">ConnectionInfo</span>::<span class="ident">Postgres</span>(<span class="ident">PostgresUrl</span>::<span class="ident">new</span>(<span class="ident">url</span>)<span class="question-mark">?</span>)),
             <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">unreachable_patterns</span>)]</span>
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
+            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
         }
     }
 
@@ -596,11 +596,11 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">database_location</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
         <span class="kw">match</span> <span class="self">self</span> {
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;postgresql&quot;</span>)]</span>
-            <span class="ident">ConnectionInfo</span>::<span class="ident">Postgres</span>(<span class="ident">url</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}:{}&quot;</span>, <span class="ident">url</span>.<span class="ident">host</span>(), <span class="ident">url</span>.<span class="ident">port</span>()),
+            <span class="ident">ConnectionInfo</span>::<span class="ident">Postgres</span>(<span class="ident">url</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">format!</span>(<span class="string">&quot;{}:{}&quot;</span>, <span class="ident">url</span>.<span class="ident">host</span>(), <span class="ident">url</span>.<span class="ident">port</span>()),
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mysql&quot;</span>)]</span>
-            <span class="ident">ConnectionInfo</span>::<span class="ident">Mysql</span>(<span class="ident">url</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}:{}&quot;</span>, <span class="ident">url</span>.<span class="ident">host</span>(), <span class="ident">url</span>.<span class="ident">port</span>()),
+            <span class="ident">ConnectionInfo</span>::<span class="ident">Mysql</span>(<span class="ident">url</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">format!</span>(<span class="string">&quot;{}:{}&quot;</span>, <span class="ident">url</span>.<span class="ident">host</span>(), <span class="ident">url</span>.<span class="ident">port</span>()),
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mssql&quot;</span>)]</span>
-            <span class="ident">ConnectionInfo</span>::<span class="ident">Mssql</span>(<span class="ident">url</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}:{}&quot;</span>, <span class="ident">url</span>.<span class="ident">host</span>(), <span class="ident">url</span>.<span class="ident">port</span>()),
+            <span class="ident">ConnectionInfo</span>::<span class="ident">Mssql</span>(<span class="ident">url</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">format!</span>(<span class="string">&quot;{}:{}&quot;</span>, <span class="ident">url</span>.<span class="ident">host</span>(), <span class="ident">url</span>.<span class="ident">port</span>()),
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sqlite&quot;</span>)]</span>
             <span class="ident">ConnectionInfo</span>::<span class="ident">Sqlite</span> { <span class="ident">file_path</span>, .. } <span class="op">=</span><span class="op">&gt;</span> <span class="ident">file_path</span>.<span class="ident">clone</span>(),
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sqlite&quot;</span>)]</span>
@@ -662,7 +662,7 @@
     <span class="doccomment">/// True, if family is PostgreSQL.</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;postgresql&quot;</span>)]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_postgres</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-        <span class="macro">matches</span><span class="macro">!</span>(<span class="self">self</span>, <span class="ident">SqlFamily</span>::<span class="ident">Postgres</span>)
+        <span class="macro">matches!</span>(<span class="self">self</span>, <span class="ident">SqlFamily</span>::<span class="ident">Postgres</span>)
     }
 
     <span class="doccomment">/// True, if family is PostgreSQL.</span>
@@ -674,7 +674,7 @@
     <span class="doccomment">/// True, if family is MySQL.</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mysql&quot;</span>)]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_mysql</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-        <span class="macro">matches</span><span class="macro">!</span>(<span class="self">self</span>, <span class="ident">SqlFamily</span>::<span class="ident">Mysql</span>)
+        <span class="macro">matches!</span>(<span class="self">self</span>, <span class="ident">SqlFamily</span>::<span class="ident">Mysql</span>)
     }
 
     <span class="doccomment">/// True, if family is MySQL.</span>
@@ -686,7 +686,7 @@
     <span class="doccomment">/// True, if family is SQLite.</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sqlite&quot;</span>)]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_sqlite</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-        <span class="macro">matches</span><span class="macro">!</span>(<span class="self">self</span>, <span class="ident">SqlFamily</span>::<span class="ident">Sqlite</span>)
+        <span class="macro">matches!</span>(<span class="self">self</span>, <span class="ident">SqlFamily</span>::<span class="ident">Sqlite</span>)
     }
 
     <span class="doccomment">/// True, if family is SQLite.</span>
@@ -698,7 +698,7 @@
     <span class="doccomment">/// True, if family is SQL Server.</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mssql&quot;</span>)]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_mssql</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-        <span class="macro">matches</span><span class="macro">!</span>(<span class="self">self</span>, <span class="ident">SqlFamily</span>::<span class="ident">Mssql</span>)
+        <span class="macro">matches!</span>(<span class="self">self</span>, <span class="ident">SqlFamily</span>::<span class="ident">Mssql</span>)
     }
 
     <span class="doccomment">/// True, if family is SQL Server.</span>
@@ -710,7 +710,7 @@
 
 <span class="kw">impl</span> <span class="ident">fmt</span>::<span class="ident">Display</span> <span class="kw">for</span> <span class="ident">SqlFamily</span> {
     <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt</span>::<span class="ident">Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
-        <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="self">self</span>.<span class="ident">as_str</span>())
+        <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="self">self</span>.<span class="ident">as_str</span>())
     }
 }
 
@@ -726,9 +726,9 @@
 
         <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">irrefutable_let_patterns</span>)]</span>
         <span class="kw">if</span> <span class="kw">let</span> <span class="ident">ConnectionInfo</span>::<span class="ident">Sqlite</span> { <span class="ident">file_path</span>, <span class="ident">db_name</span>: <span class="kw">_</span> } <span class="op">=</span> <span class="ident">conn_info</span> {
-            <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">file_path</span>, <span class="string">&quot;dev.db&quot;</span>);
+            <span class="macro">assert_eq!</span>(<span class="ident">file_path</span>, <span class="string">&quot;dev.db&quot;</span>);
         } <span class="kw">else</span> {
-            <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;Wrong type of connection info, should be Sqlite&quot;</span>);
+            <span class="macro">panic!</span>(<span class="string">&quot;Wrong type of connection info, should be Sqlite&quot;</span>);
         }
     }
 
@@ -739,12 +739,12 @@
 
         <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">irrefutable_let_patterns</span>)]</span>
         <span class="kw">if</span> <span class="kw">let</span> <span class="ident">ConnectionInfo</span>::<span class="ident">Mysql</span>(<span class="ident">url</span>) <span class="op">=</span> <span class="ident">conn_info</span> {
-            <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">url</span>.<span class="ident">password</span>().<span class="ident">unwrap</span>(), <span class="string">&quot;my#pass#word&quot;</span>);
-            <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">url</span>.<span class="ident">host</span>(), <span class="string">&quot;lclhst&quot;</span>);
-            <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">url</span>.<span class="ident">username</span>(), <span class="string">&quot;myuser&quot;</span>);
-            <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">url</span>.<span class="ident">dbname</span>(), <span class="string">&quot;mydb&quot;</span>);
+            <span class="macro">assert_eq!</span>(<span class="ident">url</span>.<span class="ident">password</span>().<span class="ident">unwrap</span>(), <span class="string">&quot;my#pass#word&quot;</span>);
+            <span class="macro">assert_eq!</span>(<span class="ident">url</span>.<span class="ident">host</span>(), <span class="string">&quot;lclhst&quot;</span>);
+            <span class="macro">assert_eq!</span>(<span class="ident">url</span>.<span class="ident">username</span>(), <span class="string">&quot;myuser&quot;</span>);
+            <span class="macro">assert_eq!</span>(<span class="ident">url</span>.<span class="ident">dbname</span>(), <span class="string">&quot;mydb&quot;</span>);
         } <span class="kw">else</span> {
-            <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;Wrong type of connection info, should be Mysql&quot;</span>);
+            <span class="macro">panic!</span>(<span class="string">&quot;Wrong type of connection info, should be Mysql&quot;</span>);
         }
     }
 }

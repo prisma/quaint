@@ -678,7 +678,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// [`check_out`]: struct.Quaint.html#method.check_out</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">connect_timeout</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">connect_timeout</span>: <span class="ident">Duration</span>) {
-        <span class="macro">assert_ne</span><span class="macro">!</span>(
+        <span class="macro">assert_ne!</span>(
             <span class="ident">connect_timeout</span>,
             <span class="ident">Duration</span>::<span class="ident">from_secs</span>(<span class="number">0</span>),
             <span class="string">&quot;connect_timeout must be positive&quot;</span>
@@ -696,7 +696,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// [`check_out`]: struct.Quaint.html#method.check_out</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">pool_timeout</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">pool_timeout</span>: <span class="ident">Duration</span>) {
-        <span class="macro">assert_ne</span><span class="macro">!</span>(<span class="ident">pool_timeout</span>, <span class="ident">Duration</span>::<span class="ident">from_secs</span>(<span class="number">0</span>), <span class="string">&quot;pool_timeout must be positive&quot;</span>);
+        <span class="macro">assert_ne!</span>(<span class="ident">pool_timeout</span>, <span class="ident">Duration</span>::<span class="ident">from_secs</span>(<span class="number">0</span>), <span class="string">&quot;pool_timeout must be positive&quot;</span>);
 
         <span class="self">self</span>.<span class="ident">pool_timeout</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">pool_timeout</span>);
     }
@@ -769,7 +769,7 @@
         <span class="kw">let</span> <span class="ident">family</span> <span class="op">=</span> <span class="ident">info</span>.<span class="ident">sql_family</span>();
         <span class="kw">let</span> <span class="ident">pg_bouncer</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">info</span>.<span class="ident">pg_bouncer</span>() { <span class="string">&quot; in PgBouncer mode&quot;</span> } <span class="kw">else</span> { <span class="string">&quot;&quot;</span> };
 
-        <span class="ident">tracing</span>::<span class="macro">info</span><span class="macro">!</span>(
+        <span class="ident">tracing</span>::<span class="macro">info!</span>(
             <span class="string">&quot;Starting a {} pool with {} connections{}.&quot;</span>,
             <span class="ident">family</span>,
             <span class="ident">connection_limit</span>,
@@ -860,7 +860,7 @@
 
                 <span class="prelude-val">Ok</span>(<span class="ident">builder</span>)
             }
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unimplemented</span><span class="macro">!</span>(<span class="string">&quot;Supported url schemes: file or sqlite, mysql, postgres or postgresql.&quot;</span>),
+            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unimplemented!</span>(<span class="string">&quot;Supported url schemes: file or sqlite, mysql, postgres or postgresql.&quot;</span>),
         }
     }
 

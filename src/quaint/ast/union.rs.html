@@ -166,8 +166,8 @@
 <span class="kw">impl</span> <span class="ident">fmt</span>::<span class="ident">Display</span> <span class="kw">for</span> <span class="ident">UnionType</span> {
     <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt</span>::<span class="ident">Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">UnionType</span>::<span class="ident">All</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;UNION ALL&quot;</span>),
-            <span class="ident">UnionType</span>::<span class="ident">Distinct</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;UNION&quot;</span>),
+            <span class="ident">UnionType</span>::<span class="ident">All</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;UNION ALL&quot;</span>),
+            <span class="ident">UnionType</span>::<span class="ident">Distinct</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;UNION&quot;</span>),
         }
     }
 }
@@ -195,7 +195,7 @@
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">Union</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">q</span>: <span class="ident">Select</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="self">Self</span> {
-            <span class="ident">selects</span>: <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">q</span>],
+            <span class="ident">selects</span>: <span class="macro">vec!</span>[<span class="ident">q</span>],
             <span class="ident">types</span>: <span class="ident">Vec</span>::<span class="ident">new</span>(),
             <span class="ident">ctes</span>: <span class="ident">Vec</span>::<span class="ident">new</span>(),
         }

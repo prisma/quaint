@@ -1330,7 +1330,7 @@
 
     <span class="doccomment">/// Visit an SQL `MERGE` query.</span>
     <span class="kw">fn</span> <span class="ident">visit_merge</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">_merge</span>: <span class="ident">Merge</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span> {
-        <span class="macro">unimplemented</span><span class="macro">!</span>(<span class="string">&quot;Merges not supported for the underlying database.&quot;</span>)
+        <span class="macro">unimplemented!</span>(<span class="string">&quot;Merges not supported for the underlying database.&quot;</span>)
     }
 
     <span class="doccomment">/// A walk through a complete `Query` statement</span>
@@ -1766,7 +1766,7 @@
             <span class="ident">Compare</span>::<span class="ident">Like</span>(<span class="ident">left</span>, <span class="ident">right</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="kw-2">*</span><span class="ident">left</span>)<span class="question-mark">?</span>;
 
-                <span class="self">self</span>.<span class="ident">add_parameter</span>(<span class="ident">Value</span>::<span class="ident">text</span>(<span class="macro">format</span><span class="macro">!</span>(
+                <span class="self">self</span>.<span class="ident">add_parameter</span>(<span class="ident">Value</span>::<span class="ident">text</span>(<span class="macro">format!</span>(
                     <span class="string">&quot;{}{}{}&quot;</span>,
                     <span class="self">Self</span>::<span class="ident">C_WILDCARD</span>,
                     <span class="ident">right</span>,
@@ -1779,7 +1779,7 @@
             <span class="ident">Compare</span>::<span class="ident">NotLike</span>(<span class="ident">left</span>, <span class="ident">right</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="kw-2">*</span><span class="ident">left</span>)<span class="question-mark">?</span>;
 
-                <span class="self">self</span>.<span class="ident">add_parameter</span>(<span class="ident">Value</span>::<span class="ident">text</span>(<span class="macro">format</span><span class="macro">!</span>(
+                <span class="self">self</span>.<span class="ident">add_parameter</span>(<span class="ident">Value</span>::<span class="ident">text</span>(<span class="macro">format!</span>(
                     <span class="string">&quot;{}{}{}&quot;</span>,
                     <span class="self">Self</span>::<span class="ident">C_WILDCARD</span>,
                     <span class="ident">right</span>,
@@ -1792,7 +1792,7 @@
             <span class="ident">Compare</span>::<span class="ident">BeginsWith</span>(<span class="ident">left</span>, <span class="ident">right</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="kw-2">*</span><span class="ident">left</span>)<span class="question-mark">?</span>;
 
-                <span class="self">self</span>.<span class="ident">add_parameter</span>(<span class="ident">Value</span>::<span class="ident">text</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}{}&quot;</span>, <span class="ident">right</span>, <span class="self">Self</span>::<span class="ident">C_WILDCARD</span>)));
+                <span class="self">self</span>.<span class="ident">add_parameter</span>(<span class="ident">Value</span>::<span class="ident">text</span>(<span class="macro">format!</span>(<span class="string">&quot;{}{}&quot;</span>, <span class="ident">right</span>, <span class="self">Self</span>::<span class="ident">C_WILDCARD</span>)));
 
                 <span class="self">self</span>.<span class="ident">write</span>(<span class="string">&quot; LIKE &quot;</span>)<span class="question-mark">?</span>;
                 <span class="self">self</span>.<span class="ident">parameter_substitution</span>()
@@ -1800,7 +1800,7 @@
             <span class="ident">Compare</span>::<span class="ident">NotBeginsWith</span>(<span class="ident">left</span>, <span class="ident">right</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="kw-2">*</span><span class="ident">left</span>)<span class="question-mark">?</span>;
 
-                <span class="self">self</span>.<span class="ident">add_parameter</span>(<span class="ident">Value</span>::<span class="ident">text</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}{}&quot;</span>, <span class="ident">right</span>, <span class="self">Self</span>::<span class="ident">C_WILDCARD</span>)));
+                <span class="self">self</span>.<span class="ident">add_parameter</span>(<span class="ident">Value</span>::<span class="ident">text</span>(<span class="macro">format!</span>(<span class="string">&quot;{}{}&quot;</span>, <span class="ident">right</span>, <span class="self">Self</span>::<span class="ident">C_WILDCARD</span>)));
 
                 <span class="self">self</span>.<span class="ident">write</span>(<span class="string">&quot; NOT LIKE &quot;</span>)<span class="question-mark">?</span>;
                 <span class="self">self</span>.<span class="ident">parameter_substitution</span>()
@@ -1808,7 +1808,7 @@
             <span class="ident">Compare</span>::<span class="ident">EndsInto</span>(<span class="ident">left</span>, <span class="ident">right</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="kw-2">*</span><span class="ident">left</span>)<span class="question-mark">?</span>;
 
-                <span class="self">self</span>.<span class="ident">add_parameter</span>(<span class="ident">Value</span>::<span class="ident">text</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}{}&quot;</span>, <span class="self">Self</span>::<span class="ident">C_WILDCARD</span>, <span class="ident">right</span>,)));
+                <span class="self">self</span>.<span class="ident">add_parameter</span>(<span class="ident">Value</span>::<span class="ident">text</span>(<span class="macro">format!</span>(<span class="string">&quot;{}{}&quot;</span>, <span class="self">Self</span>::<span class="ident">C_WILDCARD</span>, <span class="ident">right</span>,)));
 
                 <span class="self">self</span>.<span class="ident">write</span>(<span class="string">&quot; LIKE &quot;</span>)<span class="question-mark">?</span>;
                 <span class="self">self</span>.<span class="ident">parameter_substitution</span>()
@@ -1816,7 +1816,7 @@
             <span class="ident">Compare</span>::<span class="ident">NotEndsInto</span>(<span class="ident">left</span>, <span class="ident">right</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="kw-2">*</span><span class="ident">left</span>)<span class="question-mark">?</span>;
 
-                <span class="self">self</span>.<span class="ident">add_parameter</span>(<span class="ident">Value</span>::<span class="ident">text</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}{}&quot;</span>, <span class="self">Self</span>::<span class="ident">C_WILDCARD</span>, <span class="ident">right</span>,)));
+                <span class="self">self</span>.<span class="ident">add_parameter</span>(<span class="ident">Value</span>::<span class="ident">text</span>(<span class="macro">format!</span>(<span class="string">&quot;{}{}&quot;</span>, <span class="self">Self</span>::<span class="ident">C_WILDCARD</span>, <span class="ident">right</span>,)));
 
                 <span class="self">self</span>.<span class="ident">write</span>(<span class="string">&quot; NOT LIKE &quot;</span>)<span class="question-mark">?</span>;
                 <span class="self">self</span>.<span class="ident">parameter_substitution</span>()

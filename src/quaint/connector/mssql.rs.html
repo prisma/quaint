@@ -546,9 +546,9 @@
 <span class="kw">impl</span> <span class="ident">fmt</span>::<span class="ident">Display</span> <span class="kw">for</span> <span class="ident">EncryptMode</span> {
     <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt</span>::<span class="ident">Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="self">Self</span>::<span class="ident">On</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;true&quot;</span>),
-            <span class="self">Self</span>::<span class="ident">Off</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;false&quot;</span>),
-            <span class="self">Self</span>::<span class="ident">DangerPlainText</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;DANGER_PLAINTEXT&quot;</span>),
+            <span class="self">Self</span>::<span class="ident">On</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;true&quot;</span>),
+            <span class="self">Self</span>::<span class="ident">Off</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;false&quot;</span>),
+            <span class="self">Self</span>::<span class="ident">DangerPlainText</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;DANGER_PLAINTEXT&quot;</span>),
         }
     }
 }
@@ -602,11 +602,11 @@
 <span class="kw">impl</span> <span class="ident">fmt</span>::<span class="ident">Display</span> <span class="kw">for</span> <span class="ident">IsolationLevel</span> {
     <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt</span>::<span class="ident">Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="self">Self</span>::<span class="ident">ReadUncommitted</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;READ UNCOMMITTED&quot;</span>),
-            <span class="self">Self</span>::<span class="ident">ReadCommitted</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;READ COMMITTED&quot;</span>),
-            <span class="self">Self</span>::<span class="ident">RepeatableRead</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;REPEATABLE READ&quot;</span>),
-            <span class="self">Self</span>::<span class="ident">Snapshot</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;SNAPSHOT&quot;</span>),
-            <span class="self">Self</span>::<span class="ident">Serializable</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;SERIALIZABLE&quot;</span>),
+            <span class="self">Self</span>::<span class="ident">ReadUncommitted</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;READ UNCOMMITTED&quot;</span>),
+            <span class="self">Self</span>::<span class="ident">ReadCommitted</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;READ COMMITTED&quot;</span>),
+            <span class="self">Self</span>::<span class="ident">RepeatableRead</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;REPEATABLE READ&quot;</span>),
+            <span class="self">Self</span>::<span class="ident">Snapshot</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;SNAPSHOT&quot;</span>),
+            <span class="self">Self</span>::<span class="ident">Serializable</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;SERIALIZABLE&quot;</span>),
         }
     }
 }
@@ -622,7 +622,7 @@
             <span class="string">&quot;SNAPSHOT&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="self">Self</span>::<span class="ident">Snapshot</span>),
             <span class="string">&quot;SERIALIZABLE&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="self">Self</span>::<span class="ident">Serializable</span>),
             <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="kw">let</span> <span class="ident">kind</span> <span class="op">=</span> <span class="ident">ErrorKind</span>::<span class="ident">database_url_is_invalid</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Invalid isolation level `{}`&quot;</span>, <span class="ident">s</span>));
+                <span class="kw">let</span> <span class="ident">kind</span> <span class="op">=</span> <span class="ident">ErrorKind</span>::<span class="ident">database_url_is_invalid</span>(<span class="macro">format!</span>(<span class="string">&quot;Invalid isolation level `{}`&quot;</span>, <span class="ident">s</span>));
 
                 <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">builder</span>(<span class="ident">kind</span>).<span class="ident">build</span>())
             }
@@ -774,7 +774,7 @@
         };
 
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">isolation</span>) <span class="op">=</span> <span class="ident">this</span>.<span class="ident">url</span>.<span class="ident">transaction_isolation_level</span>() {
-            <span class="ident">this</span>.<span class="ident">raw_cmd</span>(<span class="kw-2">&amp;</span><span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;SET TRANSACTION ISOLATION LEVEL {}&quot;</span>, <span class="ident">isolation</span>))
+            <span class="ident">this</span>.<span class="ident">raw_cmd</span>(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;SET TRANSACTION ISOLATION LEVEL {}&quot;</span>, <span class="ident">isolation</span>))
                 .<span class="kw">await</span><span class="question-mark">?</span>;
         };
 
@@ -896,7 +896,7 @@
         <span class="kw">if</span> <span class="ident">input</span>.<span class="ident">starts_with</span>(<span class="string">&quot;jdbc:sqlserver&quot;</span>) {
             <span class="ident">input</span>.<span class="ident">into</span>()
         } <span class="kw">else</span> {
-            <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;jdbc:{}&quot;</span>, <span class="ident">input</span>)
+            <span class="macro">format!</span>(<span class="string">&quot;jdbc:{}&quot;</span>, <span class="ident">input</span>)
         }
     }
 
@@ -904,7 +904,7 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">JdbcString</span>::<span class="ident">from_str</span>(<span class="kw-2">&amp;</span><span class="self">Self</span>::<span class="ident">with_jdbc_prefix</span>(<span class="ident">input</span>))<span class="question-mark">?</span>;
 
         <span class="kw">let</span> <span class="ident">host</span> <span class="op">=</span> <span class="ident">conn</span>.<span class="ident">server_name</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">server_name</span><span class="op">|</span> <span class="kw">match</span> <span class="ident">conn</span>.<span class="ident">instance_name</span>() {
-            <span class="prelude-val">Some</span>(<span class="ident">instance_name</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">r#&quot;{}\{}&quot;#</span>, <span class="ident">server_name</span>, <span class="ident">instance_name</span>),
+            <span class="prelude-val">Some</span>(<span class="ident">instance_name</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">format!</span>(<span class="string">r#&quot;{}\{}&quot;#</span>, <span class="ident">server_name</span>, <span class="ident">instance_name</span>),
             <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">server_name</span>.<span class="ident">to_string</span>(),
         });
 
@@ -1002,10 +1002,10 @@
         <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="ident">CONN_STR</span>.<span class="ident">replace</span>(<span class="string">&quot;user=SA&quot;</span>, <span class="string">&quot;user=WRONG&quot;</span>);
 
         <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">Quaint</span>::<span class="ident">new</span>(<span class="ident">url</span>.<span class="ident">as_str</span>()).<span class="kw">await</span>;
-        <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">res</span>.<span class="ident">is_err</span>());
+        <span class="macro">assert!</span>(<span class="ident">res</span>.<span class="ident">is_err</span>());
 
         <span class="kw">let</span> <span class="ident">err</span> <span class="op">=</span> <span class="ident">res</span>.<span class="ident">unwrap_err</span>();
-        <span class="macro">assert</span><span class="macro">!</span>(<span class="macro">matches</span><span class="macro">!</span>(<span class="ident">err</span>.<span class="ident">kind</span>(), <span class="ident">ErrorKind</span>::<span class="ident">AuthenticationFailed</span> { <span class="ident">user</span> } <span class="kw">if</span> <span class="ident">user</span> <span class="op">=</span><span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">Name</span>::<span class="ident">available</span>(<span class="string">&quot;WRONG&quot;</span>)));
+        <span class="macro">assert!</span>(<span class="macro">matches!</span>(<span class="ident">err</span>.<span class="ident">kind</span>(), <span class="ident">ErrorKind</span>::<span class="ident">AuthenticationFailed</span> { <span class="ident">user</span> } <span class="kw">if</span> <span class="ident">user</span> <span class="op">=</span><span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">Name</span>::<span class="ident">available</span>(<span class="string">&quot;WRONG&quot;</span>)));
     }
 }
 </pre></div>

@@ -594,14 +594,14 @@
     {
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">typ</span> {
             <span class="ident">TableType</span>::<span class="ident">Table</span>(<span class="ident">table_name</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="self">self</span>.<span class="ident">typ</span> <span class="op">=</span> <span class="ident">TableType</span>::<span class="ident">JoinedTable</span>((<span class="ident">table_name</span>, <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">Join</span>::<span class="ident">Left</span>(<span class="ident">join</span>.<span class="ident">into</span>())]))
+                <span class="self">self</span>.<span class="ident">typ</span> <span class="op">=</span> <span class="ident">TableType</span>::<span class="ident">JoinedTable</span>((<span class="ident">table_name</span>, <span class="macro">vec!</span>[<span class="ident">Join</span>::<span class="ident">Left</span>(<span class="ident">join</span>.<span class="ident">into</span>())]))
             }
             <span class="ident">TableType</span>::<span class="ident">JoinedTable</span>((<span class="kw">_</span>, <span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">joins</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">joins</span>.<span class="ident">push</span>(<span class="ident">Join</span>::<span class="ident">Left</span>(<span class="ident">join</span>.<span class="ident">into</span>())),
             <span class="ident">TableType</span>::<span class="ident">Query</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;You cannot left_join on a table of type Query&quot;</span>)
+                <span class="macro">panic!</span>(<span class="string">&quot;You cannot left_join on a table of type Query&quot;</span>)
             }
             <span class="ident">TableType</span>::<span class="ident">Values</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;You cannot left_join on a table of type Values&quot;</span>)
+                <span class="macro">panic!</span>(<span class="string">&quot;You cannot left_join on a table of type Values&quot;</span>)
             }
         }
 
@@ -641,14 +641,14 @@
     {
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">typ</span> {
             <span class="ident">TableType</span>::<span class="ident">Table</span>(<span class="ident">table_name</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="self">self</span>.<span class="ident">typ</span> <span class="op">=</span> <span class="ident">TableType</span>::<span class="ident">JoinedTable</span>((<span class="ident">table_name</span>, <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">Join</span>::<span class="ident">Inner</span>(<span class="ident">join</span>.<span class="ident">into</span>())]))
+                <span class="self">self</span>.<span class="ident">typ</span> <span class="op">=</span> <span class="ident">TableType</span>::<span class="ident">JoinedTable</span>((<span class="ident">table_name</span>, <span class="macro">vec!</span>[<span class="ident">Join</span>::<span class="ident">Inner</span>(<span class="ident">join</span>.<span class="ident">into</span>())]))
             }
             <span class="ident">TableType</span>::<span class="ident">JoinedTable</span>((<span class="kw">_</span>, <span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">joins</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">joins</span>.<span class="ident">push</span>(<span class="ident">Join</span>::<span class="ident">Inner</span>(<span class="ident">join</span>.<span class="ident">into</span>())),
             <span class="ident">TableType</span>::<span class="ident">Query</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;You cannot inner_join on a table of type Query&quot;</span>)
+                <span class="macro">panic!</span>(<span class="string">&quot;You cannot inner_join on a table of type Query&quot;</span>)
             }
             <span class="ident">TableType</span>::<span class="ident">Values</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;You cannot inner_join on a table of type Values&quot;</span>)
+                <span class="macro">panic!</span>(<span class="string">&quot;You cannot inner_join on a table of type Values&quot;</span>)
             }
         }
 
@@ -688,14 +688,14 @@
     {
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">typ</span> {
             <span class="ident">TableType</span>::<span class="ident">Table</span>(<span class="ident">table_name</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="self">self</span>.<span class="ident">typ</span> <span class="op">=</span> <span class="ident">TableType</span>::<span class="ident">JoinedTable</span>((<span class="ident">table_name</span>, <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">Join</span>::<span class="ident">Right</span>(<span class="ident">join</span>.<span class="ident">into</span>())]))
+                <span class="self">self</span>.<span class="ident">typ</span> <span class="op">=</span> <span class="ident">TableType</span>::<span class="ident">JoinedTable</span>((<span class="ident">table_name</span>, <span class="macro">vec!</span>[<span class="ident">Join</span>::<span class="ident">Right</span>(<span class="ident">join</span>.<span class="ident">into</span>())]))
             }
             <span class="ident">TableType</span>::<span class="ident">JoinedTable</span>((<span class="kw">_</span>, <span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">joins</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">joins</span>.<span class="ident">push</span>(<span class="ident">Join</span>::<span class="ident">Right</span>(<span class="ident">join</span>.<span class="ident">into</span>())),
             <span class="ident">TableType</span>::<span class="ident">Query</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;You cannot right_join on a table of type Query&quot;</span>)
+                <span class="macro">panic!</span>(<span class="string">&quot;You cannot right_join on a table of type Query&quot;</span>)
             }
             <span class="ident">TableType</span>::<span class="ident">Values</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;You cannot right_join on a table of type Values&quot;</span>)
+                <span class="macro">panic!</span>(<span class="string">&quot;You cannot right_join on a table of type Values&quot;</span>)
             }
         }
 
@@ -735,14 +735,14 @@
     {
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">typ</span> {
             <span class="ident">TableType</span>::<span class="ident">Table</span>(<span class="ident">table_name</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="self">self</span>.<span class="ident">typ</span> <span class="op">=</span> <span class="ident">TableType</span>::<span class="ident">JoinedTable</span>((<span class="ident">table_name</span>, <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">Join</span>::<span class="ident">Full</span>(<span class="ident">join</span>.<span class="ident">into</span>())]))
+                <span class="self">self</span>.<span class="ident">typ</span> <span class="op">=</span> <span class="ident">TableType</span>::<span class="ident">JoinedTable</span>((<span class="ident">table_name</span>, <span class="macro">vec!</span>[<span class="ident">Join</span>::<span class="ident">Full</span>(<span class="ident">join</span>.<span class="ident">into</span>())]))
             }
             <span class="ident">TableType</span>::<span class="ident">JoinedTable</span>((<span class="kw">_</span>, <span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">joins</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">joins</span>.<span class="ident">push</span>(<span class="ident">Join</span>::<span class="ident">Full</span>(<span class="ident">join</span>.<span class="ident">into</span>())),
             <span class="ident">TableType</span>::<span class="ident">Query</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;You cannot full_join on a table of type Query&quot;</span>)
+                <span class="macro">panic!</span>(<span class="string">&quot;You cannot full_join on a table of type Query&quot;</span>)
             }
             <span class="ident">TableType</span>::<span class="ident">Values</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;You cannot full_join on a table of type Values&quot;</span>)
+                <span class="macro">panic!</span>(<span class="string">&quot;You cannot full_join on a table of type Values&quot;</span>)
             }
         }
 
@@ -858,8 +858,8 @@
     }
 }
 
-<span class="macro">aliasable</span><span class="macro">!</span>(<span class="ident">String</span>, (<span class="ident">String</span>, <span class="ident">String</span>));
-<span class="macro">aliasable</span><span class="macro">!</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>, (<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>));
+<span class="macro">aliasable!</span>(<span class="ident">String</span>, (<span class="ident">String</span>, <span class="ident">String</span>));
+<span class="macro">aliasable!</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>, (<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>));
 </pre></div>
 </section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="quaint" data-search-js="../../../search-index.js"></div>
     <script src="../../../main.js"></script><script src="../../../source-script.js"></script><script src="../../../source-files.js"></script></body></html>

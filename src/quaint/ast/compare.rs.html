@@ -877,7 +877,7 @@
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cols</span> <span class="op">=</span> <span class="ident">row</span>.<span class="ident">into_columns</span>();
 
             <span class="comment">// The name of the CTE in the query</span>
-            <span class="kw">let</span> <span class="ident">ident</span> <span class="op">=</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;cte_{}&quot;</span>, <span class="ident">level</span>);
+            <span class="kw">let</span> <span class="ident">ident</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;cte_{}&quot;</span>, <span class="ident">level</span>);
 
             <span class="kw">let</span> (<span class="ident">select</span>, <span class="ident">ctes</span>) <span class="op">=</span> <span class="ident">select</span>.<span class="ident">convert_tuple_selects_to_ctes</span>(<span class="ident">level</span>);
 

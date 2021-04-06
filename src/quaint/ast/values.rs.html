@@ -933,60 +933,60 @@
     <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt</span>::<span class="ident">Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
         <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="self">self</span>.<span class="number">0</span>.<span class="ident">len</span>();
 
-        <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;[&quot;</span>)<span class="question-mark">?</span>;
+        <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;[&quot;</span>)<span class="question-mark">?</span>;
         <span class="kw">for</span> (<span class="ident">i</span>, <span class="ident">val</span>) <span class="kw">in</span> <span class="self">self</span>.<span class="number">0</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
-            <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">val</span>)<span class="question-mark">?</span>;
+            <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">val</span>)<span class="question-mark">?</span>;
 
             <span class="kw">if</span> <span class="ident">i</span> <span class="op">&lt;</span> (<span class="ident">len</span> <span class="op">-</span> <span class="number">1</span>) {
-                <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;,&quot;</span>)<span class="question-mark">?</span>;
+                <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;,&quot;</span>)<span class="question-mark">?</span>;
             }
         }
-        <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;]&quot;</span>)
+        <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;]&quot;</span>)
     }
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="ident">Display</span> <span class="kw">for</span> <span class="ident">Value</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt</span>::<span class="ident">Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
         <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">Value</span>::<span class="ident">Integer</span>(<span class="ident">val</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">val</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">v</span><span class="op">|</span> <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">v</span>)),
-            <span class="ident">Value</span>::<span class="ident">Float</span>(<span class="ident">val</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">val</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">v</span><span class="op">|</span> <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">v</span>)),
-            <span class="ident">Value</span>::<span class="ident">Double</span>(<span class="ident">val</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">val</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">v</span><span class="op">|</span> <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">v</span>)),
-            <span class="ident">Value</span>::<span class="ident">Text</span>(<span class="ident">val</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">val</span>.<span class="ident">as_ref</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">v</span><span class="op">|</span> <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;\&quot;{}\&quot;&quot;</span>, <span class="ident">v</span>)),
-            <span class="ident">Value</span>::<span class="ident">Bytes</span>(<span class="ident">val</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">val</span>.<span class="ident">as_ref</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">v</span><span class="op">|</span> <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;&lt;{} bytes blob&gt;&quot;</span>, <span class="ident">v</span>.<span class="ident">len</span>())),
-            <span class="ident">Value</span>::<span class="ident">Enum</span>(<span class="ident">val</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">val</span>.<span class="ident">as_ref</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">v</span><span class="op">|</span> <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;\&quot;{}\&quot;&quot;</span>, <span class="ident">v</span>)),
-            <span class="ident">Value</span>::<span class="ident">Boolean</span>(<span class="ident">val</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">val</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">v</span><span class="op">|</span> <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">v</span>)),
-            <span class="ident">Value</span>::<span class="ident">Char</span>(<span class="ident">val</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">val</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">v</span><span class="op">|</span> <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;&#39;{}&#39;&quot;</span>, <span class="ident">v</span>)),
+            <span class="ident">Value</span>::<span class="ident">Integer</span>(<span class="ident">val</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">val</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">v</span><span class="op">|</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">v</span>)),
+            <span class="ident">Value</span>::<span class="ident">Float</span>(<span class="ident">val</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">val</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">v</span><span class="op">|</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">v</span>)),
+            <span class="ident">Value</span>::<span class="ident">Double</span>(<span class="ident">val</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">val</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">v</span><span class="op">|</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">v</span>)),
+            <span class="ident">Value</span>::<span class="ident">Text</span>(<span class="ident">val</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">val</span>.<span class="ident">as_ref</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">v</span><span class="op">|</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;\&quot;{}\&quot;&quot;</span>, <span class="ident">v</span>)),
+            <span class="ident">Value</span>::<span class="ident">Bytes</span>(<span class="ident">val</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">val</span>.<span class="ident">as_ref</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">v</span><span class="op">|</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;&lt;{} bytes blob&gt;&quot;</span>, <span class="ident">v</span>.<span class="ident">len</span>())),
+            <span class="ident">Value</span>::<span class="ident">Enum</span>(<span class="ident">val</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">val</span>.<span class="ident">as_ref</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">v</span><span class="op">|</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;\&quot;{}\&quot;&quot;</span>, <span class="ident">v</span>)),
+            <span class="ident">Value</span>::<span class="ident">Boolean</span>(<span class="ident">val</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">val</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">v</span><span class="op">|</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">v</span>)),
+            <span class="ident">Value</span>::<span class="ident">Char</span>(<span class="ident">val</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">val</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">v</span><span class="op">|</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;&#39;{}&#39;&quot;</span>, <span class="ident">v</span>)),
             <span class="ident">Value</span>::<span class="ident">Array</span>(<span class="ident">vals</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">vals</span>.<span class="ident">as_ref</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">vals</span><span class="op">|</span> {
                 <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">vals</span>.<span class="ident">len</span>();
 
-                <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;[&quot;</span>)<span class="question-mark">?</span>;
+                <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;[&quot;</span>)<span class="question-mark">?</span>;
                 <span class="kw">for</span> (<span class="ident">i</span>, <span class="ident">val</span>) <span class="kw">in</span> <span class="ident">vals</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
-                    <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">val</span>)<span class="question-mark">?</span>;
+                    <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">val</span>)<span class="question-mark">?</span>;
 
                     <span class="kw">if</span> <span class="ident">i</span> <span class="op">&lt;</span> (<span class="ident">len</span> <span class="op">-</span> <span class="number">1</span>) {
-                        <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;,&quot;</span>)<span class="question-mark">?</span>;
+                        <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;,&quot;</span>)<span class="question-mark">?</span>;
                     }
                 }
-                <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;]&quot;</span>)
+                <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;]&quot;</span>)
             }),
-            <span class="ident">Value</span>::<span class="ident">Xml</span>(<span class="ident">val</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">val</span>.<span class="ident">as_ref</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">v</span><span class="op">|</span> <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">v</span>)),
+            <span class="ident">Value</span>::<span class="ident">Xml</span>(<span class="ident">val</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">val</span>.<span class="ident">as_ref</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">v</span><span class="op">|</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">v</span>)),
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;bigdecimal&quot;</span>)]</span>
-            <span class="ident">Value</span>::<span class="ident">Numeric</span>(<span class="ident">val</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">val</span>.<span class="ident">as_ref</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">v</span><span class="op">|</span> <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">v</span>)),
+            <span class="ident">Value</span>::<span class="ident">Numeric</span>(<span class="ident">val</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">val</span>.<span class="ident">as_ref</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">v</span><span class="op">|</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">v</span>)),
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;json&quot;</span>)]</span>
-            <span class="ident">Value</span>::<span class="ident">Json</span>(<span class="ident">val</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">val</span>.<span class="ident">as_ref</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">v</span><span class="op">|</span> <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">v</span>)),
+            <span class="ident">Value</span>::<span class="ident">Json</span>(<span class="ident">val</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">val</span>.<span class="ident">as_ref</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">v</span><span class="op">|</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">v</span>)),
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;uuid&quot;</span>)]</span>
-            <span class="ident">Value</span>::<span class="ident">Uuid</span>(<span class="ident">val</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">val</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">v</span><span class="op">|</span> <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">v</span>)),
+            <span class="ident">Value</span>::<span class="ident">Uuid</span>(<span class="ident">val</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">val</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">v</span><span class="op">|</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">v</span>)),
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;chrono&quot;</span>)]</span>
-            <span class="ident">Value</span>::<span class="ident">DateTime</span>(<span class="ident">val</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">val</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">v</span><span class="op">|</span> <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">v</span>)),
+            <span class="ident">Value</span>::<span class="ident">DateTime</span>(<span class="ident">val</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">val</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">v</span><span class="op">|</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">v</span>)),
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;chrono&quot;</span>)]</span>
-            <span class="ident">Value</span>::<span class="ident">Date</span>(<span class="ident">val</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">val</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">v</span><span class="op">|</span> <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">v</span>)),
+            <span class="ident">Value</span>::<span class="ident">Date</span>(<span class="ident">val</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">val</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">v</span><span class="op">|</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">v</span>)),
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;chrono&quot;</span>)]</span>
-            <span class="ident">Value</span>::<span class="ident">Time</span>(<span class="ident">val</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">val</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">v</span><span class="op">|</span> <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">v</span>)),
+            <span class="ident">Value</span>::<span class="ident">Time</span>(<span class="ident">val</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">val</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">v</span><span class="op">|</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">v</span>)),
         };
 
         <span class="kw">match</span> <span class="ident">res</span> {
             <span class="prelude-val">Some</span>(<span class="ident">r</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">r</span>,
-            <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;null&quot;</span>),
+            <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;null&quot;</span>),
         }
     }
 }
@@ -1029,9 +1029,9 @@
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;chrono&quot;</span>)]</span>
             <span class="ident">Value</span>::<span class="ident">DateTime</span>(<span class="ident">dt</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">dt</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">dt</span><span class="op">|</span> <span class="ident">serde_json</span>::<span class="ident">Value</span>::<span class="ident">String</span>(<span class="ident">dt</span>.<span class="ident">to_rfc3339</span>())),
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;chrono&quot;</span>)]</span>
-            <span class="ident">Value</span>::<span class="ident">Date</span>(<span class="ident">date</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">date</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">date</span><span class="op">|</span> <span class="ident">serde_json</span>::<span class="ident">Value</span>::<span class="ident">String</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">date</span>))),
+            <span class="ident">Value</span>::<span class="ident">Date</span>(<span class="ident">date</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">date</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">date</span><span class="op">|</span> <span class="ident">serde_json</span>::<span class="ident">Value</span>::<span class="ident">String</span>(<span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">date</span>))),
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;chrono&quot;</span>)]</span>
-            <span class="ident">Value</span>::<span class="ident">Time</span>(<span class="ident">time</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">time</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">time</span><span class="op">|</span> <span class="ident">serde_json</span>::<span class="ident">Value</span>::<span class="ident">String</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">time</span>))),
+            <span class="ident">Value</span>::<span class="ident">Time</span>(<span class="ident">time</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">time</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">time</span><span class="op">|</span> <span class="ident">serde_json</span>::<span class="ident">Value</span>::<span class="ident">String</span>(<span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">time</span>))),
         };
 
         <span class="kw">match</span> <span class="ident">res</span> {
@@ -1189,7 +1189,7 @@
 
     <span class="doccomment">/// `true` if the `Value` is text.</span>
     <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">is_text</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-        <span class="macro">matches</span><span class="macro">!</span>(<span class="self">self</span>, <span class="ident">Value</span>::<span class="ident">Text</span>(<span class="kw">_</span>))
+        <span class="macro">matches!</span>(<span class="self">self</span>, <span class="ident">Value</span>::<span class="ident">Text</span>(<span class="kw">_</span>))
     }
 
     <span class="doccomment">/// Returns a &amp;str if the value is text, otherwise `None`.</span>
@@ -1230,7 +1230,7 @@
 
     <span class="doccomment">/// Returns whether this value is the `Bytes` variant.</span>
     <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">is_bytes</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-        <span class="macro">matches</span><span class="macro">!</span>(<span class="self">self</span>, <span class="ident">Value</span>::<span class="ident">Bytes</span>(<span class="kw">_</span>))
+        <span class="macro">matches!</span>(<span class="self">self</span>, <span class="ident">Value</span>::<span class="ident">Bytes</span>(<span class="kw">_</span>))
     }
 
     <span class="doccomment">/// Returns a bytes slice if the value is text or a byte slice, otherwise `None`.</span>
@@ -1253,7 +1253,7 @@
 
     <span class="doccomment">/// `true` if the `Value` is an integer.</span>
     <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">is_integer</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-        <span class="macro">matches</span><span class="macro">!</span>(<span class="self">self</span>, <span class="ident">Value</span>::<span class="ident">Integer</span>(<span class="kw">_</span>))
+        <span class="macro">matches!</span>(<span class="self">self</span>, <span class="ident">Value</span>::<span class="ident">Integer</span>(<span class="kw">_</span>))
     }
 
     <span class="doccomment">/// Returns an `i64` if the value is an integer, otherwise `None`.</span>
@@ -1284,7 +1284,7 @@
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;bigdecimal&quot;</span>)]</span>
     <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;docs&quot;</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;bigdecimal&quot;</span>)))]</span>
     <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">is_numeric</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-        <span class="macro">matches</span><span class="macro">!</span>(<span class="self">self</span>, <span class="ident">Value</span>::<span class="ident">Numeric</span>(<span class="kw">_</span>) <span class="op">|</span> <span class="ident">Value</span>::<span class="ident">Float</span>(<span class="kw">_</span>) <span class="op">|</span> <span class="ident">Value</span>::<span class="ident">Double</span>(<span class="kw">_</span>))
+        <span class="macro">matches!</span>(<span class="self">self</span>, <span class="ident">Value</span>::<span class="ident">Numeric</span>(<span class="kw">_</span>) <span class="op">|</span> <span class="ident">Value</span>::<span class="ident">Float</span>(<span class="kw">_</span>) <span class="op">|</span> <span class="ident">Value</span>::<span class="ident">Double</span>(<span class="kw">_</span>))
     }
 
     <span class="doccomment">/// Returns a bigdecimal, if the value is a numeric, float or double value,</span>
@@ -1333,14 +1333,14 @@
 
     <span class="doccomment">/// `true` if the `Value` is an Array.</span>
     <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">is_array</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-        <span class="macro">matches</span><span class="macro">!</span>(<span class="self">self</span>, <span class="ident">Value</span>::<span class="ident">Array</span>(<span class="kw">_</span>))
+        <span class="macro">matches!</span>(<span class="self">self</span>, <span class="ident">Value</span>::<span class="ident">Array</span>(<span class="kw">_</span>))
     }
 
     <span class="doccomment">/// `true` if the `Value` is of UUID type.</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;uuid&quot;</span>)]</span>
     <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;docs&quot;</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;uuid&quot;</span>)))]</span>
     <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">is_uuid</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-        <span class="macro">matches</span><span class="macro">!</span>(<span class="self">self</span>, <span class="ident">Value</span>::<span class="ident">Uuid</span>(<span class="kw">_</span>))
+        <span class="macro">matches!</span>(<span class="self">self</span>, <span class="ident">Value</span>::<span class="ident">Uuid</span>(<span class="kw">_</span>))
     }
 
     <span class="doccomment">/// Returns an UUID if the value is of UUID type, otherwise `None`.</span>
@@ -1357,7 +1357,7 @@
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;chrono&quot;</span>)]</span>
     <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;docs&quot;</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;chrono&quot;</span>)))]</span>
     <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">is_datetime</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-        <span class="macro">matches</span><span class="macro">!</span>(<span class="self">self</span>, <span class="ident">Value</span>::<span class="ident">DateTime</span>(<span class="kw">_</span>))
+        <span class="macro">matches!</span>(<span class="self">self</span>, <span class="ident">Value</span>::<span class="ident">DateTime</span>(<span class="kw">_</span>))
     }
 
     <span class="doccomment">/// Returns a `DateTime` if the value is a `DateTime`, otherwise `None`.</span>
@@ -1374,7 +1374,7 @@
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;chrono&quot;</span>)]</span>
     <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;docs&quot;</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;chrono&quot;</span>)))]</span>
     <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">is_date</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-        <span class="macro">matches</span><span class="macro">!</span>(<span class="self">self</span>, <span class="ident">Value</span>::<span class="ident">Date</span>(<span class="kw">_</span>))
+        <span class="macro">matches!</span>(<span class="self">self</span>, <span class="ident">Value</span>::<span class="ident">Date</span>(<span class="kw">_</span>))
     }
 
     <span class="doccomment">/// Returns a `NaiveDate` if the value is a `Date`, otherwise `None`.</span>
@@ -1391,7 +1391,7 @@
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;chrono&quot;</span>)]</span>
     <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;docs&quot;</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;chrono&quot;</span>)))]</span>
     <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">is_time</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-        <span class="macro">matches</span><span class="macro">!</span>(<span class="self">self</span>, <span class="ident">Value</span>::<span class="ident">Time</span>(<span class="kw">_</span>))
+        <span class="macro">matches!</span>(<span class="self">self</span>, <span class="ident">Value</span>::<span class="ident">Time</span>(<span class="kw">_</span>))
     }
 
     <span class="doccomment">/// Returns a `NaiveTime` if the value is a `Time`, otherwise `None`.</span>
@@ -1408,7 +1408,7 @@
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;json&quot;</span>)]</span>
     <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;docs&quot;</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;json&quot;</span>)))]</span>
     <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">is_json</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-        <span class="macro">matches</span><span class="macro">!</span>(<span class="self">self</span>, <span class="ident">Value</span>::<span class="ident">Json</span>(<span class="kw">_</span>))
+        <span class="macro">matches!</span>(<span class="self">self</span>, <span class="ident">Value</span>::<span class="ident">Json</span>(<span class="kw">_</span>))
     }
 
     <span class="doccomment">/// Returns a reference to a JSON Value if of Json type, otherwise `None`.</span>
@@ -1450,33 +1450,33 @@
     }
 }
 
-<span class="macro">value</span><span class="macro">!</span>(<span class="ident">val</span>: <span class="ident">i64</span>, <span class="ident">Integer</span>, <span class="ident">val</span>);
-<span class="macro">value</span><span class="macro">!</span>(<span class="ident">val</span>: <span class="ident">bool</span>, <span class="ident">Boolean</span>, <span class="ident">val</span>);
-<span class="macro">value</span><span class="macro">!</span>(<span class="ident">val</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>, <span class="ident">Text</span>, <span class="ident">val</span>.<span class="ident">into</span>());
-<span class="macro">value</span><span class="macro">!</span>(<span class="ident">val</span>: <span class="ident">String</span>, <span class="ident">Text</span>, <span class="ident">val</span>.<span class="ident">into</span>());
-<span class="macro">value</span><span class="macro">!</span>(<span class="ident">val</span>: <span class="ident">usize</span>, <span class="ident">Integer</span>, <span class="ident">i64</span>::<span class="ident">try_from</span>(<span class="ident">val</span>).<span class="ident">unwrap</span>());
-<span class="macro">value</span><span class="macro">!</span>(<span class="ident">val</span>: <span class="ident">i32</span>, <span class="ident">Integer</span>, <span class="ident">i64</span>::<span class="ident">try_from</span>(<span class="ident">val</span>).<span class="ident">unwrap</span>());
-<span class="macro">value</span><span class="macro">!</span>(<span class="ident">val</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">u8</span>], <span class="ident">Bytes</span>, <span class="ident">val</span>.<span class="ident">into</span>());
-<span class="macro">value</span><span class="macro">!</span>(<span class="ident">val</span>: <span class="ident">f64</span>, <span class="ident">Double</span>, <span class="ident">val</span>);
-<span class="macro">value</span><span class="macro">!</span>(<span class="ident">val</span>: <span class="ident">f32</span>, <span class="ident">Float</span>, <span class="ident">val</span>);
+<span class="macro">value!</span>(<span class="ident">val</span>: <span class="ident">i64</span>, <span class="ident">Integer</span>, <span class="ident">val</span>);
+<span class="macro">value!</span>(<span class="ident">val</span>: <span class="ident">bool</span>, <span class="ident">Boolean</span>, <span class="ident">val</span>);
+<span class="macro">value!</span>(<span class="ident">val</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>, <span class="ident">Text</span>, <span class="ident">val</span>.<span class="ident">into</span>());
+<span class="macro">value!</span>(<span class="ident">val</span>: <span class="ident">String</span>, <span class="ident">Text</span>, <span class="ident">val</span>.<span class="ident">into</span>());
+<span class="macro">value!</span>(<span class="ident">val</span>: <span class="ident">usize</span>, <span class="ident">Integer</span>, <span class="ident">i64</span>::<span class="ident">try_from</span>(<span class="ident">val</span>).<span class="ident">unwrap</span>());
+<span class="macro">value!</span>(<span class="ident">val</span>: <span class="ident">i32</span>, <span class="ident">Integer</span>, <span class="ident">i64</span>::<span class="ident">try_from</span>(<span class="ident">val</span>).<span class="ident">unwrap</span>());
+<span class="macro">value!</span>(<span class="ident">val</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">u8</span>], <span class="ident">Bytes</span>, <span class="ident">val</span>.<span class="ident">into</span>());
+<span class="macro">value!</span>(<span class="ident">val</span>: <span class="ident">f64</span>, <span class="ident">Double</span>, <span class="ident">val</span>);
+<span class="macro">value!</span>(<span class="ident">val</span>: <span class="ident">f32</span>, <span class="ident">Float</span>, <span class="ident">val</span>);
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;chrono&quot;</span>)]</span>
 <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;docs&quot;</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;chrono&quot;</span>)))]</span>
-<span class="macro">value</span><span class="macro">!</span>(<span class="ident">val</span>: <span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span>, <span class="ident">DateTime</span>, <span class="ident">val</span>);
+<span class="macro">value!</span>(<span class="ident">val</span>: <span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span>, <span class="ident">DateTime</span>, <span class="ident">val</span>);
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;chrono&quot;</span>)]</span>
 <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;docs&quot;</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;chrono&quot;</span>)))]</span>
-<span class="macro">value</span><span class="macro">!</span>(<span class="ident">val</span>: <span class="ident">chrono</span>::<span class="ident">NaiveTime</span>, <span class="ident">Time</span>, <span class="ident">val</span>);
+<span class="macro">value!</span>(<span class="ident">val</span>: <span class="ident">chrono</span>::<span class="ident">NaiveTime</span>, <span class="ident">Time</span>, <span class="ident">val</span>);
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;chrono&quot;</span>)]</span>
 <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;docs&quot;</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;chrono&quot;</span>)))]</span>
-<span class="macro">value</span><span class="macro">!</span>(<span class="ident">val</span>: <span class="ident">chrono</span>::<span class="ident">NaiveDate</span>, <span class="ident">Date</span>, <span class="ident">val</span>);
+<span class="macro">value!</span>(<span class="ident">val</span>: <span class="ident">chrono</span>::<span class="ident">NaiveDate</span>, <span class="ident">Date</span>, <span class="ident">val</span>);
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;bigdecimal&quot;</span>)]</span>
-<span class="macro">value</span><span class="macro">!</span>(<span class="ident">val</span>: <span class="ident">BigDecimal</span>, <span class="ident">Numeric</span>, <span class="ident">val</span>);
+<span class="macro">value!</span>(<span class="ident">val</span>: <span class="ident">BigDecimal</span>, <span class="ident">Numeric</span>, <span class="ident">val</span>);
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;json&quot;</span>)]</span>
 <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;docs&quot;</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;json&quot;</span>)))]</span>
-<span class="macro">value</span><span class="macro">!</span>(<span class="ident">val</span>: <span class="ident">JsonValue</span>, <span class="ident">Json</span>, <span class="ident">val</span>);
+<span class="macro">value!</span>(<span class="ident">val</span>: <span class="ident">JsonValue</span>, <span class="ident">Json</span>, <span class="ident">val</span>);
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;uuid&quot;</span>)]</span>
 <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;docs&quot;</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;uuid&quot;</span>)))]</span>
-<span class="macro">value</span><span class="macro">!</span>(<span class="ident">val</span>: <span class="ident">Uuid</span>, <span class="ident">Uuid</span>, <span class="ident">val</span>);
+<span class="macro">value!</span>(<span class="ident">val</span>: <span class="ident">Uuid</span>, <span class="ident">Uuid</span>, <span class="ident">val</span>);
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">TryFrom</span><span class="op">&lt;</span><span class="ident">Value</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">i64</span> {
     <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">Error</span>;
@@ -1634,46 +1634,46 @@
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">a_parameterized_value_of_ints_can_be_converted_into_a_vec</span>() {
-        <span class="kw">let</span> <span class="ident">pv</span> <span class="op">=</span> <span class="ident">Value</span>::<span class="ident">array</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="number">1</span>]);
+        <span class="kw">let</span> <span class="ident">pv</span> <span class="op">=</span> <span class="ident">Value</span>::<span class="ident">array</span>(<span class="macro">vec!</span>[<span class="number">1</span>]);
         <span class="kw">let</span> <span class="ident">values</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">i64</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">pv</span>.<span class="ident">into_vec</span>().<span class="ident">expect</span>(<span class="string">&quot;convert into Vec&lt;i64&gt;&quot;</span>);
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">values</span>, <span class="macro">vec</span><span class="macro">!</span>[<span class="number">1</span>]);
+        <span class="macro">assert_eq!</span>(<span class="ident">values</span>, <span class="macro">vec!</span>[<span class="number">1</span>]);
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">a_parameterized_value_of_reals_can_be_converted_into_a_vec</span>() {
-        <span class="kw">let</span> <span class="ident">pv</span> <span class="op">=</span> <span class="ident">Value</span>::<span class="ident">array</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="number">1.0</span>]);
+        <span class="kw">let</span> <span class="ident">pv</span> <span class="op">=</span> <span class="ident">Value</span>::<span class="ident">array</span>(<span class="macro">vec!</span>[<span class="number">1.0</span>]);
         <span class="kw">let</span> <span class="ident">values</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">pv</span>.<span class="ident">into_vec</span>().<span class="ident">expect</span>(<span class="string">&quot;convert into Vec&lt;f64&gt;&quot;</span>);
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">values</span>, <span class="macro">vec</span><span class="macro">!</span>[<span class="number">1.0</span>]);
+        <span class="macro">assert_eq!</span>(<span class="ident">values</span>, <span class="macro">vec!</span>[<span class="number">1.0</span>]);
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">a_parameterized_value_of_texts_can_be_converted_into_a_vec</span>() {
-        <span class="kw">let</span> <span class="ident">pv</span> <span class="op">=</span> <span class="ident">Value</span>::<span class="ident">array</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;test&quot;</span>]);
+        <span class="kw">let</span> <span class="ident">pv</span> <span class="op">=</span> <span class="ident">Value</span>::<span class="ident">array</span>(<span class="macro">vec!</span>[<span class="string">&quot;test&quot;</span>]);
         <span class="kw">let</span> <span class="ident">values</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">pv</span>.<span class="ident">into_vec</span>().<span class="ident">expect</span>(<span class="string">&quot;convert into Vec&lt;String&gt;&quot;</span>);
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">values</span>, <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;test&quot;</span>]);
+        <span class="macro">assert_eq!</span>(<span class="ident">values</span>, <span class="macro">vec!</span>[<span class="string">&quot;test&quot;</span>]);
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">a_parameterized_value_of_booleans_can_be_converted_into_a_vec</span>() {
-        <span class="kw">let</span> <span class="ident">pv</span> <span class="op">=</span> <span class="ident">Value</span>::<span class="ident">array</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="bool-val">true</span>]);
+        <span class="kw">let</span> <span class="ident">pv</span> <span class="op">=</span> <span class="ident">Value</span>::<span class="ident">array</span>(<span class="macro">vec!</span>[<span class="bool-val">true</span>]);
         <span class="kw">let</span> <span class="ident">values</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">pv</span>.<span class="ident">into_vec</span>().<span class="ident">expect</span>(<span class="string">&quot;convert into Vec&lt;bool&gt;&quot;</span>);
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">values</span>, <span class="macro">vec</span><span class="macro">!</span>[<span class="bool-val">true</span>]);
+        <span class="macro">assert_eq!</span>(<span class="ident">values</span>, <span class="macro">vec!</span>[<span class="bool-val">true</span>]);
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;chrono&quot;</span>)]</span>
     <span class="kw">fn</span> <span class="ident">a_parameterized_value_of_datetimes_can_be_converted_into_a_vec</span>() {
         <span class="kw">let</span> <span class="ident">datetime</span> <span class="op">=</span> <span class="ident">DateTime</span>::<span class="ident">from_str</span>(<span class="string">&quot;2019-07-27T05:30:30Z&quot;</span>).<span class="ident">expect</span>(<span class="string">&quot;parsing date/time&quot;</span>);
-        <span class="kw">let</span> <span class="ident">pv</span> <span class="op">=</span> <span class="ident">Value</span>::<span class="ident">array</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="ident">datetime</span>]);
+        <span class="kw">let</span> <span class="ident">pv</span> <span class="op">=</span> <span class="ident">Value</span>::<span class="ident">array</span>(<span class="macro">vec!</span>[<span class="ident">datetime</span>]);
         <span class="kw">let</span> <span class="ident">values</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">pv</span>.<span class="ident">into_vec</span>().<span class="ident">expect</span>(<span class="string">&quot;convert into Vec&lt;DateTime&gt;&quot;</span>);
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">values</span>, <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">datetime</span>]);
+        <span class="macro">assert_eq!</span>(<span class="ident">values</span>, <span class="macro">vec!</span>[<span class="ident">datetime</span>]);
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">a_parameterized_value_of_an_array_cant_be_converted_into_a_vec_of_the_wrong_type</span>() {
-        <span class="kw">let</span> <span class="ident">pv</span> <span class="op">=</span> <span class="ident">Value</span>::<span class="ident">array</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="number">1</span>]);
+        <span class="kw">let</span> <span class="ident">pv</span> <span class="op">=</span> <span class="ident">Value</span>::<span class="ident">array</span>(<span class="macro">vec!</span>[<span class="number">1</span>]);
         <span class="kw">let</span> <span class="ident">rslt</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">pv</span>.<span class="ident">into_vec</span>();
-        <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">rslt</span>.<span class="ident">is_none</span>());
+        <span class="macro">assert!</span>(<span class="ident">rslt</span>.<span class="ident">is_none</span>());
     }
 }
 </pre></div>
