@@ -132,7 +132,7 @@ impl MysqlUrl {
         let mut connect_timeout = Some(Duration::from_secs(5));
         let mut pool_timeout = Some(Duration::from_secs(10));
         let mut max_connection_lifetime = None;
-        let mut max_idle_connection_lifetime = None;
+        let mut max_idle_connection_lifetime = Some(Duration::from_secs(300));
 
         for (k, v) in url.query_pairs() {
             match k.as_ref() {

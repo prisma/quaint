@@ -487,15 +487,26 @@ impl MssqlUrl {
             .transpose()?
             .unwrap_or(false);
 
-        let max_connection_lifetime = props
+        let mut max_connection_lifetime = props
             .remove("max_connection_lifetime")
             .map(|param| param.parse().map(Duration::from_secs))
             .transpose()?;
 
-        let max_idle_connection_lifetime = props
+        match max_connection_lifetime {
+            Some(dur) if dur.as_secs() == 0 => max_connection_lifetime = None,
+            _ => (),
+        }
+
+        let mut max_idle_connection_lifetime = props
             .remove("max_idle_connection_lifetime")
             .map(|param| param.parse().map(Duration::from_secs))
             .transpose()?;
+
+        match max_idle_connection_lifetime {
+            None => max_idle_connection_lifetime = Some(Duration::from_secs(300)),
+            Some(dur) if dur.as_secs() == 0 => max_idle_connection_lifetime = None,
+            _ => (),
+        }
 
         Ok(MssqlQueryParams {
             encrypt,

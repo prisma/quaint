@@ -265,7 +265,7 @@ impl PostgresUrl {
         let mut pg_bouncer = false;
         let mut statement_cache_size = 500;
         let mut max_connection_lifetime = None;
-        let mut max_idle_connection_lifetime = None;
+        let mut max_idle_connection_lifetime = Some(Duration::from_secs(300));
 
         for (k, v) in url.query_pairs() {
             match k.as_ref() {
