@@ -449,6 +449,62 @@
 <span id="446">446</span>
 <span id="447">447</span>
 <span id="448">448</span>
+<span id="449">449</span>
+<span id="450">450</span>
+<span id="451">451</span>
+<span id="452">452</span>
+<span id="453">453</span>
+<span id="454">454</span>
+<span id="455">455</span>
+<span id="456">456</span>
+<span id="457">457</span>
+<span id="458">458</span>
+<span id="459">459</span>
+<span id="460">460</span>
+<span id="461">461</span>
+<span id="462">462</span>
+<span id="463">463</span>
+<span id="464">464</span>
+<span id="465">465</span>
+<span id="466">466</span>
+<span id="467">467</span>
+<span id="468">468</span>
+<span id="469">469</span>
+<span id="470">470</span>
+<span id="471">471</span>
+<span id="472">472</span>
+<span id="473">473</span>
+<span id="474">474</span>
+<span id="475">475</span>
+<span id="476">476</span>
+<span id="477">477</span>
+<span id="478">478</span>
+<span id="479">479</span>
+<span id="480">480</span>
+<span id="481">481</span>
+<span id="482">482</span>
+<span id="483">483</span>
+<span id="484">484</span>
+<span id="485">485</span>
+<span id="486">486</span>
+<span id="487">487</span>
+<span id="488">488</span>
+<span id="489">489</span>
+<span id="490">490</span>
+<span id="491">491</span>
+<span id="492">492</span>
+<span id="493">493</span>
+<span id="494">494</span>
+<span id="495">495</span>
+<span id="496">496</span>
+<span id="497">497</span>
+<span id="498">498</span>
+<span id="499">499</span>
+<span id="500">500</span>
+<span id="501">501</span>
+<span id="502">502</span>
+<span id="503">503</span>
+<span id="504">504</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! # A connection pool to a SQL database.</span>
 <span class="doccomment">//!</span>
@@ -628,6 +684,7 @@
     <span class="ident">connection_limit</span>: <span class="ident">usize</span>,
     <span class="ident">max_idle</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u64</span><span class="op">&gt;</span>,
     <span class="ident">max_idle_lifetime</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span>,
+    <span class="ident">max_lifetime</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span>,
     <span class="ident">health_check_interval</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span>,
     <span class="ident">test_on_check_out</span>: <span class="ident">bool</span>,
     <span class="ident">connect_timeout</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span>,
@@ -645,6 +702,7 @@
             <span class="ident">connection_limit</span>,
             <span class="ident">max_idle</span>: <span class="prelude-val">None</span>,
             <span class="ident">max_idle_lifetime</span>: <span class="prelude-val">None</span>,
+            <span class="ident">max_lifetime</span>: <span class="prelude-val">None</span>,
             <span class="ident">health_check_interval</span>: <span class="prelude-val">None</span>,
             <span class="ident">test_on_check_out</span>: <span class="bool-val">false</span>,
             <span class="ident">connect_timeout</span>: <span class="prelude-val">None</span>,
@@ -701,11 +759,26 @@
         <span class="self">self</span>.<span class="ident">pool_timeout</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">pool_timeout</span>);
     }
 
+    <span class="doccomment">/// A time how long a connection can be kept in the pool before</span>
+    <span class="doccomment">/// replaced with a new one. The reconnect happens in the next</span>
+    <span class="doccomment">/// [`check_out`].</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// - Defaults to not set, meaning connections are kept forever.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Panics</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Panics if `max_lifetime` is zero.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// [`check_out`]: struct.Quaint.html#method.check_out</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">max_lifetime</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">max_lifetime</span>: <span class="ident">Duration</span>) {
+        <span class="self">self</span>.<span class="ident">max_lifetime</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">max_lifetime</span>);
+    }
+
     <span class="doccomment">/// A time how long an idling connection can be kept in the pool before</span>
     <span class="doccomment">/// replaced with a new one. The reconnect happens in the next</span>
     <span class="doccomment">/// [`check_out`].</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// - Defaults to not set, meaning idle connections are never reconnected.</span>
+    <span class="doccomment">/// - Defaults to 300 seconds</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// # Panics</span>
     <span class="doccomment">///</span>
@@ -753,6 +826,7 @@
             .<span class="ident">max_open</span>(<span class="self">self</span>.<span class="ident">connection_limit</span> <span class="kw">as</span> <span class="ident">u64</span>)
             .<span class="ident">max_idle</span>(<span class="self">self</span>.<span class="ident">max_idle</span>.<span class="ident">unwrap_or</span>(<span class="self">self</span>.<span class="ident">connection_limit</span> <span class="kw">as</span> <span class="ident">u64</span>))
             .<span class="ident">max_idle_lifetime</span>(<span class="self">self</span>.<span class="ident">max_idle_lifetime</span>)
+            .<span class="ident">max_lifetime</span>(<span class="self">self</span>.<span class="ident">max_lifetime</span>)
             .<span class="ident">get_timeout</span>(<span class="prelude-val">None</span>) <span class="comment">// we handle timeouts here</span>
             .<span class="ident">health_check_interval</span>(<span class="self">self</span>.<span class="ident">health_check_interval</span>)
             .<span class="ident">test_on_check_out</span>(<span class="self">self</span>.<span class="ident">test_on_check_out</span>)
@@ -801,6 +875,14 @@
                     <span class="ident">builder</span>.<span class="ident">connection_limit</span>(<span class="ident">limit</span>);
                 }
 
+                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">max_lifetime</span>) <span class="op">=</span> <span class="ident">params</span>.<span class="ident">max_connection_lifetime</span> {
+                    <span class="ident">builder</span>.<span class="ident">max_lifetime</span>(<span class="ident">max_lifetime</span>);
+                }
+
+                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">max_idle_lifetime</span>) <span class="op">=</span> <span class="ident">params</span>.<span class="ident">max_idle_connection_lifetime</span> {
+                    <span class="ident">builder</span>.<span class="ident">max_idle_lifetime</span>(<span class="ident">max_idle_lifetime</span>);
+                }
+
                 <span class="prelude-val">Ok</span>(<span class="ident">builder</span>)
             }
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mysql&quot;</span>)]</span>
@@ -808,6 +890,8 @@
                 <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="kw">crate</span>::<span class="ident">connector</span>::<span class="ident">MysqlUrl</span>::<span class="ident">new</span>(<span class="ident">url</span>::<span class="ident">Url</span>::<span class="ident">parse</span>(<span class="ident">s</span>)<span class="question-mark">?</span>)<span class="question-mark">?</span>;
                 <span class="kw">let</span> <span class="ident">connection_limit</span> <span class="op">=</span> <span class="ident">url</span>.<span class="ident">connection_limit</span>();
                 <span class="kw">let</span> <span class="ident">pool_timeout</span> <span class="op">=</span> <span class="ident">url</span>.<span class="ident">pool_timeout</span>();
+                <span class="kw">let</span> <span class="ident">max_connection_lifetime</span> <span class="op">=</span> <span class="ident">url</span>.<span class="ident">max_connection_lifetime</span>();
+                <span class="kw">let</span> <span class="ident">max_idle_connection_lifetime</span> <span class="op">=</span> <span class="ident">url</span>.<span class="ident">max_idle_connection_lifetime</span>();
 
                 <span class="kw">let</span> <span class="ident">manager</span> <span class="op">=</span> <span class="ident">QuaintManager</span>::<span class="ident">Mysql</span> { <span class="ident">url</span> };
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">builder</span> <span class="op">=</span> <span class="ident">Builder</span>::<span class="ident">new</span>(<span class="ident">s</span>, <span class="ident">manager</span>)<span class="question-mark">?</span>;
@@ -820,6 +904,14 @@
                     <span class="ident">builder</span>.<span class="ident">pool_timeout</span>(<span class="ident">timeout</span>);
                 }
 
+                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">max_lifetime</span>) <span class="op">=</span> <span class="ident">max_connection_lifetime</span> {
+                    <span class="ident">builder</span>.<span class="ident">max_lifetime</span>(<span class="ident">max_lifetime</span>);
+                }
+
+                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">max_idle_lifetime</span>) <span class="op">=</span> <span class="ident">max_idle_connection_lifetime</span> {
+                    <span class="ident">builder</span>.<span class="ident">max_idle_lifetime</span>(<span class="ident">max_idle_lifetime</span>);
+                }
+
                 <span class="prelude-val">Ok</span>(<span class="ident">builder</span>)
             }
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;postgresql&quot;</span>)]</span>
@@ -827,6 +919,8 @@
                 <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="kw">crate</span>::<span class="ident">connector</span>::<span class="ident">PostgresUrl</span>::<span class="ident">new</span>(<span class="ident">url</span>::<span class="ident">Url</span>::<span class="ident">parse</span>(<span class="ident">s</span>)<span class="question-mark">?</span>)<span class="question-mark">?</span>;
                 <span class="kw">let</span> <span class="ident">connection_limit</span> <span class="op">=</span> <span class="ident">url</span>.<span class="ident">connection_limit</span>();
                 <span class="kw">let</span> <span class="ident">pool_timeout</span> <span class="op">=</span> <span class="ident">url</span>.<span class="ident">pool_timeout</span>();
+                <span class="kw">let</span> <span class="ident">max_connection_lifetime</span> <span class="op">=</span> <span class="ident">url</span>.<span class="ident">max_connection_lifetime</span>();
+                <span class="kw">let</span> <span class="ident">max_idle_connection_lifetime</span> <span class="op">=</span> <span class="ident">url</span>.<span class="ident">max_idle_connection_lifetime</span>();
 
                 <span class="kw">let</span> <span class="ident">manager</span> <span class="op">=</span> <span class="ident">QuaintManager</span>::<span class="ident">Postgres</span> { <span class="ident">url</span> };
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">builder</span> <span class="op">=</span> <span class="ident">Builder</span>::<span class="ident">new</span>(<span class="ident">s</span>, <span class="ident">manager</span>)<span class="question-mark">?</span>;
@@ -839,6 +933,14 @@
                     <span class="ident">builder</span>.<span class="ident">pool_timeout</span>(<span class="ident">timeout</span>);
                 }
 
+                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">max_lifetime</span>) <span class="op">=</span> <span class="ident">max_connection_lifetime</span> {
+                    <span class="ident">builder</span>.<span class="ident">max_lifetime</span>(<span class="ident">max_lifetime</span>);
+                }
+
+                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">max_idle_lifetime</span>) <span class="op">=</span> <span class="ident">max_idle_connection_lifetime</span> {
+                    <span class="ident">builder</span>.<span class="ident">max_idle_lifetime</span>(<span class="ident">max_idle_lifetime</span>);
+                }
+
                 <span class="prelude-val">Ok</span>(<span class="ident">builder</span>)
             }
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mssql&quot;</span>)]</span>
@@ -846,6 +948,8 @@
                 <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="kw">crate</span>::<span class="ident">connector</span>::<span class="ident">MssqlUrl</span>::<span class="ident">new</span>(<span class="ident">s</span>)<span class="question-mark">?</span>;
                 <span class="kw">let</span> <span class="ident">connection_limit</span> <span class="op">=</span> <span class="ident">url</span>.<span class="ident">connection_limit</span>();
                 <span class="kw">let</span> <span class="ident">pool_timeout</span> <span class="op">=</span> <span class="ident">url</span>.<span class="ident">pool_timeout</span>();
+                <span class="kw">let</span> <span class="ident">max_connection_lifetime</span> <span class="op">=</span> <span class="ident">url</span>.<span class="ident">max_connection_lifetime</span>();
+                <span class="kw">let</span> <span class="ident">max_idle_connection_lifetime</span> <span class="op">=</span> <span class="ident">url</span>.<span class="ident">max_idle_connection_lifetime</span>();
 
                 <span class="kw">let</span> <span class="ident">manager</span> <span class="op">=</span> <span class="ident">QuaintManager</span>::<span class="ident">Mssql</span> { <span class="ident">url</span> };
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">builder</span> <span class="op">=</span> <span class="ident">Builder</span>::<span class="ident">new</span>(<span class="ident">s</span>, <span class="ident">manager</span>)<span class="question-mark">?</span>;
@@ -856,6 +960,14 @@
 
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">timeout</span>) <span class="op">=</span> <span class="ident">pool_timeout</span> {
                     <span class="ident">builder</span>.<span class="ident">pool_timeout</span>(<span class="ident">timeout</span>);
+                }
+
+                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">max_lifetime</span>) <span class="op">=</span> <span class="ident">max_connection_lifetime</span> {
+                    <span class="ident">builder</span>.<span class="ident">max_lifetime</span>(<span class="ident">max_lifetime</span>);
+                }
+
+                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">max_idle_lifetime</span>) <span class="op">=</span> <span class="ident">max_idle_connection_lifetime</span> {
+                    <span class="ident">builder</span>.<span class="ident">max_idle_lifetime</span>(<span class="ident">max_idle_lifetime</span>);
                 }
 
                 <span class="prelude-val">Ok</span>(<span class="ident">builder</span>)

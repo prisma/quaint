@@ -406,6 +406,44 @@
 <span id="403">403</span>
 <span id="404">404</span>
 <span id="405">405</span>
+<span id="406">406</span>
+<span id="407">407</span>
+<span id="408">408</span>
+<span id="409">409</span>
+<span id="410">410</span>
+<span id="411">411</span>
+<span id="412">412</span>
+<span id="413">413</span>
+<span id="414">414</span>
+<span id="415">415</span>
+<span id="416">416</span>
+<span id="417">417</span>
+<span id="418">418</span>
+<span id="419">419</span>
+<span id="420">420</span>
+<span id="421">421</span>
+<span id="422">422</span>
+<span id="423">423</span>
+<span id="424">424</span>
+<span id="425">425</span>
+<span id="426">426</span>
+<span id="427">427</span>
+<span id="428">428</span>
+<span id="429">429</span>
+<span id="430">430</span>
+<span id="431">431</span>
+<span id="432">432</span>
+<span id="433">433</span>
+<span id="434">434</span>
+<span id="435">435</span>
+<span id="436">436</span>
+<span id="437">437</span>
+<span id="438">438</span>
+<span id="439">439</span>
+<span id="440">440</span>
+<span id="441">441</span>
+<span id="442">442</span>
+<span id="443">443</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">mod</span> <span class="ident">conversion</span>;
 <span class="kw">mod</span> <span class="ident">error</span>;
@@ -520,6 +558,16 @@
         <span class="self">self</span>.<span class="ident">query_params</span>.<span class="ident">socket_timeout</span>
     }
 
+    <span class="doccomment">/// The maximum connection lifetime</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">max_connection_lifetime</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">query_params</span>.<span class="ident">max_connection_lifetime</span>
+    }
+
+    <span class="doccomment">/// The maximum idle connection lifetime</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">max_idle_connection_lifetime</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">query_params</span>.<span class="ident">max_idle_connection_lifetime</span>
+    }
+
     <span class="kw">fn</span> <span class="ident">parse_query_params</span>(<span class="ident">url</span>: <span class="kw-2">&amp;</span><span class="ident">Url</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">MysqlUrlQueryParams</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ssl_opts</span> <span class="op">=</span> <span class="ident">my</span>::<span class="ident">SslOpts</span>::<span class="ident">default</span>();
         <span class="ident">ssl_opts</span> <span class="op">=</span> <span class="ident">ssl_opts</span>.<span class="ident">with_danger_accept_invalid_certs</span>(<span class="bool-val">true</span>);
@@ -530,6 +578,8 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">socket_timeout</span> <span class="op">=</span> <span class="prelude-val">None</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">connect_timeout</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Duration</span>::<span class="ident">from_secs</span>(<span class="number">5</span>));
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pool_timeout</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Duration</span>::<span class="ident">from_secs</span>(<span class="number">10</span>));
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">max_connection_lifetime</span> <span class="op">=</span> <span class="prelude-val">None</span>;
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">max_idle_connection_lifetime</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Duration</span>::<span class="ident">from_secs</span>(<span class="number">300</span>));
 
         <span class="kw">for</span> (<span class="ident">k</span>, <span class="ident">v</span>) <span class="kw">in</span> <span class="ident">url</span>.<span class="ident">query_pairs</span>() {
             <span class="kw">match</span> <span class="ident">k</span>.<span class="ident">as_ref</span>() {
@@ -595,6 +645,28 @@
                         }
                     };
                 }
+                <span class="string">&quot;max_connection_lifetime&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="kw">let</span> <span class="ident">as_int</span> <span class="op">=</span> <span class="ident">v</span>
+                        .<span class="ident">parse</span>()
+                        .<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">Error</span>::<span class="ident">builder</span>(<span class="ident">ErrorKind</span>::<span class="ident">InvalidConnectionArguments</span>).<span class="ident">build</span>())<span class="question-mark">?</span>;
+
+                    <span class="kw">if</span> <span class="ident">as_int</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
+                        <span class="ident">max_connection_lifetime</span> <span class="op">=</span> <span class="prelude-val">None</span>;
+                    } <span class="kw">else</span> {
+                        <span class="ident">max_connection_lifetime</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Duration</span>::<span class="ident">from_secs</span>(<span class="ident">as_int</span>));
+                    }
+                }
+                <span class="string">&quot;max_idle_connection_lifetime&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="kw">let</span> <span class="ident">as_int</span> <span class="op">=</span> <span class="ident">v</span>
+                        .<span class="ident">parse</span>()
+                        .<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">Error</span>::<span class="ident">builder</span>(<span class="ident">ErrorKind</span>::<span class="ident">InvalidConnectionArguments</span>).<span class="ident">build</span>())<span class="question-mark">?</span>;
+
+                    <span class="kw">if</span> <span class="ident">as_int</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
+                        <span class="ident">max_idle_connection_lifetime</span> <span class="op">=</span> <span class="prelude-val">None</span>;
+                    } <span class="kw">else</span> {
+                        <span class="ident">max_idle_connection_lifetime</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Duration</span>::<span class="ident">from_secs</span>(<span class="ident">as_int</span>));
+                    }
+                }
                 <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="ident">tracing</span>::<span class="macro">trace!</span>(<span class="ident">message</span> <span class="op">=</span> <span class="string">&quot;Discarding connection string param&quot;</span>, <span class="ident">param</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">k</span>);
                 }
@@ -609,6 +681,8 @@
             <span class="ident">connect_timeout</span>,
             <span class="ident">socket_timeout</span>,
             <span class="ident">pool_timeout</span>,
+            <span class="ident">max_connection_lifetime</span>,
+            <span class="ident">max_idle_connection_lifetime</span>,
         })
     }
 
@@ -652,6 +726,8 @@
     <span class="ident">socket_timeout</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span>,
     <span class="ident">connect_timeout</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span>,
     <span class="ident">pool_timeout</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span>,
+    <span class="ident">max_connection_lifetime</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span>,
+    <span class="ident">max_idle_connection_lifetime</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">Mysql</span> {
