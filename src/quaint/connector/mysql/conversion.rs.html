@@ -342,12 +342,6 @@
 <span id="339">339</span>
 <span id="340">340</span>
 <span id="341">341</span>
-<span id="342">342</span>
-<span id="343">343</span>
-<span id="344">344</span>
-<span id="345">345</span>
-<span id="346">346</span>
-<span id="347">347</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">ast</span>::<span class="ident">Value</span>,
@@ -381,10 +375,7 @@
                 <span class="ident">Value</span>::<span class="ident">Enum</span>(<span class="ident">s</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">s</span>.<span class="ident">clone</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="ident">my</span>::<span class="ident">Value</span>::<span class="ident">Bytes</span>((<span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">s</span>).<span class="ident">as_bytes</span>().<span class="ident">to_vec</span>())),
                 <span class="ident">Value</span>::<span class="ident">Boolean</span>(<span class="ident">b</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">b</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">b</span><span class="op">|</span> <span class="ident">my</span>::<span class="ident">Value</span>::<span class="ident">Int</span>(<span class="ident">b</span> <span class="kw">as</span> <span class="ident">i64</span>)),
                 <span class="ident">Value</span>::<span class="ident">Char</span>(<span class="ident">c</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">c</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">c</span><span class="op">|</span> <span class="ident">my</span>::<span class="ident">Value</span>::<span class="ident">Bytes</span>(<span class="macro">vec!</span>[<span class="ident">c</span> <span class="kw">as</span> <span class="ident">u8</span>])),
-                <span class="ident">Value</span>::<span class="ident">Xml</span>(<span class="ident">s</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">s</span> {
-                    <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">s</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">my</span>::<span class="ident">Value</span>::<span class="ident">Bytes</span>((<span class="ident">s</span>).<span class="ident">as_bytes</span>().<span class="ident">to_vec</span>())),
-                    <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
-                },
+                <span class="ident">Value</span>::<span class="ident">Xml</span>(<span class="ident">s</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">s</span>.<span class="ident">as_ref</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="ident">my</span>::<span class="ident">Value</span>::<span class="ident">Bytes</span>((<span class="ident">s</span>).<span class="ident">as_bytes</span>().<span class="ident">to_vec</span>())),
                 <span class="ident">Value</span>::<span class="ident">Array</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">let</span> <span class="ident">msg</span> <span class="op">=</span> <span class="string">&quot;Arrays are not supported in MySQL.&quot;</span>;
                     <span class="kw">let</span> <span class="ident">kind</span> <span class="op">=</span> <span class="ident">ErrorKind</span>::<span class="ident">conversion</span>(<span class="ident">msg</span>);
@@ -395,10 +386,7 @@
                     <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">builder</span>.<span class="ident">build</span>());
                 }
                 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;bigdecimal&quot;</span>)]</span>
-                <span class="ident">Value</span>::<span class="ident">Numeric</span>(<span class="ident">f</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">f</span> {
-                    <span class="prelude-val">Some</span>(<span class="ident">f</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">my</span>::<span class="ident">Value</span>::<span class="ident">Bytes</span>(<span class="ident">f</span>.<span class="ident">to_string</span>().<span class="ident">as_bytes</span>().<span class="ident">to_vec</span>())),
-                    <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
-                },
+                <span class="ident">Value</span>::<span class="ident">Numeric</span>(<span class="ident">f</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">f</span>.<span class="ident">as_ref</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">f</span><span class="op">|</span> <span class="ident">my</span>::<span class="ident">Value</span>::<span class="ident">Bytes</span>(<span class="ident">f</span>.<span class="ident">to_string</span>().<span class="ident">as_bytes</span>().<span class="ident">to_vec</span>())),
                 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;json&quot;</span>)]</span>
                 <span class="ident">Value</span>::<span class="ident">Json</span>(<span class="ident">s</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">s</span> {
                     <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">s</span>) <span class="op">=</span><span class="op">&gt;</span> {

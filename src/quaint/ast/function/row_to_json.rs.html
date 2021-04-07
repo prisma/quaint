@@ -79,20 +79,20 @@
 <span class="doccomment">/// # async fn main() -&gt; Result&lt;(), quaint::error::Error&gt; {</span>
 <span class="doccomment">/// # let conn = Quaint::new_in_memory()?;</span>
 <span class="doccomment">/// let cte = Select::default()</span>
-<span class="doccomment">/// 	.value(val!(&quot;hello_world&quot;).alias(&quot;toto&quot;))</span>
-<span class="doccomment">/// 	.into_cte(&quot;one&quot;);</span>
+<span class="doccomment">///     .value(val!(&quot;hello_world&quot;).alias(&quot;toto&quot;))</span>
+<span class="doccomment">///     .into_cte(&quot;one&quot;);</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// let select = Select::from_table(&quot;one&quot;)</span>
-<span class="doccomment">/// 	.value(row_to_json(&quot;one&quot;, false))</span>
-<span class="doccomment">/// 	.with(cte);</span>
+<span class="doccomment">///     .value(row_to_json(&quot;one&quot;, false))</span>
+<span class="doccomment">///     .with(cte);</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// let result = conn.select(select).await?;</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// assert_eq!(</span>
-<span class="doccomment">/// 	Value::Json(Some(serde_json::json!({</span>
-<span class="doccomment">/// 		&quot;toto&quot;: &quot;hello_world&quot;</span>
-<span class="doccomment">/// 	}))),</span>
-<span class="doccomment">/// 	result.into_single().unwrap()[0]</span>
+<span class="doccomment">///     Value::Json(Some(serde_json::json!({</span>
+<span class="doccomment">///         &quot;toto&quot;: &quot;hello_world&quot;</span>
+<span class="doccomment">///     }))),</span>
+<span class="doccomment">///     result.into_single().unwrap()[0]</span>
 <span class="doccomment">/// );</span>
 <span class="doccomment">/// # Ok(())</span>
 <span class="doccomment">/// # }</span>

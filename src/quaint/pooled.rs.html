@@ -484,27 +484,6 @@
 <span id="481">481</span>
 <span id="482">482</span>
 <span id="483">483</span>
-<span id="484">484</span>
-<span id="485">485</span>
-<span id="486">486</span>
-<span id="487">487</span>
-<span id="488">488</span>
-<span id="489">489</span>
-<span id="490">490</span>
-<span id="491">491</span>
-<span id="492">492</span>
-<span id="493">493</span>
-<span id="494">494</span>
-<span id="495">495</span>
-<span id="496">496</span>
-<span id="497">497</span>
-<span id="498">498</span>
-<span id="499">499</span>
-<span id="500">500</span>
-<span id="501">501</span>
-<span id="502">502</span>
-<span id="503">503</span>
-<span id="504">504</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! # A connection pool to a SQL database.</span>
 <span class="doccomment">//!</span>
@@ -633,7 +612,6 @@
 <span class="doccomment">//! async fn main() -&gt; Result&lt;(), quaint::error::Error&gt; {</span>
 <span class="doccomment">//!     let mut builder = Quaint::builder(&quot;postgresql://postgres:password@localhost:5432/postgres&quot;)?;</span>
 <span class="doccomment">//!     builder.connection_limit(5);</span>
-<span class="doccomment">//!     builder.connect_timeout(Duration::from_secs(5));</span>
 <span class="doccomment">//!     builder.max_idle_lifetime(Duration::from_secs(300));</span>
 <span class="doccomment">//!     builder.test_on_check_out(true);</span>
 <span class="doccomment">//!</span>
@@ -687,7 +665,6 @@
     <span class="ident">max_lifetime</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span>,
     <span class="ident">health_check_interval</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span>,
     <span class="ident">test_on_check_out</span>: <span class="ident">bool</span>,
-    <span class="ident">connect_timeout</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span>,
     <span class="ident">pool_timeout</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span>,
 }
 
@@ -705,7 +682,6 @@
             <span class="ident">max_lifetime</span>: <span class="prelude-val">None</span>,
             <span class="ident">health_check_interval</span>: <span class="prelude-val">None</span>,
             <span class="ident">test_on_check_out</span>: <span class="bool-val">false</span>,
-            <span class="ident">connect_timeout</span>: <span class="prelude-val">None</span>,
             <span class="ident">pool_timeout</span>: <span class="prelude-val">None</span>,
         })
     }
@@ -725,24 +701,6 @@
     <span class="doccomment">/// - Defaults to the same value as `connection_limit`.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">max_idle</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">max_idle</span>: <span class="ident">u64</span>) {
         <span class="self">self</span>.<span class="ident">max_idle</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">max_idle</span>);
-    }
-
-    <span class="doccomment">/// A timeout for connecting to the database. If not set, the connection</span>
-    <span class="doccomment">/// never times out.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Panics</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Panics if `connect_timeout` is zero.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// [`check_out`]: struct.Quaint.html#method.check_out</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">connect_timeout</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">connect_timeout</span>: <span class="ident">Duration</span>) {
-        <span class="macro">assert_ne!</span>(
-            <span class="ident">connect_timeout</span>,
-            <span class="ident">Duration</span>::<span class="ident">from_secs</span>(<span class="number">0</span>),
-            <span class="string">&quot;connect_timeout must be positive&quot;</span>
-        );
-
-        <span class="self">self</span>.<span class="ident">connect_timeout</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">connect_timeout</span>);
     }
 
     <span class="doccomment">/// A timeout for acquiring a connection with the [`check_out`] method. If</span>

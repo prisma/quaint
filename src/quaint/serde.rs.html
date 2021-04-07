@@ -328,6 +328,7 @@
 <span id="325">325</span>
 <span id="326">326</span>
 <span id="327">327</span>
+<span id="328">328</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Convert results from the database into any type implementing `serde::Deserialize`.</span>
 
@@ -342,8 +343,9 @@
 
 <span class="kw">impl</span> <span class="ident">ResultSet</span> {
     <span class="doccomment">/// Takes the first row and deserializes it.</span>
+    <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy</span>::<span class="ident">wrong_self_convention</span>)]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_first</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">DeserializeOwned</span><span class="op">&gt;</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">crate</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-        <span class="prelude-val">Ok</span>(<span class="ident">from_row</span>(<span class="self">self</span>.<span class="ident">into_single</span>()<span class="question-mark">?</span>)<span class="question-mark">?</span>)
+        <span class="ident">from_row</span>(<span class="self">self</span>.<span class="ident">into_single</span>()<span class="question-mark">?</span>)
     }
 }
 
