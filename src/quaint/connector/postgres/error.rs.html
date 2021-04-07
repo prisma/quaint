@@ -316,12 +316,20 @@
 <span id="313">313</span>
 <span id="314">314</span>
 <span id="315">315</span>
+<span id="316">316</span>
+<span id="317">317</span>
+<span id="318">318</span>
+<span id="319">319</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">error</span>::{<span class="ident">DatabaseConstraint</span>, <span class="ident">Error</span>, <span class="ident">ErrorKind</span>, <span class="ident">Name</span>};
 
 <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">tokio_postgres</span>::<span class="ident">error</span>::<span class="ident">Error</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Error</span> {
     <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">e</span>: <span class="ident">tokio_postgres</span>::<span class="ident">error</span>::<span class="ident">Error</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Error</span> {
         <span class="kw">use</span> <span class="ident">tokio_postgres</span>::<span class="ident">error</span>::<span class="ident">DbError</span>;
+
+        <span class="kw">if</span> <span class="ident">e</span>.<span class="ident">is_closed</span>() {
+            <span class="kw">return</span> <span class="ident">Error</span>::<span class="ident">builder</span>(<span class="ident">ErrorKind</span>::<span class="ident">ConnectionClosed</span>).<span class="ident">build</span>();
+        }
 
         <span class="kw">match</span> <span class="ident">e</span>.<span class="ident">code</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">c</span><span class="op">|</span> <span class="ident">c</span>.<span class="ident">code</span>()) {
             <span class="prelude-val">Some</span>(<span class="ident">code</span>) <span class="kw">if</span> <span class="ident">code</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;22001&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
