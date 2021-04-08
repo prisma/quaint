@@ -320,6 +320,28 @@
 <span id="317">317</span>
 <span id="318">318</span>
 <span id="319">319</span>
+<span id="320">320</span>
+<span id="321">321</span>
+<span id="322">322</span>
+<span id="323">323</span>
+<span id="324">324</span>
+<span id="325">325</span>
+<span id="326">326</span>
+<span id="327">327</span>
+<span id="328">328</span>
+<span id="329">329</span>
+<span id="330">330</span>
+<span id="331">331</span>
+<span id="332">332</span>
+<span id="333">333</span>
+<span id="334">334</span>
+<span id="335">335</span>
+<span id="336">336</span>
+<span id="337">337</span>
+<span id="338">338</span>
+<span id="339">339</span>
+<span id="340">340</span>
+<span id="341">341</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">error</span>::{<span class="ident">DatabaseConstraint</span>, <span class="ident">Error</span>, <span class="ident">ErrorKind</span>, <span class="ident">Name</span>};
 
@@ -449,6 +471,28 @@
                     .<span class="ident">into</span>();
 
                 <span class="kw">let</span> <span class="ident">kind</span> <span class="op">=</span> <span class="ident">ErrorKind</span>::<span class="ident">DatabaseDoesNotExist</span> { <span class="ident">db_name</span> };
+                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">builder</span> <span class="op">=</span> <span class="ident">Error</span>::<span class="ident">builder</span>(<span class="ident">kind</span>);
+
+                <span class="ident">builder</span>.<span class="ident">set_original_code</span>(<span class="ident">code</span>);
+
+                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">message</span>) <span class="op">=</span> <span class="ident">message</span> {
+                    <span class="ident">builder</span>.<span class="ident">set_original_message</span>(<span class="ident">message</span>);
+                }
+
+                <span class="ident">builder</span>.<span class="ident">build</span>()
+            }
+            <span class="prelude-val">Some</span>(<span class="ident">code</span>) <span class="kw">if</span> <span class="ident">code</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;28000&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="kw">let</span> <span class="ident">code</span> <span class="op">=</span> <span class="ident">code</span>.<span class="ident">to_string</span>();
+                <span class="kw">let</span> <span class="ident">db_error</span> <span class="op">=</span> <span class="ident">e</span>.<span class="ident">into_source</span>().<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> <span class="ident">e</span>.<span class="ident">downcast</span>::<span class="op">&lt;</span><span class="ident">DbError</span><span class="op">&gt;</span>().<span class="ident">ok</span>());
+                <span class="kw">let</span> <span class="ident">message</span> <span class="op">=</span> <span class="ident">db_error</span>.<span class="ident">as_ref</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> <span class="ident">e</span>.<span class="ident">message</span>());
+
+                <span class="kw">let</span> <span class="ident">db_name</span> <span class="op">=</span> <span class="ident">message</span>
+                    .<span class="ident">as_ref</span>()
+                    .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">m</span><span class="op">|</span> <span class="ident">m</span>.<span class="ident">split_whitespace</span>().<span class="ident">nth</span>(<span class="number">5</span>))
+                    .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="ident">s</span>.<span class="ident">split</span>(<span class="string">&#39;&quot;&#39;</span>).<span class="ident">nth</span>(<span class="number">1</span>))
+                    .<span class="ident">into</span>();
+
+                <span class="kw">let</span> <span class="ident">kind</span> <span class="op">=</span> <span class="ident">ErrorKind</span>::<span class="ident">DatabaseAccessDenied</span> { <span class="ident">db_name</span> };
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">builder</span> <span class="op">=</span> <span class="ident">Error</span>::<span class="ident">builder</span>(<span class="ident">kind</span>);
 
                 <span class="ident">builder</span>.<span class="ident">set_original_code</span>(<span class="ident">code</span>);
