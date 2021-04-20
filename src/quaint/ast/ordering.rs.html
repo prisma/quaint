@@ -98,7 +98,7 @@
 <span id="95">95</span>
 <span id="96">96</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">ast</span>::{<span class="ident">Column</span>, <span class="ident">Expression</span>};
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::ast</span>::{<span class="ident">Column</span>, <span class="ident">Expression</span>};
 
 <span class="doccomment">/// Defines ordering for an `ORDER BY` statement.</span>
 <span class="kw">pub</span> <span class="kw">type</span> <span class="ident">OrderDefinition</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="op">=</span> (<span class="ident">Expression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Order</span><span class="op">&gt;</span>);
@@ -142,12 +142,12 @@
 
     <span class="doccomment">/// Change the order to `ASC`</span>
     <span class="kw">fn</span> <span class="ident">ascend</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">OrderDefinition</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">order</span>(<span class="prelude-val">Some</span>(<span class="ident">Order</span>::<span class="ident">Asc</span>))
+        <span class="self">self</span>.<span class="ident">order</span>(<span class="prelude-val">Some</span>(<span class="ident">Order::Asc</span>))
     }
 
     <span class="doccomment">/// Change the order to `DESC`</span>
     <span class="kw">fn</span> <span class="ident">descend</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">OrderDefinition</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">order</span>(<span class="prelude-val">Some</span>(<span class="ident">Order</span>::<span class="ident">Desc</span>))
+        <span class="self">self</span>.<span class="ident">order</span>(<span class="prelude-val">Some</span>(<span class="ident">Order::Desc</span>))
     }
 }
 
@@ -195,5 +195,5 @@
     }
 }
 </pre></div>
-</section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="quaint" data-search-js="../../../search-index.js"></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="quaint" data-search-index-js="../../../search-index.js" data-search-js="../../../search.js"></div>
     <script src="../../../main.js"></script><script src="../../../source-script.js"></script><script src="../../../source-files.js"></script></body></html>

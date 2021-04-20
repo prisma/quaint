@@ -334,8 +334,8 @@
 <span id="331">331</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Error module</span>
-<span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">borrow</span>::<span class="ident">Cow</span>, <span class="ident">fmt</span>, <span class="ident">io</span>, <span class="ident">num</span>};
-<span class="kw">use</span> <span class="ident">thiserror</span>::<span class="ident">Error</span>;
+<span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">borrow::Cow</span>, <span class="ident">fmt</span>, <span class="ident">io</span>, <span class="ident">num</span>};
+<span class="kw">use</span> <span class="ident">thiserror::Error</span>;
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>)]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">DatabaseConstraint</span> {
@@ -353,17 +353,17 @@
     {
         <span class="kw">let</span> <span class="ident">fields</span> <span class="op">=</span> <span class="ident">names</span>.<span class="ident">into_iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="ident">s</span>.<span class="ident">to_string</span>()).<span class="ident">collect</span>();
 
-        <span class="self">Self</span>::<span class="ident">Fields</span>(<span class="ident">fields</span>)
+        <span class="self">Self</span><span class="ident">::Fields</span>(<span class="ident">fields</span>)
     }
 }
 
-<span class="kw">impl</span> <span class="ident">fmt</span>::<span class="ident">Display</span> <span class="kw">for</span> <span class="ident">DatabaseConstraint</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt</span>::<span class="ident">Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
+<span class="kw">impl</span> <span class="ident">fmt::Display</span> <span class="kw">for</span> <span class="ident">DatabaseConstraint</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="self">Self</span>::<span class="ident">Fields</span>(<span class="ident">fields</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;({})&quot;</span>, <span class="ident">fields</span>.<span class="ident">join</span>(<span class="string">&quot;,&quot;</span>)),
-            <span class="self">Self</span>::<span class="ident">Index</span>(<span class="ident">index</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">index</span>.<span class="ident">fmt</span>(<span class="ident">f</span>),
-            <span class="self">Self</span>::<span class="ident">ForeignKey</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;FOREIGN KEY&quot;</span>.<span class="ident">fmt</span>(<span class="ident">f</span>),
-            <span class="self">Self</span>::<span class="ident">CannotParse</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;&quot;</span>.<span class="ident">fmt</span>(<span class="ident">f</span>),
+            <span class="self">Self</span><span class="ident">::Fields</span>(<span class="ident">fields</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;({})&quot;</span>, <span class="ident">fields</span>.<span class="ident">join</span>(<span class="string">&quot;,&quot;</span>)),
+            <span class="self">Self</span><span class="ident">::Index</span>(<span class="ident">index</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">index</span>.<span class="ident">fmt</span>(<span class="ident">f</span>),
+            <span class="self">Self</span><span class="ident">::ForeignKey</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;FOREIGN KEY&quot;</span>.<span class="ident">fmt</span>(<span class="ident">f</span>),
+            <span class="self">Self</span><span class="ident">::CannotParse</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;&quot;</span>.<span class="ident">fmt</span>(<span class="ident">f</span>),
         }
     }
 }
@@ -376,15 +376,15 @@
 
 <span class="kw">impl</span> <span class="ident">Name</span> {
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">available</span>(<span class="ident">name</span>: <span class="kw">impl</span> <span class="ident">ToString</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-        <span class="self">Self</span>::<span class="ident">Available</span>(<span class="ident">name</span>.<span class="ident">to_string</span>())
+        <span class="self">Self</span><span class="ident">::Available</span>(<span class="ident">name</span>.<span class="ident">to_string</span>())
     }
 }
 
-<span class="kw">impl</span> <span class="ident">fmt</span>::<span class="ident">Display</span> <span class="kw">for</span> <span class="ident">Name</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt</span>::<span class="ident">Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
+<span class="kw">impl</span> <span class="ident">fmt::Display</span> <span class="kw">for</span> <span class="ident">Name</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="self">Self</span>::<span class="ident">Available</span>(<span class="ident">name</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">name</span>.<span class="ident">fmt</span>(<span class="ident">f</span>),
-            <span class="self">Self</span>::<span class="ident">Unavailable</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;(not available)&quot;</span>),
+            <span class="self">Self</span><span class="ident">::Available</span>(<span class="ident">name</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">name</span>.<span class="ident">fmt</span>(<span class="ident">f</span>),
+            <span class="self">Self</span><span class="ident">::Unavailable</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;(not available)&quot;</span>),
         }
     }
 }
@@ -395,8 +395,8 @@
 {
     <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">name</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="kw">match</span> <span class="ident">name</span> {
-            <span class="prelude-val">Some</span>(<span class="ident">name</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">Self</span>::<span class="ident">available</span>(<span class="ident">name</span>),
-            <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">Self</span>::<span class="ident">Unavailable</span>,
+            <span class="prelude-val">Some</span>(<span class="ident">name</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">Self</span><span class="ident">::available</span>(<span class="ident">name</span>),
+            <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">Self</span><span class="ident">::Unavailable</span>,
         }
     }
 }
@@ -462,12 +462,12 @@
 
     <span class="doccomment">/// Determines if the error was associated with closed connection.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_closed</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-        <span class="macro">matches!</span>(<span class="self">self</span>.<span class="ident">kind</span>, <span class="ident">ErrorKind</span>::<span class="ident">ConnectionClosed</span>)
+        <span class="macro">matches!</span>(<span class="self">self</span>.<span class="ident">kind</span>, <span class="ident">ErrorKind::ConnectionClosed</span>)
     }
 }
 
-<span class="kw">impl</span> <span class="ident">fmt</span>::<span class="ident">Display</span> <span class="kw">for</span> <span class="ident">Error</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt</span>::<span class="ident">Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
+<span class="kw">impl</span> <span class="ident">fmt::Display</span> <span class="kw">for</span> <span class="ident">Error</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
         <span class="self">self</span>.<span class="ident">kind</span>.<span class="ident">fmt</span>(<span class="ident">f</span>)
     }
 }
@@ -475,7 +475,7 @@
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Error</span>)]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">ErrorKind</span> {
     <span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;Error querying the database: {}&quot;</span>, <span class="ident">_0</span>)]</span>
-    <span class="ident">QueryError</span>(<span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">std</span>::<span class="ident">error</span>::<span class="ident">Error</span> <span class="op">+</span> <span class="ident">Send</span> <span class="op">+</span> <span class="ident">Sync</span> <span class="op">+</span> <span class="lifetime">&#39;static</span><span class="op">&gt;</span>),
+    <span class="ident">QueryError</span>(<span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">std::error::Error</span> <span class="op">+</span> <span class="ident">Send</span> <span class="op">+</span> <span class="ident">Sync</span> <span class="op">+</span> <span class="lifetime">&#39;static</span><span class="op">&gt;</span>),
 
     <span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;Database does not exist: {}&quot;</span>, <span class="ident">db_name</span>)]</span>
     <span class="ident">DatabaseDoesNotExist</span> { <span class="ident">db_name</span>: <span class="ident">Name</span> },
@@ -505,10 +505,10 @@
     <span class="ident">ForeignKeyConstraintViolation</span> { <span class="ident">constraint</span>: <span class="ident">DatabaseConstraint</span> },
 
     <span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;Error creating a database connection.&quot;</span>)]</span>
-    <span class="ident">ConnectionError</span>(<span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">std</span>::<span class="ident">error</span>::<span class="ident">Error</span> <span class="op">+</span> <span class="ident">Send</span> <span class="op">+</span> <span class="ident">Sync</span> <span class="op">+</span> <span class="lifetime">&#39;static</span><span class="op">&gt;</span>),
+    <span class="ident">ConnectionError</span>(<span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">std::error::Error</span> <span class="op">+</span> <span class="ident">Send</span> <span class="op">+</span> <span class="ident">Sync</span> <span class="op">+</span> <span class="lifetime">&#39;static</span><span class="op">&gt;</span>),
 
     <span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;Error reading the column value: {}&quot;</span>, <span class="ident">_0</span>)]</span>
-    <span class="ident">ColumnReadFailure</span>(<span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">std</span>::<span class="ident">error</span>::<span class="ident">Error</span> <span class="op">+</span> <span class="ident">Send</span> <span class="op">+</span> <span class="ident">Sync</span> <span class="op">+</span> <span class="lifetime">&#39;static</span><span class="op">&gt;</span>),
+    <span class="ident">ColumnReadFailure</span>(<span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">std::error::Error</span> <span class="op">+</span> <span class="ident">Send</span> <span class="op">+</span> <span class="ident">Sync</span> <span class="op">+</span> <span class="lifetime">&#39;static</span><span class="op">&gt;</span>),
 
     <span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;Error accessing result set, index out of bounds: {}&quot;</span>, <span class="ident">_0</span>)]</span>
     <span class="ident">ResultIndexOutOfBounds</span>(<span class="ident">usize</span>),
@@ -532,7 +532,7 @@
     <span class="ident">InvalidConnectionArguments</span>,
 
     <span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;Error in an I/O operation: {0}&quot;</span>)]</span>
-    <span class="ident">IoError</span>(<span class="ident">io</span>::<span class="ident">Error</span>),
+    <span class="ident">IoError</span>(<span class="ident">io::Error</span>),
 
     <span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;Timed out when connecting to the database.&quot;</span>)]</span>
     <span class="ident">ConnectTimeout</span>,
@@ -559,7 +559,7 @@
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;serde-support&quot;</span>)]</span>
     <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;docs&quot;</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;serde-support&quot;</span>)))]</span>
     <span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;Deserializing a ResultRow {:?}&quot;</span>, <span class="ident">_0</span>)]</span>
-    <span class="ident">FromRowError</span>(<span class="ident">serde</span>::<span class="ident">de</span>::<span class="ident">value</span>::<span class="ident">Error</span>),
+    <span class="ident">FromRowError</span>(<span class="ident">serde::de::value::Error</span>),
 
     <span class="attribute">#[<span class="ident">error</span>(
         <span class="string">&quot;Incorrect number of parameters given to a statement. Expected {}: got: {}.&quot;</span>,
@@ -572,21 +572,21 @@
 <span class="kw">impl</span> <span class="ident">ErrorKind</span> {
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mysql&quot;</span>)]</span>
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">value_out_of_range</span>(<span class="ident">msg</span>: <span class="kw">impl</span> <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-        <span class="self">Self</span>::<span class="ident">ValueOutOfRange</span> { <span class="ident">message</span>: <span class="ident">msg</span>.<span class="ident">into</span>() }
+        <span class="self">Self</span><span class="ident">::ValueOutOfRange</span> { <span class="ident">message</span>: <span class="ident">msg</span>.<span class="ident">into</span>() }
     }
 
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">conversion</span>(<span class="ident">msg</span>: <span class="kw">impl</span> <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span>, <span class="ident">str</span><span class="op">&gt;</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-        <span class="self">Self</span>::<span class="ident">ConversionError</span>(<span class="ident">msg</span>.<span class="ident">into</span>())
+        <span class="self">Self</span><span class="ident">::ConversionError</span>(<span class="ident">msg</span>.<span class="ident">into</span>())
     }
 
     <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">dead_code</span>)]</span>
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">database_url_is_invalid</span>(<span class="ident">msg</span>: <span class="kw">impl</span> <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-        <span class="self">Self</span>::<span class="ident">DatabaseUrlIsInvalid</span>(<span class="ident">msg</span>.<span class="ident">into</span>())
+        <span class="self">Self</span><span class="ident">::DatabaseUrlIsInvalid</span>(<span class="ident">msg</span>.<span class="ident">into</span>())
     }
 
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;pooled&quot;</span>)]</span>
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">pool_timeout</span>(<span class="ident">max_open</span>: <span class="ident">u64</span>, <span class="ident">in_use</span>: <span class="ident">u64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-        <span class="self">Self</span>::<span class="ident">PoolTimeout</span> { <span class="ident">max_open</span>, <span class="ident">in_use</span> }
+        <span class="self">Self</span><span class="ident">::PoolTimeout</span> { <span class="ident">max_open</span>, <span class="ident">in_use</span> }
     }
 }
 
@@ -598,72 +598,72 @@
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;bigdecimal&quot;</span>)]</span>
 <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;docs&quot;</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;bigdecimal&quot;</span>)))]</span>
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">bigdecimal</span>::<span class="ident">ParseBigDecimalError</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Error</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">e</span>: <span class="ident">bigdecimal</span>::<span class="ident">ParseBigDecimalError</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-        <span class="kw">let</span> <span class="ident">kind</span> <span class="op">=</span> <span class="ident">ErrorKind</span>::<span class="ident">conversion</span>(<span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">e</span>));
-        <span class="self">Self</span>::<span class="ident">builder</span>(<span class="ident">kind</span>).<span class="ident">build</span>()
+<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">bigdecimal::ParseBigDecimalError</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Error</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">e</span>: <span class="ident">bigdecimal::ParseBigDecimalError</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+        <span class="kw">let</span> <span class="ident">kind</span> <span class="op">=</span> <span class="ident">ErrorKind::conversion</span>(<span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">e</span>));
+        <span class="self">Self</span><span class="ident">::builder</span>(<span class="ident">kind</span>).<span class="ident">build</span>()
     }
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;json&quot;</span>)]</span>
 <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;docs&quot;</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;json&quot;</span>)))]</span>
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">serde_json</span>::<span class="ident">Error</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Error</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="kw">_</span>: <span class="ident">serde_json</span>::<span class="ident">Error</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-        <span class="self">Self</span>::<span class="ident">builder</span>(<span class="ident">ErrorKind</span>::<span class="ident">conversion</span>(<span class="string">&quot;Malformed JSON data.&quot;</span>)).<span class="ident">build</span>()
+<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">serde_json::Error</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Error</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="kw">_</span>: <span class="ident">serde_json::Error</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+        <span class="self">Self</span><span class="ident">::builder</span>(<span class="ident">ErrorKind::conversion</span>(<span class="string">&quot;Malformed JSON data.&quot;</span>)).<span class="ident">build</span>()
     }
 }
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">std</span>::<span class="ident">fmt</span>::<span class="ident">Error</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Error</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="kw">_</span>: <span class="ident">std</span>::<span class="ident">fmt</span>::<span class="ident">Error</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-        <span class="self">Self</span>::<span class="ident">builder</span>(<span class="ident">ErrorKind</span>::<span class="ident">conversion</span>(<span class="string">&quot;Problems writing AST into a query string.&quot;</span>)).<span class="ident">build</span>()
+<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">std::fmt::Error</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Error</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="kw">_</span>: <span class="ident">std::fmt::Error</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+        <span class="self">Self</span><span class="ident">::builder</span>(<span class="ident">ErrorKind::conversion</span>(<span class="string">&quot;Problems writing AST into a query string.&quot;</span>)).<span class="ident">build</span>()
     }
 }
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">num</span>::<span class="ident">TryFromIntError</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Error</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="kw">_</span>: <span class="ident">num</span>::<span class="ident">TryFromIntError</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-        <span class="self">Self</span>::<span class="ident">builder</span>(<span class="ident">ErrorKind</span>::<span class="ident">conversion</span>(
+<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">num::TryFromIntError</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Error</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="kw">_</span>: <span class="ident">num::TryFromIntError</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+        <span class="self">Self</span><span class="ident">::builder</span>(<span class="ident">ErrorKind::conversion</span>(
             <span class="string">&quot;Couldn&#39;t convert an integer (possible overflow).&quot;</span>,
         ))
         .<span class="ident">build</span>()
     }
 }
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">connection_string</span>::<span class="ident">Error</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Error</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">err</span>: <span class="ident">connection_string</span>::<span class="ident">Error</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Error</span> {
-        <span class="self">Self</span>::<span class="ident">builder</span>(<span class="ident">ErrorKind</span>::<span class="ident">DatabaseUrlIsInvalid</span>(<span class="ident">err</span>.<span class="ident">to_string</span>())).<span class="ident">build</span>()
+<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">connection_string::Error</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Error</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">err</span>: <span class="ident">connection_string::Error</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Error</span> {
+        <span class="self">Self</span><span class="ident">::builder</span>(<span class="ident">ErrorKind::DatabaseUrlIsInvalid</span>(<span class="ident">err</span>.<span class="ident">to_string</span>())).<span class="ident">build</span>()
     }
 }
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">url</span>::<span class="ident">ParseError</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Error</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">e</span>: <span class="ident">url</span>::<span class="ident">ParseError</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Error</span> {
-        <span class="kw">let</span> <span class="ident">kind</span> <span class="op">=</span> <span class="ident">ErrorKind</span>::<span class="ident">DatabaseUrlIsInvalid</span>(<span class="ident">e</span>.<span class="ident">to_string</span>());
-        <span class="ident">Error</span>::<span class="ident">builder</span>(<span class="ident">kind</span>).<span class="ident">build</span>()
+<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">url::ParseError</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Error</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">e</span>: <span class="ident">url::ParseError</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Error</span> {
+        <span class="kw">let</span> <span class="ident">kind</span> <span class="op">=</span> <span class="ident">ErrorKind::DatabaseUrlIsInvalid</span>(<span class="ident">e</span>.<span class="ident">to_string</span>());
+        <span class="ident">Error::builder</span>(<span class="ident">kind</span>).<span class="ident">build</span>()
     }
 }
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">io</span>::<span class="ident">Error</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Error</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">e</span>: <span class="ident">io</span>::<span class="ident">Error</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Error</span> {
-        <span class="ident">Error</span>::<span class="ident">builder</span>(<span class="ident">ErrorKind</span>::<span class="ident">IoError</span>(<span class="ident">e</span>)).<span class="ident">build</span>()
+<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">io::Error</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Error</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">e</span>: <span class="ident">io::Error</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Error</span> {
+        <span class="ident">Error::builder</span>(<span class="ident">ErrorKind::IoError</span>(<span class="ident">e</span>)).<span class="ident">build</span>()
     }
 }
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">std</span>::<span class="ident">num</span>::<span class="ident">ParseIntError</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Error</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">_e</span>: <span class="ident">std</span>::<span class="ident">num</span>::<span class="ident">ParseIntError</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Error</span> {
-        <span class="ident">Error</span>::<span class="ident">builder</span>(<span class="ident">ErrorKind</span>::<span class="ident">conversion</span>(<span class="string">&quot;Couldn&#39;t convert data to an integer&quot;</span>)).<span class="ident">build</span>()
+<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">std::num::ParseIntError</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Error</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">_e</span>: <span class="ident">std::num::ParseIntError</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Error</span> {
+        <span class="ident">Error::builder</span>(<span class="ident">ErrorKind::conversion</span>(<span class="string">&quot;Couldn&#39;t convert data to an integer&quot;</span>)).<span class="ident">build</span>()
     }
 }
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">std</span>::<span class="ident">str</span>::<span class="ident">ParseBoolError</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Error</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">_e</span>: <span class="ident">std</span>::<span class="ident">str</span>::<span class="ident">ParseBoolError</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Error</span> {
-        <span class="ident">Error</span>::<span class="ident">builder</span>(<span class="ident">ErrorKind</span>::<span class="ident">conversion</span>(<span class="string">&quot;Couldn&#39;t convert data to a boolean&quot;</span>)).<span class="ident">build</span>()
+<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">std::str::ParseBoolError</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Error</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">_e</span>: <span class="ident">std::str::ParseBoolError</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Error</span> {
+        <span class="ident">Error::builder</span>(<span class="ident">ErrorKind::conversion</span>(<span class="string">&quot;Couldn&#39;t convert data to a boolean&quot;</span>)).<span class="ident">build</span>()
     }
 }
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">std</span>::<span class="ident">string</span>::<span class="ident">FromUtf8Error</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Error</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="kw">_</span>: <span class="ident">std</span>::<span class="ident">string</span>::<span class="ident">FromUtf8Error</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Error</span> {
-        <span class="ident">Error</span>::<span class="ident">builder</span>(<span class="ident">ErrorKind</span>::<span class="ident">conversion</span>(<span class="string">&quot;Couldn&#39;t convert data to UTF-8&quot;</span>)).<span class="ident">build</span>()
+<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">std::string::FromUtf8Error</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Error</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="kw">_</span>: <span class="ident">std::string::FromUtf8Error</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Error</span> {
+        <span class="ident">Error::builder</span>(<span class="ident">ErrorKind::conversion</span>(<span class="string">&quot;Couldn&#39;t convert data to UTF-8&quot;</span>)).<span class="ident">build</span>()
     }
 }
 </pre></div>
-</section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="quaint" data-search-js="../../search-index.js"></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="quaint" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
     <script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script></body></html>

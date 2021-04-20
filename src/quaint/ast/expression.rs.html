@@ -423,9 +423,9 @@
 <span id="420">420</span>
 <span id="421">421</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">ast</span>::<span class="kw-2">*</span>;
-<span class="kw">use</span> <span class="ident">query</span>::<span class="ident">SelectQuery</span>;
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">borrow</span>::<span class="ident">Cow</span>;
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::ast</span>::<span class="kw-2">*</span>;
+<span class="kw">use</span> <span class="ident">query::SelectQuery</span>;
+<span class="kw">use</span> <span class="ident">std::borrow::Cow</span>;
 
 <span class="doccomment">/// An expression that can be positioned in a query. Can be a single value or a</span>
 <span class="doccomment">/// statement that is evaluated into a value.</span>
@@ -449,19 +449,19 @@
     <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">dead_code</span>)]</span>
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">row</span>(<span class="ident">row</span>: <span class="ident">Row</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="self">Self</span> {
-            <span class="ident">kind</span>: <span class="ident">ExpressionKind</span>::<span class="ident">Row</span>(<span class="ident">row</span>),
+            <span class="ident">kind</span>: <span class="ident">ExpressionKind::Row</span>(<span class="ident">row</span>),
             <span class="ident">alias</span>: <span class="prelude-val">None</span>,
         }
     }
 
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">union</span>(<span class="ident">union</span>: <span class="ident">Union</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-        <span class="self">Self</span>::<span class="ident">selection</span>(<span class="ident">SelectQuery</span>::<span class="ident">Union</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">union</span>)))
+        <span class="self">Self</span><span class="ident">::selection</span>(<span class="ident">SelectQuery::Union</span>(<span class="ident">Box::new</span>(<span class="ident">union</span>)))
     }
 
     <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">dead_code</span>)]</span>
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">selection</span>(<span class="ident">selection</span>: <span class="ident">SelectQuery</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="self">Self</span> {
-            <span class="ident">kind</span>: <span class="ident">ExpressionKind</span>::<span class="ident">Selection</span>(<span class="ident">selection</span>),
+            <span class="ident">kind</span>: <span class="ident">ExpressionKind::Selection</span>(<span class="ident">selection</span>),
             <span class="ident">alias</span>: <span class="prelude-val">None</span>,
         }
     }
@@ -470,9 +470,9 @@
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">is_json_value</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
         <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">kind</span> {
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;json&quot;</span>)]</span>
-            <span class="ident">ExpressionKind</span>::<span class="ident">Parameterized</span>(<span class="ident">Value</span>::<span class="ident">Json</span>(<span class="kw">_</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
+            <span class="ident">ExpressionKind::Parameterized</span>(<span class="ident">Value::Json</span>(<span class="kw">_</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;json&quot;</span>)]</span>
-            <span class="ident">ExpressionKind</span>::<span class="ident">Value</span>(<span class="ident">expr</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">expr</span>.<span class="ident">is_json_value</span>(),
+            <span class="ident">ExpressionKind::Value</span>(<span class="ident">expr</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">expr</span>.<span class="ident">is_json_value</span>(),
             <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
         }
     }
@@ -484,18 +484,18 @@
 
     <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">dead_code</span>)]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_asterisk</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-        <span class="macro">matches!</span>(<span class="self">self</span>.<span class="ident">kind</span>, <span class="ident">ExpressionKind</span>::<span class="ident">Asterisk</span>(<span class="kw">_</span>))
+        <span class="macro">matches!</span>(<span class="self">self</span>.<span class="ident">kind</span>, <span class="ident">ExpressionKind::Asterisk</span>(<span class="kw">_</span>))
     }
 
     <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">dead_code</span>)]</span>
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">is_row</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-        <span class="macro">matches!</span>(<span class="self">self</span>.<span class="ident">kind</span>, <span class="ident">ExpressionKind</span>::<span class="ident">Row</span>(<span class="kw">_</span>))
+        <span class="macro">matches!</span>(<span class="self">self</span>.<span class="ident">kind</span>, <span class="ident">ExpressionKind::Row</span>(<span class="kw">_</span>))
     }
 
     <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">dead_code</span>)]</span>
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">into_row</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Row</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">kind</span> {
-            <span class="ident">ExpressionKind</span>::<span class="ident">Row</span>(<span class="ident">row</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">row</span>),
+            <span class="ident">ExpressionKind::Row</span>(<span class="ident">row</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">row</span>),
             <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
         }
     }
@@ -503,7 +503,7 @@
     <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">dead_code</span>)]</span>
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">into_selection</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">SelectQuery</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">kind</span> {
-            <span class="ident">ExpressionKind</span>::<span class="ident">Selection</span>(<span class="ident">selection</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">selection</span>),
+            <span class="ident">ExpressionKind::Selection</span>(<span class="ident">selection</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">selection</span>),
             <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
         }
     }
@@ -511,19 +511,19 @@
     <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">dead_code</span>)]</span>
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">into_column</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Column</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">kind</span> {
-            <span class="ident">ExpressionKind</span>::<span class="ident">Column</span>(<span class="ident">column</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="kw-2">*</span><span class="ident">column</span>),
+            <span class="ident">ExpressionKind::Column</span>(<span class="ident">column</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="kw-2">*</span><span class="ident">column</span>),
             <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
         }
     }
 
     <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">dead_code</span>)]</span>
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">is_selection</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-        <span class="macro">matches!</span>(<span class="self">self</span>.<span class="ident">kind</span>, <span class="ident">ExpressionKind</span>::<span class="ident">Selection</span>(<span class="kw">_</span>))
+        <span class="macro">matches!</span>(<span class="self">self</span>.<span class="ident">kind</span>, <span class="ident">ExpressionKind::Selection</span>(<span class="kw">_</span>))
     }
 
     <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">dead_code</span>)]</span>
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">is_column</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-        <span class="macro">matches!</span>(<span class="self">self</span>.<span class="ident">kind</span>, <span class="ident">ExpressionKind</span>::<span class="ident">Column</span>(<span class="kw">_</span>))
+        <span class="macro">matches!</span>(<span class="self">self</span>.<span class="ident">kind</span>, <span class="ident">ExpressionKind::Column</span>(<span class="kw">_</span>))
     }
 
     <span class="doccomment">/// Finds all comparisons between a tuple and a selection. If returning some</span>
@@ -531,47 +531,47 @@
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mssql&quot;</span>)]</span>
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">convert_tuple_selects_to_ctes</span>(<span class="self">self</span>, <span class="ident">level</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> (<span class="self">Self</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">CommonTableExpression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>) {
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">kind</span> {
-            <span class="ident">ExpressionKind</span>::<span class="ident">Selection</span>(<span class="ident">s</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">ExpressionKind::Selection</span>(<span class="ident">s</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">let</span> (<span class="ident">selection</span>, <span class="ident">ctes</span>) <span class="op">=</span> <span class="ident">s</span>.<span class="ident">convert_tuple_selects_to_ctes</span>(<span class="ident">level</span>);
 
                 <span class="kw">let</span> <span class="ident">expr</span> <span class="op">=</span> <span class="ident">Expression</span> {
-                    <span class="ident">kind</span>: <span class="ident">ExpressionKind</span>::<span class="ident">Selection</span>(<span class="ident">selection</span>),
+                    <span class="ident">kind</span>: <span class="ident">ExpressionKind::Selection</span>(<span class="ident">selection</span>),
                     <span class="ident">alias</span>: <span class="self">self</span>.<span class="ident">alias</span>,
                 };
 
                 (<span class="ident">expr</span>, <span class="ident">ctes</span>)
             }
-            <span class="ident">ExpressionKind</span>::<span class="ident">Compare</span>(<span class="ident">compare</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">compare</span>.<span class="ident">convert_tuple_select_to_cte</span>(<span class="ident">level</span>) {
+            <span class="ident">ExpressionKind::Compare</span>(<span class="ident">compare</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">compare</span>.<span class="ident">convert_tuple_select_to_cte</span>(<span class="ident">level</span>) {
                 <span class="comment">// No conversion</span>
-                <span class="ident">either</span>::<span class="ident">Either</span>::<span class="ident">Left</span>(<span class="ident">compare</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">either::Either::Left</span>(<span class="ident">compare</span>) <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">let</span> <span class="ident">expr</span> <span class="op">=</span> <span class="ident">Expression</span> {
-                        <span class="ident">kind</span>: <span class="ident">ExpressionKind</span>::<span class="ident">Compare</span>(<span class="ident">compare</span>),
+                        <span class="ident">kind</span>: <span class="ident">ExpressionKind::Compare</span>(<span class="ident">compare</span>),
                         <span class="ident">alias</span>: <span class="self">self</span>.<span class="ident">alias</span>,
                     };
 
-                    (<span class="ident">expr</span>, <span class="ident">Vec</span>::<span class="ident">new</span>())
+                    (<span class="ident">expr</span>, <span class="ident">Vec::new</span>())
                 }
                 <span class="comment">// Conversion happened</span>
-                <span class="ident">either</span>::<span class="ident">Either</span>::<span class="ident">Right</span>((<span class="ident">comp</span>, <span class="ident">ctes</span>)) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">either::Either::Right</span>((<span class="ident">comp</span>, <span class="ident">ctes</span>)) <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">let</span> <span class="ident">expr</span> <span class="op">=</span> <span class="ident">Expression</span> {
-                        <span class="ident">kind</span>: <span class="ident">ExpressionKind</span>::<span class="ident">Compare</span>(<span class="ident">comp</span>),
+                        <span class="ident">kind</span>: <span class="ident">ExpressionKind::Compare</span>(<span class="ident">comp</span>),
                         <span class="ident">alias</span>: <span class="self">self</span>.<span class="ident">alias</span>,
                     };
 
                     (<span class="ident">expr</span>, <span class="ident">ctes</span>)
                 }
             },
-            <span class="ident">ExpressionKind</span>::<span class="ident">ConditionTree</span>(<span class="ident">tree</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">ExpressionKind::ConditionTree</span>(<span class="ident">tree</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">let</span> (<span class="ident">tree</span>, <span class="ident">ctes</span>) <span class="op">=</span> <span class="ident">tree</span>.<span class="ident">convert_tuple_selects_to_ctes</span>(<span class="ident">level</span>);
 
                 <span class="kw">let</span> <span class="ident">expr</span> <span class="op">=</span> <span class="ident">Expression</span> {
-                    <span class="ident">kind</span>: <span class="ident">ExpressionKind</span>::<span class="ident">ConditionTree</span>(<span class="ident">tree</span>),
+                    <span class="ident">kind</span>: <span class="ident">ExpressionKind::ConditionTree</span>(<span class="ident">tree</span>),
                     <span class="ident">alias</span>: <span class="self">self</span>.<span class="ident">alias</span>,
                 };
 
                 (<span class="ident">expr</span>, <span class="ident">ctes</span>)
             }
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> (<span class="self">self</span>, <span class="ident">Vec</span>::<span class="ident">new</span>()),
+            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> (<span class="self">self</span>, <span class="ident">Vec::new</span>()),
         }
     }
 }
@@ -610,8 +610,8 @@
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">ExpressionKind</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">is_xml_value</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="self">Self</span>::<span class="ident">Parameterized</span>(<span class="ident">Value</span>::<span class="ident">Xml</span>(<span class="kw">_</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
-            <span class="self">Self</span>::<span class="ident">Value</span>(<span class="ident">expr</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">expr</span>.<span class="ident">is_xml_value</span>(),
+            <span class="self">Self</span><span class="ident">::Parameterized</span>(<span class="ident">Value::Xml</span>(<span class="kw">_</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
+            <span class="self">Self</span><span class="ident">::Value</span>(<span class="ident">expr</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">expr</span>.<span class="ident">is_xml_value</span>(),
             <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
         }
     }
@@ -620,7 +620,7 @@
 <span class="doccomment">/// A quick alias to create an asterisk to a table.</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">asterisk</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Expression</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span><span class="op">&gt;</span> {
     <span class="ident">Expression</span> {
-        <span class="ident">kind</span>: <span class="ident">ExpressionKind</span>::<span class="ident">Asterisk</span>(<span class="prelude-val">None</span>),
+        <span class="ident">kind</span>: <span class="ident">ExpressionKind::Asterisk</span>(<span class="prelude-val">None</span>),
         <span class="ident">alias</span>: <span class="prelude-val">None</span>,
     }
 }
@@ -628,7 +628,7 @@
 <span class="doccomment">/// A quick alias to create a default value expression.</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">default_value</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Expression</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span><span class="op">&gt;</span> {
     <span class="ident">Expression</span> {
-        <span class="ident">kind</span>: <span class="ident">ExpressionKind</span>::<span class="ident">Default</span>,
+        <span class="ident">kind</span>: <span class="ident">ExpressionKind::Default</span>,
         <span class="ident">alias</span>: <span class="prelude-val">None</span>,
     }
 }
@@ -638,7 +638,7 @@
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">Function</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Expression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">f</span>: <span class="ident">Function</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="ident">Expression</span> {
-            <span class="ident">kind</span>: <span class="ident">ExpressionKind</span>::<span class="ident">Function</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">f</span>)),
+            <span class="ident">kind</span>: <span class="ident">ExpressionKind::Function</span>(<span class="ident">Box::new</span>(<span class="ident">f</span>)),
             <span class="ident">alias</span>: <span class="prelude-val">None</span>,
         }
     }
@@ -647,7 +647,7 @@
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">Raw</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Expression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">r</span>: <span class="ident">Raw</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="ident">Expression</span> {
-            <span class="ident">kind</span>: <span class="ident">ExpressionKind</span>::<span class="ident">RawValue</span>(<span class="ident">r</span>),
+            <span class="ident">kind</span>: <span class="ident">ExpressionKind::RawValue</span>(<span class="ident">r</span>),
             <span class="ident">alias</span>: <span class="prelude-val">None</span>,
         }
     }
@@ -656,7 +656,7 @@
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">Values</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Expression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">p</span>: <span class="ident">Values</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="ident">Expression</span> {
-            <span class="ident">kind</span>: <span class="ident">ExpressionKind</span>::<span class="ident">Values</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">p</span>)),
+            <span class="ident">kind</span>: <span class="ident">ExpressionKind::Values</span>(<span class="ident">Box::new</span>(<span class="ident">p</span>)),
             <span class="ident">alias</span>: <span class="prelude-val">None</span>,
         }
     }
@@ -665,7 +665,7 @@
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">SqlOp</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Expression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">p</span>: <span class="ident">SqlOp</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="ident">Expression</span> {
-            <span class="ident">kind</span>: <span class="ident">ExpressionKind</span>::<span class="ident">Op</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">p</span>)),
+            <span class="ident">kind</span>: <span class="ident">ExpressionKind::Op</span>(<span class="ident">Box::new</span>(<span class="ident">p</span>)),
             <span class="ident">alias</span>: <span class="prelude-val">None</span>,
         }
     }
@@ -677,7 +677,7 @@
 {
     <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">p</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="ident">Expression</span> {
-            <span class="ident">kind</span>: <span class="ident">ExpressionKind</span>::<span class="ident">Parameterized</span>(<span class="ident">p</span>.<span class="ident">into</span>()),
+            <span class="ident">kind</span>: <span class="ident">ExpressionKind::Parameterized</span>(<span class="ident">p</span>.<span class="ident">into</span>()),
             <span class="ident">alias</span>: <span class="prelude-val">None</span>,
         }
     }
@@ -702,7 +702,7 @@
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">Aliasable</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Expression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="kw">type</span> <span class="ident">Target</span> <span class="op">=</span> <span class="ident">Expression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>;
 
-    <span class="kw">fn</span> <span class="ident">alias</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">alias</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>::<span class="ident">Target</span>
+    <span class="kw">fn</span> <span class="ident">alias</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">alias</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span><span class="ident">::Target</span>
     <span class="kw">where</span>
         <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">str</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     {
@@ -716,108 +716,108 @@
     <span class="kw">where</span>
         <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     {
-        <span class="ident">Compare</span>::<span class="ident">Equals</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="self">self</span>), <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">comparison</span>.<span class="ident">into</span>()))
+        <span class="ident">Compare::Equals</span>(<span class="ident">Box::new</span>(<span class="self">self</span>), <span class="ident">Box::new</span>(<span class="ident">comparison</span>.<span class="ident">into</span>()))
     }
 
     <span class="kw">fn</span> <span class="ident">not_equals</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">comparison</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Compare</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     {
-        <span class="ident">Compare</span>::<span class="ident">NotEquals</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="self">self</span>), <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">comparison</span>.<span class="ident">into</span>()))
+        <span class="ident">Compare::NotEquals</span>(<span class="ident">Box::new</span>(<span class="self">self</span>), <span class="ident">Box::new</span>(<span class="ident">comparison</span>.<span class="ident">into</span>()))
     }
 
     <span class="kw">fn</span> <span class="ident">less_than</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">comparison</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Compare</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     {
-        <span class="ident">Compare</span>::<span class="ident">LessThan</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="self">self</span>), <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">comparison</span>.<span class="ident">into</span>()))
+        <span class="ident">Compare::LessThan</span>(<span class="ident">Box::new</span>(<span class="self">self</span>), <span class="ident">Box::new</span>(<span class="ident">comparison</span>.<span class="ident">into</span>()))
     }
 
     <span class="kw">fn</span> <span class="ident">less_than_or_equals</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">comparison</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Compare</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     {
-        <span class="ident">Compare</span>::<span class="ident">LessThanOrEquals</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="self">self</span>), <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">comparison</span>.<span class="ident">into</span>()))
+        <span class="ident">Compare::LessThanOrEquals</span>(<span class="ident">Box::new</span>(<span class="self">self</span>), <span class="ident">Box::new</span>(<span class="ident">comparison</span>.<span class="ident">into</span>()))
     }
 
     <span class="kw">fn</span> <span class="ident">greater_than</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">comparison</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Compare</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     {
-        <span class="ident">Compare</span>::<span class="ident">GreaterThan</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="self">self</span>), <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">comparison</span>.<span class="ident">into</span>()))
+        <span class="ident">Compare::GreaterThan</span>(<span class="ident">Box::new</span>(<span class="self">self</span>), <span class="ident">Box::new</span>(<span class="ident">comparison</span>.<span class="ident">into</span>()))
     }
 
     <span class="kw">fn</span> <span class="ident">greater_than_or_equals</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">comparison</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Compare</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     {
-        <span class="ident">Compare</span>::<span class="ident">GreaterThanOrEquals</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="self">self</span>), <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">comparison</span>.<span class="ident">into</span>()))
+        <span class="ident">Compare::GreaterThanOrEquals</span>(<span class="ident">Box::new</span>(<span class="self">self</span>), <span class="ident">Box::new</span>(<span class="ident">comparison</span>.<span class="ident">into</span>()))
     }
 
     <span class="kw">fn</span> <span class="ident">in_selection</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">selection</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Compare</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     {
-        <span class="ident">Compare</span>::<span class="ident">In</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="self">self</span>), <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">selection</span>.<span class="ident">into</span>()))
+        <span class="ident">Compare::In</span>(<span class="ident">Box::new</span>(<span class="self">self</span>), <span class="ident">Box::new</span>(<span class="ident">selection</span>.<span class="ident">into</span>()))
     }
 
     <span class="kw">fn</span> <span class="ident">not_in_selection</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">selection</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Compare</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     {
-        <span class="ident">Compare</span>::<span class="ident">NotIn</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="self">self</span>), <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">selection</span>.<span class="ident">into</span>()))
+        <span class="ident">Compare::NotIn</span>(<span class="ident">Box::new</span>(<span class="self">self</span>), <span class="ident">Box::new</span>(<span class="ident">selection</span>.<span class="ident">into</span>()))
     }
 
     <span class="kw">fn</span> <span class="ident">like</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">pattern</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Compare</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">str</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     {
-        <span class="ident">Compare</span>::<span class="ident">Like</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="self">self</span>), <span class="ident">pattern</span>.<span class="ident">into</span>())
+        <span class="ident">Compare::Like</span>(<span class="ident">Box::new</span>(<span class="self">self</span>), <span class="ident">pattern</span>.<span class="ident">into</span>())
     }
 
     <span class="kw">fn</span> <span class="ident">not_like</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">pattern</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Compare</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">str</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     {
-        <span class="ident">Compare</span>::<span class="ident">NotLike</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="self">self</span>), <span class="ident">pattern</span>.<span class="ident">into</span>())
+        <span class="ident">Compare::NotLike</span>(<span class="ident">Box::new</span>(<span class="self">self</span>), <span class="ident">pattern</span>.<span class="ident">into</span>())
     }
 
     <span class="kw">fn</span> <span class="ident">begins_with</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">pattern</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Compare</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">str</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     {
-        <span class="ident">Compare</span>::<span class="ident">BeginsWith</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="self">self</span>), <span class="ident">pattern</span>.<span class="ident">into</span>())
+        <span class="ident">Compare::BeginsWith</span>(<span class="ident">Box::new</span>(<span class="self">self</span>), <span class="ident">pattern</span>.<span class="ident">into</span>())
     }
 
     <span class="kw">fn</span> <span class="ident">not_begins_with</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">pattern</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Compare</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">str</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     {
-        <span class="ident">Compare</span>::<span class="ident">NotBeginsWith</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="self">self</span>), <span class="ident">pattern</span>.<span class="ident">into</span>())
+        <span class="ident">Compare::NotBeginsWith</span>(<span class="ident">Box::new</span>(<span class="self">self</span>), <span class="ident">pattern</span>.<span class="ident">into</span>())
     }
 
     <span class="kw">fn</span> <span class="ident">ends_into</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">pattern</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Compare</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">str</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     {
-        <span class="ident">Compare</span>::<span class="ident">EndsInto</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="self">self</span>), <span class="ident">pattern</span>.<span class="ident">into</span>())
+        <span class="ident">Compare::EndsInto</span>(<span class="ident">Box::new</span>(<span class="self">self</span>), <span class="ident">pattern</span>.<span class="ident">into</span>())
     }
 
     <span class="kw">fn</span> <span class="ident">not_ends_into</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">pattern</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Compare</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">str</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     {
-        <span class="ident">Compare</span>::<span class="ident">NotEndsInto</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="self">self</span>), <span class="ident">pattern</span>.<span class="ident">into</span>())
+        <span class="ident">Compare::NotEndsInto</span>(<span class="ident">Box::new</span>(<span class="self">self</span>), <span class="ident">pattern</span>.<span class="ident">into</span>())
     }
 
-    <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy</span>::<span class="ident">wrong_self_convention</span>)]</span>
+    <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::wrong_self_convention</span>)]</span>
     <span class="kw">fn</span> <span class="ident">is_null</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Compare</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-        <span class="ident">Compare</span>::<span class="ident">Null</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="self">self</span>))
+        <span class="ident">Compare::Null</span>(<span class="ident">Box::new</span>(<span class="self">self</span>))
     }
 
-    <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy</span>::<span class="ident">wrong_self_convention</span>)]</span>
+    <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::wrong_self_convention</span>)]</span>
     <span class="kw">fn</span> <span class="ident">is_not_null</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Compare</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-        <span class="ident">Compare</span>::<span class="ident">NotNull</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="self">self</span>))
+        <span class="ident">Compare::NotNull</span>(<span class="ident">Box::new</span>(<span class="self">self</span>))
     }
 
     <span class="kw">fn</span> <span class="ident">between</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">V</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">left</span>: <span class="ident">T</span>, <span class="ident">right</span>: <span class="ident">V</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Compare</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>
@@ -825,7 +825,7 @@
         <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
         <span class="ident">V</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     {
-        <span class="ident">Compare</span>::<span class="ident">Between</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="self">self</span>), <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">left</span>.<span class="ident">into</span>()), <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">right</span>.<span class="ident">into</span>()))
+        <span class="ident">Compare::Between</span>(<span class="ident">Box::new</span>(<span class="self">self</span>), <span class="ident">Box::new</span>(<span class="ident">left</span>.<span class="ident">into</span>()), <span class="ident">Box::new</span>(<span class="ident">right</span>.<span class="ident">into</span>()))
     }
 
     <span class="kw">fn</span> <span class="ident">not_between</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">V</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">left</span>: <span class="ident">T</span>, <span class="ident">right</span>: <span class="ident">V</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Compare</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>
@@ -833,7 +833,7 @@
         <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
         <span class="ident">V</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     {
-        <span class="ident">Compare</span>::<span class="ident">NotBetween</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="self">self</span>), <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">left</span>.<span class="ident">into</span>()), <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">right</span>.<span class="ident">into</span>()))
+        <span class="ident">Compare::NotBetween</span>(<span class="ident">Box::new</span>(<span class="self">self</span>), <span class="ident">Box::new</span>(<span class="ident">left</span>.<span class="ident">into</span>()), <span class="ident">Box::new</span>(<span class="ident">right</span>.<span class="ident">into</span>()))
     }
 
     <span class="kw">fn</span> <span class="ident">compare_raw</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">V</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">raw_comparator</span>: <span class="ident">T</span>, <span class="ident">right</span>: <span class="ident">V</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Compare</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>
@@ -841,9 +841,9 @@
         <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">str</span><span class="op">&gt;</span><span class="op">&gt;</span>,
         <span class="ident">V</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     {
-        <span class="ident">Compare</span>::<span class="ident">Raw</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="self">self</span>), <span class="ident">raw_comparator</span>.<span class="ident">into</span>(), <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">right</span>.<span class="ident">into</span>()))
+        <span class="ident">Compare::Raw</span>(<span class="ident">Box::new</span>(<span class="self">self</span>), <span class="ident">raw_comparator</span>.<span class="ident">into</span>(), <span class="ident">Box::new</span>(<span class="ident">right</span>.<span class="ident">into</span>()))
     }
 }
 </pre></div>
-</section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="quaint" data-search-js="../../../search-index.js"></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="quaint" data-search-index-js="../../../search-index.js" data-search-js="../../../search.js"></div>
     <script src="../../../main.js"></script><script src="../../../source-script.js"></script><script src="../../../source-files.js"></script></body></html>

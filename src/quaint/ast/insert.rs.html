@@ -311,7 +311,7 @@
 <span id="308">308</span>
 <span id="309">309</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">ast</span>::<span class="kw-2">*</span>;
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::ast</span>::<span class="kw-2">*</span>;
 
 <span class="doccomment">/// A builder for an `INSERT` statement.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>)]</span>
@@ -401,16 +401,16 @@
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">Insert</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Query</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">insert</span>: <span class="ident">Insert</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-        <span class="ident">Query</span>::<span class="ident">Insert</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">insert</span>))
+        <span class="ident">Query::Insert</span>(<span class="ident">Box::new</span>(<span class="ident">insert</span>))
     }
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">SingleRowInsert</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Insert</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">insert</span>: <span class="ident">SingleRowInsert</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="kw">let</span> <span class="ident">values</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">insert</span>.<span class="ident">values</span>.<span class="ident">is_empty</span>() {
-            <span class="ident">Expression</span>::<span class="ident">from</span>(<span class="ident">Row</span>::<span class="ident">new</span>())
+            <span class="ident">Expression::from</span>(<span class="ident">Row::new</span>())
         } <span class="kw">else</span> {
-            <span class="ident">Expression</span>::<span class="ident">from</span>(<span class="ident">insert</span>.<span class="ident">values</span>)
+            <span class="ident">Expression::from</span>(<span class="ident">insert</span>.<span class="ident">values</span>)
         };
 
         <span class="ident">Insert</span> {
@@ -425,7 +425,7 @@
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">MultiRowInsert</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Insert</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">insert</span>: <span class="ident">MultiRowInsert</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-        <span class="kw">let</span> <span class="ident">values</span> <span class="op">=</span> <span class="ident">Expression</span>::<span class="ident">from</span>(<span class="ident">Values</span>::<span class="ident">new</span>(<span class="ident">insert</span>.<span class="ident">values</span>));
+        <span class="kw">let</span> <span class="ident">values</span> <span class="op">=</span> <span class="ident">Expression::from</span>(<span class="ident">Values::new</span>(<span class="ident">insert</span>.<span class="ident">values</span>));
 
         <span class="ident">Insert</span> {
             <span class="ident">table</span>: <span class="ident">insert</span>.<span class="ident">table</span>,
@@ -439,13 +439,13 @@
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">SingleRowInsert</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Query</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">insert</span>: <span class="ident">SingleRowInsert</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Query</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-        <span class="ident">Query</span>::<span class="ident">from</span>(<span class="ident">Insert</span>::<span class="ident">from</span>(<span class="ident">insert</span>))
+        <span class="ident">Query::from</span>(<span class="ident">Insert::from</span>(<span class="ident">insert</span>))
     }
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">MultiRowInsert</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Query</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">insert</span>: <span class="ident">MultiRowInsert</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Query</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-        <span class="ident">Query</span>::<span class="ident">from</span>(<span class="ident">Insert</span>::<span class="ident">from</span>(<span class="ident">insert</span>))
+        <span class="ident">Query::from</span>(<span class="ident">Insert::from</span>(<span class="ident">insert</span>))
     }
 }
 
@@ -468,16 +468,16 @@
     {
         <span class="ident">SingleRowInsert</span> {
             <span class="ident">table</span>: <span class="prelude-val">Some</span>(<span class="ident">table</span>.<span class="ident">into</span>()),
-            <span class="ident">columns</span>: <span class="ident">Vec</span>::<span class="ident">new</span>(),
-            <span class="ident">values</span>: <span class="ident">Row</span>::<span class="ident">new</span>(),
+            <span class="ident">columns</span>: <span class="ident">Vec::new</span>(),
+            <span class="ident">values</span>: <span class="ident">Row::new</span>(),
         }
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">single</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">SingleRowInsert</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
         <span class="ident">SingleRowInsert</span> {
             <span class="ident">table</span>: <span class="prelude-val">None</span>,
-            <span class="ident">columns</span>: <span class="ident">Vec</span>::<span class="ident">new</span>(),
-            <span class="ident">values</span>: <span class="ident">Row</span>::<span class="ident">new</span>(),
+            <span class="ident">columns</span>: <span class="ident">Vec::new</span>(),
+            <span class="ident">values</span>: <span class="ident">Row::new</span>(),
         }
     }
 
@@ -491,7 +491,7 @@
         <span class="ident">MultiRowInsert</span> {
             <span class="ident">table</span>: <span class="prelude-val">Some</span>(<span class="ident">table</span>.<span class="ident">into</span>()),
             <span class="ident">columns</span>: <span class="ident">columns</span>.<span class="ident">into_iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">c</span><span class="op">|</span> <span class="ident">c</span>.<span class="ident">into</span>()).<span class="ident">collect</span>(),
-            <span class="ident">values</span>: <span class="ident">Vec</span>::<span class="ident">new</span>(),
+            <span class="ident">values</span>: <span class="ident">Vec::new</span>(),
         }
     }
 
@@ -503,7 +503,7 @@
         <span class="ident">MultiRowInsert</span> {
             <span class="ident">table</span>: <span class="prelude-val">None</span>,
             <span class="ident">columns</span>: <span class="ident">columns</span>.<span class="ident">into_iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">c</span><span class="op">|</span> <span class="ident">c</span>.<span class="ident">into</span>()).<span class="ident">collect</span>(),
-            <span class="ident">values</span>: <span class="ident">Vec</span>::<span class="ident">new</span>(),
+            <span class="ident">values</span>: <span class="ident">Vec::new</span>(),
         }
     }
 
@@ -581,7 +581,7 @@
 
     <span class="doccomment">/// Convert into a common `Insert` statement.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">build</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Insert</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-        <span class="ident">Insert</span>::<span class="ident">from</span>(<span class="self">self</span>)
+        <span class="ident">Insert::from</span>(<span class="self">self</span>)
     }
 }
 
@@ -617,9 +617,9 @@
 
     <span class="doccomment">/// Convert into a common `Insert` statement.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">build</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Insert</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-        <span class="ident">Insert</span>::<span class="ident">from</span>(<span class="self">self</span>)
+        <span class="ident">Insert::from</span>(<span class="self">self</span>)
     }
 }
 </pre></div>
-</section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="quaint" data-search-js="../../../search-index.js"></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="quaint" data-search-index-js="../../../search-index.js" data-search-js="../../../search.js"></div>
     <script src="../../../main.js"></script><script src="../../../source-script.js"></script><script src="../../../source-files.js"></script></body></html>

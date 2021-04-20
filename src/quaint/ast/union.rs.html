@@ -151,11 +151,11 @@
 <span id="148">148</span>
 <span id="149">149</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">ast</span>::{<span class="ident">Expression</span>, <span class="ident">Query</span>, <span class="ident">Select</span>};
-<span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">collections</span>::<span class="ident">BTreeSet</span>, <span class="ident">fmt</span>};
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::ast</span>::{<span class="ident">Expression</span>, <span class="ident">Query</span>, <span class="ident">Select</span>};
+<span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">collections::BTreeSet</span>, <span class="ident">fmt</span>};
 
-<span class="kw">use</span> <span class="kw">super</span>::<span class="ident">CommonTableExpression</span>;
-<span class="kw">use</span> <span class="kw">super</span>::<span class="ident">IntoCommonTableExpression</span>;
+<span class="kw">use</span> <span class="kw">super</span><span class="ident">::CommonTableExpression</span>;
+<span class="kw">use</span> <span class="kw">super</span><span class="ident">::IntoCommonTableExpression</span>;
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Clone</span>, <span class="ident">Copy</span>)]</span>
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">enum</span> <span class="ident">UnionType</span> {
@@ -163,11 +163,11 @@
     <span class="ident">Distinct</span>,
 }
 
-<span class="kw">impl</span> <span class="ident">fmt</span>::<span class="ident">Display</span> <span class="kw">for</span> <span class="ident">UnionType</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt</span>::<span class="ident">Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
+<span class="kw">impl</span> <span class="ident">fmt::Display</span> <span class="kw">for</span> <span class="ident">UnionType</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">UnionType</span>::<span class="ident">All</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;UNION ALL&quot;</span>),
-            <span class="ident">UnionType</span>::<span class="ident">Distinct</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;UNION&quot;</span>),
+            <span class="ident">UnionType::All</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;UNION ALL&quot;</span>),
+            <span class="ident">UnionType::Distinct</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;UNION&quot;</span>),
         }
     }
 }
@@ -182,13 +182,13 @@
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">Union</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Query</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">ua</span>: <span class="ident">Union</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-        <span class="ident">Query</span>::<span class="ident">Union</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">ua</span>))
+        <span class="ident">Query::Union</span>(<span class="ident">Box::new</span>(<span class="ident">ua</span>))
     }
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">Union</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Expression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">uaua</span>: <span class="ident">Union</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-        <span class="ident">Expression</span>::<span class="ident">union</span>(<span class="ident">uaua</span>)
+        <span class="ident">Expression::union</span>(<span class="ident">uaua</span>)
     }
 }
 
@@ -196,8 +196,8 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">q</span>: <span class="ident">Select</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="self">Self</span> {
             <span class="ident">selects</span>: <span class="macro">vec!</span>[<span class="ident">q</span>],
-            <span class="ident">types</span>: <span class="ident">Vec</span>::<span class="ident">new</span>(),
-            <span class="ident">ctes</span>: <span class="ident">Vec</span>::<span class="ident">new</span>(),
+            <span class="ident">types</span>: <span class="ident">Vec::new</span>(),
+            <span class="ident">ctes</span>: <span class="ident">Vec::new</span>(),
         }
     }
 
@@ -222,7 +222,7 @@
     <span class="doccomment">/// ```</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">all</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">q</span>: <span class="ident">Select</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">selects</span>.<span class="ident">push</span>(<span class="ident">q</span>);
-        <span class="self">self</span>.<span class="ident">types</span>.<span class="ident">push</span>(<span class="ident">UnionType</span>::<span class="ident">All</span>);
+        <span class="self">self</span>.<span class="ident">types</span>.<span class="ident">push</span>(<span class="ident">UnionType::All</span>);
         <span class="self">self</span>
     }
 
@@ -247,7 +247,7 @@
     <span class="doccomment">/// ```</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">distinct</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">q</span>: <span class="ident">Select</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">selects</span>.<span class="ident">push</span>(<span class="ident">q</span>);
-        <span class="self">self</span>.<span class="ident">types</span>.<span class="ident">push</span>(<span class="ident">UnionType</span>::<span class="ident">Distinct</span>);
+        <span class="self">self</span>.<span class="ident">types</span>.<span class="ident">push</span>(<span class="ident">UnionType::Distinct</span>);
         <span class="self">self</span>
     }
 
@@ -256,7 +256,7 @@
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">named_selection</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">selects</span>
             .<span class="ident">iter</span>()
-            .<span class="ident">fold</span>(<span class="ident">BTreeSet</span>::<span class="ident">new</span>(), <span class="op">|</span><span class="kw-2">mut</span> <span class="ident">acc</span>, <span class="ident">select</span><span class="op">|</span> {
+            .<span class="ident">fold</span>(<span class="ident">BTreeSet::new</span>(), <span class="op">|</span><span class="kw-2">mut</span> <span class="ident">acc</span>, <span class="ident">select</span><span class="op">|</span> {
                 <span class="kw">for</span> <span class="ident">name</span> <span class="kw">in</span> <span class="ident">select</span>.<span class="ident">named_selection</span>() {
                     <span class="ident">acc</span>.<span class="ident">insert</span>(<span class="ident">name</span>);
                 }
@@ -275,9 +275,9 @@
         <span class="kw-2">mut</span> <span class="self">self</span>,
         <span class="ident">top_level</span>: <span class="ident">bool</span>,
         <span class="ident">level</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">usize</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">either</span>::<span class="ident">Either</span><span class="op">&lt;</span><span class="self">Self</span>, (<span class="self">Self</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">CommonTableExpression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>)<span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">queries</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">with_capacity</span>(<span class="self">self</span>.<span class="ident">selects</span>.<span class="ident">len</span>());
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">combined_ctes</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">either::Either</span><span class="op">&lt;</span><span class="self">Self</span>, (<span class="self">Self</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">CommonTableExpression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>)<span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">queries</span> <span class="op">=</span> <span class="ident">Vec::with_capacity</span>(<span class="self">self</span>.<span class="ident">selects</span>.<span class="ident">len</span>());
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">combined_ctes</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
 
         <span class="kw">for</span> <span class="ident">select</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">selects</span>.<span class="ident">drain</span>(<span class="number">0</span>..) {
             <span class="kw">let</span> (<span class="ident">select</span>, <span class="ident">ctes</span>) <span class="op">=</span> <span class="ident">select</span>
@@ -292,14 +292,14 @@
 
         <span class="kw">if</span> <span class="ident">top_level</span> {
             <span class="self">self</span>.<span class="ident">ctes</span> <span class="op">=</span> <span class="ident">combined_ctes</span>;
-            <span class="ident">either</span>::<span class="ident">Either</span>::<span class="ident">Left</span>(<span class="self">self</span>)
+            <span class="ident">either::Either::Left</span>(<span class="self">self</span>)
         } <span class="kw">else</span> {
-            <span class="ident">either</span>::<span class="ident">Either</span>::<span class="ident">Right</span>((<span class="self">self</span>, <span class="ident">combined_ctes</span>))
+            <span class="ident">either::Either::Right</span>((<span class="self">self</span>, <span class="ident">combined_ctes</span>))
         }
     }
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">IntoCommonTableExpression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Union</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {}
 </pre></div>
-</section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="quaint" data-search-js="../../../search-index.js"></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="quaint" data-search-index-js="../../../search-index.js" data-search-js="../../../search.js"></div>
     <script src="../../../main.js"></script><script src="../../../source-script.js"></script><script src="../../../source-files.js"></script></body></html>

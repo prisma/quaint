@@ -436,14 +436,14 @@
     <span class="ident">ast</span>::{<span class="ident">Expression</span>, <span class="ident">Row</span>, <span class="ident">Select</span>, <span class="ident">Values</span>},
     <span class="ident">error</span>::{<span class="ident">Error</span>, <span class="ident">ErrorKind</span>},
 };
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">borrow</span>::<span class="ident">Cow</span>;
+<span class="kw">use</span> <span class="ident">std::borrow::Cow</span>;
 
 <span class="doccomment">/// An object that can be aliased.</span>
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Aliasable</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="kw">type</span> <span class="ident">Target</span>;
 
     <span class="doccomment">/// Alias table for usage elsewhere in the query.</span>
-    <span class="kw">fn</span> <span class="ident">alias</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">alias</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>::<span class="ident">Target</span>
+    <span class="kw">fn</span> <span class="ident">alias</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">alias</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span><span class="ident">::Target</span>
     <span class="kw">where</span>
         <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">str</span><span class="op">&gt;</span><span class="op">&gt;</span>;
 }
@@ -485,7 +485,7 @@
     <span class="doccomment">/// A qualified asterisk to this table</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">asterisk</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Expression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
         <span class="ident">Expression</span> {
-            <span class="ident">kind</span>: <span class="ident">ExpressionKind</span>::<span class="ident">Asterisk</span>(<span class="prelude-val">Some</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="self">self</span>))),
+            <span class="ident">kind</span>: <span class="ident">ExpressionKind::Asterisk</span>(<span class="prelude-val">Some</span>(<span class="ident">Box::new</span>(<span class="self">self</span>))),
             <span class="ident">alias</span>: <span class="prelude-val">None</span>,
         }
     }
@@ -505,19 +505,19 @@
     <span class="doccomment">/// - If the the index is a compound with other columns, combine them with `AND`</span>
     <span class="doccomment">/// - If the column is not provided and index exists, try inserting a default value.</span>
     <span class="doccomment">/// - Otherwise the function will return an error.</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">join_conditions</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">inserted_columns</span>: <span class="kw-2">&amp;</span>[<span class="ident">Column</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">crate</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ConditionTree</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">ConditionTree</span>::<span class="ident">NegativeCondition</span>;
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">join_conditions</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">inserted_columns</span>: <span class="kw-2">&amp;</span>[<span class="ident">Column</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">crate</span><span class="ident">::Result</span><span class="op">&lt;</span><span class="ident">ConditionTree</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">ConditionTree::NegativeCondition</span>;
 
         <span class="kw">let</span> <span class="ident">join_cond</span> <span class="op">=</span> <span class="op">|</span><span class="ident">column</span>: <span class="kw-2">&amp;</span><span class="ident">Column</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">|</span> {
             <span class="kw">let</span> <span class="ident">cond</span> <span class="op">=</span> <span class="kw">if</span> <span class="op">!</span><span class="ident">inserted_columns</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">column</span>) {
                 <span class="kw">match</span> <span class="ident">column</span>.<span class="ident">default</span>.<span class="ident">clone</span>() {
-                    <span class="prelude-val">Some</span>(<span class="ident">DefaultValue</span>::<span class="ident">Provided</span>(<span class="ident">val</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">column</span>.<span class="ident">clone</span>().<span class="ident">equals</span>(<span class="ident">val</span>).<span class="ident">into</span>()),
-                    <span class="prelude-val">Some</span>(<span class="ident">DefaultValue</span>::<span class="ident">Generated</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
+                    <span class="prelude-val">Some</span>(<span class="ident">DefaultValue::Provided</span>(<span class="ident">val</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">column</span>.<span class="ident">clone</span>().<span class="ident">equals</span>(<span class="ident">val</span>).<span class="ident">into</span>()),
+                    <span class="prelude-val">Some</span>(<span class="ident">DefaultValue::Generated</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
                     <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> {
                         <span class="kw">let</span> <span class="ident">kind</span> <span class="op">=</span>
-                            <span class="ident">ErrorKind</span>::<span class="ident">conversion</span>(<span class="string">&quot;A unique column missing from insert and table has no default.&quot;</span>);
+                            <span class="ident">ErrorKind::conversion</span>(<span class="string">&quot;A unique column missing from insert and table has no default.&quot;</span>);
 
-                        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Error</span>::<span class="ident">builder</span>(<span class="ident">kind</span>).<span class="ident">build</span>());
+                        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Error::builder</span>(<span class="ident">kind</span>).<span class="ident">build</span>());
                     }
                 }
             } <span class="kw">else</span> {
@@ -530,28 +530,28 @@
 
         <span class="kw">for</span> <span class="ident">index</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">index_definitions</span>.<span class="ident">iter</span>() {
             <span class="kw">match</span> <span class="ident">index</span> {
-                <span class="ident">IndexDefinition</span>::<span class="ident">Single</span>(<span class="ident">column</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">IndexDefinition::Single</span>(<span class="ident">column</span>) <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">right_cond</span>) <span class="op">=</span> <span class="ident">join_cond</span>(<span class="kw-2">&amp;</span><span class="ident">column</span>)<span class="question-mark">?</span> {
                         <span class="kw">match</span> <span class="ident">result</span> {
-                            <span class="ident">ConditionTree</span>::<span class="ident">NegativeCondition</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">right_cond</span>,
+                            <span class="ident">ConditionTree::NegativeCondition</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">right_cond</span>,
                             <span class="ident">left_cond</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">left_cond</span>.<span class="ident">or</span>(<span class="ident">right_cond</span>),
                         }
                     }
                 }
-                <span class="ident">IndexDefinition</span>::<span class="ident">Compound</span>(<span class="ident">cols</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">sub_result</span> <span class="op">=</span> <span class="ident">ConditionTree</span>::<span class="ident">NoCondition</span>;
+                <span class="ident">IndexDefinition::Compound</span>(<span class="ident">cols</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">sub_result</span> <span class="op">=</span> <span class="ident">ConditionTree::NoCondition</span>;
 
                     <span class="kw">for</span> <span class="ident">right</span> <span class="kw">in</span> <span class="ident">cols</span>.<span class="ident">iter</span>() {
-                        <span class="kw">let</span> <span class="ident">right_cond</span> <span class="op">=</span> <span class="ident">join_cond</span>(<span class="kw-2">&amp;</span><span class="ident">right</span>)<span class="question-mark">?</span>.<span class="ident">unwrap_or</span>(<span class="ident">ConditionTree</span>::<span class="ident">NegativeCondition</span>);
+                        <span class="kw">let</span> <span class="ident">right_cond</span> <span class="op">=</span> <span class="ident">join_cond</span>(<span class="kw-2">&amp;</span><span class="ident">right</span>)<span class="question-mark">?</span>.<span class="ident">unwrap_or</span>(<span class="ident">ConditionTree::NegativeCondition</span>);
 
                         <span class="kw">match</span> <span class="ident">sub_result</span> {
-                            <span class="ident">ConditionTree</span>::<span class="ident">NoCondition</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">sub_result</span> <span class="op">=</span> <span class="ident">right_cond</span>,
+                            <span class="ident">ConditionTree::NoCondition</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">sub_result</span> <span class="op">=</span> <span class="ident">right_cond</span>,
                             <span class="ident">left_cond</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">sub_result</span> <span class="op">=</span> <span class="ident">left_cond</span>.<span class="ident">and</span>(<span class="ident">right_cond</span>),
                         }
                     }
 
                     <span class="kw">match</span> <span class="ident">result</span> {
-                        <span class="ident">ConditionTree</span>::<span class="ident">NegativeCondition</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">sub_result</span>,
+                        <span class="ident">ConditionTree::NegativeCondition</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">sub_result</span>,
                         <span class="ident">left_cond</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">left_cond</span>.<span class="ident">or</span>(<span class="ident">sub_result</span>),
                     }
                 }
@@ -593,14 +593,14 @@
         <span class="ident">J</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">JoinData</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     {
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">typ</span> {
-            <span class="ident">TableType</span>::<span class="ident">Table</span>(<span class="ident">table_name</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="self">self</span>.<span class="ident">typ</span> <span class="op">=</span> <span class="ident">TableType</span>::<span class="ident">JoinedTable</span>(<span class="ident">Box</span>::<span class="ident">new</span>((<span class="ident">table_name</span>, <span class="macro">vec!</span>[<span class="ident">Join</span>::<span class="ident">Left</span>(<span class="ident">join</span>.<span class="ident">into</span>())])))
+            <span class="ident">TableType::Table</span>(<span class="ident">table_name</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="self">self</span>.<span class="ident">typ</span> <span class="op">=</span> <span class="ident">TableType::JoinedTable</span>(<span class="ident">Box::new</span>((<span class="ident">table_name</span>, <span class="macro">vec!</span>[<span class="ident">Join::Left</span>(<span class="ident">join</span>.<span class="ident">into</span>())])))
             }
-            <span class="ident">TableType</span>::<span class="ident">JoinedTable</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">jt</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">jt</span>.<span class="number">1</span>.<span class="ident">push</span>(<span class="ident">Join</span>::<span class="ident">Left</span>(<span class="ident">join</span>.<span class="ident">into</span>())),
-            <span class="ident">TableType</span>::<span class="ident">Query</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">TableType::JoinedTable</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">jt</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">jt</span>.<span class="number">1</span>.<span class="ident">push</span>(<span class="ident">Join::Left</span>(<span class="ident">join</span>.<span class="ident">into</span>())),
+            <span class="ident">TableType::Query</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="macro">panic!</span>(<span class="string">&quot;You cannot left_join on a table of type Query&quot;</span>)
             }
-            <span class="ident">TableType</span>::<span class="ident">Values</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">TableType::Values</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="macro">panic!</span>(<span class="string">&quot;You cannot left_join on a table of type Values&quot;</span>)
             }
         }
@@ -640,14 +640,14 @@
         <span class="ident">J</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">JoinData</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     {
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">typ</span> {
-            <span class="ident">TableType</span>::<span class="ident">Table</span>(<span class="ident">table_name</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="self">self</span>.<span class="ident">typ</span> <span class="op">=</span> <span class="ident">TableType</span>::<span class="ident">JoinedTable</span>(<span class="ident">Box</span>::<span class="ident">new</span>((<span class="ident">table_name</span>, <span class="macro">vec!</span>[<span class="ident">Join</span>::<span class="ident">Inner</span>(<span class="ident">join</span>.<span class="ident">into</span>())])))
+            <span class="ident">TableType::Table</span>(<span class="ident">table_name</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="self">self</span>.<span class="ident">typ</span> <span class="op">=</span> <span class="ident">TableType::JoinedTable</span>(<span class="ident">Box::new</span>((<span class="ident">table_name</span>, <span class="macro">vec!</span>[<span class="ident">Join::Inner</span>(<span class="ident">join</span>.<span class="ident">into</span>())])))
             }
-            <span class="ident">TableType</span>::<span class="ident">JoinedTable</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">jt</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">jt</span>.<span class="number">1</span>.<span class="ident">push</span>(<span class="ident">Join</span>::<span class="ident">Inner</span>(<span class="ident">join</span>.<span class="ident">into</span>())),
-            <span class="ident">TableType</span>::<span class="ident">Query</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">TableType::JoinedTable</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">jt</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">jt</span>.<span class="number">1</span>.<span class="ident">push</span>(<span class="ident">Join::Inner</span>(<span class="ident">join</span>.<span class="ident">into</span>())),
+            <span class="ident">TableType::Query</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="macro">panic!</span>(<span class="string">&quot;You cannot inner_join on a table of type Query&quot;</span>)
             }
-            <span class="ident">TableType</span>::<span class="ident">Values</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">TableType::Values</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="macro">panic!</span>(<span class="string">&quot;You cannot inner_join on a table of type Values&quot;</span>)
             }
         }
@@ -687,14 +687,14 @@
         <span class="ident">J</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">JoinData</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     {
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">typ</span> {
-            <span class="ident">TableType</span>::<span class="ident">Table</span>(<span class="ident">table_name</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="self">self</span>.<span class="ident">typ</span> <span class="op">=</span> <span class="ident">TableType</span>::<span class="ident">JoinedTable</span>(<span class="ident">Box</span>::<span class="ident">new</span>((<span class="ident">table_name</span>, <span class="macro">vec!</span>[<span class="ident">Join</span>::<span class="ident">Right</span>(<span class="ident">join</span>.<span class="ident">into</span>())])))
+            <span class="ident">TableType::Table</span>(<span class="ident">table_name</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="self">self</span>.<span class="ident">typ</span> <span class="op">=</span> <span class="ident">TableType::JoinedTable</span>(<span class="ident">Box::new</span>((<span class="ident">table_name</span>, <span class="macro">vec!</span>[<span class="ident">Join::Right</span>(<span class="ident">join</span>.<span class="ident">into</span>())])))
             }
-            <span class="ident">TableType</span>::<span class="ident">JoinedTable</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">jt</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">jt</span>.<span class="number">1</span>.<span class="ident">push</span>(<span class="ident">Join</span>::<span class="ident">Right</span>(<span class="ident">join</span>.<span class="ident">into</span>())),
-            <span class="ident">TableType</span>::<span class="ident">Query</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">TableType::JoinedTable</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">jt</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">jt</span>.<span class="number">1</span>.<span class="ident">push</span>(<span class="ident">Join::Right</span>(<span class="ident">join</span>.<span class="ident">into</span>())),
+            <span class="ident">TableType::Query</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="macro">panic!</span>(<span class="string">&quot;You cannot right_join on a table of type Query&quot;</span>)
             }
-            <span class="ident">TableType</span>::<span class="ident">Values</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">TableType::Values</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="macro">panic!</span>(<span class="string">&quot;You cannot right_join on a table of type Values&quot;</span>)
             }
         }
@@ -734,14 +734,14 @@
         <span class="ident">J</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">JoinData</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     {
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">typ</span> {
-            <span class="ident">TableType</span>::<span class="ident">Table</span>(<span class="ident">table_name</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="self">self</span>.<span class="ident">typ</span> <span class="op">=</span> <span class="ident">TableType</span>::<span class="ident">JoinedTable</span>(<span class="ident">Box</span>::<span class="ident">new</span>((<span class="ident">table_name</span>, <span class="macro">vec!</span>[<span class="ident">Join</span>::<span class="ident">Full</span>(<span class="ident">join</span>.<span class="ident">into</span>())])))
+            <span class="ident">TableType::Table</span>(<span class="ident">table_name</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="self">self</span>.<span class="ident">typ</span> <span class="op">=</span> <span class="ident">TableType::JoinedTable</span>(<span class="ident">Box::new</span>((<span class="ident">table_name</span>, <span class="macro">vec!</span>[<span class="ident">Join::Full</span>(<span class="ident">join</span>.<span class="ident">into</span>())])))
             }
-            <span class="ident">TableType</span>::<span class="ident">JoinedTable</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">jt</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">jt</span>.<span class="number">1</span>.<span class="ident">push</span>(<span class="ident">Join</span>::<span class="ident">Full</span>(<span class="ident">join</span>.<span class="ident">into</span>())),
-            <span class="ident">TableType</span>::<span class="ident">Query</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">TableType::JoinedTable</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">jt</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">jt</span>.<span class="number">1</span>.<span class="ident">push</span>(<span class="ident">Join::Full</span>(<span class="ident">join</span>.<span class="ident">into</span>())),
+            <span class="ident">TableType::Query</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="macro">panic!</span>(<span class="string">&quot;You cannot full_join on a table of type Query&quot;</span>)
             }
-            <span class="ident">TableType</span>::<span class="ident">Values</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">TableType::Values</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="macro">panic!</span>(<span class="string">&quot;You cannot full_join on a table of type Values&quot;</span>)
             }
         }
@@ -753,10 +753,10 @@
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Table</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">s</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Table</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
         <span class="ident">Table</span> {
-            <span class="ident">typ</span>: <span class="ident">TableType</span>::<span class="ident">Table</span>(<span class="ident">s</span>.<span class="ident">into</span>()),
+            <span class="ident">typ</span>: <span class="ident">TableType::Table</span>(<span class="ident">s</span>.<span class="ident">into</span>()),
             <span class="ident">alias</span>: <span class="prelude-val">None</span>,
             <span class="ident">database</span>: <span class="prelude-val">None</span>,
-            <span class="ident">index_definitions</span>: <span class="ident">Vec</span>::<span class="ident">new</span>(),
+            <span class="ident">index_definitions</span>: <span class="ident">Vec::new</span>(),
         }
     }
 }
@@ -764,10 +764,10 @@
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">String</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Table</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">s</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">String</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Table</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
         <span class="ident">Table</span> {
-            <span class="ident">typ</span>: <span class="ident">TableType</span>::<span class="ident">Table</span>(<span class="ident">s</span>.<span class="ident">into</span>()),
+            <span class="ident">typ</span>: <span class="ident">TableType::Table</span>(<span class="ident">s</span>.<span class="ident">into</span>()),
             <span class="ident">alias</span>: <span class="prelude-val">None</span>,
             <span class="ident">database</span>: <span class="prelude-val">None</span>,
-            <span class="ident">index_definitions</span>: <span class="ident">Vec</span>::<span class="ident">new</span>(),
+            <span class="ident">index_definitions</span>: <span class="ident">Vec::new</span>(),
         }
     }
 }
@@ -803,27 +803,27 @@
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Table</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">s</span>: <span class="ident">String</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="ident">Table</span> {
-            <span class="ident">typ</span>: <span class="ident">TableType</span>::<span class="ident">Table</span>(<span class="ident">s</span>.<span class="ident">into</span>()),
+            <span class="ident">typ</span>: <span class="ident">TableType::Table</span>(<span class="ident">s</span>.<span class="ident">into</span>()),
             <span class="ident">alias</span>: <span class="prelude-val">None</span>,
             <span class="ident">database</span>: <span class="prelude-val">None</span>,
-            <span class="ident">index_definitions</span>: <span class="ident">Vec</span>::<span class="ident">new</span>(),
+            <span class="ident">index_definitions</span>: <span class="ident">Vec::new</span>(),
         }
     }
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Row</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Table</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">values</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Row</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-        <span class="ident">Table</span>::<span class="ident">from</span>(<span class="ident">Values</span>::<span class="ident">from</span>(<span class="ident">values</span>.<span class="ident">into_iter</span>()))
+        <span class="ident">Table::from</span>(<span class="ident">Values::from</span>(<span class="ident">values</span>.<span class="ident">into_iter</span>()))
     }
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">Values</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Table</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">values</span>: <span class="ident">Values</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="self">Self</span> {
-            <span class="ident">typ</span>: <span class="ident">TableType</span>::<span class="ident">Values</span>(<span class="ident">values</span>),
+            <span class="ident">typ</span>: <span class="ident">TableType::Values</span>(<span class="ident">values</span>),
             <span class="ident">alias</span>: <span class="prelude-val">None</span>,
             <span class="ident">database</span>: <span class="prelude-val">None</span>,
-            <span class="ident">index_definitions</span>: <span class="ident">Vec</span>::<span class="ident">new</span>(),
+            <span class="ident">index_definitions</span>: <span class="ident">Vec::new</span>(),
         }
     }
 }
@@ -838,10 +838,10 @@
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">Select</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Table</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">select</span>: <span class="ident">Select</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="ident">Table</span> {
-            <span class="ident">typ</span>: <span class="ident">TableType</span>::<span class="ident">Query</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">select</span>)),
+            <span class="ident">typ</span>: <span class="ident">TableType::Query</span>(<span class="ident">Box::new</span>(<span class="ident">select</span>)),
             <span class="ident">alias</span>: <span class="prelude-val">None</span>,
             <span class="ident">database</span>: <span class="prelude-val">None</span>,
-            <span class="ident">index_definitions</span>: <span class="ident">Vec</span>::<span class="ident">new</span>(),
+            <span class="ident">index_definitions</span>: <span class="ident">Vec::new</span>(),
         }
     }
 }
@@ -849,7 +849,7 @@
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">Aliasable</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Table</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="kw">type</span> <span class="ident">Target</span> <span class="op">=</span> <span class="ident">Table</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>;
 
-    <span class="kw">fn</span> <span class="ident">alias</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">alias</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>::<span class="ident">Target</span>
+    <span class="kw">fn</span> <span class="ident">alias</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">alias</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span><span class="ident">::Target</span>
     <span class="kw">where</span>
         <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">str</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     {
@@ -861,5 +861,5 @@
 <span class="macro">aliasable!</span>(<span class="ident">String</span>, (<span class="ident">String</span>, <span class="ident">String</span>));
 <span class="macro">aliasable!</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>, (<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>));
 </pre></div>
-</section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="quaint" data-search-js="../../../search-index.js"></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="quaint" data-search-index-js="../../../search-index.js" data-search-js="../../../search.js"></div>
     <script src="../../../main.js"></script><script src="../../../source-script.js"></script><script src="../../../source-files.js"></script></body></html>

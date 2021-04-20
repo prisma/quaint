@@ -641,7 +641,7 @@
     <span class="ident">ast</span>::<span class="kw-2">*</span>,
     <span class="ident">visitor</span>::{<span class="self">self</span>, <span class="ident">Visitor</span>},
 };
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>::{<span class="self">self</span>, <span class="ident">Write</span>};
+<span class="kw">use</span> <span class="ident">std::fmt</span>::{<span class="self">self</span>, <span class="ident">Write</span>};
 
 <span class="doccomment">/// A visitor to generate queries for the PostgreSQL database.</span>
 <span class="doccomment">///</span>
@@ -658,22 +658,22 @@
     <span class="kw">const</span> <span class="ident">C_BACKTICK_CLOSE</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span> <span class="op">=</span> <span class="string">&quot;\&quot;&quot;</span>;
     <span class="kw">const</span> <span class="ident">C_WILDCARD</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span> <span class="op">=</span> <span class="string">&quot;%&quot;</span>;
 
-    <span class="attribute">#[<span class="ident">tracing</span>::<span class="ident">instrument</span>(<span class="ident">name</span> <span class="op">=</span> <span class="string">&quot;render_sql&quot;</span>, <span class="ident">skip</span>(<span class="ident">query</span>))]</span>
-    <span class="kw">fn</span> <span class="ident">build</span><span class="op">&lt;</span><span class="ident">Q</span><span class="op">&gt;</span>(<span class="ident">query</span>: <span class="ident">Q</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">crate</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">String</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Value</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>)<span class="op">&gt;</span>
+    <span class="attribute">#[<span class="ident">tracing::instrument</span>(<span class="ident">name</span> <span class="op">=</span> <span class="string">&quot;render_sql&quot;</span>, <span class="ident">skip</span>(<span class="ident">query</span>))]</span>
+    <span class="kw">fn</span> <span class="ident">build</span><span class="op">&lt;</span><span class="ident">Q</span><span class="op">&gt;</span>(<span class="ident">query</span>: <span class="ident">Q</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">crate</span><span class="ident">::Result</span><span class="op">&lt;</span>(<span class="ident">String</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Value</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>)<span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="ident">Q</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Query</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">postgres</span> <span class="op">=</span> <span class="ident">Postgres</span> {
-            <span class="ident">query</span>: <span class="ident">String</span>::<span class="ident">with_capacity</span>(<span class="number">4096</span>),
-            <span class="ident">parameters</span>: <span class="ident">Vec</span>::<span class="ident">with_capacity</span>(<span class="number">128</span>),
+            <span class="ident">query</span>: <span class="ident">String::with_capacity</span>(<span class="number">4096</span>),
+            <span class="ident">parameters</span>: <span class="ident">Vec::with_capacity</span>(<span class="number">128</span>),
         };
 
-        <span class="ident">Postgres</span>::<span class="ident">visit_query</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">postgres</span>, <span class="ident">query</span>.<span class="ident">into</span>())<span class="question-mark">?</span>;
+        <span class="ident">Postgres::visit_query</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">postgres</span>, <span class="ident">query</span>.<span class="ident">into</span>())<span class="question-mark">?</span>;
 
         <span class="prelude-val">Ok</span>((<span class="ident">postgres</span>.<span class="ident">query</span>, <span class="ident">postgres</span>.<span class="ident">parameters</span>))
     }
 
-    <span class="kw">fn</span> <span class="ident">write</span><span class="op">&lt;</span><span class="ident">D</span>: <span class="ident">fmt</span>::<span class="ident">Display</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">s</span>: <span class="ident">D</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">visitor</span>::<span class="prelude-ty">Result</span> {
+    <span class="kw">fn</span> <span class="ident">write</span><span class="op">&lt;</span><span class="ident">D</span>: <span class="ident">fmt::Display</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">s</span>: <span class="ident">D</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">visitor::Result</span> {
         <span class="macro">write!</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">query</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">s</span>)<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(())
     }
@@ -682,12 +682,12 @@
         <span class="self">self</span>.<span class="ident">parameters</span>.<span class="ident">push</span>(<span class="ident">value</span>);
     }
 
-    <span class="kw">fn</span> <span class="ident">parameter_substitution</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">visitor</span>::<span class="prelude-ty">Result</span> {
+    <span class="kw">fn</span> <span class="ident">parameter_substitution</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">visitor::Result</span> {
         <span class="self">self</span>.<span class="ident">write</span>(<span class="string">&quot;$&quot;</span>)<span class="question-mark">?</span>;
         <span class="self">self</span>.<span class="ident">write</span>(<span class="self">self</span>.<span class="ident">parameters</span>.<span class="ident">len</span>())
     }
 
-    <span class="kw">fn</span> <span class="ident">visit_limit_and_offset</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">limit</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Value</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>, <span class="ident">offset</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Value</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">visitor</span>::<span class="prelude-ty">Result</span> {
+    <span class="kw">fn</span> <span class="ident">visit_limit_and_offset</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">limit</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Value</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>, <span class="ident">offset</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Value</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">visitor::Result</span> {
         <span class="kw">match</span> (<span class="ident">limit</span>, <span class="ident">offset</span>) {
             (<span class="prelude-val">Some</span>(<span class="ident">limit</span>), <span class="prelude-val">Some</span>(<span class="ident">offset</span>)) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="self">self</span>.<span class="ident">write</span>(<span class="string">&quot; LIMIT &quot;</span>)<span class="question-mark">?</span>;
@@ -708,28 +708,28 @@
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">visit_raw_value</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">value</span>: <span class="ident">Value</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">visitor</span>::<span class="prelude-ty">Result</span> {
+    <span class="kw">fn</span> <span class="ident">visit_raw_value</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">value</span>: <span class="ident">Value</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">visitor::Result</span> {
         <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">value</span> {
-            <span class="ident">Value</span>::<span class="ident">Integer</span>(<span class="ident">i</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">i</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">i</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">write</span>(<span class="ident">i</span>)),
-            <span class="ident">Value</span>::<span class="ident">Text</span>(<span class="ident">t</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">t</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">t</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">write</span>(<span class="macro">format!</span>(<span class="string">&quot;&#39;{}&#39;&quot;</span>, <span class="ident">t</span>))),
-            <span class="ident">Value</span>::<span class="ident">Enum</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">e</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">write</span>(<span class="ident">e</span>)),
-            <span class="ident">Value</span>::<span class="ident">Bytes</span>(<span class="ident">b</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">b</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">b</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">write</span>(<span class="macro">format!</span>(<span class="string">&quot;E&#39;{}&#39;&quot;</span>, <span class="ident">hex</span>::<span class="ident">encode</span>(<span class="ident">b</span>)))),
-            <span class="ident">Value</span>::<span class="ident">Boolean</span>(<span class="ident">b</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">b</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">b</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">write</span>(<span class="ident">b</span>)),
-            <span class="ident">Value</span>::<span class="ident">Xml</span>(<span class="ident">cow</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">cow</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">cow</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">write</span>(<span class="macro">format!</span>(<span class="string">&quot;&#39;{}&#39;&quot;</span>, <span class="ident">cow</span>))),
-            <span class="ident">Value</span>::<span class="ident">Char</span>(<span class="ident">c</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">c</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">c</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">write</span>(<span class="macro">format!</span>(<span class="string">&quot;&#39;{}&#39;&quot;</span>, <span class="ident">c</span>))),
-            <span class="ident">Value</span>::<span class="ident">Float</span>(<span class="ident">d</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">d</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">f</span><span class="op">|</span> <span class="kw">match</span> <span class="ident">f</span> {
+            <span class="ident">Value::Integer</span>(<span class="ident">i</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">i</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">i</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">write</span>(<span class="ident">i</span>)),
+            <span class="ident">Value::Text</span>(<span class="ident">t</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">t</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">t</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">write</span>(<span class="macro">format!</span>(<span class="string">&quot;&#39;{}&#39;&quot;</span>, <span class="ident">t</span>))),
+            <span class="ident">Value::Enum</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">e</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">write</span>(<span class="ident">e</span>)),
+            <span class="ident">Value::Bytes</span>(<span class="ident">b</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">b</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">b</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">write</span>(<span class="macro">format!</span>(<span class="string">&quot;E&#39;{}&#39;&quot;</span>, <span class="ident">hex::encode</span>(<span class="ident">b</span>)))),
+            <span class="ident">Value::Boolean</span>(<span class="ident">b</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">b</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">b</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">write</span>(<span class="ident">b</span>)),
+            <span class="ident">Value::Xml</span>(<span class="ident">cow</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">cow</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">cow</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">write</span>(<span class="macro">format!</span>(<span class="string">&quot;&#39;{}&#39;&quot;</span>, <span class="ident">cow</span>))),
+            <span class="ident">Value::Char</span>(<span class="ident">c</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">c</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">c</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">write</span>(<span class="macro">format!</span>(<span class="string">&quot;&#39;{}&#39;&quot;</span>, <span class="ident">c</span>))),
+            <span class="ident">Value::Float</span>(<span class="ident">d</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">d</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">f</span><span class="op">|</span> <span class="kw">match</span> <span class="ident">f</span> {
                 <span class="ident">f</span> <span class="kw">if</span> <span class="ident">f</span>.<span class="ident">is_nan</span>() <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">write</span>(<span class="string">&quot;&#39;NaN&#39;&quot;</span>),
-                <span class="ident">f</span> <span class="kw">if</span> <span class="ident">f</span> <span class="op">=</span><span class="op">=</span> <span class="ident">f32</span>::<span class="ident">INFINITY</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">write</span>(<span class="string">&quot;&#39;Infinity&#39;&quot;</span>),
-                <span class="ident">f</span> <span class="kw">if</span> <span class="ident">f</span> <span class="op">=</span><span class="op">=</span> <span class="ident">f32</span>::<span class="ident">NEG_INFINITY</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">write</span>(<span class="string">&quot;&#39;-Infinity&quot;</span>),
+                <span class="ident">f</span> <span class="kw">if</span> <span class="ident">f</span> <span class="op">=</span><span class="op">=</span> <span class="ident">f32::INFINITY</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">write</span>(<span class="string">&quot;&#39;Infinity&#39;&quot;</span>),
+                <span class="ident">f</span> <span class="kw">if</span> <span class="ident">f</span> <span class="op">=</span><span class="op">=</span> <span class="ident">f32::NEG_INFINITY</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">write</span>(<span class="string">&quot;&#39;-Infinity&quot;</span>),
                 <span class="ident">v</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">write</span>(<span class="macro">format!</span>(<span class="string">&quot;{:?}&quot;</span>, <span class="ident">v</span>)),
             }),
-            <span class="ident">Value</span>::<span class="ident">Double</span>(<span class="ident">d</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">d</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">f</span><span class="op">|</span> <span class="kw">match</span> <span class="ident">f</span> {
+            <span class="ident">Value::Double</span>(<span class="ident">d</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">d</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">f</span><span class="op">|</span> <span class="kw">match</span> <span class="ident">f</span> {
                 <span class="ident">f</span> <span class="kw">if</span> <span class="ident">f</span>.<span class="ident">is_nan</span>() <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">write</span>(<span class="string">&quot;&#39;NaN&#39;&quot;</span>),
-                <span class="ident">f</span> <span class="kw">if</span> <span class="ident">f</span> <span class="op">=</span><span class="op">=</span> <span class="ident">f64</span>::<span class="ident">INFINITY</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">write</span>(<span class="string">&quot;&#39;Infinity&#39;&quot;</span>),
-                <span class="ident">f</span> <span class="kw">if</span> <span class="ident">f</span> <span class="op">=</span><span class="op">=</span> <span class="ident">f64</span>::<span class="ident">NEG_INFINITY</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">write</span>(<span class="string">&quot;&#39;-Infinity&quot;</span>),
+                <span class="ident">f</span> <span class="kw">if</span> <span class="ident">f</span> <span class="op">=</span><span class="op">=</span> <span class="ident">f64::INFINITY</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">write</span>(<span class="string">&quot;&#39;Infinity&#39;&quot;</span>),
+                <span class="ident">f</span> <span class="kw">if</span> <span class="ident">f</span> <span class="op">=</span><span class="op">=</span> <span class="ident">f64::NEG_INFINITY</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">write</span>(<span class="string">&quot;&#39;-Infinity&quot;</span>),
                 <span class="ident">v</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">write</span>(<span class="macro">format!</span>(<span class="string">&quot;{:?}&quot;</span>, <span class="ident">v</span>)),
             }),
-            <span class="ident">Value</span>::<span class="ident">Array</span>(<span class="ident">ary</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ary</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">ary</span><span class="op">|</span> {
+            <span class="ident">Value::Array</span>(<span class="ident">ary</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ary</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">ary</span><span class="op">|</span> {
                 <span class="self">self</span>.<span class="ident">surround_with</span>(<span class="string">&quot;&#39;{&quot;</span>, <span class="string">&quot;}&#39;&quot;</span>, <span class="op">|</span><span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">s</span><span class="op">|</span> {
                     <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">ary</span>.<span class="ident">len</span>();
 
@@ -745,17 +745,17 @@
                 })
             }),
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;json&quot;</span>)]</span>
-            <span class="ident">Value</span>::<span class="ident">Json</span>(<span class="ident">j</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">j</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">j</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">write</span>(<span class="macro">format!</span>(<span class="string">&quot;&#39;{}&#39;&quot;</span>, <span class="ident">serde_json</span>::<span class="ident">to_string</span>(<span class="kw-2">&amp;</span><span class="ident">j</span>).<span class="ident">unwrap</span>()))),
+            <span class="ident">Value::Json</span>(<span class="ident">j</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">j</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">j</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">write</span>(<span class="macro">format!</span>(<span class="string">&quot;&#39;{}&#39;&quot;</span>, <span class="ident">serde_json::to_string</span>(<span class="kw-2">&amp;</span><span class="ident">j</span>).<span class="ident">unwrap</span>()))),
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;bigdecimal&quot;</span>)]</span>
-            <span class="ident">Value</span>::<span class="ident">Numeric</span>(<span class="ident">r</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">r</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">r</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">write</span>(<span class="ident">r</span>)),
+            <span class="ident">Value::Numeric</span>(<span class="ident">r</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">r</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">r</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">write</span>(<span class="ident">r</span>)),
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;uuid&quot;</span>)]</span>
-            <span class="ident">Value</span>::<span class="ident">Uuid</span>(<span class="ident">uuid</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">uuid</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">uuid</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">write</span>(<span class="macro">format!</span>(<span class="string">&quot;&#39;{}&#39;&quot;</span>, <span class="ident">uuid</span>.<span class="ident">to_hyphenated</span>().<span class="ident">to_string</span>()))),
+            <span class="ident">Value::Uuid</span>(<span class="ident">uuid</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">uuid</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">uuid</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">write</span>(<span class="macro">format!</span>(<span class="string">&quot;&#39;{}&#39;&quot;</span>, <span class="ident">uuid</span>.<span class="ident">to_hyphenated</span>().<span class="ident">to_string</span>()))),
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;chrono&quot;</span>)]</span>
-            <span class="ident">Value</span>::<span class="ident">DateTime</span>(<span class="ident">dt</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">dt</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">dt</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">write</span>(<span class="macro">format!</span>(<span class="string">&quot;&#39;{}&#39;&quot;</span>, <span class="ident">dt</span>.<span class="ident">to_rfc3339</span>(),))),
+            <span class="ident">Value::DateTime</span>(<span class="ident">dt</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">dt</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">dt</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">write</span>(<span class="macro">format!</span>(<span class="string">&quot;&#39;{}&#39;&quot;</span>, <span class="ident">dt</span>.<span class="ident">to_rfc3339</span>(),))),
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;chrono&quot;</span>)]</span>
-            <span class="ident">Value</span>::<span class="ident">Date</span>(<span class="ident">date</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">date</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">date</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">write</span>(<span class="macro">format!</span>(<span class="string">&quot;&#39;{}&#39;&quot;</span>, <span class="ident">date</span>))),
+            <span class="ident">Value::Date</span>(<span class="ident">date</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">date</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">date</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">write</span>(<span class="macro">format!</span>(<span class="string">&quot;&#39;{}&#39;&quot;</span>, <span class="ident">date</span>))),
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;chrono&quot;</span>)]</span>
-            <span class="ident">Value</span>::<span class="ident">Time</span>(<span class="ident">time</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">time</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">time</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">write</span>(<span class="macro">format!</span>(<span class="string">&quot;&#39;{}&#39;&quot;</span>, <span class="ident">time</span>))),
+            <span class="ident">Value::Time</span>(<span class="ident">time</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">time</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">time</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">write</span>(<span class="macro">format!</span>(<span class="string">&quot;&#39;{}&#39;&quot;</span>, <span class="ident">time</span>))),
         };
 
         <span class="kw">match</span> <span class="ident">res</span> {
@@ -764,7 +764,7 @@
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">visit_insert</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">insert</span>: <span class="ident">Insert</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">visitor</span>::<span class="prelude-ty">Result</span> {
+    <span class="kw">fn</span> <span class="ident">visit_insert</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">insert</span>: <span class="ident">Insert</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">visitor::Result</span> {
         <span class="self">self</span>.<span class="ident">write</span>(<span class="string">&quot;INSERT &quot;</span>)<span class="question-mark">?</span>;
 
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">table</span>) <span class="op">=</span> <span class="ident">insert</span>.<span class="ident">table</span> {
@@ -774,7 +774,7 @@
 
         <span class="kw">match</span> <span class="ident">insert</span>.<span class="ident">values</span> {
             <span class="ident">Expression</span> {
-                <span class="ident">kind</span>: <span class="ident">ExpressionKind</span>::<span class="ident">Row</span>(<span class="ident">row</span>),
+                <span class="ident">kind</span>: <span class="ident">ExpressionKind::Row</span>(<span class="ident">row</span>),
                 ..
             } <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">if</span> <span class="ident">row</span>.<span class="ident">values</span>.<span class="ident">is_empty</span>() {
@@ -797,7 +797,7 @@
                 }
             }
             <span class="ident">Expression</span> {
-                <span class="ident">kind</span>: <span class="ident">ExpressionKind</span>::<span class="ident">Values</span>(<span class="ident">values</span>),
+                <span class="ident">kind</span>: <span class="ident">ExpressionKind::Values</span>(<span class="ident">values</span>),
                 ..
             } <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">let</span> <span class="ident">columns</span> <span class="op">=</span> <span class="ident">insert</span>.<span class="ident">columns</span>.<span class="ident">len</span>();
@@ -826,7 +826,7 @@
             <span class="ident">expr</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">surround_with</span>(<span class="string">&quot;(&quot;</span>, <span class="string">&quot;)&quot;</span>, <span class="op">|</span><span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">s</span><span class="op">|</span> <span class="ident">s</span>.<span class="ident">visit_expression</span>(<span class="ident">expr</span>))<span class="question-mark">?</span>,
         }
 
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">OnConflict</span>::<span class="ident">DoNothing</span>) <span class="op">=</span> <span class="ident">insert</span>.<span class="ident">on_conflict</span> {
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">OnConflict::DoNothing</span>) <span class="op">=</span> <span class="ident">insert</span>.<span class="ident">on_conflict</span> {
             <span class="self">self</span>.<span class="ident">write</span>(<span class="string">&quot; ON CONFLICT DO NOTHING&quot;</span>)<span class="question-mark">?</span>;
         };
 
@@ -841,7 +841,7 @@
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="kw">fn</span> <span class="ident">visit_aggregate_to_string</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">value</span>: <span class="ident">Expression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">visitor</span>::<span class="prelude-ty">Result</span> {
+    <span class="kw">fn</span> <span class="ident">visit_aggregate_to_string</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">value</span>: <span class="ident">Expression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">visitor::Result</span> {
         <span class="self">self</span>.<span class="ident">write</span>(<span class="string">&quot;ARRAY_TO_STRING&quot;</span>)<span class="question-mark">?</span>;
         <span class="self">self</span>.<span class="ident">write</span>(<span class="string">&quot;(&quot;</span>)<span class="question-mark">?</span>;
         <span class="self">self</span>.<span class="ident">write</span>(<span class="string">&quot;ARRAY_AGG&quot;</span>)<span class="question-mark">?</span>;
@@ -852,7 +852,7 @@
         <span class="self">self</span>.<span class="ident">write</span>(<span class="string">&quot;)&quot;</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">visit_equals</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">left</span>: <span class="ident">Expression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>, <span class="ident">right</span>: <span class="ident">Expression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">visitor</span>::<span class="prelude-ty">Result</span> {
+    <span class="kw">fn</span> <span class="ident">visit_equals</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">left</span>: <span class="ident">Expression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>, <span class="ident">right</span>: <span class="ident">Expression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">visitor::Result</span> {
         <span class="comment">// LHS must be cast to json/xml-text if the right is a json/xml-text value and vice versa.</span>
         <span class="kw">let</span> <span class="ident">right_cast</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">left</span> {
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;json&quot;</span>)]</span>
@@ -877,7 +877,7 @@
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="kw">fn</span> <span class="ident">visit_not_equals</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">left</span>: <span class="ident">Expression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>, <span class="ident">right</span>: <span class="ident">Expression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">visitor</span>::<span class="prelude-ty">Result</span> {
+    <span class="kw">fn</span> <span class="ident">visit_not_equals</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">left</span>: <span class="ident">Expression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>, <span class="ident">right</span>: <span class="ident">Expression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">visitor::Result</span> {
         <span class="comment">// LHS must be cast to json/xml-text if the right is a json/xml-text value and vice versa.</span>
         <span class="kw">let</span> <span class="ident">right_cast</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">left</span> {
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;json&quot;</span>)]</span>
@@ -905,17 +905,17 @@
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
 <span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">visitor</span>::<span class="kw-2">*</span>;
+    <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::visitor</span>::<span class="kw-2">*</span>;
 
     <span class="kw">fn</span> <span class="ident">expected_values</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">sql</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>, <span class="ident">params</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">String</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Value</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>)
     <span class="kw">where</span>
         <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Value</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     {
-        (<span class="ident">String</span>::<span class="ident">from</span>(<span class="ident">sql</span>), <span class="ident">params</span>.<span class="ident">into_iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">p</span><span class="op">|</span> <span class="ident">p</span>.<span class="ident">into</span>()).<span class="ident">collect</span>())
+        (<span class="ident">String::from</span>(<span class="ident">sql</span>), <span class="ident">params</span>.<span class="ident">into_iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">p</span><span class="op">|</span> <span class="ident">p</span>.<span class="ident">into</span>()).<span class="ident">collect</span>())
     }
 
     <span class="kw">fn</span> <span class="ident">default_params</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="ident">additional</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Value</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Value</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
 
         <span class="kw">for</span> <span class="ident">param</span> <span class="kw">in</span> <span class="ident">additional</span>.<span class="ident">drain</span>(<span class="number">0</span>..) {
             <span class="ident">result</span>.<span class="ident">push</span>(<span class="ident">param</span>)
@@ -926,8 +926,8 @@
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_single_row_insert_default_values</span>() {
-        <span class="kw">let</span> <span class="ident">query</span> <span class="op">=</span> <span class="ident">Insert</span>::<span class="ident">single_into</span>(<span class="string">&quot;users&quot;</span>);
-        <span class="kw">let</span> (<span class="ident">sql</span>, <span class="ident">params</span>) <span class="op">=</span> <span class="ident">Postgres</span>::<span class="ident">build</span>(<span class="ident">query</span>).<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">query</span> <span class="op">=</span> <span class="ident">Insert::single_into</span>(<span class="string">&quot;users&quot;</span>);
+        <span class="kw">let</span> (<span class="ident">sql</span>, <span class="ident">params</span>) <span class="op">=</span> <span class="ident">Postgres::build</span>(<span class="ident">query</span>).<span class="ident">unwrap</span>();
 
         <span class="macro">assert_eq!</span>(<span class="string">&quot;INSERT INTO \&quot;users\&quot; DEFAULT VALUES&quot;</span>, <span class="ident">sql</span>);
         <span class="macro">assert_eq!</span>(<span class="ident">default_params</span>(<span class="macro">vec!</span>[]), <span class="ident">params</span>);
@@ -936,8 +936,8 @@
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_single_row_insert</span>() {
         <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="ident">expected_values</span>(<span class="string">&quot;INSERT INTO \&quot;users\&quot; (\&quot;foo\&quot;) VALUES ($1)&quot;</span>, <span class="macro">vec!</span>[<span class="number">10</span>]);
-        <span class="kw">let</span> <span class="ident">query</span> <span class="op">=</span> <span class="ident">Insert</span>::<span class="ident">single_into</span>(<span class="string">&quot;users&quot;</span>).<span class="ident">value</span>(<span class="string">&quot;foo&quot;</span>, <span class="number">10</span>);
-        <span class="kw">let</span> (<span class="ident">sql</span>, <span class="ident">params</span>) <span class="op">=</span> <span class="ident">Postgres</span>::<span class="ident">build</span>(<span class="ident">query</span>).<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">query</span> <span class="op">=</span> <span class="ident">Insert::single_into</span>(<span class="string">&quot;users&quot;</span>).<span class="ident">value</span>(<span class="string">&quot;foo&quot;</span>, <span class="number">10</span>);
+        <span class="kw">let</span> (<span class="ident">sql</span>, <span class="ident">params</span>) <span class="op">=</span> <span class="ident">Postgres::build</span>(<span class="ident">query</span>).<span class="ident">unwrap</span>();
 
         <span class="macro">assert_eq!</span>(<span class="ident">expected</span>.<span class="number">0</span>, <span class="ident">sql</span>);
         <span class="macro">assert_eq!</span>(<span class="ident">expected</span>.<span class="number">1</span>, <span class="ident">params</span>);
@@ -950,8 +950,8 @@
             <span class="string">&quot;INSERT INTO \&quot;users\&quot; (\&quot;foo\&quot;) VALUES ($1) RETURNING \&quot;foo\&quot;&quot;</span>,
             <span class="macro">vec!</span>[<span class="number">10</span>],
         );
-        <span class="kw">let</span> <span class="ident">query</span> <span class="op">=</span> <span class="ident">Insert</span>::<span class="ident">single_into</span>(<span class="string">&quot;users&quot;</span>).<span class="ident">value</span>(<span class="string">&quot;foo&quot;</span>, <span class="number">10</span>);
-        <span class="kw">let</span> (<span class="ident">sql</span>, <span class="ident">params</span>) <span class="op">=</span> <span class="ident">Postgres</span>::<span class="ident">build</span>(<span class="ident">Insert</span>::<span class="ident">from</span>(<span class="ident">query</span>).<span class="ident">returning</span>(<span class="macro">vec!</span>[<span class="string">&quot;foo&quot;</span>])).<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">query</span> <span class="op">=</span> <span class="ident">Insert::single_into</span>(<span class="string">&quot;users&quot;</span>).<span class="ident">value</span>(<span class="string">&quot;foo&quot;</span>, <span class="number">10</span>);
+        <span class="kw">let</span> (<span class="ident">sql</span>, <span class="ident">params</span>) <span class="op">=</span> <span class="ident">Postgres::build</span>(<span class="ident">Insert::from</span>(<span class="ident">query</span>).<span class="ident">returning</span>(<span class="macro">vec!</span>[<span class="string">&quot;foo&quot;</span>])).<span class="ident">unwrap</span>();
 
         <span class="macro">assert_eq!</span>(<span class="ident">expected</span>.<span class="number">0</span>, <span class="ident">sql</span>);
         <span class="macro">assert_eq!</span>(<span class="ident">expected</span>.<span class="number">1</span>, <span class="ident">params</span>);
@@ -960,10 +960,10 @@
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_multi_row_insert</span>() {
         <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="ident">expected_values</span>(<span class="string">&quot;INSERT INTO \&quot;users\&quot; (\&quot;foo\&quot;) VALUES ($1), ($2)&quot;</span>, <span class="macro">vec!</span>[<span class="number">10</span>, <span class="number">11</span>]);
-        <span class="kw">let</span> <span class="ident">query</span> <span class="op">=</span> <span class="ident">Insert</span>::<span class="ident">multi_into</span>(<span class="string">&quot;users&quot;</span>, <span class="macro">vec!</span>[<span class="string">&quot;foo&quot;</span>])
+        <span class="kw">let</span> <span class="ident">query</span> <span class="op">=</span> <span class="ident">Insert::multi_into</span>(<span class="string">&quot;users&quot;</span>, <span class="macro">vec!</span>[<span class="string">&quot;foo&quot;</span>])
             .<span class="ident">values</span>(<span class="macro">vec!</span>[<span class="number">10</span>])
             .<span class="ident">values</span>(<span class="macro">vec!</span>[<span class="number">11</span>]);
-        <span class="kw">let</span> (<span class="ident">sql</span>, <span class="ident">params</span>) <span class="op">=</span> <span class="ident">Postgres</span>::<span class="ident">build</span>(<span class="ident">query</span>).<span class="ident">unwrap</span>();
+        <span class="kw">let</span> (<span class="ident">sql</span>, <span class="ident">params</span>) <span class="op">=</span> <span class="ident">Postgres::build</span>(<span class="ident">query</span>).<span class="ident">unwrap</span>();
 
         <span class="macro">assert_eq!</span>(<span class="ident">expected</span>.<span class="number">0</span>, <span class="ident">sql</span>);
         <span class="macro">assert_eq!</span>(<span class="ident">expected</span>.<span class="number">1</span>, <span class="ident">params</span>);
@@ -972,8 +972,8 @@
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_limit_and_offset_when_both_are_set</span>() {
         <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="ident">expected_values</span>(<span class="string">&quot;SELECT \&quot;users\&quot;.* FROM \&quot;users\&quot; LIMIT $1 OFFSET $2&quot;</span>, <span class="macro">vec!</span>[<span class="number">10</span>, <span class="number">2</span>]);
-        <span class="kw">let</span> <span class="ident">query</span> <span class="op">=</span> <span class="ident">Select</span>::<span class="ident">from_table</span>(<span class="string">&quot;users&quot;</span>).<span class="ident">limit</span>(<span class="number">10</span>).<span class="ident">offset</span>(<span class="number">2</span>);
-        <span class="kw">let</span> (<span class="ident">sql</span>, <span class="ident">params</span>) <span class="op">=</span> <span class="ident">Postgres</span>::<span class="ident">build</span>(<span class="ident">query</span>).<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">query</span> <span class="op">=</span> <span class="ident">Select::from_table</span>(<span class="string">&quot;users&quot;</span>).<span class="ident">limit</span>(<span class="number">10</span>).<span class="ident">offset</span>(<span class="number">2</span>);
+        <span class="kw">let</span> (<span class="ident">sql</span>, <span class="ident">params</span>) <span class="op">=</span> <span class="ident">Postgres::build</span>(<span class="ident">query</span>).<span class="ident">unwrap</span>();
 
         <span class="macro">assert_eq!</span>(<span class="ident">expected</span>.<span class="number">0</span>, <span class="ident">sql</span>);
         <span class="macro">assert_eq!</span>(<span class="ident">expected</span>.<span class="number">1</span>, <span class="ident">params</span>);
@@ -982,8 +982,8 @@
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_limit_and_offset_when_only_offset_is_set</span>() {
         <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="ident">expected_values</span>(<span class="string">&quot;SELECT \&quot;users\&quot;.* FROM \&quot;users\&quot; OFFSET $1&quot;</span>, <span class="macro">vec!</span>[<span class="number">10</span>]);
-        <span class="kw">let</span> <span class="ident">query</span> <span class="op">=</span> <span class="ident">Select</span>::<span class="ident">from_table</span>(<span class="string">&quot;users&quot;</span>).<span class="ident">offset</span>(<span class="number">10</span>);
-        <span class="kw">let</span> (<span class="ident">sql</span>, <span class="ident">params</span>) <span class="op">=</span> <span class="ident">Postgres</span>::<span class="ident">build</span>(<span class="ident">query</span>).<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">query</span> <span class="op">=</span> <span class="ident">Select::from_table</span>(<span class="string">&quot;users&quot;</span>).<span class="ident">offset</span>(<span class="number">10</span>);
+        <span class="kw">let</span> (<span class="ident">sql</span>, <span class="ident">params</span>) <span class="op">=</span> <span class="ident">Postgres::build</span>(<span class="ident">query</span>).<span class="ident">unwrap</span>();
 
         <span class="macro">assert_eq!</span>(<span class="ident">expected</span>.<span class="number">0</span>, <span class="ident">sql</span>);
         <span class="macro">assert_eq!</span>(<span class="ident">expected</span>.<span class="number">1</span>, <span class="ident">params</span>);
@@ -992,8 +992,8 @@
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_limit_and_offset_when_only_limit_is_set</span>() {
         <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="ident">expected_values</span>(<span class="string">&quot;SELECT \&quot;users\&quot;.* FROM \&quot;users\&quot; LIMIT $1&quot;</span>, <span class="macro">vec!</span>[<span class="number">10</span>]);
-        <span class="kw">let</span> <span class="ident">query</span> <span class="op">=</span> <span class="ident">Select</span>::<span class="ident">from_table</span>(<span class="string">&quot;users&quot;</span>).<span class="ident">limit</span>(<span class="number">10</span>);
-        <span class="kw">let</span> (<span class="ident">sql</span>, <span class="ident">params</span>) <span class="op">=</span> <span class="ident">Postgres</span>::<span class="ident">build</span>(<span class="ident">query</span>).<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">query</span> <span class="op">=</span> <span class="ident">Select::from_table</span>(<span class="string">&quot;users&quot;</span>).<span class="ident">limit</span>(<span class="number">10</span>);
+        <span class="kw">let</span> (<span class="ident">sql</span>, <span class="ident">params</span>) <span class="op">=</span> <span class="ident">Postgres::build</span>(<span class="ident">query</span>).<span class="ident">unwrap</span>();
 
         <span class="macro">assert_eq!</span>(<span class="ident">expected</span>.<span class="number">0</span>, <span class="ident">sql</span>);
         <span class="macro">assert_eq!</span>(<span class="ident">expected</span>.<span class="number">1</span>, <span class="ident">params</span>);
@@ -1002,8 +1002,8 @@
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_distinct</span>() {
         <span class="kw">let</span> <span class="ident">expected_sql</span> <span class="op">=</span> <span class="string">&quot;SELECT DISTINCT \&quot;bar\&quot; FROM \&quot;test\&quot;&quot;</span>;
-        <span class="kw">let</span> <span class="ident">query</span> <span class="op">=</span> <span class="ident">Select</span>::<span class="ident">from_table</span>(<span class="string">&quot;test&quot;</span>).<span class="ident">column</span>(<span class="ident">Column</span>::<span class="ident">new</span>(<span class="string">&quot;bar&quot;</span>)).<span class="ident">distinct</span>();
-        <span class="kw">let</span> (<span class="ident">sql</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="ident">Postgres</span>::<span class="ident">build</span>(<span class="ident">query</span>).<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">query</span> <span class="op">=</span> <span class="ident">Select::from_table</span>(<span class="string">&quot;test&quot;</span>).<span class="ident">column</span>(<span class="ident">Column::new</span>(<span class="string">&quot;bar&quot;</span>)).<span class="ident">distinct</span>();
+        <span class="kw">let</span> (<span class="ident">sql</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="ident">Postgres::build</span>(<span class="ident">query</span>).<span class="ident">unwrap</span>();
 
         <span class="macro">assert_eq!</span>(<span class="ident">expected_sql</span>, <span class="ident">sql</span>);
     }
@@ -1011,12 +1011,12 @@
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_distinct_with_subquery</span>() {
         <span class="kw">let</span> <span class="ident">expected_sql</span> <span class="op">=</span> <span class="string">&quot;SELECT DISTINCT (SELECT $1 FROM \&quot;test2\&quot;), \&quot;bar\&quot; FROM \&quot;test\&quot;&quot;</span>;
-        <span class="kw">let</span> <span class="ident">query</span> <span class="op">=</span> <span class="ident">Select</span>::<span class="ident">from_table</span>(<span class="string">&quot;test&quot;</span>)
-            .<span class="ident">value</span>(<span class="ident">Select</span>::<span class="ident">from_table</span>(<span class="string">&quot;test2&quot;</span>).<span class="ident">value</span>(<span class="macro">val!</span>(<span class="number">1</span>)))
-            .<span class="ident">column</span>(<span class="ident">Column</span>::<span class="ident">new</span>(<span class="string">&quot;bar&quot;</span>))
+        <span class="kw">let</span> <span class="ident">query</span> <span class="op">=</span> <span class="ident">Select::from_table</span>(<span class="string">&quot;test&quot;</span>)
+            .<span class="ident">value</span>(<span class="ident">Select::from_table</span>(<span class="string">&quot;test2&quot;</span>).<span class="ident">value</span>(<span class="macro">val!</span>(<span class="number">1</span>)))
+            .<span class="ident">column</span>(<span class="ident">Column::new</span>(<span class="string">&quot;bar&quot;</span>))
             .<span class="ident">distinct</span>();
 
-        <span class="kw">let</span> (<span class="ident">sql</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="ident">Postgres</span>::<span class="ident">build</span>(<span class="ident">query</span>).<span class="ident">unwrap</span>();
+        <span class="kw">let</span> (<span class="ident">sql</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="ident">Postgres::build</span>(<span class="ident">query</span>).<span class="ident">unwrap</span>();
 
         <span class="macro">assert_eq!</span>(<span class="ident">expected_sql</span>, <span class="ident">sql</span>);
     }
@@ -1024,13 +1024,13 @@
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_from</span>() {
         <span class="kw">let</span> <span class="ident">expected_sql</span> <span class="op">=</span> <span class="string">&quot;SELECT \&quot;foo\&quot;.*, \&quot;bar\&quot;.\&quot;a\&quot; FROM \&quot;foo\&quot;, (SELECT \&quot;a\&quot; FROM \&quot;baz\&quot;) AS \&quot;bar\&quot;&quot;</span>;
-        <span class="kw">let</span> <span class="ident">query</span> <span class="op">=</span> <span class="ident">Select</span>::<span class="ident">default</span>()
+        <span class="kw">let</span> <span class="ident">query</span> <span class="op">=</span> <span class="ident">Select::default</span>()
             .<span class="ident">and_from</span>(<span class="string">&quot;foo&quot;</span>)
-            .<span class="ident">and_from</span>(<span class="ident">Table</span>::<span class="ident">from</span>(<span class="ident">Select</span>::<span class="ident">from_table</span>(<span class="string">&quot;baz&quot;</span>).<span class="ident">column</span>(<span class="string">&quot;a&quot;</span>)).<span class="ident">alias</span>(<span class="string">&quot;bar&quot;</span>))
-            .<span class="ident">value</span>(<span class="ident">Table</span>::<span class="ident">from</span>(<span class="string">&quot;foo&quot;</span>).<span class="ident">asterisk</span>())
+            .<span class="ident">and_from</span>(<span class="ident">Table::from</span>(<span class="ident">Select::from_table</span>(<span class="string">&quot;baz&quot;</span>).<span class="ident">column</span>(<span class="string">&quot;a&quot;</span>)).<span class="ident">alias</span>(<span class="string">&quot;bar&quot;</span>))
+            .<span class="ident">value</span>(<span class="ident">Table::from</span>(<span class="string">&quot;foo&quot;</span>).<span class="ident">asterisk</span>())
             .<span class="ident">column</span>((<span class="string">&quot;bar&quot;</span>, <span class="string">&quot;a&quot;</span>));
 
-        <span class="kw">let</span> (<span class="ident">sql</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="ident">Postgres</span>::<span class="ident">build</span>(<span class="ident">query</span>).<span class="ident">unwrap</span>();
+        <span class="kw">let</span> (<span class="ident">sql</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="ident">Postgres::build</span>(<span class="ident">query</span>).<span class="ident">unwrap</span>();
         <span class="macro">assert_eq!</span>(<span class="ident">expected_sql</span>, <span class="ident">sql</span>);
     }
 
@@ -1039,11 +1039,11 @@
     <span class="kw">fn</span> <span class="ident">equality_with_a_json_value</span>() {
         <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="ident">expected_values</span>(
             <span class="string">r#&quot;SELECT &quot;users&quot;.* FROM &quot;users&quot; WHERE &quot;jsonField&quot;::jsonb = $1&quot;#</span>,
-            <span class="macro">vec!</span>[<span class="ident">serde_json</span>::<span class="macro">json!</span>({<span class="string">&quot;a&quot;</span>: <span class="string">&quot;b&quot;</span>})],
+            <span class="macro">vec!</span>[<span class="macro">serde_json::json!</span>({<span class="string">&quot;a&quot;</span>: <span class="string">&quot;b&quot;</span>})],
         );
 
-        <span class="kw">let</span> <span class="ident">query</span> <span class="op">=</span> <span class="ident">Select</span>::<span class="ident">from_table</span>(<span class="string">&quot;users&quot;</span>).<span class="ident">so_that</span>(<span class="ident">Column</span>::<span class="ident">from</span>(<span class="string">&quot;jsonField&quot;</span>).<span class="ident">equals</span>(<span class="ident">serde_json</span>::<span class="macro">json!</span>({<span class="string">&quot;a&quot;</span>:<span class="string">&quot;b&quot;</span>})));
-        <span class="kw">let</span> (<span class="ident">sql</span>, <span class="ident">params</span>) <span class="op">=</span> <span class="ident">Postgres</span>::<span class="ident">build</span>(<span class="ident">query</span>).<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">query</span> <span class="op">=</span> <span class="ident">Select::from_table</span>(<span class="string">&quot;users&quot;</span>).<span class="ident">so_that</span>(<span class="ident">Column::from</span>(<span class="string">&quot;jsonField&quot;</span>).<span class="ident">equals</span>(<span class="macro">serde_json::json!</span>({<span class="string">&quot;a&quot;</span>:<span class="string">&quot;b&quot;</span>})));
+        <span class="kw">let</span> (<span class="ident">sql</span>, <span class="ident">params</span>) <span class="op">=</span> <span class="ident">Postgres::build</span>(<span class="ident">query</span>).<span class="ident">unwrap</span>();
 
         <span class="macro">assert_eq!</span>(<span class="ident">expected</span>.<span class="number">0</span>, <span class="ident">sql</span>);
         <span class="macro">assert_eq!</span>(<span class="ident">expected</span>.<span class="number">1</span>, <span class="ident">params</span>);
@@ -1055,12 +1055,12 @@
         <span class="comment">// A bit artificial, but checks if the ::jsonb casting is done correctly on the right side as well.</span>
         <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="ident">expected_values</span>(
             <span class="string">r#&quot;SELECT &quot;users&quot;.* FROM &quot;users&quot; WHERE $1 = &quot;jsonField&quot;::jsonb&quot;#</span>,
-            <span class="macro">vec!</span>[<span class="ident">serde_json</span>::<span class="macro">json!</span>({<span class="string">&quot;a&quot;</span>: <span class="string">&quot;b&quot;</span>})],
+            <span class="macro">vec!</span>[<span class="macro">serde_json::json!</span>({<span class="string">&quot;a&quot;</span>: <span class="string">&quot;b&quot;</span>})],
         );
 
-        <span class="kw">let</span> <span class="ident">value_expr</span>: <span class="ident">Expression</span> <span class="op">=</span> <span class="ident">Value</span>::<span class="ident">json</span>(<span class="ident">serde_json</span>::<span class="macro">json!</span>({<span class="string">&quot;a&quot;</span>:<span class="string">&quot;b&quot;</span>})).<span class="ident">into</span>();
-        <span class="kw">let</span> <span class="ident">query</span> <span class="op">=</span> <span class="ident">Select</span>::<span class="ident">from_table</span>(<span class="string">&quot;users&quot;</span>).<span class="ident">so_that</span>(<span class="ident">value_expr</span>.<span class="ident">equals</span>(<span class="ident">Column</span>::<span class="ident">from</span>(<span class="string">&quot;jsonField&quot;</span>)));
-        <span class="kw">let</span> (<span class="ident">sql</span>, <span class="ident">params</span>) <span class="op">=</span> <span class="ident">Postgres</span>::<span class="ident">build</span>(<span class="ident">query</span>).<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">value_expr</span>: <span class="ident">Expression</span> <span class="op">=</span> <span class="ident">Value::json</span>(<span class="macro">serde_json::json!</span>({<span class="string">&quot;a&quot;</span>:<span class="string">&quot;b&quot;</span>})).<span class="ident">into</span>();
+        <span class="kw">let</span> <span class="ident">query</span> <span class="op">=</span> <span class="ident">Select::from_table</span>(<span class="string">&quot;users&quot;</span>).<span class="ident">so_that</span>(<span class="ident">value_expr</span>.<span class="ident">equals</span>(<span class="ident">Column::from</span>(<span class="string">&quot;jsonField&quot;</span>)));
+        <span class="kw">let</span> (<span class="ident">sql</span>, <span class="ident">params</span>) <span class="op">=</span> <span class="ident">Postgres::build</span>(<span class="ident">query</span>).<span class="ident">unwrap</span>();
 
         <span class="macro">assert_eq!</span>(<span class="ident">expected</span>.<span class="number">0</span>, <span class="ident">sql</span>);
         <span class="macro">assert_eq!</span>(<span class="ident">expected</span>.<span class="number">1</span>, <span class="ident">params</span>);
@@ -1071,12 +1071,12 @@
     <span class="kw">fn</span> <span class="ident">difference_with_a_json_value</span>() {
         <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="ident">expected_values</span>(
             <span class="string">r#&quot;SELECT &quot;users&quot;.* FROM &quot;users&quot; WHERE &quot;jsonField&quot;::jsonb &lt;&gt; $1&quot;#</span>,
-            <span class="macro">vec!</span>[<span class="ident">serde_json</span>::<span class="macro">json!</span>({<span class="string">&quot;a&quot;</span>: <span class="string">&quot;b&quot;</span>})],
+            <span class="macro">vec!</span>[<span class="macro">serde_json::json!</span>({<span class="string">&quot;a&quot;</span>: <span class="string">&quot;b&quot;</span>})],
         );
 
         <span class="kw">let</span> <span class="ident">query</span> <span class="op">=</span>
-            <span class="ident">Select</span>::<span class="ident">from_table</span>(<span class="string">&quot;users&quot;</span>).<span class="ident">so_that</span>(<span class="ident">Column</span>::<span class="ident">from</span>(<span class="string">&quot;jsonField&quot;</span>).<span class="ident">not_equals</span>(<span class="ident">serde_json</span>::<span class="macro">json!</span>({<span class="string">&quot;a&quot;</span>:<span class="string">&quot;b&quot;</span>})));
-        <span class="kw">let</span> (<span class="ident">sql</span>, <span class="ident">params</span>) <span class="op">=</span> <span class="ident">Postgres</span>::<span class="ident">build</span>(<span class="ident">query</span>).<span class="ident">unwrap</span>();
+            <span class="ident">Select::from_table</span>(<span class="string">&quot;users&quot;</span>).<span class="ident">so_that</span>(<span class="ident">Column::from</span>(<span class="string">&quot;jsonField&quot;</span>).<span class="ident">not_equals</span>(<span class="macro">serde_json::json!</span>({<span class="string">&quot;a&quot;</span>:<span class="string">&quot;b&quot;</span>})));
+        <span class="kw">let</span> (<span class="ident">sql</span>, <span class="ident">params</span>) <span class="op">=</span> <span class="ident">Postgres::build</span>(<span class="ident">query</span>).<span class="ident">unwrap</span>();
 
         <span class="macro">assert_eq!</span>(<span class="ident">expected</span>.<span class="number">0</span>, <span class="ident">sql</span>);
         <span class="macro">assert_eq!</span>(<span class="ident">expected</span>.<span class="number">1</span>, <span class="ident">params</span>);
@@ -1087,12 +1087,12 @@
     <span class="kw">fn</span> <span class="ident">difference_with_a_lhs_json_value</span>() {
         <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="ident">expected_values</span>(
             <span class="string">r#&quot;SELECT &quot;users&quot;.* FROM &quot;users&quot; WHERE $1 &lt;&gt; &quot;jsonField&quot;::jsonb&quot;#</span>,
-            <span class="macro">vec!</span>[<span class="ident">serde_json</span>::<span class="macro">json!</span>({<span class="string">&quot;a&quot;</span>: <span class="string">&quot;b&quot;</span>})],
+            <span class="macro">vec!</span>[<span class="macro">serde_json::json!</span>({<span class="string">&quot;a&quot;</span>: <span class="string">&quot;b&quot;</span>})],
         );
 
-        <span class="kw">let</span> <span class="ident">value_expr</span>: <span class="ident">Expression</span> <span class="op">=</span> <span class="ident">Value</span>::<span class="ident">json</span>(<span class="ident">serde_json</span>::<span class="macro">json!</span>({<span class="string">&quot;a&quot;</span>:<span class="string">&quot;b&quot;</span>})).<span class="ident">into</span>();
-        <span class="kw">let</span> <span class="ident">query</span> <span class="op">=</span> <span class="ident">Select</span>::<span class="ident">from_table</span>(<span class="string">&quot;users&quot;</span>).<span class="ident">so_that</span>(<span class="ident">value_expr</span>.<span class="ident">not_equals</span>(<span class="ident">Column</span>::<span class="ident">from</span>(<span class="string">&quot;jsonField&quot;</span>)));
-        <span class="kw">let</span> (<span class="ident">sql</span>, <span class="ident">params</span>) <span class="op">=</span> <span class="ident">Postgres</span>::<span class="ident">build</span>(<span class="ident">query</span>).<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">value_expr</span>: <span class="ident">Expression</span> <span class="op">=</span> <span class="ident">Value::json</span>(<span class="macro">serde_json::json!</span>({<span class="string">&quot;a&quot;</span>:<span class="string">&quot;b&quot;</span>})).<span class="ident">into</span>();
+        <span class="kw">let</span> <span class="ident">query</span> <span class="op">=</span> <span class="ident">Select::from_table</span>(<span class="string">&quot;users&quot;</span>).<span class="ident">so_that</span>(<span class="ident">value_expr</span>.<span class="ident">not_equals</span>(<span class="ident">Column::from</span>(<span class="string">&quot;jsonField&quot;</span>)));
+        <span class="kw">let</span> (<span class="ident">sql</span>, <span class="ident">params</span>) <span class="op">=</span> <span class="ident">Postgres::build</span>(<span class="ident">query</span>).<span class="ident">unwrap</span>();
 
         <span class="macro">assert_eq!</span>(<span class="ident">expected</span>.<span class="number">0</span>, <span class="ident">sql</span>);
         <span class="macro">assert_eq!</span>(<span class="ident">expected</span>.<span class="number">1</span>, <span class="ident">params</span>);
@@ -1102,12 +1102,12 @@
     <span class="kw">fn</span> <span class="ident">equality_with_a_xml_value</span>() {
         <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="ident">expected_values</span>(
             <span class="string">r#&quot;SELECT &quot;users&quot;.* FROM &quot;users&quot; WHERE &quot;xmlField&quot;::text = $1&quot;#</span>,
-            <span class="macro">vec!</span>[<span class="ident">Value</span>::<span class="ident">xml</span>(<span class="string">&quot;&lt;salad&gt;wurst&lt;/salad&gt;&quot;</span>)],
+            <span class="macro">vec!</span>[<span class="ident">Value::xml</span>(<span class="string">&quot;&lt;salad&gt;wurst&lt;/salad&gt;&quot;</span>)],
         );
 
         <span class="kw">let</span> <span class="ident">query</span> <span class="op">=</span>
-            <span class="ident">Select</span>::<span class="ident">from_table</span>(<span class="string">&quot;users&quot;</span>).<span class="ident">so_that</span>(<span class="ident">Column</span>::<span class="ident">from</span>(<span class="string">&quot;xmlField&quot;</span>).<span class="ident">equals</span>(<span class="ident">Value</span>::<span class="ident">xml</span>(<span class="string">&quot;&lt;salad&gt;wurst&lt;/salad&gt;&quot;</span>)));
-        <span class="kw">let</span> (<span class="ident">sql</span>, <span class="ident">params</span>) <span class="op">=</span> <span class="ident">Postgres</span>::<span class="ident">build</span>(<span class="ident">query</span>).<span class="ident">unwrap</span>();
+            <span class="ident">Select::from_table</span>(<span class="string">&quot;users&quot;</span>).<span class="ident">so_that</span>(<span class="ident">Column::from</span>(<span class="string">&quot;xmlField&quot;</span>).<span class="ident">equals</span>(<span class="ident">Value::xml</span>(<span class="string">&quot;&lt;salad&gt;wurst&lt;/salad&gt;&quot;</span>)));
+        <span class="kw">let</span> (<span class="ident">sql</span>, <span class="ident">params</span>) <span class="op">=</span> <span class="ident">Postgres::build</span>(<span class="ident">query</span>).<span class="ident">unwrap</span>();
 
         <span class="macro">assert_eq!</span>(<span class="ident">expected</span>.<span class="number">0</span>, <span class="ident">sql</span>);
         <span class="macro">assert_eq!</span>(<span class="ident">expected</span>.<span class="number">1</span>, <span class="ident">params</span>);
@@ -1117,12 +1117,12 @@
     <span class="kw">fn</span> <span class="ident">equality_with_a_lhs_xml_value</span>() {
         <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="ident">expected_values</span>(
             <span class="string">r#&quot;SELECT &quot;users&quot;.* FROM &quot;users&quot; WHERE $1 = &quot;xmlField&quot;::text&quot;#</span>,
-            <span class="macro">vec!</span>[<span class="ident">Value</span>::<span class="ident">xml</span>(<span class="string">&quot;&lt;salad&gt;wurst&lt;/salad&gt;&quot;</span>)],
+            <span class="macro">vec!</span>[<span class="ident">Value::xml</span>(<span class="string">&quot;&lt;salad&gt;wurst&lt;/salad&gt;&quot;</span>)],
         );
 
-        <span class="kw">let</span> <span class="ident">value_expr</span>: <span class="ident">Expression</span> <span class="op">=</span> <span class="ident">Value</span>::<span class="ident">xml</span>(<span class="string">&quot;&lt;salad&gt;wurst&lt;/salad&gt;&quot;</span>).<span class="ident">into</span>();
-        <span class="kw">let</span> <span class="ident">query</span> <span class="op">=</span> <span class="ident">Select</span>::<span class="ident">from_table</span>(<span class="string">&quot;users&quot;</span>).<span class="ident">so_that</span>(<span class="ident">value_expr</span>.<span class="ident">equals</span>(<span class="ident">Column</span>::<span class="ident">from</span>(<span class="string">&quot;xmlField&quot;</span>)));
-        <span class="kw">let</span> (<span class="ident">sql</span>, <span class="ident">params</span>) <span class="op">=</span> <span class="ident">Postgres</span>::<span class="ident">build</span>(<span class="ident">query</span>).<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">value_expr</span>: <span class="ident">Expression</span> <span class="op">=</span> <span class="ident">Value::xml</span>(<span class="string">&quot;&lt;salad&gt;wurst&lt;/salad&gt;&quot;</span>).<span class="ident">into</span>();
+        <span class="kw">let</span> <span class="ident">query</span> <span class="op">=</span> <span class="ident">Select::from_table</span>(<span class="string">&quot;users&quot;</span>).<span class="ident">so_that</span>(<span class="ident">value_expr</span>.<span class="ident">equals</span>(<span class="ident">Column::from</span>(<span class="string">&quot;xmlField&quot;</span>)));
+        <span class="kw">let</span> (<span class="ident">sql</span>, <span class="ident">params</span>) <span class="op">=</span> <span class="ident">Postgres::build</span>(<span class="ident">query</span>).<span class="ident">unwrap</span>();
 
         <span class="macro">assert_eq!</span>(<span class="ident">expected</span>.<span class="number">0</span>, <span class="ident">sql</span>);
         <span class="macro">assert_eq!</span>(<span class="ident">expected</span>.<span class="number">1</span>, <span class="ident">params</span>);
@@ -1132,12 +1132,12 @@
     <span class="kw">fn</span> <span class="ident">difference_with_a_xml_value</span>() {
         <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="ident">expected_values</span>(
             <span class="string">r#&quot;SELECT &quot;users&quot;.* FROM &quot;users&quot; WHERE &quot;xmlField&quot;::text &lt;&gt; $1&quot;#</span>,
-            <span class="macro">vec!</span>[<span class="ident">Value</span>::<span class="ident">xml</span>(<span class="string">&quot;&lt;salad&gt;wurst&lt;/salad&gt;&quot;</span>)],
+            <span class="macro">vec!</span>[<span class="ident">Value::xml</span>(<span class="string">&quot;&lt;salad&gt;wurst&lt;/salad&gt;&quot;</span>)],
         );
 
-        <span class="kw">let</span> <span class="ident">query</span> <span class="op">=</span> <span class="ident">Select</span>::<span class="ident">from_table</span>(<span class="string">&quot;users&quot;</span>)
-            .<span class="ident">so_that</span>(<span class="ident">Column</span>::<span class="ident">from</span>(<span class="string">&quot;xmlField&quot;</span>).<span class="ident">not_equals</span>(<span class="ident">Value</span>::<span class="ident">xml</span>(<span class="string">&quot;&lt;salad&gt;wurst&lt;/salad&gt;&quot;</span>)));
-        <span class="kw">let</span> (<span class="ident">sql</span>, <span class="ident">params</span>) <span class="op">=</span> <span class="ident">Postgres</span>::<span class="ident">build</span>(<span class="ident">query</span>).<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">query</span> <span class="op">=</span> <span class="ident">Select::from_table</span>(<span class="string">&quot;users&quot;</span>)
+            .<span class="ident">so_that</span>(<span class="ident">Column::from</span>(<span class="string">&quot;xmlField&quot;</span>).<span class="ident">not_equals</span>(<span class="ident">Value::xml</span>(<span class="string">&quot;&lt;salad&gt;wurst&lt;/salad&gt;&quot;</span>)));
+        <span class="kw">let</span> (<span class="ident">sql</span>, <span class="ident">params</span>) <span class="op">=</span> <span class="ident">Postgres::build</span>(<span class="ident">query</span>).<span class="ident">unwrap</span>();
 
         <span class="macro">assert_eq!</span>(<span class="ident">expected</span>.<span class="number">0</span>, <span class="ident">sql</span>);
         <span class="macro">assert_eq!</span>(<span class="ident">expected</span>.<span class="number">1</span>, <span class="ident">params</span>);
@@ -1147,12 +1147,12 @@
     <span class="kw">fn</span> <span class="ident">difference_with_a_lhs_xml_value</span>() {
         <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="ident">expected_values</span>(
             <span class="string">r#&quot;SELECT &quot;users&quot;.* FROM &quot;users&quot; WHERE $1 &lt;&gt; &quot;xmlField&quot;::text&quot;#</span>,
-            <span class="macro">vec!</span>[<span class="ident">Value</span>::<span class="ident">xml</span>(<span class="string">&quot;&lt;salad&gt;wurst&lt;/salad&gt;&quot;</span>)],
+            <span class="macro">vec!</span>[<span class="ident">Value::xml</span>(<span class="string">&quot;&lt;salad&gt;wurst&lt;/salad&gt;&quot;</span>)],
         );
 
-        <span class="kw">let</span> <span class="ident">value_expr</span>: <span class="ident">Expression</span> <span class="op">=</span> <span class="ident">Value</span>::<span class="ident">xml</span>(<span class="string">&quot;&lt;salad&gt;wurst&lt;/salad&gt;&quot;</span>).<span class="ident">into</span>();
-        <span class="kw">let</span> <span class="ident">query</span> <span class="op">=</span> <span class="ident">Select</span>::<span class="ident">from_table</span>(<span class="string">&quot;users&quot;</span>).<span class="ident">so_that</span>(<span class="ident">value_expr</span>.<span class="ident">not_equals</span>(<span class="ident">Column</span>::<span class="ident">from</span>(<span class="string">&quot;xmlField&quot;</span>)));
-        <span class="kw">let</span> (<span class="ident">sql</span>, <span class="ident">params</span>) <span class="op">=</span> <span class="ident">Postgres</span>::<span class="ident">build</span>(<span class="ident">query</span>).<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">value_expr</span>: <span class="ident">Expression</span> <span class="op">=</span> <span class="ident">Value::xml</span>(<span class="string">&quot;&lt;salad&gt;wurst&lt;/salad&gt;&quot;</span>).<span class="ident">into</span>();
+        <span class="kw">let</span> <span class="ident">query</span> <span class="op">=</span> <span class="ident">Select::from_table</span>(<span class="string">&quot;users&quot;</span>).<span class="ident">so_that</span>(<span class="ident">value_expr</span>.<span class="ident">not_equals</span>(<span class="ident">Column::from</span>(<span class="string">&quot;xmlField&quot;</span>)));
+        <span class="kw">let</span> (<span class="ident">sql</span>, <span class="ident">params</span>) <span class="op">=</span> <span class="ident">Postgres::build</span>(<span class="ident">query</span>).<span class="ident">unwrap</span>();
 
         <span class="macro">assert_eq!</span>(<span class="ident">expected</span>.<span class="number">0</span>, <span class="ident">sql</span>);
         <span class="macro">assert_eq!</span>(<span class="ident">expected</span>.<span class="number">1</span>, <span class="ident">params</span>);
@@ -1160,53 +1160,53 @@
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_raw_null</span>() {
-        <span class="kw">let</span> (<span class="ident">sql</span>, <span class="ident">params</span>) <span class="op">=</span> <span class="ident">Postgres</span>::<span class="ident">build</span>(<span class="ident">Select</span>::<span class="ident">default</span>().<span class="ident">value</span>(<span class="ident">Value</span>::<span class="ident">Text</span>(<span class="prelude-val">None</span>).<span class="ident">raw</span>())).<span class="ident">unwrap</span>();
+        <span class="kw">let</span> (<span class="ident">sql</span>, <span class="ident">params</span>) <span class="op">=</span> <span class="ident">Postgres::build</span>(<span class="ident">Select::default</span>().<span class="ident">value</span>(<span class="ident">Value::Text</span>(<span class="prelude-val">None</span>).<span class="ident">raw</span>())).<span class="ident">unwrap</span>();
         <span class="macro">assert_eq!</span>(<span class="string">&quot;SELECT null&quot;</span>, <span class="ident">sql</span>);
         <span class="macro">assert!</span>(<span class="ident">params</span>.<span class="ident">is_empty</span>());
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_raw_int</span>() {
-        <span class="kw">let</span> (<span class="ident">sql</span>, <span class="ident">params</span>) <span class="op">=</span> <span class="ident">Postgres</span>::<span class="ident">build</span>(<span class="ident">Select</span>::<span class="ident">default</span>().<span class="ident">value</span>(<span class="number">1</span>.<span class="ident">raw</span>())).<span class="ident">unwrap</span>();
+        <span class="kw">let</span> (<span class="ident">sql</span>, <span class="ident">params</span>) <span class="op">=</span> <span class="ident">Postgres::build</span>(<span class="ident">Select::default</span>().<span class="ident">value</span>(<span class="number">1</span>.<span class="ident">raw</span>())).<span class="ident">unwrap</span>();
         <span class="macro">assert_eq!</span>(<span class="string">&quot;SELECT 1&quot;</span>, <span class="ident">sql</span>);
         <span class="macro">assert!</span>(<span class="ident">params</span>.<span class="ident">is_empty</span>());
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_raw_real</span>() {
-        <span class="kw">let</span> (<span class="ident">sql</span>, <span class="ident">params</span>) <span class="op">=</span> <span class="ident">Postgres</span>::<span class="ident">build</span>(<span class="ident">Select</span>::<span class="ident">default</span>().<span class="ident">value</span>(<span class="number">1.3f64</span>.<span class="ident">raw</span>())).<span class="ident">unwrap</span>();
+        <span class="kw">let</span> (<span class="ident">sql</span>, <span class="ident">params</span>) <span class="op">=</span> <span class="ident">Postgres::build</span>(<span class="ident">Select::default</span>().<span class="ident">value</span>(<span class="number">1.3f64</span>.<span class="ident">raw</span>())).<span class="ident">unwrap</span>();
         <span class="macro">assert_eq!</span>(<span class="string">&quot;SELECT 1.3&quot;</span>, <span class="ident">sql</span>);
         <span class="macro">assert!</span>(<span class="ident">params</span>.<span class="ident">is_empty</span>());
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_raw_text</span>() {
-        <span class="kw">let</span> (<span class="ident">sql</span>, <span class="ident">params</span>) <span class="op">=</span> <span class="ident">Postgres</span>::<span class="ident">build</span>(<span class="ident">Select</span>::<span class="ident">default</span>().<span class="ident">value</span>(<span class="string">&quot;foo&quot;</span>.<span class="ident">raw</span>())).<span class="ident">unwrap</span>();
+        <span class="kw">let</span> (<span class="ident">sql</span>, <span class="ident">params</span>) <span class="op">=</span> <span class="ident">Postgres::build</span>(<span class="ident">Select::default</span>().<span class="ident">value</span>(<span class="string">&quot;foo&quot;</span>.<span class="ident">raw</span>())).<span class="ident">unwrap</span>();
         <span class="macro">assert_eq!</span>(<span class="string">&quot;SELECT &#39;foo&#39;&quot;</span>, <span class="ident">sql</span>);
         <span class="macro">assert!</span>(<span class="ident">params</span>.<span class="ident">is_empty</span>());
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_raw_bytes</span>() {
-        <span class="kw">let</span> (<span class="ident">sql</span>, <span class="ident">params</span>) <span class="op">=</span> <span class="ident">Postgres</span>::<span class="ident">build</span>(<span class="ident">Select</span>::<span class="ident">default</span>().<span class="ident">value</span>(<span class="ident">Value</span>::<span class="ident">bytes</span>(<span class="macro">vec!</span>[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>]).<span class="ident">raw</span>())).<span class="ident">unwrap</span>();
+        <span class="kw">let</span> (<span class="ident">sql</span>, <span class="ident">params</span>) <span class="op">=</span> <span class="ident">Postgres::build</span>(<span class="ident">Select::default</span>().<span class="ident">value</span>(<span class="ident">Value::bytes</span>(<span class="macro">vec!</span>[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>]).<span class="ident">raw</span>())).<span class="ident">unwrap</span>();
         <span class="macro">assert_eq!</span>(<span class="string">&quot;SELECT E&#39;010203&#39;&quot;</span>, <span class="ident">sql</span>);
         <span class="macro">assert!</span>(<span class="ident">params</span>.<span class="ident">is_empty</span>());
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_raw_boolean</span>() {
-        <span class="kw">let</span> (<span class="ident">sql</span>, <span class="ident">params</span>) <span class="op">=</span> <span class="ident">Postgres</span>::<span class="ident">build</span>(<span class="ident">Select</span>::<span class="ident">default</span>().<span class="ident">value</span>(<span class="bool-val">true</span>.<span class="ident">raw</span>())).<span class="ident">unwrap</span>();
+        <span class="kw">let</span> (<span class="ident">sql</span>, <span class="ident">params</span>) <span class="op">=</span> <span class="ident">Postgres::build</span>(<span class="ident">Select::default</span>().<span class="ident">value</span>(<span class="bool-val">true</span>.<span class="ident">raw</span>())).<span class="ident">unwrap</span>();
         <span class="macro">assert_eq!</span>(<span class="string">&quot;SELECT true&quot;</span>, <span class="ident">sql</span>);
         <span class="macro">assert!</span>(<span class="ident">params</span>.<span class="ident">is_empty</span>());
 
-        <span class="kw">let</span> (<span class="ident">sql</span>, <span class="ident">params</span>) <span class="op">=</span> <span class="ident">Postgres</span>::<span class="ident">build</span>(<span class="ident">Select</span>::<span class="ident">default</span>().<span class="ident">value</span>(<span class="bool-val">false</span>.<span class="ident">raw</span>())).<span class="ident">unwrap</span>();
+        <span class="kw">let</span> (<span class="ident">sql</span>, <span class="ident">params</span>) <span class="op">=</span> <span class="ident">Postgres::build</span>(<span class="ident">Select::default</span>().<span class="ident">value</span>(<span class="bool-val">false</span>.<span class="ident">raw</span>())).<span class="ident">unwrap</span>();
         <span class="macro">assert_eq!</span>(<span class="string">&quot;SELECT false&quot;</span>, <span class="ident">sql</span>);
         <span class="macro">assert!</span>(<span class="ident">params</span>.<span class="ident">is_empty</span>());
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_raw_char</span>() {
-        <span class="kw">let</span> (<span class="ident">sql</span>, <span class="ident">params</span>) <span class="op">=</span> <span class="ident">Postgres</span>::<span class="ident">build</span>(<span class="ident">Select</span>::<span class="ident">default</span>().<span class="ident">value</span>(<span class="ident">Value</span>::<span class="ident">character</span>(<span class="string">&#39;a&#39;</span>).<span class="ident">raw</span>())).<span class="ident">unwrap</span>();
+        <span class="kw">let</span> (<span class="ident">sql</span>, <span class="ident">params</span>) <span class="op">=</span> <span class="ident">Postgres::build</span>(<span class="ident">Select::default</span>().<span class="ident">value</span>(<span class="ident">Value::character</span>(<span class="string">&#39;a&#39;</span>).<span class="ident">raw</span>())).<span class="ident">unwrap</span>();
         <span class="macro">assert_eq!</span>(<span class="string">&quot;SELECT &#39;a&#39;&quot;</span>, <span class="ident">sql</span>);
         <span class="macro">assert!</span>(<span class="ident">params</span>.<span class="ident">is_empty</span>());
     }
@@ -1215,7 +1215,7 @@
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;json&quot;</span>)]</span>
     <span class="kw">fn</span> <span class="ident">test_raw_json</span>() {
         <span class="kw">let</span> (<span class="ident">sql</span>, <span class="ident">params</span>) <span class="op">=</span>
-            <span class="ident">Postgres</span>::<span class="ident">build</span>(<span class="ident">Select</span>::<span class="ident">default</span>().<span class="ident">value</span>(<span class="ident">serde_json</span>::<span class="macro">json!</span>({ <span class="string">&quot;foo&quot;</span>: <span class="string">&quot;bar&quot;</span> }).<span class="ident">raw</span>())).<span class="ident">unwrap</span>();
+            <span class="ident">Postgres::build</span>(<span class="ident">Select::default</span>().<span class="ident">value</span>(<span class="macro">serde_json::json!</span>({ <span class="string">&quot;foo&quot;</span>: <span class="string">&quot;bar&quot;</span> }).<span class="ident">raw</span>())).<span class="ident">unwrap</span>();
         <span class="macro">assert_eq!</span>(<span class="string">&quot;SELECT &#39;{\&quot;foo\&quot;:\&quot;bar\&quot;}&#39;&quot;</span>, <span class="ident">sql</span>);
         <span class="macro">assert!</span>(<span class="ident">params</span>.<span class="ident">is_empty</span>());
     }
@@ -1223,8 +1223,8 @@
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;uuid&quot;</span>)]</span>
     <span class="kw">fn</span> <span class="ident">test_raw_uuid</span>() {
-        <span class="kw">let</span> <span class="ident">uuid</span> <span class="op">=</span> <span class="ident">uuid</span>::<span class="ident">Uuid</span>::<span class="ident">new_v4</span>();
-        <span class="kw">let</span> (<span class="ident">sql</span>, <span class="ident">params</span>) <span class="op">=</span> <span class="ident">Postgres</span>::<span class="ident">build</span>(<span class="ident">Select</span>::<span class="ident">default</span>().<span class="ident">value</span>(<span class="ident">uuid</span>.<span class="ident">raw</span>())).<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">uuid</span> <span class="op">=</span> <span class="ident">uuid::Uuid::new_v4</span>();
+        <span class="kw">let</span> (<span class="ident">sql</span>, <span class="ident">params</span>) <span class="op">=</span> <span class="ident">Postgres::build</span>(<span class="ident">Select::default</span>().<span class="ident">value</span>(<span class="ident">uuid</span>.<span class="ident">raw</span>())).<span class="ident">unwrap</span>();
 
         <span class="macro">assert_eq!</span>(<span class="macro">format!</span>(<span class="string">&quot;SELECT &#39;{}&#39;&quot;</span>, <span class="ident">uuid</span>.<span class="ident">to_hyphenated</span>().<span class="ident">to_string</span>()), <span class="ident">sql</span>);
 
@@ -1234,8 +1234,8 @@
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;chrono&quot;</span>)]</span>
     <span class="kw">fn</span> <span class="ident">test_raw_datetime</span>() {
-        <span class="kw">let</span> <span class="ident">dt</span> <span class="op">=</span> <span class="ident">chrono</span>::<span class="ident">Utc</span>::<span class="ident">now</span>();
-        <span class="kw">let</span> (<span class="ident">sql</span>, <span class="ident">params</span>) <span class="op">=</span> <span class="ident">Postgres</span>::<span class="ident">build</span>(<span class="ident">Select</span>::<span class="ident">default</span>().<span class="ident">value</span>(<span class="ident">dt</span>.<span class="ident">raw</span>())).<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">dt</span> <span class="op">=</span> <span class="ident">chrono::Utc::now</span>();
+        <span class="kw">let</span> (<span class="ident">sql</span>, <span class="ident">params</span>) <span class="op">=</span> <span class="ident">Postgres::build</span>(<span class="ident">Select::default</span>().<span class="ident">value</span>(<span class="ident">dt</span>.<span class="ident">raw</span>())).<span class="ident">unwrap</span>();
 
         <span class="macro">assert_eq!</span>(<span class="macro">format!</span>(<span class="string">&quot;SELECT &#39;{}&#39;&quot;</span>, <span class="ident">dt</span>.<span class="ident">to_rfc3339</span>(),), <span class="ident">sql</span>);
         <span class="macro">assert!</span>(<span class="ident">params</span>.<span class="ident">is_empty</span>());
@@ -1243,35 +1243,35 @@
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_raw_comparator</span>() {
-        <span class="kw">let</span> (<span class="ident">sql</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="ident">Postgres</span>::<span class="ident">build</span>(<span class="ident">Select</span>::<span class="ident">from_table</span>(<span class="string">&quot;foo&quot;</span>).<span class="ident">so_that</span>(<span class="string">&quot;bar&quot;</span>.<span class="ident">compare_raw</span>(<span class="string">&quot;ILIKE&quot;</span>, <span class="string">&quot;baz%&quot;</span>))).<span class="ident">unwrap</span>();
+        <span class="kw">let</span> (<span class="ident">sql</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="ident">Postgres::build</span>(<span class="ident">Select::from_table</span>(<span class="string">&quot;foo&quot;</span>).<span class="ident">so_that</span>(<span class="string">&quot;bar&quot;</span>.<span class="ident">compare_raw</span>(<span class="string">&quot;ILIKE&quot;</span>, <span class="string">&quot;baz%&quot;</span>))).<span class="ident">unwrap</span>();
 
         <span class="macro">assert_eq!</span>(<span class="string">r#&quot;SELECT &quot;foo&quot;.* FROM &quot;foo&quot; WHERE &quot;bar&quot; ILIKE $1&quot;#</span>, <span class="ident">sql</span>);
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_default_insert</span>() {
-        <span class="kw">let</span> <span class="ident">insert</span> <span class="op">=</span> <span class="ident">Insert</span>::<span class="ident">single_into</span>(<span class="string">&quot;foo&quot;</span>)
+        <span class="kw">let</span> <span class="ident">insert</span> <span class="op">=</span> <span class="ident">Insert::single_into</span>(<span class="string">&quot;foo&quot;</span>)
             .<span class="ident">value</span>(<span class="string">&quot;foo&quot;</span>, <span class="string">&quot;bar&quot;</span>)
             .<span class="ident">value</span>(<span class="string">&quot;baz&quot;</span>, <span class="ident">default_value</span>());
 
-        <span class="kw">let</span> (<span class="ident">sql</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="ident">Postgres</span>::<span class="ident">build</span>(<span class="ident">insert</span>).<span class="ident">unwrap</span>();
+        <span class="kw">let</span> (<span class="ident">sql</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="ident">Postgres::build</span>(<span class="ident">insert</span>).<span class="ident">unwrap</span>();
 
         <span class="macro">assert_eq!</span>(<span class="string">&quot;INSERT INTO \&quot;foo\&quot; (\&quot;foo\&quot;,\&quot;baz\&quot;) VALUES ($1,DEFAULT)&quot;</span>, <span class="ident">sql</span>);
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">join_is_inserted_positionally</span>() {
-        <span class="kw">let</span> <span class="ident">joined_table</span> <span class="op">=</span> <span class="ident">Table</span>::<span class="ident">from</span>(<span class="string">&quot;User&quot;</span>).<span class="ident">left_join</span>(
+        <span class="kw">let</span> <span class="ident">joined_table</span> <span class="op">=</span> <span class="ident">Table::from</span>(<span class="string">&quot;User&quot;</span>).<span class="ident">left_join</span>(
             <span class="string">&quot;Post&quot;</span>
                 .<span class="ident">alias</span>(<span class="string">&quot;p&quot;</span>)
-                .<span class="ident">on</span>((<span class="string">&quot;p&quot;</span>, <span class="string">&quot;userId&quot;</span>).<span class="ident">equals</span>(<span class="ident">Column</span>::<span class="ident">from</span>((<span class="string">&quot;User&quot;</span>, <span class="string">&quot;id&quot;</span>)))),
+                .<span class="ident">on</span>((<span class="string">&quot;p&quot;</span>, <span class="string">&quot;userId&quot;</span>).<span class="ident">equals</span>(<span class="ident">Column::from</span>((<span class="string">&quot;User&quot;</span>, <span class="string">&quot;id&quot;</span>)))),
         );
-        <span class="kw">let</span> <span class="ident">q</span> <span class="op">=</span> <span class="ident">Select</span>::<span class="ident">from_table</span>(<span class="ident">joined_table</span>).<span class="ident">and_from</span>(<span class="string">&quot;Toto&quot;</span>);
-        <span class="kw">let</span> (<span class="ident">sql</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="ident">Postgres</span>::<span class="ident">build</span>(<span class="ident">q</span>).<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">q</span> <span class="op">=</span> <span class="ident">Select::from_table</span>(<span class="ident">joined_table</span>).<span class="ident">and_from</span>(<span class="string">&quot;Toto&quot;</span>);
+        <span class="kw">let</span> (<span class="ident">sql</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="ident">Postgres::build</span>(<span class="ident">q</span>).<span class="ident">unwrap</span>();
 
         <span class="macro">assert_eq!</span>(<span class="string">&quot;SELECT \&quot;User\&quot;.*, \&quot;Toto\&quot;.* FROM \&quot;User\&quot; LEFT JOIN \&quot;Post\&quot; AS \&quot;p\&quot; ON \&quot;p\&quot;.\&quot;userId\&quot; = \&quot;User\&quot;.\&quot;id\&quot;, \&quot;Toto\&quot;&quot;</span>, <span class="ident">sql</span>);
     }
 }
 </pre></div>
-</section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="quaint" data-search-js="../../../search-index.js"></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="quaint" data-search-index-js="../../../search-index.js" data-search-js="../../../search.js"></div>
     <script src="../../../main.js"></script><script src="../../../source-script.js"></script><script src="../../../source-files.js"></script></body></html>

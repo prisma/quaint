@@ -257,7 +257,7 @@
 <span class="attribute">#[<span class="ident">macro_export</span>]</span>
 <span class="macro">macro_rules!</span> <span class="ident">values</span> {
     ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">x</span>:<span class="ident">expr</span>),<span class="kw-2">*</span>) <span class="op">=</span><span class="op">&gt;</span> (
-        <span class="ident">Values</span>::<span class="ident">from</span>(<span class="ident">std</span>::<span class="ident">iter</span>::<span class="ident">empty</span>() $(.<span class="ident">chain</span>(<span class="ident">std</span>::<span class="ident">iter</span>::<span class="ident">once</span>(<span class="ident">Row</span>::<span class="ident">from</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">x</span>))))<span class="kw-2">*</span>)
+        <span class="ident">Values::from</span>(<span class="ident">std::iter::empty</span>() $(.<span class="ident">chain</span>(<span class="ident">std::iter::once</span>(<span class="ident">Row::from</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">x</span>))))<span class="kw-2">*</span>)
     );
 }
 
@@ -286,11 +286,11 @@
 <span class="attribute">#[<span class="ident">macro_export</span>]</span>
 <span class="macro">macro_rules!</span> <span class="ident">col</span> {
     (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">e1</span>:<span class="ident">expr</span>) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="ident">Expression</span>::<span class="ident">from</span>(<span class="ident">Column</span>::<span class="ident">from</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">e1</span>))
+        <span class="ident">Expression::from</span>(<span class="ident">Column::from</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">e1</span>))
     };
 
     (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">e1</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">e2</span>:<span class="ident">expr</span>) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="ident">Expression</span>::<span class="ident">from</span>(<span class="ident">Column</span>::<span class="ident">from</span>((<span class="macro-nonterminal">$</span><span class="macro-nonterminal">e1</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">e2</span>)))
+        <span class="ident">Expression::from</span>(<span class="ident">Column::from</span>((<span class="macro-nonterminal">$</span><span class="macro-nonterminal">e1</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">e2</span>)))
     };
 }
 
@@ -319,24 +319,24 @@
 <span class="attribute">#[<span class="ident">macro_export</span>]</span>
 <span class="macro">macro_rules!</span> <span class="ident">val</span> {
     (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">val</span>:<span class="ident">expr</span>) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="ident">Expression</span>::<span class="ident">from</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">val</span>)
+        <span class="ident">Expression::from</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">val</span>)
     };
 }
 
 <span class="macro">macro_rules!</span> <span class="ident">value</span> {
     (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">target</span>:<span class="ident">ident</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">kind</span>:<span class="ident">ty</span>,<span class="macro-nonterminal">$</span><span class="macro-nonterminal">paramkind</span>:<span class="ident">ident</span>,<span class="macro-nonterminal">$</span><span class="macro-nonterminal">that</span>:<span class="ident">expr</span>) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">kind</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="kw">crate</span>::<span class="ident">ast</span>::<span class="ident">Value</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+        <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">kind</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="kw">crate</span><span class="ident">::ast::Value</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
             <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">that</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">kind</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
                 <span class="kw">let</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">target</span> <span class="op">=</span> <span class="ident">that</span>;
-                <span class="kw">crate</span>::<span class="ident">ast</span>::<span class="ident">Value</span>::<span class="macro-nonterminal">$</span><span class="macro-nonterminal">paramkind</span>(<span class="prelude-val">Some</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">that</span>))
+                <span class="kw">crate</span><span class="ident">::ast::Value</span>::<span class="macro-nonterminal">$</span><span class="macro-nonterminal">paramkind</span>(<span class="prelude-val">Some</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">that</span>))
             }
         }
 
-        <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">kind</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="kw">crate</span>::<span class="ident">ast</span>::<span class="ident">Value</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+        <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">kind</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="kw">crate</span><span class="ident">::ast::Value</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
             <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">that</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">kind</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
                 <span class="kw">match</span> <span class="ident">that</span> {
-                    <span class="prelude-val">Some</span>(<span class="ident">val</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">crate</span>::<span class="ident">ast</span>::<span class="ident">Value</span>::<span class="ident">from</span>(<span class="ident">val</span>),
-                    <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">crate</span>::<span class="ident">ast</span>::<span class="ident">Value</span>::<span class="macro-nonterminal">$</span><span class="macro-nonterminal">paramkind</span>(<span class="prelude-val">None</span>),
+                    <span class="prelude-val">Some</span>(<span class="ident">val</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">crate</span><span class="ident">::ast::Value::from</span>(<span class="ident">val</span>),
+                    <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">crate</span><span class="ident">::ast::Value</span>::<span class="macro-nonterminal">$</span><span class="macro-nonterminal">paramkind</span>(<span class="prelude-val">None</span>),
                 }
             }
         }
@@ -349,7 +349,7 @@
             <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">Aliasable</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">kind</span> {
                 <span class="kw">type</span> <span class="ident">Target</span> <span class="op">=</span> <span class="ident">Table</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>;
 
-                <span class="kw">fn</span> <span class="ident">alias</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">alias</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>::<span class="ident">Target</span>
+                <span class="kw">fn</span> <span class="ident">alias</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">alias</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span><span class="ident">::Target</span>
                 <span class="kw">where</span>
                     <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">str</span><span class="op">&gt;</span><span class="op">&gt;</span>,
                 {
@@ -375,7 +375,7 @@
 
             <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">kind</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Expression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
                 <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">f</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">kind</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-                    <span class="ident">Function</span>::<span class="ident">from</span>(<span class="ident">f</span>).<span class="ident">into</span>()
+                    <span class="ident">Function::from</span>(<span class="ident">f</span>).<span class="ident">into</span>()
                 }
             }
         )<span class="op">*</span>
@@ -399,15 +399,15 @@
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
 <span class="macro">macro_rules!</span> <span class="ident">test_type</span> {
     (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>:<span class="ident">ident</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">db</span>:<span class="ident">ident</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">sql_type</span>:<span class="ident">literal</span>, $((<span class="macro-nonterminal">$</span><span class="macro-nonterminal">input</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">output</span>:<span class="ident">expr</span>)),<span class="op">+</span> $(,)<span class="question-mark">?</span>)) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="ident">paste</span>::<span class="macro">item!</span> {
+        <span class="macro">paste::item!</span> {
             <span class="attribute">#[<span class="ident">test</span>]</span>
-            <span class="kw">fn</span> [<span class="op">&lt;</span> <span class="ident">test_type_</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span> <span class="op">&gt;</span>] () <span class="op">-</span><span class="op">&gt;</span> <span class="kw">crate</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-                <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">ast</span>::<span class="kw-2">*</span>;
-                <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">connector</span>::<span class="ident">Queryable</span>;
-                <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">tests</span>::<span class="ident">test_api</span>::<span class="ident">TestApi</span>;
-                <span class="kw">use</span> <span class="ident">tokio</span>::<span class="ident">runtime</span>::<span class="ident">Builder</span>;
+            <span class="kw">fn</span> [<span class="op">&lt;</span> <span class="ident">test_type_</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span> <span class="op">&gt;</span>] () <span class="op">-</span><span class="op">&gt;</span> <span class="kw">crate</span><span class="ident">::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+                <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::ast</span>::<span class="kw-2">*</span>;
+                <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::connector::Queryable</span>;
+                <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::tests::test_api::TestApi</span>;
+                <span class="kw">use</span> <span class="ident">tokio::runtime::Builder</span>;
 
-                <span class="kw">let</span> <span class="ident">rt</span> <span class="op">=</span> <span class="ident">Builder</span>::<span class="ident">new_multi_thread</span>().<span class="ident">enable_all</span>().<span class="ident">build</span>().<span class="ident">unwrap</span>();
+                <span class="kw">let</span> <span class="ident">rt</span> <span class="op">=</span> <span class="ident">Builder::new_multi_thread</span>().<span class="ident">enable_all</span>().<span class="ident">build</span>().<span class="ident">unwrap</span>();
 
                 <span class="ident">rt</span>.<span class="ident">block_on</span>(<span class="kw">async</span> {
                     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">setup</span> <span class="op">=</span> [<span class="op">&lt;</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">db</span> <span class="ident">_test_api</span> <span class="op">&gt;</span>]().<span class="kw">await</span><span class="question-mark">?</span>;
@@ -417,16 +417,16 @@
                         <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">input</span>;
                         <span class="kw">let</span> <span class="ident">output</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">output</span>;
 
-                        <span class="kw">let</span> <span class="ident">insert</span> <span class="op">=</span> <span class="ident">Insert</span>::<span class="ident">single_into</span>(<span class="kw-2">&amp;</span><span class="ident">table</span>).<span class="ident">value</span>(<span class="string">&quot;value&quot;</span>, <span class="ident">input</span>);
+                        <span class="kw">let</span> <span class="ident">insert</span> <span class="op">=</span> <span class="ident">Insert::single_into</span>(<span class="kw-2">&amp;</span><span class="ident">table</span>).<span class="ident">value</span>(<span class="string">&quot;value&quot;</span>, <span class="ident">input</span>);
                         <span class="ident">setup</span>.<span class="ident">conn</span>().<span class="ident">insert</span>(<span class="ident">insert</span>.<span class="ident">into</span>()).<span class="kw">await</span><span class="question-mark">?</span>;
 
-                        <span class="kw">let</span> <span class="ident">select</span> <span class="op">=</span> <span class="ident">Select</span>::<span class="ident">from_table</span>(<span class="kw-2">&amp;</span><span class="ident">table</span>).<span class="ident">column</span>(<span class="string">&quot;value&quot;</span>).<span class="ident">order_by</span>(<span class="string">&quot;id&quot;</span>.<span class="ident">descend</span>());
+                        <span class="kw">let</span> <span class="ident">select</span> <span class="op">=</span> <span class="ident">Select::from_table</span>(<span class="kw-2">&amp;</span><span class="ident">table</span>).<span class="ident">column</span>(<span class="string">&quot;value&quot;</span>).<span class="ident">order_by</span>(<span class="string">&quot;id&quot;</span>.<span class="ident">descend</span>());
                         <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">setup</span>.<span class="ident">conn</span>().<span class="ident">select</span>(<span class="ident">select</span>).<span class="kw">await</span><span class="question-mark">?</span>.<span class="ident">into_single</span>()<span class="question-mark">?</span>;
 
                         <span class="macro">assert_eq!</span>(<span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="ident">output</span>), <span class="ident">res</span>.<span class="ident">at</span>(<span class="number">0</span>));
                     )<span class="op">+</span>
 
-                    <span class="prelude-ty">Result</span>::<span class="op">&lt;</span>(), <span class="kw">crate</span>::<span class="ident">error</span>::<span class="ident">Error</span><span class="op">&gt;</span>::<span class="prelude-val">Ok</span>(())
+                    <span class="prelude-ty">Result</span>::<span class="op">&lt;</span>(), <span class="kw">crate</span><span class="ident">::error::Error</span><span class="op">&gt;</span><span class="ident">::Ok</span>(())
                 }).<span class="ident">unwrap</span>();
 
                 <span class="prelude-val">Ok</span>(())
@@ -435,15 +435,15 @@
     };
 
     (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>:<span class="ident">ident</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">db</span>:<span class="ident">ident</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">sql_type</span>:<span class="ident">literal</span>, $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">value</span>:<span class="ident">expr</span>),<span class="op">+</span> $(,)<span class="question-mark">?</span>)) <span class="op">=</span><span class="op">&gt;</span> {
-        <span class="ident">paste</span>::<span class="macro">item!</span> {
+        <span class="macro">paste::item!</span> {
             <span class="attribute">#[<span class="ident">test</span>]</span>
-            <span class="kw">fn</span> [<span class="op">&lt;</span> <span class="ident">test_type_</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span> <span class="op">&gt;</span>] () <span class="op">-</span><span class="op">&gt;</span> <span class="kw">crate</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-                <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">ast</span>::<span class="kw-2">*</span>;
-                <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">connector</span>::<span class="ident">Queryable</span>;
-                <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">tests</span>::<span class="ident">test_api</span>::<span class="ident">TestApi</span>;
-                <span class="kw">use</span> <span class="ident">tokio</span>::<span class="ident">runtime</span>::<span class="ident">Builder</span>;
+            <span class="kw">fn</span> [<span class="op">&lt;</span> <span class="ident">test_type_</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span> <span class="op">&gt;</span>] () <span class="op">-</span><span class="op">&gt;</span> <span class="kw">crate</span><span class="ident">::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+                <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::ast</span>::<span class="kw-2">*</span>;
+                <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::connector::Queryable</span>;
+                <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::tests::test_api::TestApi</span>;
+                <span class="kw">use</span> <span class="ident">tokio::runtime::Builder</span>;
 
-                <span class="kw">let</span> <span class="ident">rt</span> <span class="op">=</span> <span class="ident">Builder</span>::<span class="ident">new_multi_thread</span>().<span class="ident">enable_all</span>().<span class="ident">build</span>().<span class="ident">unwrap</span>();
+                <span class="kw">let</span> <span class="ident">rt</span> <span class="op">=</span> <span class="ident">Builder::new_multi_thread</span>().<span class="ident">enable_all</span>().<span class="ident">build</span>().<span class="ident">unwrap</span>();
 
                 <span class="ident">rt</span>.<span class="ident">block_on</span>(<span class="kw">async</span> {
                     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">setup</span> <span class="op">=</span> [<span class="op">&lt;</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">db</span> <span class="ident">_test_api</span> <span class="op">&gt;</span>]().<span class="kw">await</span><span class="question-mark">?</span>;
@@ -451,16 +451,16 @@
 
                     $(
                         <span class="kw">let</span> <span class="ident">value</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">value</span>;
-                        <span class="kw">let</span> <span class="ident">insert</span> <span class="op">=</span> <span class="ident">Insert</span>::<span class="ident">single_into</span>(<span class="kw-2">&amp;</span><span class="ident">table</span>).<span class="ident">value</span>(<span class="string">&quot;value&quot;</span>, <span class="ident">value</span>.<span class="ident">clone</span>());
+                        <span class="kw">let</span> <span class="ident">insert</span> <span class="op">=</span> <span class="ident">Insert::single_into</span>(<span class="kw-2">&amp;</span><span class="ident">table</span>).<span class="ident">value</span>(<span class="string">&quot;value&quot;</span>, <span class="ident">value</span>.<span class="ident">clone</span>());
                         <span class="ident">setup</span>.<span class="ident">conn</span>().<span class="ident">insert</span>(<span class="ident">insert</span>.<span class="ident">into</span>()).<span class="kw">await</span><span class="question-mark">?</span>;
 
-                        <span class="kw">let</span> <span class="ident">select</span> <span class="op">=</span> <span class="ident">Select</span>::<span class="ident">from_table</span>(<span class="kw-2">&amp;</span><span class="ident">table</span>).<span class="ident">column</span>(<span class="string">&quot;value&quot;</span>).<span class="ident">order_by</span>(<span class="string">&quot;id&quot;</span>.<span class="ident">descend</span>());
+                        <span class="kw">let</span> <span class="ident">select</span> <span class="op">=</span> <span class="ident">Select::from_table</span>(<span class="kw-2">&amp;</span><span class="ident">table</span>).<span class="ident">column</span>(<span class="string">&quot;value&quot;</span>).<span class="ident">order_by</span>(<span class="string">&quot;id&quot;</span>.<span class="ident">descend</span>());
                         <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">setup</span>.<span class="ident">conn</span>().<span class="ident">select</span>(<span class="ident">select</span>).<span class="kw">await</span><span class="question-mark">?</span>.<span class="ident">into_single</span>()<span class="question-mark">?</span>;
 
                         <span class="macro">assert_eq!</span>(<span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="ident">value</span>), <span class="ident">res</span>.<span class="ident">at</span>(<span class="number">0</span>));
                     )<span class="op">+</span>
 
-                    <span class="prelude-ty">Result</span>::<span class="op">&lt;</span>(), <span class="kw">crate</span>::<span class="ident">error</span>::<span class="ident">Error</span><span class="op">&gt;</span>::<span class="prelude-val">Ok</span>(())
+                    <span class="prelude-ty">Result</span>::<span class="op">&lt;</span>(), <span class="kw">crate</span><span class="ident">::error::Error</span><span class="op">&gt;</span><span class="ident">::Ok</span>(())
                 }).<span class="ident">unwrap</span>();
 
                 <span class="prelude-val">Ok</span>(())
@@ -469,5 +469,5 @@
     };
 }
 </pre></div>
-</section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="quaint" data-search-js="../../search-index.js"></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="quaint" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
     <script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script></body></html>
