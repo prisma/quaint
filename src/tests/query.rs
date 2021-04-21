@@ -1937,24 +1937,35 @@ async fn json_extract_path_fun(api: &mut dyn TestApi) -> crate::Result<()> {
 
     let insert = Insert::single_into(&table).value("obj", serde_json::json!({ "a": { "b": "c" } }));
     let second_insert = Insert::single_into(&table).value("obj", serde_json::json!({ "a": { "b": [1, 2, 3] } }));
+    let third_insert = Insert::single_into(&table).value("obj", serde_json::json!({ "a\":{": "b" }));
 
     api.conn().insert(insert.into()).await?;
     api.conn().insert(second_insert.into()).await?;
+    api.conn().insert(third_insert.into()).await?;
 
     let extract: Expression = json_extract(col!("obj"), JsonPath::string("$.a.b")).into();
     let select = Select::from_table(&table).so_that(extract.equals("c"));
     let row = api.conn().select(select).await?.into_single()?;
 
+    // Test object extraction
     assert_eq!(Some(&serde_json::json!({ "a": { "b": "c" } })), row["obj"].as_json());
 
     let extract: Expression = json_extract(col!("obj"), JsonPath::string("$.a.b[1]")).into();
     let select = Select::from_table(&table).so_that(extract.equals(2));
     let row = api.conn().select(select).await?.into_single()?;
 
+    // Test array index extraction
     assert_eq!(
         Some(&serde_json::json!({ "a": { "b": [1, 2, 3] } })),
         row["obj"].as_json()
     );
+
+    let extract: Expression = json_extract(col!("obj"), JsonPath::string("$.\"a\\\":{\"")).into();
+    let select = Select::from_table(&table).so_that(extract.equals("b"));
+    let row = api.conn().select(select).await?.into_single()?;
+
+    // Test escaped chars in keys
+    assert_eq!(Some(&serde_json::json!({ "a\":{": "b" })), row["obj"].as_json());
 
     Ok(())
 }
@@ -1968,24 +1979,36 @@ async fn json_extract_array_path_fun(api: &mut dyn TestApi) -> crate::Result<()>
 
     let insert = Insert::single_into(&table).value("obj", serde_json::json!({ "a": { "b": "c" } }));
     let second_insert = Insert::single_into(&table).value("obj", serde_json::json!({ "a": { "b": [1, 2, 3] } }));
+    let third_insert = Insert::single_into(&table).value("obj", serde_json::json!({ "a\":{": "b" }));
 
     api.conn().insert(insert.into()).await?;
     api.conn().insert(second_insert.into()).await?;
+    api.conn().insert(third_insert.into()).await?;
 
     let extract: Expression = json_extract(col!("obj"), JsonPath::array(["a", "b"])).into();
     let select = Select::from_table(&table).so_that(extract.equals("c"));
     let row = api.conn().select(select).await?.into_single()?;
 
+    // Test object extraction
     assert_eq!(Some(&serde_json::json!({ "a": { "b": "c" } })), row["obj"].as_json());
 
     let extract: Expression = json_extract(col!("obj"), JsonPath::array(["a", "b", "1"])).into();
     let select = Select::from_table(&table).so_that(extract.equals(2));
     let row = api.conn().select(select).await?.into_single()?;
 
+    // Test array index extraction
     assert_eq!(
         Some(&serde_json::json!({ "a": { "b": [1, 2, 3] } })),
         row["obj"].as_json()
     );
+
+    // "$.\"a\\\":{\""
+    let extract: Expression = json_extract(col!("obj"), JsonPath::array(["a\":{"])).into();
+    let select = Select::from_table(&table).so_that(extract.equals("b"));
+    let row = api.conn().select(select).await?.into_single()?;
+
+    // Test escaped chars in keys
+    assert_eq!(Some(&serde_json::json!({ "a\":{": "b" })), row["obj"].as_json());
 
     Ok(())
 }
