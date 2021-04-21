@@ -951,7 +951,6 @@ pub trait Visitor<'a> {
                 self.write("MAX")?;
                 self.surround_with("(", ")", |ref mut s| s.visit_column(max.column))?;
             }
-
             FunctionType::JsonExtract(json_extract) => {
                 self.visit_json_extract(json_extract)?;
             }
