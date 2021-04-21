@@ -102,6 +102,7 @@ pub trait Visitor<'a> {
     /// Visit a non-parameterized value.
     fn visit_raw_value(&mut self, value: Value<'a>) -> Result;
 
+    #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
     fn visit_json_extract(&mut self, json_extract: JsonExtract<'a>) -> Result;
 
     /// A visit to a value we parameterize
@@ -951,6 +952,7 @@ pub trait Visitor<'a> {
                 self.write("MAX")?;
                 self.surround_with("(", ")", |ref mut s| s.visit_column(max.column))?;
             }
+            #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
             FunctionType::JsonExtract(json_extract) => {
                 self.visit_json_extract(json_extract)?;
             }

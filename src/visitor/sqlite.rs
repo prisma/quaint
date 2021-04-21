@@ -216,6 +216,7 @@ impl<'a> Visitor<'a> for Sqlite<'a> {
         })
     }
 
+    #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
     fn visit_json_extract(&mut self, _json_extract: JsonExtract<'a>) -> visitor::Result {
         unimplemented!("JSON filtering is not yet supported on sqlite")
     }

@@ -580,6 +580,7 @@ impl<'a> Visitor<'a> for Mssql<'a> {
         Ok(())
     }
 
+    #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
     fn visit_json_extract(&mut self, _json_extract: crate::prelude::JsonExtract<'a>) -> visitor::Result {
         unimplemented!()
     }

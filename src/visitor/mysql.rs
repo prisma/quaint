@@ -279,19 +279,17 @@ impl<'a> Visitor<'a> for Mysql<'a> {
         }
     }
 
+    #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
     fn visit_json_extract(&mut self, json_extract: JsonExtract<'a>) -> visitor::Result {
-        #[cfg(feature = "json")]
-        {
-            self.write("JSON_EXTRACT(")?;
-            self.visit_expression(*json_extract.column)?;
-            self.write(", ")?;
-            match json_extract.path.clone() {
-                #[cfg(feature = "postgresql")]
-                JsonPath::Array(_) => panic!("JSON path array notation is not supported for MySQL"),
-                JsonPath::String(path) => self.visit_parameterized(Value::text(path))?,
-            }
-            self.write(")")
+        self.write("JSON_EXTRACT(")?;
+        self.visit_expression(*json_extract.column)?;
+        self.write(", ")?;
+        match json_extract.path.clone() {
+            #[cfg(feature = "postgresql")]
+            JsonPath::Array(_) => panic!("JSON path array notation is not supported for MySQL"),
+            JsonPath::String(path) => self.visit_parameterized(Value::text(path))?,
         }
+        self.write(")")
     }
 }
 

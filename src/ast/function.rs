@@ -1,6 +1,7 @@
 mod aggregate_to_string;
 mod average;
 mod count;
+#[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
 mod json_extract;
 mod lower;
 mod maximum;
@@ -14,7 +15,7 @@ mod upper;
 pub use aggregate_to_string::*;
 pub use average::*;
 pub use count::*;
-#[cfg(feature = "json")]
+#[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
 pub use json_extract::*;
 pub use lower::*;
 pub use maximum::*;
@@ -68,6 +69,9 @@ impl<'a> Aliasable<'a> for Function<'a> {
 #[cfg(all(feature = "json", feature = "postgresql"))]
 function!(RowToJson);
 
+#[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
+function!(JsonExtract);
+
 function!(
     RowNumber,
     Count,
@@ -77,6 +81,5 @@ function!(
     Lower,
     Upper,
     Minimum,
-    Maximum,
-    JsonExtract
+    Maximum
 );
