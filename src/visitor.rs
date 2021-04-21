@@ -102,6 +102,8 @@ pub trait Visitor<'a> {
     /// Visit a non-parameterized value.
     fn visit_raw_value(&mut self, value: Value<'a>) -> Result;
 
+    fn visit_json_extract(&mut self, json_extract: JsonExtract<'a>) -> Result;
+
     /// A visit to a value we parameterize
     fn visit_parameterized(&mut self, value: Value<'a>) -> Result {
         self.add_parameter(value);
@@ -948,6 +950,10 @@ pub trait Visitor<'a> {
             FunctionType::Maximum(max) => {
                 self.write("MAX")?;
                 self.surround_with("(", ")", |ref mut s| s.visit_column(max.column))?;
+            }
+
+            FunctionType::JsonExtract(json_extract) => {
+                self.visit_json_extract(json_extract)?;
             }
         };
 

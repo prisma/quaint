@@ -1789,3 +1789,63 @@ async fn ints_read_write_to_numeric(api: &mut dyn TestApi) -> crate::Result<()> 
 
     Ok(())
 }
+
+#[cfg(all(feature = "json", feature = "mysql"))]
+#[test_each_connector(tags("mysql"))]
+async fn json_extract_path_fun(api: &mut dyn TestApi) -> crate::Result<()> {
+    let table = api.create_table(&format!("{}, obj json", api.autogen_id("id"))).await?;
+
+    let insert = Insert::single_into(&table).value("obj", serde_json::json!({ "a": { "b": "c" } }));
+    let second_insert = Insert::single_into(&table).value("obj", serde_json::json!({ "a": { "b": [1, 2, 3] } }));
+
+    api.conn().insert(insert.into()).await?;
+    api.conn().insert(second_insert.into()).await?;
+
+    let extract: Expression = json_extract(col!("obj"), JsonPath::string("$.a.b")).into();
+    let select = Select::from_table(&table).so_that(extract.equals("c"));
+    let row = api.conn().select(select).await?.into_single()?;
+
+    assert_eq!(Some(&serde_json::json!({ "a": { "b": "c" } })), row["obj"].as_json());
+
+    let extract: Expression = json_extract(col!("obj"), JsonPath::string("$.a.b[1]")).into();
+    let select = Select::from_table(&table).so_that(extract.equals(2));
+    let row = api.conn().select(select).await?.into_single()?;
+
+    assert_eq!(
+        Some(&serde_json::json!({ "a": { "b": [1, 2, 3] } })),
+        row["obj"].as_json()
+    );
+
+    Ok(())
+}
+
+#[cfg(all(feature = "json", feature = "postgresql"))]
+#[test_each_connector(tags("postgresql"))]
+async fn json_extract_array_path_fun(api: &mut dyn TestApi) -> crate::Result<()> {
+    let table = api
+        .create_table(&format!("{}, obj jsonb", api.autogen_id("id")))
+        .await?;
+
+    let insert = Insert::single_into(&table).value("obj", serde_json::json!({ "a": { "b": "c" } }));
+    let second_insert = Insert::single_into(&table).value("obj", serde_json::json!({ "a": { "b": [1, 2, 3] } }));
+
+    api.conn().insert(insert.into()).await?;
+    api.conn().insert(second_insert.into()).await?;
+
+    let extract: Expression = json_extract(col!("obj"), JsonPath::array(["a", "b"])).into();
+    let select = Select::from_table(&table).so_that(extract.equals("c"));
+    let row = api.conn().select(select).await?.into_single()?;
+
+    assert_eq!(Some(&serde_json::json!({ "a": { "b": "c" } })), row["obj"].as_json());
+
+    let extract: Expression = json_extract(col!("obj"), JsonPath::array(["a", "b", "1"])).into();
+    let select = Select::from_table(&table).so_that(extract.equals(2));
+    let row = api.conn().select(select).await?.into_single()?;
+
+    assert_eq!(
+        Some(&serde_json::json!({ "a": { "b": [1, 2, 3] } })),
+        row["obj"].as_json()
+    );
+
+    Ok(())
+}

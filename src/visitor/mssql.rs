@@ -551,6 +551,10 @@ impl<'a> Visitor<'a> for Mssql<'a> {
 
         Ok(())
     }
+
+    fn visit_json_extract(&mut self, _json_extract: crate::prelude::JsonExtract<'a>) -> visitor::Result {
+        unimplemented!()
+    }
 }
 
 #[cfg(test)]

@@ -1,6 +1,6 @@
 use crate::{
     ast::*,
-    visitor::{self, Visitor},
+    visitor::{self, Result, Visitor},
 };
 use std::fmt::{self, Write};
 
@@ -260,6 +260,33 @@ impl<'a> Visitor<'a> for Postgres<'a> {
         self.write(right_cast)?;
 
         Ok(())
+    }
+
+    fn visit_json_extract(&mut self, json_extract: JsonExtract<'a>) -> Result {
+        #[cfg(feature = "json")]
+        {
+            match json_extract.path {
+                #[cfg(feature = "mysql")]
+                JsonPath::String(_) => panic!("JSON path string notation is not supported for Postgres"),
+                JsonPath::Array(json_path) => {
+                    self.visit_expression(*json_extract.column)?;
+                    self.write("#>>")?;
+                    // We use the `ARRAY[]::text` notation to better handle escaped character
+                    // The text protocol used when sending prepared statement doesn't seem to work well with escaped characted
+                    // when using the '{a, b, c}' string array notation.
+                    self.surround_with("ARRAY[", "]::text[]", |s| {
+                        let len = json_path.len();
+                        for (index, path) in json_path.into_iter().enumerate() {
+                            s.visit_parameterized(Value::text(path))?;
+                            if index < len - 1 {
+                                s.write(", ")?;
+                            }
+                        }
+                        Ok(())
+                    })
+                }
+            }
+        }
     }
 }
 

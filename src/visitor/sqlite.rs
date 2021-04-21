@@ -214,6 +214,10 @@ impl<'a> Visitor<'a> for Sqlite<'a> {
             Ok(())
         })
     }
+
+    fn visit_json_extract(&mut self, _json_extract: JsonExtract<'a>) -> visitor::Result {
+        unimplemented!("JSON filtering is not yet supported on sqlite")
+    }
 }
 
 #[cfg(test)]
