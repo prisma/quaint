@@ -125,7 +125,6 @@
 //! async fn main() -> Result<(), quaint::error::Error> {
 //!     let mut builder = Quaint::builder("postgresql://postgres:password@localhost:5432/postgres")?;
 //!     builder.connection_limit(5);
-//!     builder.connect_timeout(Duration::from_secs(5));
 //!     builder.max_idle_lifetime(Duration::from_secs(300));
 //!     builder.test_on_check_out(true);
 //!
@@ -176,9 +175,9 @@ pub struct Builder {
     connection_limit: usize,
     max_idle: Option<u64>,
     max_idle_lifetime: Option<Duration>,
+    max_lifetime: Option<Duration>,
     health_check_interval: Option<Duration>,
     test_on_check_out: bool,
-    connect_timeout: Option<Duration>,
     pool_timeout: Option<Duration>,
 }
 
@@ -193,9 +192,9 @@ impl Builder {
             connection_limit,
             max_idle: None,
             max_idle_lifetime: None,
+            max_lifetime: None,
             health_check_interval: None,
             test_on_check_out: false,
-            connect_timeout: None,
             pool_timeout: None,
         })
     }
@@ -217,24 +216,6 @@ impl Builder {
         self.max_idle = Some(max_idle);
     }
 
-    /// A timeout for connecting to the database. If not set, the connection
-    /// never times out.
-    ///
-    /// # Panics
-    ///
-    /// Panics if `connect_timeout` is zero.
-    ///
-    /// [`check_out`]: struct.Quaint.html#method.check_out
-    pub fn connect_timeout(&mut self, connect_timeout: Duration) {
-        assert_ne!(
-            connect_timeout,
-            Duration::from_secs(0),
-            "connect_timeout must be positive"
-        );
-
-        self.connect_timeout = Some(connect_timeout);
-    }
-
     /// A timeout for acquiring a connection with the [`check_out`] method. If
     /// not set, the method never times out.
     ///
@@ -249,11 +230,26 @@ impl Builder {
         self.pool_timeout = Some(pool_timeout);
     }
 
+    /// A time how long a connection can be kept in the pool before
+    /// replaced with a new one. The reconnect happens in the next
+    /// [`check_out`].
+    ///
+    /// - Defaults to not set, meaning connections are kept forever.
+    ///
+    /// # Panics
+    ///
+    /// Panics if `max_lifetime` is zero.
+    ///
+    /// [`check_out`]: struct.Quaint.html#method.check_out
+    pub fn max_lifetime(&mut self, max_lifetime: Duration) {
+        self.max_lifetime = Some(max_lifetime);
+    }
+
     /// A time how long an idling connection can be kept in the pool before
     /// replaced with a new one. The reconnect happens in the next
     /// [`check_out`].
     ///
-    /// - Defaults to not set, meaning idle connections are never reconnected.
+    /// - Defaults to 300 seconds
     ///
     /// # Panics
     ///
@@ -301,6 +297,7 @@ impl Builder {
             .max_open(self.connection_limit as u64)
             .max_idle(self.max_idle.unwrap_or(self.connection_limit as u64))
             .max_idle_lifetime(self.max_idle_lifetime)
+            .max_lifetime(self.max_lifetime)
             .get_timeout(None) // we handle timeouts here
             .health_check_interval(self.health_check_interval)
             .test_on_check_out(self.test_on_check_out)
@@ -316,22 +313,13 @@ impl Builder {
     fn log_start(info: &ConnectionInfo, connection_limit: usize) {
         let family = info.sql_family();
         let pg_bouncer = if info.pg_bouncer() { " in PgBouncer mode" } else { "" };
-        #[cfg(not(feature = "tracing-log"))]
-        {
-            info!(
-                "Starting a {} pool with {} connections{}.",
-                family, connection_limit, pg_bouncer
-            );
-        }
-        #[cfg(feature = "tracing-log")]
-        {
-            tracing::info!(
-                "Starting a {} pool with {} connections{}.",
-                family,
-                connection_limit,
-                pg_bouncer
-            );
-        }
+
+        tracing::info!(
+            "Starting a {} pool with {} connections{}.",
+            family,
+            connection_limit,
+            pg_bouncer
+        );
     }
 }
 
@@ -340,6 +328,7 @@ impl Quaint {
     /// connection string. See the [module level documentation] for details.
     ///
     /// [module level documentation]: index.html
+    #[tracing::instrument]
     pub fn builder(url_str: &str) -> crate::Result<Builder> {
         match url_str {
             #[cfg(feature = "sqlite")]
@@ -357,6 +346,14 @@ impl Quaint {
                     builder.connection_limit(limit);
                 }
 
+                if let Some(max_lifetime) = params.max_connection_lifetime {
+                    builder.max_lifetime(max_lifetime);
+                }
+
+                if let Some(max_idle_lifetime) = params.max_idle_connection_lifetime {
+                    builder.max_idle_lifetime(max_idle_lifetime);
+                }
+
                 Ok(builder)
             }
             #[cfg(feature = "mysql")]
@@ -364,6 +361,8 @@ impl Quaint {
                 let url = crate::connector::MysqlUrl::new(url::Url::parse(s)?)?;
                 let connection_limit = url.connection_limit();
                 let pool_timeout = url.pool_timeout();
+                let max_connection_lifetime = url.max_connection_lifetime();
+                let max_idle_connection_lifetime = url.max_idle_connection_lifetime();
 
                 let manager = QuaintManager::Mysql { url };
                 let mut builder = Builder::new(s, manager)?;
@@ -376,6 +375,14 @@ impl Quaint {
                     builder.pool_timeout(timeout);
                 }
 
+                if let Some(max_lifetime) = max_connection_lifetime {
+                    builder.max_lifetime(max_lifetime);
+                }
+
+                if let Some(max_idle_lifetime) = max_idle_connection_lifetime {
+                    builder.max_idle_lifetime(max_idle_lifetime);
+                }
+
                 Ok(builder)
             }
             #[cfg(feature = "postgresql")]
@@ -383,6 +390,8 @@ impl Quaint {
                 let url = crate::connector::PostgresUrl::new(url::Url::parse(s)?)?;
                 let connection_limit = url.connection_limit();
                 let pool_timeout = url.pool_timeout();
+                let max_connection_lifetime = url.max_connection_lifetime();
+                let max_idle_connection_lifetime = url.max_idle_connection_lifetime();
 
                 let manager = QuaintManager::Postgres { url };
                 let mut builder = Builder::new(s, manager)?;
@@ -395,6 +404,14 @@ impl Quaint {
                     builder.pool_timeout(timeout);
                 }
 
+                if let Some(max_lifetime) = max_connection_lifetime {
+                    builder.max_lifetime(max_lifetime);
+                }
+
+                if let Some(max_idle_lifetime) = max_idle_connection_lifetime {
+                    builder.max_idle_lifetime(max_idle_lifetime);
+                }
+
                 Ok(builder)
             }
             #[cfg(feature = "mssql")]
@@ -402,6 +419,8 @@ impl Quaint {
                 let url = crate::connector::MssqlUrl::new(s)?;
                 let connection_limit = url.connection_limit();
                 let pool_timeout = url.pool_timeout();
+                let max_connection_lifetime = url.max_connection_lifetime();
+                let max_idle_connection_lifetime = url.max_idle_connection_lifetime();
 
                 let manager = QuaintManager::Mssql { url };
                 let mut builder = Builder::new(s, manager)?;
@@ -412,6 +431,14 @@ impl Quaint {
 
                 if let Some(timeout) = pool_timeout {
                     builder.pool_timeout(timeout);
+                }
+
+                if let Some(max_lifetime) = max_connection_lifetime {
+                    builder.max_lifetime(max_lifetime);
+                }
+
+                if let Some(max_idle_lifetime) = max_idle_connection_lifetime {
+                    builder.max_idle_lifetime(max_idle_lifetime);
                 }
 
                 Ok(builder)
@@ -426,6 +453,7 @@ impl Quaint {
     }
 
     /// Reserve a connection from the pool.
+    #[tracing::instrument(name = "fetch_new_connection_from_pool", skip(self))]
     pub async fn check_out(&self) -> crate::Result<PooledConnection> {
         let res = match self.pool_timeout {
             Some(duration) => crate::connector::metrics::check_out(self.inner.get_timeout(duration)).await,

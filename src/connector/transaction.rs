@@ -12,6 +12,7 @@ pub struct Transaction<'a> {
 }
 
 impl<'a> Transaction<'a> {
+    #[tracing::instrument(name = "new_transaction", skip(inner, begin_stmt))]
     pub(crate) async fn new(inner: &'a dyn Queryable, begin_stmt: &str) -> crate::Result<Transaction<'a>> {
         let this = Self { inner };
 
@@ -22,6 +23,7 @@ impl<'a> Transaction<'a> {
     }
 
     /// Commit the changes to the database and consume the transaction.
+    #[tracing::instrument(skip(self))]
     pub async fn commit(&self) -> crate::Result<()> {
         self.inner.raw_cmd("COMMIT").await?;
 
@@ -29,6 +31,7 @@ impl<'a> Transaction<'a> {
     }
 
     /// Rolls back the changes to the database.
+    #[tracing::instrument(skip(self))]
     pub async fn rollback(&self) -> crate::Result<()> {
         self.inner.raw_cmd("ROLLBACK").await?;
 
@@ -60,5 +63,9 @@ impl<'a> Queryable for Transaction<'a> {
 
     async fn version(&self) -> crate::Result<Option<String>> {
         self.inner.version().await
+    }
+
+    fn is_healthy(&self) -> bool {
+        self.inner.is_healthy()
     }
 }

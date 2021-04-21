@@ -628,6 +628,120 @@ async fn returning_insert(api: &mut dyn TestApi) -> crate::Result<()> {
     Ok(())
 }
 
+#[cfg(all(feature = "mssql", feature = "bigdecimal"))]
+#[test_each_connector(tags("mssql"))]
+async fn returning_decimal_insert_with_type_defs(api: &mut dyn TestApi) -> crate::Result<()> {
+    use bigdecimal::BigDecimal;
+    use std::str::FromStr;
+
+    let dec = BigDecimal::from_str("17661757261711787211853")?;
+    let table = api.create_table("id int, val numeric(26,0)").await?;
+    let col = Column::from("val").type_family(TypeFamily::Decimal(Some((26, 0))));
+
+    let insert = Insert::single_into(&table).value("id", 2).value(col, dec.clone());
+
+    let res = api
+        .conn()
+        .insert(Insert::from(insert).returning(vec!["id", "val"]))
+        .await?;
+
+    assert_eq!(1, res.len());
+
+    let row = res.get(0).unwrap();
+    assert_eq!(Some(2), row["id"].as_i64());
+    assert_eq!(Some(&dec), row["val"].as_numeric());
+
+    Ok(())
+}
+
+#[cfg(feature = "mssql")]
+#[test_each_connector(tags("mssql"))]
+async fn returning_constant_nvarchar_insert_with_type_defs(api: &mut dyn TestApi) -> crate::Result<()> {
+    let table = api.create_table("id int, val nvarchar(4000)").await?;
+    let col = Column::from("val").type_family(TypeFamily::Text(Some(TypeDataLength::Constant(4000))));
+
+    let insert = Insert::single_into(&table).value("id", 2).value(col, "meowmeow");
+
+    let res = api
+        .conn()
+        .insert(Insert::from(insert).returning(vec!["id", "val"]))
+        .await?;
+
+    assert_eq!(1, res.len());
+
+    let row = res.get(0).unwrap();
+    assert_eq!(Some(2), row["id"].as_i64());
+    assert_eq!(Some("meowmeow"), row["val"].as_str());
+
+    Ok(())
+}
+
+#[cfg(feature = "mssql")]
+#[test_each_connector(tags("mssql"))]
+async fn returning_max_nvarchar_insert_with_type_defs(api: &mut dyn TestApi) -> crate::Result<()> {
+    let table = api.create_table("id int, val nvarchar(max)").await?;
+    let col = Column::from("val").type_family(TypeFamily::Text(Some(TypeDataLength::Maximum)));
+
+    let insert = Insert::single_into(&table).value("id", 2).value(col, "meowmeow");
+
+    let res = api
+        .conn()
+        .insert(Insert::from(insert).returning(vec!["id", "val"]))
+        .await?;
+
+    assert_eq!(1, res.len());
+
+    let row = res.get(0).unwrap();
+    assert_eq!(Some(2), row["id"].as_i64());
+    assert_eq!(Some("meowmeow"), row["val"].as_str());
+
+    Ok(())
+}
+
+#[cfg(feature = "mssql")]
+#[test_each_connector(tags("mssql"))]
+async fn returning_constant_varchar_insert_with_type_defs(api: &mut dyn TestApi) -> crate::Result<()> {
+    let table = api.create_table("id int, val varchar(4000)").await?;
+    let col = Column::from("val").type_family(TypeFamily::Text(Some(TypeDataLength::Constant(4000))));
+
+    let insert = Insert::single_into(&table).value("id", 2).value(col, "meowmeow");
+
+    let res = api
+        .conn()
+        .insert(Insert::from(insert).returning(vec!["id", "val"]))
+        .await?;
+
+    assert_eq!(1, res.len());
+
+    let row = res.get(0).unwrap();
+    assert_eq!(Some(2), row["id"].as_i64());
+    assert_eq!(Some("meowmeow"), row["val"].as_str());
+
+    Ok(())
+}
+
+#[cfg(feature = "mssql")]
+#[test_each_connector(tags("mssql"))]
+async fn returning_max_varchar_insert_with_type_defs(api: &mut dyn TestApi) -> crate::Result<()> {
+    let table = api.create_table("id int, val varchar(max)").await?;
+    let col = Column::from("val").type_family(TypeFamily::Text(Some(TypeDataLength::Maximum)));
+
+    let insert = Insert::single_into(&table).value("id", 2).value(col, "meowmeow");
+
+    let res = api
+        .conn()
+        .insert(Insert::from(insert).returning(vec!["id", "val"]))
+        .await?;
+
+    assert_eq!(1, res.len());
+
+    let row = res.get(0).unwrap();
+    assert_eq!(Some(2), row["id"].as_i64());
+    assert_eq!(Some("meowmeow"), row["val"].as_str());
+
+    Ok(())
+}
+
 #[cfg(feature = "mssql")]
 #[test_each_connector(tags("mssql"))]
 async fn multiple_resultset_should_return_the_last_one(api: &mut dyn TestApi) -> crate::Result<()> {
@@ -1786,6 +1900,32 @@ async fn ints_read_write_to_numeric(api: &mut dyn TestApi) -> crate::Result<()> 
             _ => assert_eq!(Value::numeric(BigDecimal::from_str("12345.0").unwrap()), row["value"]),
         }
     }
+
+    Ok(())
+}
+
+#[cfg(feature = "bigdecimal")]
+#[test_each_connector(tags("postgresql"))]
+async fn bigdecimal_read_write_to_floating(api: &mut dyn TestApi) -> crate::Result<()> {
+    use bigdecimal::BigDecimal;
+    use std::str::FromStr;
+
+    let table = api.create_table("id int, a float4, b float8").await?;
+    let val = BigDecimal::from_str("0.1").unwrap();
+
+    let insert = Insert::multi_into(&table, &["id", "a", "b"]).values(vec![
+        Value::integer(1),
+        Value::numeric(val.clone()),
+        Value::numeric(val.clone()),
+    ]);
+
+    api.conn().execute(insert.into()).await?;
+
+    let select = Select::from_table(&table);
+    let row = api.conn().select(select).await?.into_single()?;
+
+    assert_eq!(Value::float(0.1), row["a"]);
+    assert_eq!(Value::double(0.1), row["b"]);
 
     Ok(())
 }

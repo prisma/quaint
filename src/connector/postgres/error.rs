@@ -4,6 +4,10 @@ impl From<tokio_postgres::error::Error> for Error {
     fn from(e: tokio_postgres::error::Error) -> Error {
         use tokio_postgres::error::DbError;
 
+        if e.is_closed() {
+            return Error::builder(ErrorKind::ConnectionClosed).build();
+        }
+
         match e.code().map(|c| c.code()) {
             Some(code) if code == "22001" => {
                 let code = code.to_string();
@@ -29,7 +33,7 @@ impl From<tokio_postgres::error::Error> for Error {
 
                 let constraint = detail
                     .as_ref()
-                    .and_then(|d| d.split(")=(").nth(0))
+                    .and_then(|d| d.split(")=(").next())
                     .and_then(|d| d.split(" (").nth(1).map(|s| s.replace("\"", "")))
                     .map(|s| DatabaseConstraint::fields(s.split(", ")))
                     .unwrap_or(DatabaseConstraint::CannotParse);
@@ -122,6 +126,28 @@ impl From<tokio_postgres::error::Error> for Error {
                     .into();
 
                 let kind = ErrorKind::DatabaseDoesNotExist { db_name };
+                let mut builder = Error::builder(kind);
+
+                builder.set_original_code(code);
+
+                if let Some(message) = message {
+                    builder.set_original_message(message);
+                }
+
+                builder.build()
+            }
+            Some(code) if code == "28000" => {
+                let code = code.to_string();
+                let db_error = e.into_source().and_then(|e| e.downcast::<DbError>().ok());
+                let message = db_error.as_ref().map(|e| e.message());
+
+                let db_name = message
+                    .as_ref()
+                    .and_then(|m| m.split_whitespace().nth(5))
+                    .and_then(|s| s.split('"').nth(1))
+                    .into();
+
+                let kind = ErrorKind::DatabaseAccessDenied { db_name };
                 let mut builder = Error::builder(kind);
 
                 builder.set_original_code(code);

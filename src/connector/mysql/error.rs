@@ -10,6 +10,9 @@ impl From<my::Error> for Error {
                 message: err.to_string(),
             })
             .build(),
+            my::Error::Io(my::IoError::Io(err)) if err.kind() == std::io::ErrorKind::UnexpectedEof => {
+                Error::builder(ErrorKind::ConnectionClosed).build()
+            }
             my::Error::Io(io_error) => Error::builder(ErrorKind::ConnectionError(io_error.into())).build(),
             my::Error::Driver(e) => Error::builder(ErrorKind::QueryError(e.into())).build(),
             my::Error::Server(ServerError { ref message, code, .. }) if code == 1062 => {
@@ -138,7 +141,7 @@ impl From<my::Error> for Error {
                 let user = message
                     .split_whitespace()
                     .nth(4)
-                    .and_then(|s| s.split('@').nth(0))
+                    .and_then(|s| s.split('@').next())
                     .and_then(|s| s.split('\'').nth(1))
                     .into();
 

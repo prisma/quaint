@@ -1,7 +1,7 @@
 # Quaint
 [![crates.io](https://meritbadge.herokuapp.com/quaint)](https://crates.io/crates/quaint)
 [![docs.rs](https://docs.rs/quaint/badge.svg)](https://docs.rs/quaint)
-[![Build status](https://badge.buildkite.com/c30bc2b4dccc155aec44608ad5f366feabdab121295ceb6b6b.svg)](https://buildkite.com/prisma/quaint)
+[![Cargo tests](https://github.com/prisma/quaint/actions/workflows/test.yml/badge.svg)](https://github.com/prisma/quaint/actions/workflows/test.yml)
 [![Discord](https://img.shields.io/discord/664092374359605268)](https://discord.gg/r4CPY4B)
 
 Quaint is an abstraction over certain SQL databases. It provides:
@@ -28,8 +28,9 @@ Quaint is an abstraction over certain SQL databases. It provides:
 - `uuid`: UUID type support with `uuid` crate.
 - `chrono`: DateTime type support with `chrono` crate.
 - `serde-support`: Deserialize support from result set with `serde` crate.
-- `tracing-log`: Logging with `tracing` crate.
 - `bigdecimal`: Numeric values can be read as `BigDecimal`.
+- `vendored-openssl`: Statically links against a vendored OpenSSL library on
+  non-Windows or non-Apple platforms.
 
 ### Goals:
 
@@ -59,9 +60,7 @@ Then:
 
 The queries can be logged by setting the `LOG_QUERIES` environment variable to any
 value. They'll be logged at the `INFO` level and are visible when having a
-logger in scope. If using [Tracing](https://github.com/tokio-rs/tracing),
-compiling Quaint with the `tracing-log` feature flag will parameterize the
-logged queries into a more suitable format for Tracing.
+logger in scope.
 
 ## Security
 

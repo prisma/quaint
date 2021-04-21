@@ -22,6 +22,22 @@ async fn table_does_not_exist(api: &mut dyn TestApi) -> crate::Result<()> {
     Ok(())
 }
 
+#[test_each_connector(tags("mssql"))]
+async fn database_already_exists(api: &mut dyn TestApi) -> crate::Result<()> {
+    let query = "CREATE DATABASE master";
+
+    let err = api.conn().raw_cmd(query).await.unwrap_err();
+
+    match err.kind() {
+        ErrorKind::DatabaseAlreadyExists { db_name } => {
+            assert_eq!(&Name::available("master"), db_name);
+        }
+        e => panic!("Expected error DatabaseAlreadyExists, got {:?}", e),
+    }
+
+    Ok(())
+}
+
 #[test_each_connector]
 async fn column_does_not_exist_on_write(api: &mut dyn TestApi) -> crate::Result<()> {
     let table = api.create_table("id1 int").await?;
@@ -91,7 +107,7 @@ async fn unique_constraint_violation(api: &mut dyn TestApi) -> crate::Result<()>
             DatabaseConstraint::ForeignKey => assert!(false, "Expecting index or field constraints."),
             DatabaseConstraint::CannotParse => assert!(false, "Couldn't parse the error message."),
         },
-        _ => panic!(err),
+        _ => panic!("{}", err),
     }
 
     Ok(())
@@ -108,7 +124,7 @@ async fn null_constraint_violation(api: &mut dyn TestApi) -> crate::Result<()> {
         ErrorKind::NullConstraintViolation { constraint } => {
             assert_eq!(&DatabaseConstraint::fields(Some("id1")), constraint)
         }
-        _ => panic!(err),
+        _ => panic!("{}", err),
     }
 
     let insert = Insert::single_into(&table).value("id1", 50).value("id2", 55);
@@ -125,7 +141,7 @@ async fn null_constraint_violation(api: &mut dyn TestApi) -> crate::Result<()> {
         ErrorKind::NullConstraintViolation { constraint } => {
             assert_eq!(&DatabaseConstraint::fields(Some("id2")), constraint);
         }
-        _ => panic!(err),
+        _ => panic!("{}", err),
     }
 
     Ok(())

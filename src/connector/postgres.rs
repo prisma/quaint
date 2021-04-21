@@ -16,6 +16,8 @@ use postgres_native_tls::MakeTlsConnector;
 use std::{
     borrow::{Borrow, Cow},
     fs,
+    future::Future,
+    sync::atomic::{AtomicBool, Ordering},
     time::Duration,
 };
 use tokio_postgres::{config::SslMode, Client, Config, Statement};
@@ -48,6 +50,7 @@ pub struct PostgreSql {
     pg_bouncer: bool,
     socket_timeout: Option<Duration>,
     statement_cache: Mutex<LruCache<String, Statement>>,
+    is_healthy: AtomicBool,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -161,9 +164,6 @@ impl PostgresUrl {
         match percent_decode(self.url.username().as_bytes()).decode_utf8() {
             Ok(username) => username,
             Err(_) => {
-                #[cfg(not(feature = "tracing-log"))]
-                warn!("Couldn't decode username to UTF-8, using the non-decoded version.");
-                #[cfg(feature = "tracing-log")]
                 tracing::warn!("Couldn't decode username to UTF-8, using the non-decoded version.");
 
                 self.url.username().into()
@@ -235,6 +235,16 @@ impl PostgresUrl {
         self.query_params.socket_timeout
     }
 
+    /// The maximum connection lifetime
+    pub fn max_connection_lifetime(&self) -> Option<Duration> {
+        self.query_params.max_connection_lifetime
+    }
+
+    /// The maximum idle connection lifetime
+    pub fn max_idle_connection_lifetime(&self) -> Option<Duration> {
+        self.query_params.max_idle_connection_lifetime
+    }
+
     pub(crate) fn cache(&self) -> LruCache<String, Statement> {
         if self.query_params.pg_bouncer {
             LruCache::new(0)
@@ -254,9 +264,11 @@ impl PostgresUrl {
         let mut host = None;
         let mut socket_timeout = None;
         let mut connect_timeout = Some(Duration::from_secs(5));
-        let mut pool_timeout = Some(Duration::from_secs(5));
+        let mut pool_timeout = Some(Duration::from_secs(10));
         let mut pg_bouncer = false;
         let mut statement_cache_size = 500;
+        let mut max_connection_lifetime = None;
+        let mut max_idle_connection_lifetime = Some(Duration::from_secs(300));
 
         for (k, v) in url.query_pairs() {
             match k.as_ref() {
@@ -271,9 +283,6 @@ impl PostgresUrl {
                         "prefer" => ssl_mode = SslMode::Prefer,
                         "require" => ssl_mode = SslMode::Require,
                         _ => {
-                            #[cfg(not(feature = "tracing-log"))]
-                            debug!("Unsupported ssl mode {}, defaulting to 'prefer'", v);
-                            #[cfg(feature = "tracing-log")]
                             tracing::debug!(message = "Unsupported SSL mode, defaulting to `prefer`", mode = &*v);
                         }
                     };
@@ -301,9 +310,6 @@ impl PostgresUrl {
                             ssl_accept_mode = SslAcceptMode::AcceptInvalidCerts;
                         }
                         _ => {
-                            #[cfg(not(feature = "tracing-log"))]
-                            debug!("Unsupported SSL accept mode {}, defaulting to `strict`", v);
-                            #[cfg(feature = "tracing-log")]
                             tracing::debug!(
                                 message = "Unsupported SSL accept mode, defaulting to `strict`",
                                 mode = &*v
@@ -353,10 +359,29 @@ impl PostgresUrl {
                         pool_timeout = Some(Duration::from_secs(as_int));
                     }
                 }
+                "max_connection_lifetime" => {
+                    let as_int = v
+                        .parse()
+                        .map_err(|_| Error::builder(ErrorKind::InvalidConnectionArguments).build())?;
+
+                    if as_int == 0 {
+                        max_connection_lifetime = None;
+                    } else {
+                        max_connection_lifetime = Some(Duration::from_secs(as_int));
+                    }
+                }
+                "max_idle_connection_lifetime" => {
+                    let as_int = v
+                        .parse()
+                        .map_err(|_| Error::builder(ErrorKind::InvalidConnectionArguments).build())?;
+
+                    if as_int == 0 {
+                        max_idle_connection_lifetime = None;
+                    } else {
+                        max_idle_connection_lifetime = Some(Duration::from_secs(as_int));
+                    }
+                }
                 _ => {
-                    #[cfg(not(feature = "tracing-log"))]
-                    trace!("Discarding connection string param: {}", k);
-                    #[cfg(feature = "tracing-log")]
                     tracing::trace!(message = "Discarding connection string param", param = &*k);
                 }
             };
@@ -378,6 +403,8 @@ impl PostgresUrl {
             socket_timeout,
             pg_bouncer,
             statement_cache_size,
+            max_connection_lifetime,
+            max_idle_connection_lifetime,
         })
     }
 
@@ -422,10 +449,13 @@ pub(crate) struct PostgresUrlQueryParams {
     connect_timeout: Option<Duration>,
     pool_timeout: Option<Duration>,
     statement_cache_size: usize,
+    max_connection_lifetime: Option<Duration>,
+    max_idle_connection_lifetime: Option<Duration>,
 }
 
 impl PostgreSql {
     /// Create a new connection to the database.
+    #[tracing::instrument(skip(url))]
     pub async fn new(url: PostgresUrl) -> crate::Result<Self> {
         let config = url.to_config();
 
@@ -452,14 +482,7 @@ impl PostgreSql {
         tokio::spawn(conn.map(|r| match r {
             Ok(_) => (),
             Err(e) => {
-                #[cfg(not(feature = "tracing-log"))]
-                {
-                    error!("Error in PostgreSQL connection: {:?}", e);
-                }
-                #[cfg(feature = "tracing-log")]
-                {
-                    tracing::error!("Error in PostgreSQL connection: {:?}", e);
-                }
+                tracing::error!("Error in PostgreSQL connection: {:?}", e);
             }
         }));
 
@@ -484,9 +507,11 @@ impl PostgreSql {
             socket_timeout: url.query_params.socket_timeout,
             pg_bouncer: url.query_params.pg_bouncer,
             statement_cache: Mutex::new(url.cache()),
+            is_healthy: AtomicBool::new(true),
         })
     }
 
+    #[tracing::instrument(skip(self))]
     async fn fetch_cached(&self, sql: &str) -> crate::Result<Statement> {
         let mut cache = self.statement_cache.lock().await;
         let capacity = cache.capacity();
@@ -494,51 +519,40 @@ impl PostgreSql {
 
         match cache.get_mut(sql) {
             Some(stmt) => {
-                #[cfg(not(feature = "tracing-log"))]
-                {
-                    trace!(
-                        "CACHE HIT! (query: \"{}\", capacity: {}, stored: {})",
-                        sql,
-                        capacity,
-                        stored,
-                    );
-                }
-                #[cfg(feature = "tracing-log")]
-                {
-                    tracing::trace!(
-                        message = "CACHE HIT!",
-                        query = sql,
-                        capacity = capacity,
-                        stored = stored,
-                    );
-                }
+                tracing::trace!(
+                    message = "CACHE HIT!",
+                    query = sql,
+                    capacity = capacity,
+                    stored = stored,
+                );
 
                 Ok(stmt.clone()) // arc'd
             }
             None => {
-                #[cfg(not(feature = "tracing-log"))]
-                {
-                    trace!(
-                        "CACHE MISS! (query: \"{}\", capacity: {}, stored: {}",
-                        sql,
-                        capacity,
-                        stored,
-                    );
-                }
-                #[cfg(feature = "tracing-log")]
-                {
-                    tracing::trace!(
-                        message = "CACHE MISS!",
-                        query = sql,
-                        capacity = capacity,
-                        stored = stored,
-                    );
-                }
+                tracing::trace!(
+                    message = "CACHE MISS!",
+                    query = sql,
+                    capacity = capacity,
+                    stored = stored,
+                );
 
-                let stmt = super::timeout::socket(self.socket_timeout, self.client.0.prepare(sql)).await?;
+                let stmt = self.perform_io(self.client.0.prepare(sql)).await?;
                 cache.insert(sql.to_string(), stmt.clone());
                 Ok(stmt)
             }
+        }
+    }
+
+    async fn perform_io<F, T>(&self, fut: F) -> crate::Result<T>
+    where
+        F: Future<Output = Result<T, tokio_postgres::Error>>,
+    {
+        match super::timeout::socket(self.socket_timeout, fut).await {
+            Err(e) if e.is_closed() => {
+                self.is_healthy.store(false, Ordering::SeqCst);
+                Err(e)
+            }
+            res => res,
         }
     }
 }
@@ -557,6 +571,7 @@ impl Queryable for PostgreSql {
         self.execute_raw(sql.as_str(), &params[..]).await
     }
 
+    #[tracing::instrument(skip(self, params))]
     async fn query_raw(&self, sql: &str, params: &[Value<'_>]) -> crate::Result<ResultSet> {
         metrics::query("postgres.query_raw", sql, params, move || async move {
             let stmt = self.fetch_cached(sql).await?;
@@ -570,11 +585,9 @@ impl Queryable for PostgreSql {
                 return Err(Error::builder(kind).build());
             }
 
-            let rows = super::timeout::socket(
-                self.socket_timeout,
-                self.client.0.query(&stmt, conversion::conv_params(params).as_slice()),
-            )
-            .await?;
+            let rows = self
+                .perform_io(self.client.0.query(&stmt, conversion::conv_params(params).as_slice()))
+                .await?;
 
             let mut result = ResultSet::new(stmt.to_column_names(), Vec::new());
 
@@ -587,6 +600,7 @@ impl Queryable for PostgreSql {
         .await
     }
 
+    #[tracing::instrument(skip(self, params))]
     async fn execute_raw(&self, sql: &str, params: &[Value<'_>]) -> crate::Result<u64> {
         metrics::query("postgres.execute_raw", sql, params, move || async move {
             let stmt = self.fetch_cached(sql).await?;
@@ -600,26 +614,25 @@ impl Queryable for PostgreSql {
                 return Err(Error::builder(kind).build());
             }
 
-            let changes = super::timeout::socket(
-                self.socket_timeout,
-                self.client.0.execute(&stmt, conversion::conv_params(params).as_slice()),
-            )
-            .await?;
+            let changes = self
+                .perform_io(self.client.0.execute(&stmt, conversion::conv_params(params).as_slice()))
+                .await?;
 
             Ok(changes)
         })
         .await
     }
 
+    #[tracing::instrument(skip(self))]
     async fn raw_cmd(&self, cmd: &str) -> crate::Result<()> {
         metrics::query("postgres.raw_cmd", cmd, &[], move || async move {
-            super::timeout::socket(self.socket_timeout, self.client.0.simple_query(cmd)).await?;
-
+            self.perform_io(self.client.0.simple_query(cmd)).await?;
             Ok(())
         })
         .await
     }
 
+    #[tracing::instrument(skip(self))]
     async fn version(&self) -> crate::Result<Option<String>> {
         let query = r#"SELECT version()"#;
         let rows = self.query_raw(query, &[]).await?;
@@ -631,12 +644,17 @@ impl Queryable for PostgreSql {
         Ok(version_string)
     }
 
+    #[tracing::instrument(skip(self, tx))]
     async fn server_reset_query(&self, tx: &Transaction<'_>) -> crate::Result<()> {
         if self.pg_bouncer {
             tx.raw_cmd("DEALLOCATE ALL").await
         } else {
             Ok(())
         }
+    }
+
+    fn is_healthy(&self) -> bool {
+        self.is_healthy.load(Ordering::SeqCst)
     }
 }
 

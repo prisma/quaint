@@ -53,6 +53,10 @@ impl Queryable for PooledConnection {
     fn begin_statement(&self) -> &'static str {
         self.inner.begin_statement()
     }
+
+    fn is_healthy(&self) -> bool {
+        self.inner.is_healthy()
+    }
 }
 
 #[doc(hidden)]
@@ -105,11 +109,8 @@ impl Manager for QuaintManager {
             }
         };
 
-        #[cfg(feature = "tracing-log")]
-        {
-            conn.iter()
-                .for_each(|_| tracing::debug!("Acquired database connection."));
-        }
+        conn.iter()
+            .for_each(|_| tracing::debug!("Acquired database connection."));
 
         conn
     }
@@ -117,6 +118,10 @@ impl Manager for QuaintManager {
     async fn check(&self, conn: Self::Connection) -> crate::Result<Self::Connection> {
         conn.raw_cmd("SELECT 1").await?;
         Ok(conn)
+    }
+
+    fn validate(&self, conn: &mut Self::Connection) -> bool {
+        conn.is_healthy()
     }
 }
 

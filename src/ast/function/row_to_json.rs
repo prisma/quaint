@@ -16,21 +16,25 @@ pub struct RowToJson<'a> {
 /// Only available for `Postgresql`
 ///
 /// ```no_run
-/// # use quaint::{ast::*, visitor::{Visitor, Postgres}};
-/// # fn main() -> Result<(), quaint::error::Error> {
+/// # use quaint::{ast::*, prelude::Queryable, visitor::{Visitor, Postgres}, single::Quaint, val};
+/// # #[tokio::main]
+/// # async fn main() -> Result<(), quaint::error::Error> {
+/// # let conn = Quaint::new_in_memory()?;
 /// let cte = Select::default()
-/// 	.value(val!("hello_world").alias("toto"))
-/// 	.into_cte("one");
+///     .value(val!("hello_world").alias("toto"))
+///     .into_cte("one");
+///
 /// let select = Select::from_table("one")
-/// 	.value(row_to_json("one", false))
-/// 	.with(cte);
-/// let result = api.conn().select(select).await?;
+///     .value(row_to_json("one", false))
+///     .with(cte);
+///
+/// let result = conn.select(select).await?;
 ///
 /// assert_eq!(
-/// 	Value::Json(Some(serde_json::json!({
-/// 		"toto": "hello_world"
-/// 	}))),
-/// 	result.into_single().unwrap()[0]
+///     Value::Json(Some(serde_json::json!({
+///         "toto": "hello_world"
+///     }))),
+///     result.into_single().unwrap()[0]
 /// );
 /// # Ok(())
 /// # }

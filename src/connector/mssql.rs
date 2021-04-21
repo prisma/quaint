@@ -10,7 +10,14 @@ use crate::{
 use async_trait::async_trait;
 use connection_string::JdbcString;
 use futures::lock::Mutex;
-use std::{convert::TryFrom, fmt, str::FromStr, time::Duration};
+use std::{
+    convert::TryFrom,
+    fmt,
+    future::Future,
+    str::FromStr,
+    sync::atomic::{AtomicBool, Ordering},
+    time::Duration,
+};
 use tiberius::*;
 use tokio::net::TcpStream;
 use tokio_util::compat::{Compat, TokioAsyncWriteCompatExt};
@@ -75,6 +82,8 @@ pub(crate) struct MssqlQueryParams {
     connect_timeout: Option<Duration>,
     pool_timeout: Option<Duration>,
     transaction_isolation_level: Option<IsolationLevel>,
+    max_connection_lifetime: Option<Duration>,
+    max_idle_connection_lifetime: Option<Duration>,
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -186,6 +195,16 @@ impl MssqlUrl {
     pub fn connection_string(&self) -> &str {
         &self.connection_string
     }
+
+    /// The maximum connection lifetime
+    pub fn max_connection_lifetime(&self) -> Option<Duration> {
+        self.query_params.max_connection_lifetime()
+    }
+
+    /// The maximum idle connection lifetime
+    pub fn max_idle_connection_lifetime(&self) -> Option<Duration> {
+        self.query_params.max_idle_connection_lifetime()
+    }
 }
 
 impl MssqlQueryParams {
@@ -224,6 +243,14 @@ impl MssqlQueryParams {
     fn pool_timeout(&self) -> Option<Duration> {
         self.pool_timeout
     }
+
+    fn max_connection_lifetime(&self) -> Option<Duration> {
+        self.max_connection_lifetime
+    }
+
+    fn max_idle_connection_lifetime(&self) -> Option<Duration> {
+        self.max_idle_connection_lifetime
+    }
 }
 
 /// A connector interface for the SQL Server database.
@@ -233,10 +260,12 @@ pub struct Mssql {
     client: Mutex<Client<Compat<TcpStream>>>,
     url: MssqlUrl,
     socket_timeout: Option<Duration>,
+    is_healthy: AtomicBool,
 }
 
 impl Mssql {
     /// Creates a new connection to SQL Server.
+    #[tracing::instrument(name = "new_connection", skip(url))]
     pub async fn new(url: MssqlUrl) -> crate::Result<Self> {
         let config = Config::from_jdbc_string(&url.connection_string)?;
         let tcp = TcpStream::connect_named(&config).await?;
@@ -263,6 +292,7 @@ impl Mssql {
             client: Mutex::new(client),
             url,
             socket_timeout,
+            is_healthy: AtomicBool::new(true),
         };
 
         if let Some(isolation) = this.url.transaction_isolation_level() {
@@ -271,6 +301,19 @@ impl Mssql {
         };
 
         Ok(this)
+    }
+
+    async fn perform_io<F, T>(&self, fut: F) -> crate::Result<T>
+    where
+        F: Future<Output = std::result::Result<T, tiberius::error::Error>>,
+    {
+        match super::timeout::socket(self.socket_timeout, fut).await {
+            Err(e) if e.is_closed() => {
+                self.is_healthy.store(false, Ordering::SeqCst);
+                Err(e)
+            }
+            res => res,
+        }
     }
 }
 
@@ -286,16 +329,14 @@ impl Queryable for Mssql {
         self.execute_raw(&sql, &params[..]).await
     }
 
+    #[tracing::instrument(skip(self, params))]
     async fn query_raw(&self, sql: &str, params: &[Value<'_>]) -> crate::Result<ResultSet> {
         metrics::query("mssql.query_raw", sql, params, move || async move {
             let mut client = self.client.lock().await;
             let params = conversion::conv_params(params)?;
 
             let query = client.query(sql, params.as_slice());
-            let mut results = super::timeout::socket(self.socket_timeout, query)
-                .await?
-                .into_results()
-                .await?;
+            let mut results = self.perform_io(query).await?.into_results().await?;
 
             match results.pop() {
                 Some(rows) => {
@@ -326,33 +367,31 @@ impl Queryable for Mssql {
         .await
     }
 
+    #[tracing::instrument(skip(self, params))]
     async fn execute_raw(&self, sql: &str, params: &[Value<'_>]) -> crate::Result<u64> {
         metrics::query("mssql.execute_raw", sql, params, move || async move {
             let mut client = self.client.lock().await;
             let params = conversion::conv_params(params)?;
 
             let query = client.execute(sql, params.as_slice());
-            let changes = super::timeout::socket(self.socket_timeout, query).await?.total();
+            let changes = self.perform_io(query).await?.total();
 
             Ok(changes)
         })
         .await
     }
 
+    #[tracing::instrument(skip(self))]
     async fn raw_cmd(&self, cmd: &str) -> crate::Result<()> {
         metrics::query("mssql.raw_cmd", cmd, &[], move || async move {
             let mut client = self.client.lock().await;
-
-            super::timeout::socket(self.socket_timeout, client.simple_query(cmd))
-                .await?
-                .into_results()
-                .await?;
-
+            self.perform_io(client.simple_query(cmd)).await?.into_results().await?;
             Ok(())
         })
         .await
     }
 
+    #[tracing::instrument(skip(self))]
     async fn version(&self) -> crate::Result<Option<String>> {
         let query = r#"SELECT @@VERSION AS version"#;
         let rows = self.query_raw(query, &[]).await?;
@@ -362,6 +401,10 @@ impl Queryable for Mssql {
             .and_then(|row| row.get("version").and_then(|version| version.to_string()));
 
         Ok(version_string)
+    }
+
+    fn is_healthy(&self) -> bool {
+        self.is_healthy.load(Ordering::SeqCst)
     }
 
     fn begin_statement(&self) -> &'static str {
@@ -403,17 +446,25 @@ impl MssqlUrl {
         let database = props.remove("database").unwrap_or_else(|| String::from("master"));
         let schema = props.remove("schema").unwrap_or_else(|| String::from("dbo"));
 
-        let connection_limit = props.remove("connectionlimit").map(|param| param.parse()).transpose()?;
+        let connection_limit = props
+            .remove("connectionlimit")
+            .or_else(|| props.remove("connection_limit"))
+            .map(|param| param.parse())
+            .transpose()?;
 
         let transaction_isolation_level = props
             .remove("isolationlevel")
+            .or_else(|| props.remove("isolation_level"))
             .map(|level| IsolationLevel::from_str(&level))
             .transpose()?;
 
         let mut connect_timeout = props
             .remove("logintimeout")
+            .or_else(|| props.remove("login_timeout"))
             .or_else(|| props.remove("connecttimeout"))
+            .or_else(|| props.remove("connect_timeout"))
             .or_else(|| props.remove("connectiontimeout"))
+            .or_else(|| props.remove("connection_timeout"))
             .map(|param| param.parse().map(Duration::from_secs))
             .transpose()?;
 
@@ -425,17 +476,19 @@ impl MssqlUrl {
 
         let mut pool_timeout = props
             .remove("pooltimeout")
+            .or_else(|| props.remove("pool_timeout"))
             .map(|param| param.parse().map(Duration::from_secs))
             .transpose()?;
 
         match pool_timeout {
-            None => pool_timeout = Some(Duration::from_secs(5)),
+            None => pool_timeout = Some(Duration::from_secs(10)),
             Some(dur) if dur.as_secs() == 0 => pool_timeout = None,
             _ => (),
         }
 
         let socket_timeout = props
             .remove("sockettimeout")
+            .or_else(|| props.remove("socket_timeout"))
             .map(|param| param.parse().map(Duration::from_secs))
             .transpose()?;
 
@@ -447,9 +500,31 @@ impl MssqlUrl {
 
         let trust_server_certificate = props
             .remove("trustservercertificate")
+            .or_else(|| props.remove("trust_server_certificate"))
             .map(|param| param.parse())
             .transpose()?
             .unwrap_or(false);
+
+        let mut max_connection_lifetime = props
+            .remove("max_connection_lifetime")
+            .map(|param| param.parse().map(Duration::from_secs))
+            .transpose()?;
+
+        match max_connection_lifetime {
+            Some(dur) if dur.as_secs() == 0 => max_connection_lifetime = None,
+            _ => (),
+        }
+
+        let mut max_idle_connection_lifetime = props
+            .remove("max_idle_connection_lifetime")
+            .map(|param| param.parse().map(Duration::from_secs))
+            .transpose()?;
+
+        match max_idle_connection_lifetime {
+            None => max_idle_connection_lifetime = Some(Duration::from_secs(300)),
+            Some(dur) if dur.as_secs() == 0 => max_idle_connection_lifetime = None,
+            _ => (),
+        }
 
         Ok(MssqlQueryParams {
             encrypt,
@@ -465,6 +540,8 @@ impl MssqlUrl {
             connect_timeout,
             pool_timeout,
             transaction_isolation_level,
+            max_connection_lifetime,
+            max_idle_connection_lifetime,
         })
     }
 }

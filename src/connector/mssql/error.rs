@@ -1,8 +1,15 @@
 use crate::error::{DatabaseConstraint, Error, ErrorKind};
+use tiberius::error::IoErrorKind;
 
 impl From<tiberius::error::Error> for Error {
     fn from(e: tiberius::error::Error) -> Error {
         match e {
+            tiberius::error::Error::Io { kind, message } if kind == IoErrorKind::UnexpectedEof => {
+                let mut builder = Error::builder(ErrorKind::ConnectionClosed);
+                builder.set_original_message(message);
+                builder.build()
+            }
+            e @ tiberius::error::Error::Io { .. } => Error::builder(ErrorKind::ConnectionError(e.into())).build(),
             tiberius::error::Error::Tls(message) => {
                 let message = format!(
                     "The TLS settings didn't allow the connection to be established. Please review your connection string. (error: {})",
@@ -10,6 +17,16 @@ impl From<tiberius::error::Error> for Error {
                 );
 
                 Error::builder(ErrorKind::TlsError { message }).build()
+            }
+            tiberius::error::Error::Server(e) if e.code() == 8169 => {
+                let kind = ErrorKind::conversion(e.message().to_string());
+
+                let mut builder = Error::builder(kind);
+
+                builder.set_original_code(format!("{}", e.code()));
+                builder.set_original_message(e.message().to_string());
+
+                builder.build()
             }
             tiberius::error::Error::Server(e) if e.code() == 18456 => {
                 let user = e.message().split('\'').nth(1).into();
@@ -133,7 +150,7 @@ impl From<tiberius::error::Error> for Error {
 
                 builder.build()
             }
-            tiberius::error::Error::Server(e) if e.code() == 2714 => {
+            tiberius::error::Error::Server(e) if e.code() == 1801 => {
                 let db_name = e.message().split('\'').nth(1).into();
                 let kind = ErrorKind::DatabaseAlreadyExists { db_name };
 
