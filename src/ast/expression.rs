@@ -418,4 +418,46 @@ impl<'a> Comparable<'a> for Expression<'a> {
     {
         Compare::Raw(Box::new(self), raw_comparator.into(), Box::new(right.into()))
     }
+
+    fn json_array_contains<T>(self, item: T) -> Compare<'a>
+    where
+        T: Into<Expression<'a>>,
+    {
+        Compare::JsonArrayContains(Box::new(self), Box::new(item.into()))
+    }
+
+    fn json_array_not_contains<T>(self, item: T) -> Compare<'a>
+    where
+        T: Into<Expression<'a>>,
+    {
+        Compare::JsonArrayNotContains(Box::new(self), Box::new(item.into()))
+    }
+
+    fn json_array_begins_with<T>(self, item: T) -> Compare<'a>
+    where
+        T: Into<Expression<'a>>,
+    {
+        Compare::JsonArrayStartsWith(Box::new(self), Box::new(item.into()))
+    }
+
+    fn json_array_not_begins_with<T>(self, item: T) -> Compare<'a>
+    where
+        T: Into<Expression<'a>>,
+    {
+        Compare::JsonArrayNotStartsWith(Box::new(self), Box::new(item.into()))
+    }
+
+    fn json_array_ends_with<T>(self, item: T) -> Compare<'a>
+    where
+        T: Into<Expression<'a>>,
+    {
+        Compare::JsonArrayEndsWith(Box::new(self), Box::new(item.into()))
+    }
+
+    fn json_array_not_ends_with<T>(self, item: T) -> Compare<'a>
+    where
+        T: Into<Expression<'a>>,
+    {
+        Compare::JsonArrayNotEndsWith(Box::new(self), Box::new(item.into()))
+    }
 }

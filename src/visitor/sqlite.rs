@@ -218,7 +218,37 @@ impl<'a> Visitor<'a> for Sqlite<'a> {
 
     #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
     fn visit_json_extract(&mut self, _json_extract: JsonExtract<'a>) -> visitor::Result {
-        unimplemented!("JSON filtering is not yet supported on sqlite")
+        unimplemented!("JSON filtering is not yet supported on SQLite")
+    }
+
+    #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
+    fn visit_json_array_contains(
+        &mut self,
+        _left: Expression<'a>,
+        _right: Expression<'a>,
+        _not: bool,
+    ) -> visitor::Result {
+        unimplemented!("JSON filtering is not yet supported on SQLite")
+    }
+
+    #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
+    fn visit_json_array_starts_with(
+        &mut self,
+        _left: Expression<'a>,
+        _right: Expression<'a>,
+        _not: bool,
+    ) -> visitor::Result {
+        unimplemented!("JSON filtering is not yet supported on SQLite")
+    }
+
+    #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
+    fn visit_json_array_ends_with(
+        &mut self,
+        _left: Expression<'a>,
+        _right: Expression<'a>,
+        _not: bool,
+    ) -> visitor::Result {
+        unimplemented!("JSON filtering is not yet supported on SQLite")
     }
 }
 

@@ -44,6 +44,12 @@ pub enum Compare<'a> {
     /// Raw comparator, allows to use an operator `left <raw> right` as is,
     /// without visitor transformation in between.
     Raw(Box<Expression<'a>>, Cow<'a, str>, Box<Expression<'a>>),
+    JsonArrayContains(Box<Expression<'a>>, Box<Expression<'a>>),
+    JsonArrayNotContains(Box<Expression<'a>>, Box<Expression<'a>>),
+    JsonArrayStartsWith(Box<Expression<'a>>, Box<Expression<'a>>),
+    JsonArrayNotStartsWith(Box<Expression<'a>>, Box<Expression<'a>>),
+    JsonArrayEndsWith(Box<Expression<'a>>, Box<Expression<'a>>),
+    JsonArrayNotEndsWith(Box<Expression<'a>>, Box<Expression<'a>>),
 }
 
 impl<'a> Compare<'a> {
@@ -603,6 +609,25 @@ pub trait Comparable<'a> {
         T: Into<Expression<'a>>,
         V: Into<Expression<'a>>;
 
+    fn json_array_contains<T>(self, item: T) -> Compare<'a>
+    where
+        T: Into<Expression<'a>>;
+    fn json_array_not_contains<T>(self, item: T) -> Compare<'a>
+    where
+        T: Into<Expression<'a>>;
+    fn json_array_begins_with<T>(self, item: T) -> Compare<'a>
+    where
+        T: Into<Expression<'a>>;
+    fn json_array_not_begins_with<T>(self, item: T) -> Compare<'a>
+    where
+        T: Into<Expression<'a>>;
+    fn json_array_ends_with<T>(self, item: T) -> Compare<'a>
+    where
+        T: Into<Expression<'a>>;
+    fn json_array_not_ends_with<T>(self, item: T) -> Compare<'a>
+    where
+        T: Into<Expression<'a>>;
+
     /// Compares two expressions with a custom operator.
     ///
     /// ```rust
@@ -800,5 +825,65 @@ where
         let right: Expression<'a> = right.into();
 
         left.compare_raw(raw_comparator.into(), right)
+    }
+
+    fn json_array_contains<T>(self, item: T) -> Compare<'a>
+    where
+        T: Into<Expression<'a>>,
+    {
+        let col: Column<'a> = self.into();
+        let val: Expression<'a> = col.into();
+
+        val.json_array_contains(item)
+    }
+
+    fn json_array_not_contains<T>(self, item: T) -> Compare<'a>
+    where
+        T: Into<Expression<'a>>,
+    {
+        let col: Column<'a> = self.into();
+        let val: Expression<'a> = col.into();
+
+        val.json_array_not_contains(item)
+    }
+
+    fn json_array_begins_with<T>(self, item: T) -> Compare<'a>
+    where
+        T: Into<Expression<'a>>,
+    {
+        let col: Column<'a> = self.into();
+        let val: Expression<'a> = col.into();
+
+        val.json_array_begins_with(item)
+    }
+
+    fn json_array_not_begins_with<T>(self, item: T) -> Compare<'a>
+    where
+        T: Into<Expression<'a>>,
+    {
+        let col: Column<'a> = self.into();
+        let val: Expression<'a> = col.into();
+
+        val.json_array_not_begins_with(item)
+    }
+
+    fn json_array_ends_with<T>(self, item: T) -> Compare<'a>
+    where
+        T: Into<Expression<'a>>,
+    {
+        let col: Column<'a> = self.into();
+        let val: Expression<'a> = col.into();
+
+        val.json_array_ends_with(item)
+    }
+
+    fn json_array_not_ends_with<T>(self, item: T) -> Compare<'a>
+    where
+        T: Into<Expression<'a>>,
+    {
+        let col: Column<'a> = self.into();
+        let val: Expression<'a> = col.into();
+
+        val.json_array_not_ends_with(item)
     }
 }

@@ -312,4 +312,58 @@ impl<'a> Comparable<'a> for Row<'a> {
         let value: Expression<'a> = self.into();
         value.compare_raw(raw_comparator, right)
     }
+
+    fn json_array_contains<T>(self, item: T) -> Compare<'a>
+    where
+        T: Into<Expression<'a>>,
+    {
+        let value: Expression<'a> = self.into();
+
+        value.json_array_contains(item)
+    }
+
+    fn json_array_not_contains<T>(self, item: T) -> Compare<'a>
+    where
+        T: Into<Expression<'a>>,
+    {
+        let value: Expression<'a> = self.into();
+
+        value.json_array_not_contains(item)
+    }
+
+    fn json_array_begins_with<T>(self, item: T) -> Compare<'a>
+    where
+        T: Into<Expression<'a>>,
+    {
+        let value: Expression<'a> = self.into();
+
+        value.json_array_begins_with(item)
+    }
+
+    fn json_array_not_begins_with<T>(self, item: T) -> Compare<'a>
+    where
+        T: Into<Expression<'a>>,
+    {
+        let value: Expression<'a> = self.into();
+
+        value.json_array_not_begins_with(item)
+    }
+
+    fn json_array_ends_with<T>(self, item: T) -> Compare<'a>
+    where
+        T: Into<Expression<'a>>,
+    {
+        let value: Expression<'a> = self.into();
+
+        value.json_array_ends_with(item)
+    }
+
+    fn json_array_not_ends_with<T>(self, item: T) -> Compare<'a>
+    where
+        T: Into<Expression<'a>>,
+    {
+        let value: Expression<'a> = self.into();
+
+        value.json_array_not_ends_with(item)
+    }
 }

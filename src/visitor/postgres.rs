@@ -229,10 +229,14 @@ impl<'a> Visitor<'a> for Postgres<'a> {
             _ => "",
         };
 
+        self.write("(")?;
         self.visit_expression(left)?;
+        self.write(")")?;
         self.write(left_cast)?;
         self.write(" = ")?;
+        self.write("(")?;
         self.visit_expression(right)?;
+        self.write(")")?;
         self.write(right_cast)?;
 
         Ok(())
@@ -254,10 +258,14 @@ impl<'a> Visitor<'a> for Postgres<'a> {
             _ => "",
         };
 
+        self.write("(")?;
         self.visit_expression(left)?;
+        self.write(")")?;
         self.write(left_cast)?;
         self.write(" <> ")?;
+        self.write("(")?;
         self.visit_expression(right)?;
+        self.write(")")?;
         self.write(right_cast)?;
 
         Ok(())
@@ -269,9 +277,10 @@ impl<'a> Visitor<'a> for Postgres<'a> {
             #[cfg(feature = "mysql")]
             JsonPath::String(_) => panic!("JSON path string notation is not supported for Postgres"),
             JsonPath::Array(json_path) => {
+                self.write("(")?;
                 self.visit_expression(*json_extract.column)?;
                 self.write("#>>")?;
-                // We use the `ARRAY[]::text` notation to better handle escaped character
+                // We use the `ARRAY[]::text[]` notation to better handle escaped character
                 // The text protocol used when sending prepared statement doesn't seem to work well with escaped characted
                 // when using the '{a, b, c}' string array notation.
                 self.surround_with("ARRAY[", "]::text[]", |s| {
@@ -283,9 +292,62 @@ impl<'a> Visitor<'a> for Postgres<'a> {
                         }
                     }
                     Ok(())
-                })
+                })?;
+                self.write(")")
             }
         }
+    }
+
+    #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
+    fn visit_json_array_contains(&mut self, left: Expression<'a>, right: Expression<'a>, not: bool) -> visitor::Result {
+        self.write("(")?;
+
+        if not {
+            self.write("NOT ")?;
+        }
+
+        self.visit_expression(left)?;
+        self.write("::jsonb @> ")?;
+        self.visit_expression(right)?;
+        self.write(")")
+    }
+
+    #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
+    fn visit_json_array_starts_with(
+        &mut self,
+        left: Expression<'a>,
+        right: Expression<'a>,
+        not: bool,
+    ) -> visitor::Result {
+        self.write("(")?;
+
+        if not {
+            self.write("NOT ")?;
+        }
+
+        self.visit_expression(left)?;
+        self.write("::jsonb->>0 = ")?;
+        self.visit_expression(right)?;
+        self.write(")")
+    }
+
+    #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
+    fn visit_json_array_ends_with(
+        &mut self,
+        left: Expression<'a>,
+        right: Expression<'a>,
+        not: bool,
+    ) -> visitor::Result {
+        self.write("(")?;
+
+        if not {
+            self.write("NOT ")?;
+        }
+
+        self.visit_expression(left)?;
+        self.write("::jsonb->>-1 = ")?;
+        self.visit_expression(right)?;
+        self.write(")")
     }
 }
 

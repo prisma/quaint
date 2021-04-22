@@ -291,6 +291,72 @@ impl<'a> Visitor<'a> for Mysql<'a> {
         }
         self.write(")")
     }
+
+    #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
+    fn visit_json_array_contains(&mut self, left: Expression<'a>, right: Expression<'a>, not: bool) -> visitor::Result {
+        self.write("JSON_CONTAINS(")?;
+        self.visit_expression(left)?;
+        self.write(", ")?;
+        self.visit_expression(right)?;
+        self.write(")")?;
+
+        if not {
+            self.write(" = FALSE")?;
+        }
+
+        Ok(())
+    }
+
+    #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
+    fn visit_json_array_starts_with(
+        &mut self,
+        left: Expression<'a>,
+        right: Expression<'a>,
+        not: bool,
+    ) -> visitor::Result {
+        self.write("JSON_EXTRACT(")?;
+        self.visit_expression(left)?;
+        self.write(", ")?;
+        self.visit_parameterized(Value::text("$[0]"))?;
+        self.write(")")?;
+        if not {
+            self.write(" <> ")?;
+        } else {
+            self.write(" = ")?;
+        }
+        self.write("CAST(")?;
+        self.visit_expression(right)?;
+        self.write(" AS JSON)")?;
+
+        Ok(())
+    }
+
+    #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
+    fn visit_json_array_ends_with(
+        &mut self,
+        left: Expression<'a>,
+        right: Expression<'a>,
+        not: bool,
+    ) -> visitor::Result {
+        self.write("JSON_EXTRACT(")?;
+        self.visit_expression(left.clone())?;
+        self.write(", ")?;
+        self.write("CONCAT('$[', ")?;
+        self.write("JSON_LENGTH(")?;
+        self.visit_expression(left)?;
+        self.write(") - 1, ']'))")?;
+
+        if not {
+            self.write(" <> ")?;
+        } else {
+            self.write(" = ")?;
+        }
+        self.write("CAST(")?;
+        self.visit_expression(right)?;
+        self.write(" AS JSON)")?;
+
+        Ok(())
+    }
 }
 
 #[cfg(test)]

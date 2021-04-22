@@ -105,6 +105,15 @@ pub trait Visitor<'a> {
     #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
     fn visit_json_extract(&mut self, json_extract: JsonExtract<'a>) -> Result;
 
+    #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
+    fn visit_json_array_contains(&mut self, left: Expression<'a>, right: Expression<'a>, not: bool) -> Result;
+
+    #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
+    fn visit_json_array_starts_with(&mut self, left: Expression<'a>, right: Expression<'a>, not: bool) -> Result;
+
+    #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
+    fn visit_json_array_ends_with(&mut self, left: Expression<'a>, right: Expression<'a>, not: bool) -> Result;
+
     /// A visit to a value we parameterize
     fn visit_parameterized(&mut self, value: Value<'a>) -> Result {
         self.add_parameter(value);
@@ -842,6 +851,12 @@ pub trait Visitor<'a> {
                 self.write(" ")?;
                 self.visit_expression(*right)
             }
+            Compare::JsonArrayContains(left, right) => self.visit_json_array_contains(*left, *right, false),
+            Compare::JsonArrayNotContains(left, right) => self.visit_json_array_contains(*left, *right, true),
+            Compare::JsonArrayStartsWith(left, right) => self.visit_json_array_starts_with(*left, *right, false),
+            Compare::JsonArrayNotStartsWith(left, right) => self.visit_json_array_starts_with(*left, *right, true),
+            Compare::JsonArrayEndsWith(left, right) => self.visit_json_array_ends_with(*left, *right, false),
+            Compare::JsonArrayNotEndsWith(left, right) => self.visit_json_array_ends_with(*left, *right, true),
         }
     }
 
