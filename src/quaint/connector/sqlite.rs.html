@@ -301,7 +301,7 @@
 <span class="kw">mod</span> <span class="ident">conversion</span>;
 <span class="kw">mod</span> <span class="ident">error</span>;
 
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">rusqlite::version</span> <span class="kw">as</span> <span class="ident">sqlite_version</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">rusqlite</span>::{<span class="ident">params_from_iter</span>, <span class="ident">version</span> <span class="kw">as</span> <span class="ident">sqlite_version</span>};
 
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">ast</span>::{<span class="ident">Query</span>, <span class="ident">Value</span>},
@@ -478,7 +478,7 @@
 
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">stmt</span> <span class="op">=</span> <span class="ident">client</span>.<span class="ident">prepare_cached</span>(<span class="ident">sql</span>)<span class="question-mark">?</span>;
 
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rows</span> <span class="op">=</span> <span class="ident">stmt</span>.<span class="ident">query</span>(<span class="ident">params</span>)<span class="question-mark">?</span>;
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rows</span> <span class="op">=</span> <span class="ident">stmt</span>.<span class="ident">query</span>(<span class="ident">params_from_iter</span>(<span class="ident">params</span>.<span class="ident">iter</span>()))<span class="question-mark">?</span>;
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">ResultSet::new</span>(<span class="ident">rows</span>.<span class="ident">to_column_names</span>(), <span class="ident">Vec::new</span>());
 
             <span class="kw">while</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">row</span>) <span class="op">=</span> <span class="ident">rows</span>.<span class="ident">next</span>()<span class="question-mark">?</span> {
@@ -497,7 +497,7 @@
         <span class="ident">metrics::query</span>(<span class="string">&quot;sqlite.query_raw&quot;</span>, <span class="ident">sql</span>, <span class="ident">params</span>, <span class="kw">move</span> <span class="op">|</span><span class="op">|</span> <span class="kw">async</span> <span class="kw">move</span> {
             <span class="kw">let</span> <span class="ident">client</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">client</span>.<span class="ident">lock</span>().<span class="kw">await</span>;
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">stmt</span> <span class="op">=</span> <span class="ident">client</span>.<span class="ident">prepare_cached</span>(<span class="ident">sql</span>)<span class="question-mark">?</span>;
-            <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">u64::try_from</span>(<span class="ident">stmt</span>.<span class="ident">execute</span>(<span class="ident">params</span>)<span class="question-mark">?</span>)<span class="question-mark">?</span>;
+            <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">u64::try_from</span>(<span class="ident">stmt</span>.<span class="ident">execute</span>(<span class="ident">params_from_iter</span>(<span class="ident">params</span>.<span class="ident">iter</span>()))<span class="question-mark">?</span>)<span class="question-mark">?</span>;
 
             <span class="prelude-val">Ok</span>(<span class="ident">res</span>)
         })
