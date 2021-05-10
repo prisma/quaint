@@ -114,6 +114,9 @@ pub trait Visitor<'a> {
     #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
     fn visit_json_array_ends_with(&mut self, left: Expression<'a>, right: Expression<'a>, not: bool) -> Result;
 
+    #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
+    fn visit_json_type_equals(&mut self, left: Expression<'a>, json_type: JsonType) -> Result;
+
     /// A visit to a value we parameterize
     fn visit_parameterized(&mut self, value: Value<'a>) -> Result {
         self.add_parameter(value);
@@ -851,12 +854,20 @@ pub trait Visitor<'a> {
                 self.write(" ")?;
                 self.visit_expression(*right)
             }
+            #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
             Compare::JsonArrayContains(left, right) => self.visit_json_array_contains(*left, *right, false),
+            #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
             Compare::JsonArrayNotContains(left, right) => self.visit_json_array_contains(*left, *right, true),
+            #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
             Compare::JsonArrayStartsWith(left, right) => self.visit_json_array_starts_with(*left, *right, false),
+            #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
             Compare::JsonArrayNotStartsWith(left, right) => self.visit_json_array_starts_with(*left, *right, true),
+            #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
             Compare::JsonArrayEndsWith(left, right) => self.visit_json_array_ends_with(*left, *right, false),
+            #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
             Compare::JsonArrayNotEndsWith(left, right) => self.visit_json_array_ends_with(*left, *right, true),
+            #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
+            Compare::JsonTypeEquals(left, json_type) => self.visit_json_type_equals(*left, json_type),
         }
     }
 

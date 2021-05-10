@@ -250,6 +250,11 @@ impl<'a> Visitor<'a> for Sqlite<'a> {
     ) -> visitor::Result {
         unimplemented!("JSON filtering is not yet supported on SQLite")
     }
+
+    #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
+    fn visit_json_type_equals(&mut self, _left: Expression<'a>, _json_type: JsonType) -> visitor::Result {
+        unimplemented!("JSON_TYPE is not yet supported on SQLite")
+    }
 }
 
 #[cfg(test)]

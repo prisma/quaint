@@ -1,17 +1,14 @@
 use super::Visitor;
-use crate::prelude::Aliasable;
-use crate::prelude::Query;
+#[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
+use crate::prelude::{JsonExtract, JsonType};
 use crate::{
     ast::{
         Column, Comparable, Expression, ExpressionKind, Insert, IntoRaw, Join, JoinData, Joinable, Merge, OnConflict,
         Order, Ordering, Row, Table, TypeDataLength, TypeFamily, Values,
     },
-    prelude::Average,
-    visitor, Value,
-};
-use crate::{
     error::{Error, ErrorKind},
-    prelude::JsonExtract,
+    prelude::{Aliasable, Average, Query},
+    visitor, Value,
 };
 use std::{convert::TryFrom, fmt::Write, iter};
 
@@ -616,6 +613,11 @@ impl<'a> Visitor<'a> for Mssql<'a> {
         _not: bool,
     ) -> visitor::Result {
         unimplemented!("JSON filtering is not yet supported on MSSQL")
+    }
+
+    #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
+    fn visit_json_type_equals(&mut self, _left: Expression<'a>, _json_type: JsonType) -> visitor::Result {
+        unimplemented!("JSON_TYPE is not yet supported on MSSQL")
     }
 }
 

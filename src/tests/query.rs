@@ -4,6 +4,7 @@ use super::test_api::*;
 use crate::{
     ast::*,
     connector::{Queryable, TransactionCapable},
+    prelude::*,
 };
 use test_macros::test_each_connector;
 
@@ -1985,30 +1986,320 @@ async fn json_extract_array_path_fun(api: &mut dyn TestApi) -> crate::Result<()>
     api.conn().insert(second_insert.into()).await?;
     api.conn().insert(third_insert.into()).await?;
 
-    let extract: Expression = json_extract(col!("obj"), JsonPath::array(["a", "b"])).into();
-    let select = Select::from_table(&table).so_that(extract.equals("c"));
-    let row = api.conn().select(select).await?.into_single()?;
-
     // Test object extraction
+    let extract: Expression = json_extract(col!("obj"), JsonPath::array(["a", "b"])).into();
+    let select = Select::from_table(&table).so_that(extract.equals("\"c\""));
+    let row = api.conn().select(select).await?.into_single()?;
     assert_eq!(Some(&serde_json::json!({ "a": { "b": "c" } })), row["obj"].as_json());
 
-    let extract: Expression = json_extract(col!("obj"), JsonPath::array(["a", "b", "1"])).into();
-    let select = Select::from_table(&table).so_that(extract.equals(2));
-    let row = api.conn().select(select).await?.into_single()?;
-
     // Test array index extraction
+    let extract: Expression = json_extract(col!("obj"), JsonPath::array(["a", "b", "1"])).into();
+    let select = Select::from_table(&table).so_that(extract.equals("2"));
+    let row = api.conn().select(select).await?.into_single()?;
     assert_eq!(
         Some(&serde_json::json!({ "a": { "b": [1, 2, 3] } })),
         row["obj"].as_json()
     );
 
-    // "$.\"a\\\":{\""
-    let extract: Expression = json_extract(col!("obj"), JsonPath::array(["a\":{"])).into();
-    let select = Select::from_table(&table).so_that(extract.equals("b"));
-    let row = api.conn().select(select).await?.into_single()?;
-
     // Test escaped chars in keys
+    let extract: Expression = json_extract(col!("obj"), JsonPath::array(["a\":{"])).into();
+    let select = Select::from_table(&table).so_that(extract.equals("\"b\""));
+    let row = api.conn().select(select).await?.into_single()?;
     assert_eq!(Some(&serde_json::json!({ "a\":{": "b" })), row["obj"].as_json());
+
+    Ok(())
+}
+
+#[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
+#[test_each_connector(tags("postgresql", "mysql"))]
+async fn json_array_contains_fun(api: &mut dyn TestApi) -> crate::Result<()> {
+    let json_type = match api.system() {
+        "postgres" => "jsonb",
+        _ => "json",
+    };
+    let table = api
+        .create_table(&format!("{}, obj {}", api.autogen_id("id"), json_type))
+        .await?;
+
+    let insert = Insert::single_into(&table).value("obj", serde_json::json!({ "a": { "b": [1, 2, 3] } }));
+    let second_insert = Insert::single_into(&table).value("obj", serde_json::json!({ "a": { "b": [[1, 2], [3, 4]] } }));
+    let third_insert = Insert::single_into(&table).value("obj", serde_json::json!({ "a": { "b": ["foo", "bar"] } }));
+    let fourth_insert = Insert::single_into(&table).value(
+        "obj",
+        serde_json::json!({ "a": { "b": [{ "foo": "bar" }, { "bar": "foo" }] } }),
+    );
+
+    api.conn().insert(insert.into()).await?;
+    api.conn().insert(second_insert.into()).await?;
+    api.conn().insert(third_insert.into()).await?;
+    api.conn().insert(fourth_insert.into()).await?;
+
+    let path = match api.system() {
+        "postgres" => JsonPath::array(["a", "b"]),
+        _ => JsonPath::string("$.a.b"),
+    };
+    let path: Expression = json_extract(col!("obj"), path.clone()).into();
+
+    // Assert contains number
+    let select = Select::from_table(&table).so_that(path.clone().json_array_contains("[2]"));
+    let row = api.conn().select(select).await?.into_single()?;
+    assert_eq!(
+        Some(&serde_json::json!({ "a": { "b": [1, 2, 3] } })),
+        row["obj"].as_json()
+    );
+
+    // Assert contains string
+    let select = Select::from_table(&table).so_that(path.clone().json_array_contains("[\"bar\"]"));
+    let row = api.conn().select(select).await?.into_single()?;
+    assert_eq!(
+        Some(&serde_json::json!({ "a": { "b": ["foo", "bar"] } })),
+        row["obj"].as_json()
+    );
+
+    // Assert contains object
+    let select = Select::from_table(&table).so_that(path.clone().json_array_contains("[{\"bar\": \"foo\"}]"));
+    let row = api.conn().select(select).await?.into_single()?;
+    assert_eq!(
+        Some(&serde_json::json!({ "a": { "b": [{ "foo": "bar" }, { "bar": "foo" }] } })),
+        row["obj"].as_json()
+    );
+
+    // Assert contains array
+    let select = Select::from_table(&table).so_that(path.clone().json_array_contains("[[1, 2]]"));
+    let row = api.conn().select(select).await?.into_single()?;
+    assert_eq!(
+        Some(&serde_json::json!({ "a": { "b": [[1, 2], [3, 4]] } })),
+        row["obj"].as_json()
+    );
+
+    Ok(())
+}
+
+#[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
+#[test_each_connector(tags("postgresql", "mysql"))]
+async fn json_array_not_contains_fun(api: &mut dyn TestApi) -> crate::Result<()> {
+    let json_type = match api.system() {
+        "postgres" => "jsonb",
+        _ => "json",
+    };
+    let table = api
+        .create_table(&format!("{}, obj {}", api.autogen_id("id"), json_type))
+        .await?;
+
+    let insert = Insert::single_into(&table).value("obj", serde_json::json!({ "a": { "b": [1, 2] } }));
+    let second_insert = Insert::single_into(&table).value("obj", serde_json::json!({ "a": { "b": [2, 3] } }));
+    let third_insert = Insert::single_into(&table).value("obj", serde_json::json!({ "a": { "b": [4, 5] } }));
+
+    api.conn().insert(insert.into()).await?;
+    api.conn().insert(second_insert.into()).await?;
+    api.conn().insert(third_insert.into()).await?;
+
+    let path = match api.system() {
+        "postgres" => JsonPath::array(["a", "b"]),
+        _ => JsonPath::string("$.a.b"),
+    };
+    let path: Expression = json_extract(col!("obj"), path.clone()).into();
+
+    // Assert NOT contains number
+    let select = Select::from_table(&table).so_that(path.clone().json_array_not_contains("[2]"));
+    let row = api.conn().select(select).await?.into_single()?;
+    assert_eq!(Some(&serde_json::json!({ "a": { "b": [4, 5] } })), row["obj"].as_json());
+
+    Ok(())
+}
+
+#[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
+#[test_each_connector(tags("postgresql", "mysql"))]
+async fn json_array_begins_with_fun(api: &mut dyn TestApi) -> crate::Result<()> {
+    let json_type = match api.system() {
+        "postgres" => "jsonb",
+        _ => "json",
+    };
+    let table = api
+        .create_table(&format!("{}, obj {}", api.autogen_id("id"), json_type))
+        .await?;
+
+    let insert = Insert::single_into(&table).value("obj", serde_json::json!({ "a": { "b": [1, 2, 3] } }));
+    let second_insert = Insert::single_into(&table).value("obj", serde_json::json!({ "a": { "b": [[1, 2], [3, 4]] } }));
+    let third_insert = Insert::single_into(&table).value("obj", serde_json::json!({ "a": { "b": ["foo", "bar"] } }));
+    let fourth_insert = Insert::single_into(&table).value(
+        "obj",
+        serde_json::json!({ "a": { "b": [{ "foo": "bar" }, { "bar": "foo" }] } }),
+    );
+
+    api.conn().insert(insert.into()).await?;
+    api.conn().insert(second_insert.into()).await?;
+    api.conn().insert(third_insert.into()).await?;
+    api.conn().insert(fourth_insert.into()).await?;
+
+    let path = match api.system() {
+        "postgres" => JsonPath::array(["a", "b"]),
+        _ => JsonPath::string("$.a.b"),
+    };
+    let path: Expression = json_extract(col!("obj"), path.clone()).into();
+
+    // Assert starts with number
+    let select = Select::from_table(&table).so_that(path.clone().json_array_begins_with("1"));
+    let row = api.conn().select(select).await?.into_single()?;
+    assert_eq!(
+        Some(&serde_json::json!({ "a": { "b": [1, 2, 3] } })),
+        row["obj"].as_json()
+    );
+
+    // Assert starts with string
+    let select = Select::from_table(&table).so_that(path.clone().json_array_begins_with("\"foo\""));
+    let row = api.conn().select(select).await?.into_single()?;
+    assert_eq!(
+        Some(&serde_json::json!({ "a": { "b": ["foo", "bar"] } })),
+        row["obj"].as_json()
+    );
+
+    // Assert starts with object
+    let select = Select::from_table(&table).so_that(path.clone().json_array_begins_with("{\"foo\": \"bar\"}"));
+    let row = api.conn().select(select).await?.into_single()?;
+    assert_eq!(
+        Some(&serde_json::json!({ "a": { "b": [{ "foo": "bar" }, { "bar": "foo" }] } })),
+        row["obj"].as_json()
+    );
+
+    // Assert starts with array
+    let select = Select::from_table(&table).so_that(path.clone().json_array_begins_with("[1, 2]"));
+    let row = api.conn().select(select).await?.into_single()?;
+    assert_eq!(
+        Some(&serde_json::json!({ "a": { "b": [[1, 2], [3, 4]] } })),
+        row["obj"].as_json()
+    );
+
+    Ok(())
+}
+
+#[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
+#[test_each_connector(tags("postgresql", "mysql"))]
+async fn json_array_not_begins_with_fun(api: &mut dyn TestApi) -> crate::Result<()> {
+    let json_type = match api.system() {
+        "postgres" => "jsonb",
+        _ => "json",
+    };
+    let table = api
+        .create_table(&format!("{}, obj {}", api.autogen_id("id"), json_type))
+        .await?;
+
+    let insert = Insert::single_into(&table).value("obj", serde_json::json!({ "a": { "b": [1, 2] } }));
+    let second_insert = Insert::single_into(&table).value("obj", serde_json::json!({ "a": { "b": [1, 3] } }));
+    let third_insert = Insert::single_into(&table).value("obj", serde_json::json!({ "a": { "b": [4, 5] } }));
+
+    api.conn().insert(insert.into()).await?;
+    api.conn().insert(second_insert.into()).await?;
+    api.conn().insert(third_insert.into()).await?;
+
+    let path = match api.system() {
+        "postgres" => JsonPath::array(["a", "b"]),
+        _ => JsonPath::string("$.a.b"),
+    };
+    let path: Expression = json_extract(col!("obj"), path.clone()).into();
+
+    // Assert NOT starts with number
+    let select = Select::from_table(&table).so_that(path.clone().json_array_not_begins_with("1"));
+    let row = api.conn().select(select).await?.into_single()?;
+    assert_eq!(Some(&serde_json::json!({ "a": { "b": [4, 5] } })), row["obj"].as_json());
+
+    Ok(())
+}
+
+#[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
+#[test_each_connector(tags("postgresql", "mysql"))]
+async fn json_array_ends_with_fun(api: &mut dyn TestApi) -> crate::Result<()> {
+    let json_type = match api.system() {
+        "postgres" => "jsonb",
+        _ => "json",
+    };
+    let table = api
+        .create_table(&format!("{}, obj {}", api.autogen_id("id"), json_type))
+        .await?;
+
+    let insert = Insert::single_into(&table).value("obj", serde_json::json!({ "a": { "b": [1, 2, 3] } }));
+    let second_insert = Insert::single_into(&table).value("obj", serde_json::json!({ "a": { "b": [[1, 2], [3, 4]] } }));
+    let third_insert = Insert::single_into(&table).value("obj", serde_json::json!({ "a": { "b": ["foo", "bar"] } }));
+    let fourth_insert = Insert::single_into(&table).value(
+        "obj",
+        serde_json::json!({ "a": { "b": [{ "foo": "bar" }, { "bar": "foo" }] } }),
+    );
+
+    api.conn().insert(insert.into()).await?;
+    api.conn().insert(second_insert.into()).await?;
+    api.conn().insert(third_insert.into()).await?;
+    api.conn().insert(fourth_insert.into()).await?;
+
+    let path = match api.system() {
+        "postgres" => JsonPath::array(["a", "b"]),
+        _ => JsonPath::string("$.a.b"),
+    };
+    let path: Expression = json_extract(col!("obj"), path.clone()).into();
+
+    // Assert ends with number
+    let select = Select::from_table(&table).so_that(path.clone().json_array_ends_with("3"));
+    let row = api.conn().select(select).await?.into_single()?;
+    assert_eq!(
+        Some(&serde_json::json!({ "a": { "b": [1, 2, 3] } })),
+        row["obj"].as_json()
+    );
+
+    // Assert ends with string
+    let select = Select::from_table(&table).so_that(path.clone().json_array_ends_with("\"bar\""));
+    let row = api.conn().select(select).await?.into_single()?;
+    assert_eq!(
+        Some(&serde_json::json!({ "a": { "b": ["foo", "bar"] } })),
+        row["obj"].as_json()
+    );
+
+    // Assert ends with object
+    let select = Select::from_table(&table).so_that(path.clone().json_array_ends_with("{\"bar\": \"foo\"}"));
+    let row = api.conn().select(select).await?.into_single()?;
+    assert_eq!(
+        Some(&serde_json::json!({ "a": { "b": [{ "foo": "bar" }, { "bar": "foo" }] } })),
+        row["obj"].as_json()
+    );
+
+    // Assert ends with array
+    let select = Select::from_table(&table).so_that(path.clone().json_array_ends_with("[3, 4]"));
+    let row = api.conn().select(select).await?.into_single()?;
+    assert_eq!(
+        Some(&serde_json::json!({ "a": { "b": [[1, 2], [3, 4]] } })),
+        row["obj"].as_json()
+    );
+
+    Ok(())
+}
+
+#[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
+#[test_each_connector(tags("postgresql", "mysql"))]
+async fn json_array_not_ends_with_fun(api: &mut dyn TestApi) -> crate::Result<()> {
+    let json_type = match api.system() {
+        "postgres" => "jsonb",
+        _ => "json",
+    };
+    let table = api
+        .create_table(&format!("{}, obj {}", api.autogen_id("id"), json_type))
+        .await?;
+
+    let insert = Insert::single_into(&table).value("obj", serde_json::json!({ "a": { "b": [1, 2] } }));
+    let second_insert = Insert::single_into(&table).value("obj", serde_json::json!({ "a": { "b": [3, 2] } }));
+    let third_insert = Insert::single_into(&table).value("obj", serde_json::json!({ "a": { "b": [4, 5] } }));
+
+    api.conn().insert(insert.into()).await?;
+    api.conn().insert(second_insert.into()).await?;
+    api.conn().insert(third_insert.into()).await?;
+
+    let path = match api.system() {
+        "postgres" => JsonPath::array(["a", "b"]),
+        _ => JsonPath::string("$.a.b"),
+    };
+    let path: Expression = json_extract(col!("obj"), path.clone()).into();
+
+    // Assert NOT starts with number
+    let select = Select::from_table(&table).so_that(path.clone().json_array_not_ends_with("2"));
+    let row = api.conn().select(select).await?.into_single()?;
+    assert_eq!(Some(&serde_json::json!({ "a": { "b": [4, 5] } })), row["obj"].as_json());
 
     Ok(())
 }

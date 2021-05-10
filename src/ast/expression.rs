@@ -1,3 +1,5 @@
+#[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
+use super::compare::JsonType;
 use crate::ast::*;
 use query::SelectQuery;
 use std::borrow::Cow;
@@ -419,6 +421,7 @@ impl<'a> Comparable<'a> for Expression<'a> {
         Compare::Raw(Box::new(self), raw_comparator.into(), Box::new(right.into()))
     }
 
+    #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
     fn json_array_contains<T>(self, item: T) -> Compare<'a>
     where
         T: Into<Expression<'a>>,
@@ -426,6 +429,7 @@ impl<'a> Comparable<'a> for Expression<'a> {
         Compare::JsonArrayContains(Box::new(self), Box::new(item.into()))
     }
 
+    #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
     fn json_array_not_contains<T>(self, item: T) -> Compare<'a>
     where
         T: Into<Expression<'a>>,
@@ -433,6 +437,7 @@ impl<'a> Comparable<'a> for Expression<'a> {
         Compare::JsonArrayNotContains(Box::new(self), Box::new(item.into()))
     }
 
+    #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
     fn json_array_begins_with<T>(self, item: T) -> Compare<'a>
     where
         T: Into<Expression<'a>>,
@@ -440,6 +445,7 @@ impl<'a> Comparable<'a> for Expression<'a> {
         Compare::JsonArrayStartsWith(Box::new(self), Box::new(item.into()))
     }
 
+    #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
     fn json_array_not_begins_with<T>(self, item: T) -> Compare<'a>
     where
         T: Into<Expression<'a>>,
@@ -447,6 +453,7 @@ impl<'a> Comparable<'a> for Expression<'a> {
         Compare::JsonArrayNotStartsWith(Box::new(self), Box::new(item.into()))
     }
 
+    #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
     fn json_array_ends_with<T>(self, item: T) -> Compare<'a>
     where
         T: Into<Expression<'a>>,
@@ -454,10 +461,19 @@ impl<'a> Comparable<'a> for Expression<'a> {
         Compare::JsonArrayEndsWith(Box::new(self), Box::new(item.into()))
     }
 
+    #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
     fn json_array_not_ends_with<T>(self, item: T) -> Compare<'a>
     where
         T: Into<Expression<'a>>,
     {
         Compare::JsonArrayNotEndsWith(Box::new(self), Box::new(item.into()))
+    }
+
+    #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
+    fn json_type_equals<T>(self, item: T) -> Compare<'a>
+    where
+        T: Into<JsonType>,
+    {
+        Compare::JsonTypeEquals(Box::new(self), item.into())
     }
 }

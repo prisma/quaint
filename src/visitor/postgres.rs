@@ -277,11 +277,10 @@ impl<'a> Visitor<'a> for Postgres<'a> {
             #[cfg(feature = "mysql")]
             JsonPath::String(_) => panic!("JSON path string notation is not supported for Postgres"),
             JsonPath::Array(json_path) => {
-                self.write("(")?;
                 self.visit_expression(*json_extract.column)?;
-                self.write("#>>")?;
+                self.write("#>")?;
                 // We use the `ARRAY[]::text[]` notation to better handle escaped character
-                // The text protocol used when sending prepared statement doesn't seem to work well with escaped characted
+                // The text protocol used when sending prepared statement doesn't seem to work well with escaped characters
                 // when using the '{a, b, c}' string array notation.
                 self.surround_with("ARRAY[", "]::text[]", |s| {
                     let len = json_path.len();
@@ -292,24 +291,25 @@ impl<'a> Visitor<'a> for Postgres<'a> {
                         }
                     }
                     Ok(())
-                })?;
-                self.write(")")
+                })
             }
         }
     }
 
     #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
     fn visit_json_array_contains(&mut self, left: Expression<'a>, right: Expression<'a>, not: bool) -> visitor::Result {
-        self.write("(")?;
-
         if not {
-            self.write("NOT ")?;
+            self.write("( NOT ")?;
         }
 
         self.visit_expression(left)?;
-        self.write("::jsonb @> ")?;
+        self.write(" @> ")?;
         self.visit_expression(right)?;
-        self.write(")")
+        if not {
+            self.write(" )")?;
+        }
+
+        Ok(())
     }
 
     #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
@@ -319,16 +319,19 @@ impl<'a> Visitor<'a> for Postgres<'a> {
         right: Expression<'a>,
         not: bool,
     ) -> visitor::Result {
-        self.write("(")?;
-
         if not {
-            self.write("NOT ")?;
+            self.write("( NOT ")?;
         }
 
         self.visit_expression(left)?;
-        self.write("::jsonb->>0 = ")?;
+        self.write("->0 = ")?;
         self.visit_expression(right)?;
-        self.write(")")
+
+        if not {
+            self.write(" )")?;
+        }
+
+        Ok(())
     }
 
     #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
@@ -338,16 +341,34 @@ impl<'a> Visitor<'a> for Postgres<'a> {
         right: Expression<'a>,
         not: bool,
     ) -> visitor::Result {
-        self.write("(")?;
-
         if not {
-            self.write("NOT ")?;
+            self.write("( NOT ")?;
         }
 
         self.visit_expression(left)?;
-        self.write("::jsonb->>-1 = ")?;
+        self.write("->-1 = ")?;
         self.visit_expression(right)?;
-        self.write(")")
+
+        if not {
+            self.write(" )")?;
+        }
+
+        Ok(())
+    }
+
+    #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
+    fn visit_json_type_equals(&mut self, left: Expression<'a>, json_type: JsonType) -> visitor::Result {
+        self.write("JSONB_TYPEOF")?;
+        self.visit_expression(left)?;
+        self.write(" = ")?;
+        match json_type {
+            JsonType::Array => self.visit_expression(Value::text("array").into()),
+            JsonType::Boolean => self.visit_expression(Value::text("boolean").into()),
+            JsonType::Integer | JsonType::Float => self.visit_expression(Value::text("number").into()),
+            JsonType::Object => self.visit_expression(Value::text("object").into()),
+            JsonType::String => self.visit_expression(Value::text("string").into()),
+            JsonType::Null => self.visit_expression(Value::text("null").into()),
+        }
     }
 }
 

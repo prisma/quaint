@@ -357,6 +357,22 @@ impl<'a> Visitor<'a> for Mysql<'a> {
 
         Ok(())
     }
+
+    #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
+    fn visit_json_type_equals(&mut self, left: Expression<'a>, json_type: JsonType) -> visitor::Result {
+        self.write("JSON_TYPE")?;
+        self.surround_with("(", ")", |s| s.visit_expression(left))?;
+        self.write(" = ")?;
+        match json_type {
+            JsonType::Array => self.visit_expression(Value::text("ARRAY").into()),
+            JsonType::Boolean => self.visit_expression(Value::text("BOOLEAN").into()),
+            JsonType::Integer => self.visit_expression(Value::text("INTEGER").into()),
+            JsonType::Float => self.visit_expression(Value::text("DOUBLE").into()),
+            JsonType::Object => self.visit_expression(Value::text("OBJECT").into()),
+            JsonType::String => self.visit_expression(Value::text("STRING").into()),
+            JsonType::Null => self.visit_expression(Value::text("NULL").into()),
+        }
+    }
 }
 
 #[cfg(test)]
