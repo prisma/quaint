@@ -2,7 +2,7 @@ use crate::ast::*;
 use crate::error::{Error, ErrorKind};
 
 #[cfg(feature = "bigdecimal")]
-use bigdecimal::{BigDecimal, FromPrimitive, ToPrimitive};
+use bigdecimal::{BigDecimal, FromPrimitive};
 #[cfg(feature = "chrono")]
 use chrono::{DateTime, NaiveDate, NaiveTime, Utc};
 #[cfg(feature = "json")]
@@ -180,7 +180,7 @@ impl<'a> From<Value<'a>> for serde_json::Value {
                 v.map(|v| serde_json::Value::Array(v.into_iter().map(serde_json::Value::from).collect()))
             }
             #[cfg(feature = "bigdecimal")]
-            Value::Numeric(d) => d.map(|d| serde_json::to_value(d.to_f64().unwrap()).unwrap()),
+            Value::Numeric(d) => d.map(|d| serde_json::Value::String(d.to_string())),
             #[cfg(feature = "json")]
             Value::Json(v) => v,
             #[cfg(feature = "uuid")]
