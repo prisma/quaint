@@ -2289,7 +2289,7 @@ async fn json_array_ends_into_fun(api: &mut dyn TestApi) -> crate::Result<()> {
 
 #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
 #[test_each_connector(tags("postgresql", "mysql"))]
-async fn json_array_not_ends_with_fun(api: &mut dyn TestApi) -> crate::Result<()> {
+async fn json_array_not_ends_into_fun(api: &mut dyn TestApi) -> crate::Result<()> {
     let json_type = match api.system() {
         "postgres" => "jsonb",
         _ => "json",

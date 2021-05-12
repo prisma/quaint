@@ -735,7 +735,7 @@ pub trait Comparable<'a> {
     /// ```rust
     /// # use quaint::{ast::*, visitor::{Visitor, Mysql}};
     /// # fn main() -> Result<(), quaint::error::Error> {
-    /// let query = Select::from_table("users").so_that("json".json_array_not_ends_with("1"));
+    /// let query = Select::from_table("users").so_that("json".json_array_not_ends_into("1"));
     /// let (sql, params) = Mysql::build(query)?;
     ///
     /// assert_eq!(
