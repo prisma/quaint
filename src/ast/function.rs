@@ -1,5 +1,6 @@
 mod aggregate_to_string;
 mod average;
+mod coalesce;
 mod count;
 mod lower;
 mod maximum;
@@ -12,6 +13,7 @@ mod upper;
 
 pub use aggregate_to_string::*;
 pub use average::*;
+pub use coalesce::*;
 pub use count::*;
 pub use lower::*;
 pub use maximum::*;
@@ -46,6 +48,7 @@ pub(crate) enum FunctionType<'a> {
     Upper(Upper<'a>),
     Minimum(Minimum<'a>),
     Maximum(Maximum<'a>),
+    Coalesce(Coalesce<'a>),
 }
 
 impl<'a> Aliasable<'a> for Function<'a> {
@@ -72,5 +75,6 @@ function!(
     Lower,
     Upper,
     Minimum,
-    Maximum
+    Maximum,
+    Coalesce
 );
