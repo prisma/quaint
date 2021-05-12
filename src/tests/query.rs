@@ -1,8 +1,9 @@
 mod error;
 
 use super::test_api::*;
+#[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
+use crate::ast::JsonPath;
 use crate::{
-    ast::*,
     connector::{Queryable, TransactionCapable},
     prelude::*,
 };
@@ -2035,8 +2036,11 @@ async fn json_array_contains_fun(api: &mut dyn TestApi) -> crate::Result<()> {
     api.conn().insert(fourth_insert.into()).await?;
 
     let path = match api.system() {
+        #[cfg(feature = "postgresql")]
         "postgres" => JsonPath::array(["a", "b"]),
-        _ => JsonPath::string("$.a.b"),
+        #[cfg(feature = "mysql")]
+        "mysql" => JsonPath::string("$.a.b"),
+        _ => unreachable!(),
     };
     let path: Expression = json_extract(col!("obj"), path.clone(), false).into();
 
@@ -2095,8 +2099,11 @@ async fn json_array_not_contains_fun(api: &mut dyn TestApi) -> crate::Result<()>
     api.conn().insert(third_insert.into()).await?;
 
     let path = match api.system() {
+        #[cfg(feature = "postgresql")]
         "postgres" => JsonPath::array(["a", "b"]),
-        _ => JsonPath::string("$.a.b"),
+        #[cfg(feature = "mysql")]
+        "mysql" => JsonPath::string("$.a.b"),
+        _ => unreachable!(),
     };
     let path: Expression = json_extract(col!("obj"), path.clone(), false).into();
 
@@ -2133,8 +2140,11 @@ async fn json_array_begins_with_fun(api: &mut dyn TestApi) -> crate::Result<()> 
     api.conn().insert(fourth_insert.into()).await?;
 
     let path = match api.system() {
+        #[cfg(feature = "postgresql")]
         "postgres" => JsonPath::array(["a", "b"]),
-        _ => JsonPath::string("$.a.b"),
+        #[cfg(feature = "mysql")]
+        "mysql" => JsonPath::string("$.a.b"),
+        _ => unreachable!(),
     };
     let path: Expression = json_extract(col!("obj"), path.clone(), false).into();
 
@@ -2193,8 +2203,11 @@ async fn json_array_not_begins_with_fun(api: &mut dyn TestApi) -> crate::Result<
     api.conn().insert(third_insert.into()).await?;
 
     let path = match api.system() {
+        #[cfg(feature = "postgresql")]
         "postgres" => JsonPath::array(["a", "b"]),
-        _ => JsonPath::string("$.a.b"),
+        #[cfg(feature = "mysql")]
+        "mysql" => JsonPath::string("$.a.b"),
+        _ => unreachable!(),
     };
     let path: Expression = json_extract(col!("obj"), path.clone(), false).into();
 
@@ -2231,8 +2244,11 @@ async fn json_array_ends_with_fun(api: &mut dyn TestApi) -> crate::Result<()> {
     api.conn().insert(fourth_insert.into()).await?;
 
     let path = match api.system() {
+        #[cfg(feature = "postgresql")]
         "postgres" => JsonPath::array(["a", "b"]),
-        _ => JsonPath::string("$.a.b"),
+        #[cfg(feature = "mysql")]
+        "mysql" => JsonPath::string("$.a.b"),
+        _ => unreachable!(),
     };
     let path: Expression = json_extract(col!("obj"), path.clone(), false).into();
 
@@ -2291,8 +2307,11 @@ async fn json_array_not_ends_with_fun(api: &mut dyn TestApi) -> crate::Result<()
     api.conn().insert(third_insert.into()).await?;
 
     let path = match api.system() {
+        #[cfg(feature = "postgresql")]
         "postgres" => JsonPath::array(["a", "b"]),
-        _ => JsonPath::string("$.a.b"),
+        #[cfg(feature = "mysql")]
+        "mysql" => JsonPath::string("$.a.b"),
+        _ => unreachable!(),
     };
     let path: Expression = json_extract(col!("obj"), path.clone(), false).into();
 
