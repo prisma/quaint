@@ -65,8 +65,7 @@ pub enum JsonType {
     Array,
     Object,
     String,
-    Integer,
-    Float,
+    Number,
     Boolean,
     Null,
 }
@@ -760,7 +759,7 @@ pub trait Comparable<'a> {
     /// let query = Select::from_table("users").so_that("json".json_type_equals(JsonType::Array));
     /// let (sql, params) = Mysql::build(query)?;
     ///
-    /// assert_eq!("SELECT `users`.* FROM `users` WHERE JSON_TYPE(`json`) = ?", sql);
+    /// assert_eq!("SELECT `users`.* FROM `users` WHERE (JSON_TYPE(`json`) = ?)", sql);
     ///
     /// assert_eq!(vec![Value::from("ARRAY")], params);
     /// # Ok(())

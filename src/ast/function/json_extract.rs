@@ -7,6 +7,7 @@ use std::borrow::Cow;
 pub struct JsonExtract<'a> {
     pub(crate) column: Box<Expression<'a>>,
     pub(crate) path: JsonPath<'a>,
+    pub(crate) extract_as_string: bool,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -47,7 +48,7 @@ impl<'a> JsonPath<'a> {
 /// ```rust
 /// # use quaint::{ast::*, visitor::{Visitor, Postgres}};
 /// # fn main() -> Result<(), quaint::error::Error> {
-/// let extract: Expression = json_extract(Column::from(("users", "json")), JsonPath::array(["a", "b"])).into();
+/// let extract: Expression = json_extract(Column::from(("users", "json")), JsonPath::array(["a", "b"]), false).into();
 /// let query = Select::from_table("users").so_that(extract.equals("c"));
 /// let (sql, params) = Postgres::build(query)?;
 /// assert_eq!("SELECT \"users\".* FROM \"users\" WHERE (\"users\".\"json\"#>ARRAY[$1, $2]::text[]) = ($3)", sql);
@@ -59,7 +60,7 @@ impl<'a> JsonPath<'a> {
 /// ```rust
 /// # use quaint::{ast::*, visitor::{Visitor, Mysql}};
 /// # fn main() -> Result<(), quaint::error::Error> {
-/// let extract: Expression = json_extract(Column::from(("users", "json")), JsonPath::string("$.a.b")).into();
+/// let extract: Expression = json_extract(Column::from(("users", "json")), JsonPath::string("$.a.b"), false).into();
 /// let query = Select::from_table("users").so_that(extract.equals("c"));
 /// let (sql, params) = Mysql::build(query)?;
 /// assert_eq!(r#"SELECT `users`.* FROM `users` WHERE JSON_EXTRACT(`users`.`json`, ?) = ?"#, sql);
@@ -68,7 +69,7 @@ impl<'a> JsonPath<'a> {
 /// # }
 /// ```
 #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
-pub fn json_extract<'a, C, P>(column: C, path: P) -> Function<'a>
+pub fn json_extract<'a, C, P>(column: C, path: P, extract_as_string: bool) -> Function<'a>
 where
     C: Into<Expression<'a>>,
     P: Into<JsonPath<'a>>,
@@ -76,6 +77,7 @@ where
     let fun = JsonExtract {
         column: Box::new(column.into()),
         path: path.into(),
+        extract_as_string,
     };
 
     fun.into()

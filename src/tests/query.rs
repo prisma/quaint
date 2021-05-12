@@ -1944,14 +1944,14 @@ async fn json_extract_path_fun(api: &mut dyn TestApi) -> crate::Result<()> {
     api.conn().insert(second_insert.into()).await?;
     api.conn().insert(third_insert.into()).await?;
 
-    let extract: Expression = json_extract(col!("obj"), JsonPath::string("$.a.b")).into();
+    let extract: Expression = json_extract(col!("obj"), JsonPath::string("$.a.b"), false).into();
     let select = Select::from_table(&table).so_that(extract.equals("c"));
     let row = api.conn().select(select).await?.into_single()?;
 
     // Test object extraction
     assert_eq!(Some(&serde_json::json!({ "a": { "b": "c" } })), row["obj"].as_json());
 
-    let extract: Expression = json_extract(col!("obj"), JsonPath::string("$.a.b[1]")).into();
+    let extract: Expression = json_extract(col!("obj"), JsonPath::string("$.a.b[1]"), false).into();
     let select = Select::from_table(&table).so_that(extract.equals(2));
     let row = api.conn().select(select).await?.into_single()?;
 
@@ -1961,7 +1961,7 @@ async fn json_extract_path_fun(api: &mut dyn TestApi) -> crate::Result<()> {
         row["obj"].as_json()
     );
 
-    let extract: Expression = json_extract(col!("obj"), JsonPath::string("$.\"a\\\":{\"")).into();
+    let extract: Expression = json_extract(col!("obj"), JsonPath::string("$.\"a\\\":{\""), false).into();
     let select = Select::from_table(&table).so_that(extract.equals("b"));
     let row = api.conn().select(select).await?.into_single()?;
 
@@ -1987,13 +1987,13 @@ async fn json_extract_array_path_fun(api: &mut dyn TestApi) -> crate::Result<()>
     api.conn().insert(third_insert.into()).await?;
 
     // Test object extraction
-    let extract: Expression = json_extract(col!("obj"), JsonPath::array(["a", "b"])).into();
+    let extract: Expression = json_extract(col!("obj"), JsonPath::array(["a", "b"]), false).into();
     let select = Select::from_table(&table).so_that(extract.equals("\"c\""));
     let row = api.conn().select(select).await?.into_single()?;
     assert_eq!(Some(&serde_json::json!({ "a": { "b": "c" } })), row["obj"].as_json());
 
     // Test array index extraction
-    let extract: Expression = json_extract(col!("obj"), JsonPath::array(["a", "b", "1"])).into();
+    let extract: Expression = json_extract(col!("obj"), JsonPath::array(["a", "b", "1"]), false).into();
     let select = Select::from_table(&table).so_that(extract.equals("2"));
     let row = api.conn().select(select).await?.into_single()?;
     assert_eq!(
@@ -2002,7 +2002,7 @@ async fn json_extract_array_path_fun(api: &mut dyn TestApi) -> crate::Result<()>
     );
 
     // Test escaped chars in keys
-    let extract: Expression = json_extract(col!("obj"), JsonPath::array(["a\":{"])).into();
+    let extract: Expression = json_extract(col!("obj"), JsonPath::array(["a\":{"]), false).into();
     let select = Select::from_table(&table).so_that(extract.equals("\"b\""));
     let row = api.conn().select(select).await?.into_single()?;
     assert_eq!(Some(&serde_json::json!({ "a\":{": "b" })), row["obj"].as_json());
@@ -2038,7 +2038,7 @@ async fn json_array_contains_fun(api: &mut dyn TestApi) -> crate::Result<()> {
         "postgres" => JsonPath::array(["a", "b"]),
         _ => JsonPath::string("$.a.b"),
     };
-    let path: Expression = json_extract(col!("obj"), path.clone()).into();
+    let path: Expression = json_extract(col!("obj"), path.clone(), false).into();
 
     // Assert contains number
     let select = Select::from_table(&table).so_that(path.clone().json_array_contains("[2]"));
@@ -2098,7 +2098,7 @@ async fn json_array_not_contains_fun(api: &mut dyn TestApi) -> crate::Result<()>
         "postgres" => JsonPath::array(["a", "b"]),
         _ => JsonPath::string("$.a.b"),
     };
-    let path: Expression = json_extract(col!("obj"), path.clone()).into();
+    let path: Expression = json_extract(col!("obj"), path.clone(), false).into();
 
     // Assert NOT contains number
     let select = Select::from_table(&table).so_that(path.clone().json_array_not_contains("[2]"));
@@ -2136,7 +2136,7 @@ async fn json_array_begins_with_fun(api: &mut dyn TestApi) -> crate::Result<()> 
         "postgres" => JsonPath::array(["a", "b"]),
         _ => JsonPath::string("$.a.b"),
     };
-    let path: Expression = json_extract(col!("obj"), path.clone()).into();
+    let path: Expression = json_extract(col!("obj"), path.clone(), false).into();
 
     // Assert starts with number
     let select = Select::from_table(&table).so_that(path.clone().json_array_begins_with("1"));
@@ -2196,7 +2196,7 @@ async fn json_array_not_begins_with_fun(api: &mut dyn TestApi) -> crate::Result<
         "postgres" => JsonPath::array(["a", "b"]),
         _ => JsonPath::string("$.a.b"),
     };
-    let path: Expression = json_extract(col!("obj"), path.clone()).into();
+    let path: Expression = json_extract(col!("obj"), path.clone(), false).into();
 
     // Assert NOT starts with number
     let select = Select::from_table(&table).so_that(path.clone().json_array_not_begins_with("1"));
@@ -2234,7 +2234,7 @@ async fn json_array_ends_with_fun(api: &mut dyn TestApi) -> crate::Result<()> {
         "postgres" => JsonPath::array(["a", "b"]),
         _ => JsonPath::string("$.a.b"),
     };
-    let path: Expression = json_extract(col!("obj"), path.clone()).into();
+    let path: Expression = json_extract(col!("obj"), path.clone(), false).into();
 
     // Assert ends with number
     let select = Select::from_table(&table).so_that(path.clone().json_array_ends_with("3"));
@@ -2294,7 +2294,7 @@ async fn json_array_not_ends_with_fun(api: &mut dyn TestApi) -> crate::Result<()
         "postgres" => JsonPath::array(["a", "b"]),
         _ => JsonPath::string("$.a.b"),
     };
-    let path: Expression = json_extract(col!("obj"), path.clone()).into();
+    let path: Expression = json_extract(col!("obj"), path.clone(), false).into();
 
     // Assert NOT starts with number
     let select = Select::from_table(&table).so_that(path.clone().json_array_not_ends_with("2"));
