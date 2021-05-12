@@ -511,36 +511,28 @@ impl<'a> ToSql for Value<'a> {
             (Value::Integer(integer), &PostgresType::OID) => integer.map(|integer| (integer as u32).to_sql(ty, out)),
             (Value::Integer(integer), _) => integer.map(|integer| (integer as i64).to_sql(ty, out)),
             (Value::Float(float), &PostgresType::FLOAT8) => float.map(|float| (float as f64).to_sql(ty, out)),
-            #[cfg(feature = "bigdecimal")]
-            (Value::Float(float), &PostgresType::NUMERIC) => float
-                .map(|float| BigDecimal::from_f32(float).unwrap())
-                .map(DecimalWrapper)
-                .map(|dw| dw.to_sql(ty, out)),
+            (Value::Float(_), &PostgresType::NUMERIC) => {
+                let kind = ErrorKind::conversion(format!(
+                    "Writing a float to a {} column is unstable.",
+                    PostgresType::NUMERIC
+                ));
+                return Err(Error::builder(kind).build().into());
+            }
             (Value::Float(float), _) => float.map(|float| float.to_sql(ty, out)),
             (Value::Double(double), &PostgresType::FLOAT4) => double.map(|double| (double as f32).to_sql(ty, out)),
-            #[cfg(feature = "bigdecimal")]
-            (Value::Double(double), &PostgresType::NUMERIC) => double
-                .map(|double| BigDecimal::from_f64(double).unwrap())
-                .map(DecimalWrapper)
-                .map(|dw| dw.to_sql(ty, out)),
+            (Value::Double(_), &PostgresType::NUMERIC) => {
+                let kind = ErrorKind::conversion(format!(
+                    "Writing a double to a {} column is unstable.",
+                    PostgresType::NUMERIC
+                ));
+                return Err(Error::builder(kind).build().into());
+            }
             (Value::Double(double), _) => double.map(|double| double.to_sql(ty, out)),
-            #[cfg(feature = "bigdecimal")]
-            (Value::Numeric(decimal), &PostgresType::FLOAT4) => decimal.as_ref().map(|decimal| {
-                let f = decimal.to_string().parse::<f32>().expect("decimal to f32 conversion");
-                f.to_sql(ty, out)
-            }),
-            #[cfg(feature = "bigdecimal")]
-            (Value::Numeric(decimal), &PostgresType::FLOAT8) => decimal.as_ref().map(|decimal| {
-                let f = decimal.to_string().parse::<f64>().expect("decimal to f64 conversion");
-                f.to_sql(ty, out)
-            }),
-            #[cfg(feature = "bigdecimal")]
             (Value::Array(values), &PostgresType::FLOAT4_ARRAY) => values.as_ref().map(|values| {
                 let mut floats = Vec::with_capacity(values.len());
 
                 for value in values.iter() {
                     let float = match value {
-                        Value::Numeric(n) => n.as_ref().and_then(|n| n.to_string().parse::<f32>().ok()),
                         Value::Float(f) => *f,
                         Value::Double(d) => d.map(|d| d as f32),
                         v => {
@@ -558,13 +550,11 @@ impl<'a> ToSql for Value<'a> {
 
                 floats.to_sql(ty, out)
             }),
-            #[cfg(feature = "bigdecimal")]
             (Value::Array(values), &PostgresType::FLOAT8_ARRAY) => values.as_ref().map(|values| {
                 let mut floats = Vec::with_capacity(values.len());
 
                 for value in values.iter() {
                     let float = match value {
-                        Value::Numeric(n) => n.as_ref().and_then(|n| n.to_string().parse::<f64>().ok()),
                         Value::Float(f) => f.map(|f| f as f64),
                         Value::Double(d) => *d,
                         v => {
@@ -598,9 +588,10 @@ impl<'a> ToSql for Value<'a> {
                 .as_ref()
                 .map(|decimal| DecimalWrapper(decimal.clone()).to_sql(ty, out)),
             #[cfg(feature = "bigdecimal")]
-            (Value::Numeric(float), _) => float
-                .as_ref()
-                .map(|float| DecimalWrapper(float.clone()).to_sql(ty, out)),
+            (Value::Numeric(_), typ) => {
+                let kind = ErrorKind::conversion(format!("Writing a decimal to a {} column is unstable.", typ));
+                return Err(Error::builder(kind).build().into());
+            }
             #[cfg(feature = "uuid")]
             (Value::Text(string), &PostgresType::UUID) => string.as_ref().map(|string| {
                 let parsed_uuid: Uuid = string.parse()?;

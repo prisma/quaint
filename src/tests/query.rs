@@ -1898,7 +1898,6 @@ async fn ints_read_write_to_numeric(api: &mut dyn TestApi) -> crate::Result<()> 
     let table = api.create_table("id int, value numeric(12,2)").await?;
 
     let insert = Insert::multi_into(&table, &["id", "value"])
-        .values(vec![Value::integer(1), Value::double(1234.5)])
         .values(vec![Value::integer(2), Value::integer(1234)])
         .values(vec![Value::integer(3), Value::integer(12345)]);
 
@@ -1909,37 +1908,10 @@ async fn ints_read_write_to_numeric(api: &mut dyn TestApi) -> crate::Result<()> 
 
     for (i, row) in rows.into_iter().enumerate() {
         match i {
-            0 => assert_eq!(Value::numeric(BigDecimal::from_str("1234.5").unwrap()), row["value"]),
-            1 => assert_eq!(Value::numeric(BigDecimal::from_str("1234.0").unwrap()), row["value"]),
+            0 => assert_eq!(Value::numeric(BigDecimal::from_str("1234.0").unwrap()), row["value"]),
             _ => assert_eq!(Value::numeric(BigDecimal::from_str("12345.0").unwrap()), row["value"]),
         }
     }
-
-    Ok(())
-}
-
-#[cfg(feature = "bigdecimal")]
-#[test_each_connector(tags("postgresql"))]
-async fn bigdecimal_read_write_to_floating(api: &mut dyn TestApi) -> crate::Result<()> {
-    use bigdecimal::BigDecimal;
-    use std::str::FromStr;
-
-    let table = api.create_table("id int, a float4, b float8").await?;
-    let val = BigDecimal::from_str("0.1").unwrap();
-
-    let insert = Insert::multi_into(&table, &["id", "a", "b"]).values(vec![
-        Value::integer(1),
-        Value::numeric(val.clone()),
-        Value::numeric(val.clone()),
-    ]);
-
-    api.conn().execute(insert.into()).await?;
-
-    let select = Select::from_table(&table);
-    let row = api.conn().select(select).await?.into_single()?;
-
-    assert_eq!(Value::float(0.1), row["a"]);
-    assert_eq!(Value::double(0.1), row["b"]);
 
     Ok(())
 }

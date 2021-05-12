@@ -186,23 +186,3 @@ test_type!(money_array(
     Value::Array(None),
     Value::array(vec![BigDecimal::from_str("1.12")?, BigDecimal::from_str("1.12")?])
 ));
-
-test_type!(float4(
-    postgresql,
-    "float4",
-    (Value::Numeric(None), Value::Float(None)),
-    (
-        Value::numeric(BigDecimal::from_str("1.123456")?),
-        Value::float(1.123456)
-    )
-));
-
-test_type!(float8(
-    postgresql,
-    "float8",
-    (Value::Numeric(None), Value::Double(None)),
-    (
-        Value::numeric(BigDecimal::from_str("1.123456")?),
-        Value::double(1.123456)
-    )
-));
