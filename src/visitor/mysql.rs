@@ -320,7 +320,7 @@ impl<'a> Visitor<'a> for Mysql<'a> {
     }
 
     #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
-    fn visit_json_array_starts_with(
+    fn visit_json_array_begins_with(
         &mut self,
         left: Expression<'a>,
         right: Expression<'a>,
@@ -344,7 +344,7 @@ impl<'a> Visitor<'a> for Mysql<'a> {
     }
 
     #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
-    fn visit_json_array_ends_with(
+    fn visit_json_array_ends_into(
         &mut self,
         left: Expression<'a>,
         right: Expression<'a>,

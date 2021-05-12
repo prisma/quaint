@@ -442,7 +442,7 @@ impl<'a> Comparable<'a> for Expression<'a> {
     where
         T: Into<Expression<'a>>,
     {
-        Compare::JsonArrayStartsWith(Box::new(self), Box::new(item.into()))
+        Compare::JsonArrayBeginsWith(Box::new(self), Box::new(item.into()))
     }
 
     #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
@@ -450,23 +450,23 @@ impl<'a> Comparable<'a> for Expression<'a> {
     where
         T: Into<Expression<'a>>,
     {
-        Compare::JsonArrayNotStartsWith(Box::new(self), Box::new(item.into()))
+        Compare::JsonArrayNotBeginsWith(Box::new(self), Box::new(item.into()))
     }
 
     #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
-    fn json_array_ends_with<T>(self, item: T) -> Compare<'a>
+    fn json_array_ends_into<T>(self, item: T) -> Compare<'a>
     where
         T: Into<Expression<'a>>,
     {
-        Compare::JsonArrayEndsWith(Box::new(self), Box::new(item.into()))
+        Compare::JsonArrayEndsInto(Box::new(self), Box::new(item.into()))
     }
 
     #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
-    fn json_array_not_ends_with<T>(self, item: T) -> Compare<'a>
+    fn json_array_not_ends_into<T>(self, item: T) -> Compare<'a>
     where
         T: Into<Expression<'a>>,
     {
-        Compare::JsonArrayNotEndsWith(Box::new(self), Box::new(item.into()))
+        Compare::JsonArrayNotEndsInto(Box::new(self), Box::new(item.into()))
     }
 
     #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]

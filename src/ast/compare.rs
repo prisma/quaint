@@ -49,13 +49,13 @@ pub enum Compare<'a> {
     #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
     JsonArrayNotContains(Box<Expression<'a>>, Box<Expression<'a>>),
     #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
-    JsonArrayStartsWith(Box<Expression<'a>>, Box<Expression<'a>>),
+    JsonArrayBeginsWith(Box<Expression<'a>>, Box<Expression<'a>>),
     #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
-    JsonArrayNotStartsWith(Box<Expression<'a>>, Box<Expression<'a>>),
+    JsonArrayNotBeginsWith(Box<Expression<'a>>, Box<Expression<'a>>),
     #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
-    JsonArrayEndsWith(Box<Expression<'a>>, Box<Expression<'a>>),
+    JsonArrayEndsInto(Box<Expression<'a>>, Box<Expression<'a>>),
     #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
-    JsonArrayNotEndsWith(Box<Expression<'a>>, Box<Expression<'a>>),
+    JsonArrayNotEndsInto(Box<Expression<'a>>, Box<Expression<'a>>),
     #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
     JsonTypeEquals(Box<Expression<'a>>, JsonType),
 }
@@ -714,7 +714,7 @@ pub trait Comparable<'a> {
     /// ```rust
     /// # use quaint::{ast::*, visitor::{Visitor, Mysql}};
     /// # fn main() -> Result<(), quaint::error::Error> {
-    /// let query = Select::from_table("users").so_that("json".json_array_ends_with("1"));
+    /// let query = Select::from_table("users").so_that("json".json_array_ends_into("1"));
     /// let (sql, params) = Mysql::build(query)?;
     ///
     /// assert_eq!(
@@ -726,7 +726,7 @@ pub trait Comparable<'a> {
     /// # }
     /// ```
     #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
-    fn json_array_ends_with<T>(self, item: T) -> Compare<'a>
+    fn json_array_ends_into<T>(self, item: T) -> Compare<'a>
     where
         T: Into<Expression<'a>>;
 
@@ -747,7 +747,7 @@ pub trait Comparable<'a> {
     /// # }
     /// ```
     #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
-    fn json_array_not_ends_with<T>(self, item: T) -> Compare<'a>
+    fn json_array_not_ends_into<T>(self, item: T) -> Compare<'a>
     where
         T: Into<Expression<'a>>;
 
@@ -1014,25 +1014,25 @@ where
     }
 
     #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
-    fn json_array_ends_with<T>(self, item: T) -> Compare<'a>
+    fn json_array_ends_into<T>(self, item: T) -> Compare<'a>
     where
         T: Into<Expression<'a>>,
     {
         let col: Column<'a> = self.into();
         let val: Expression<'a> = col.into();
 
-        val.json_array_ends_with(item)
+        val.json_array_ends_into(item)
     }
 
     #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
-    fn json_array_not_ends_with<T>(self, item: T) -> Compare<'a>
+    fn json_array_not_ends_into<T>(self, item: T) -> Compare<'a>
     where
         T: Into<Expression<'a>>,
     {
         let col: Column<'a> = self.into();
         let val: Expression<'a> = col.into();
 
-        val.json_array_not_ends_with(item)
+        val.json_array_not_ends_into(item)
     }
 
     #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]

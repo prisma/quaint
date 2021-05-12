@@ -2221,7 +2221,7 @@ async fn json_array_not_begins_with_fun(api: &mut dyn TestApi) -> crate::Result<
 
 #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
 #[test_each_connector(tags("postgresql", "mysql"))]
-async fn json_array_ends_with_fun(api: &mut dyn TestApi) -> crate::Result<()> {
+async fn json_array_ends_into_fun(api: &mut dyn TestApi) -> crate::Result<()> {
     let json_type = match api.system() {
         "postgres" => "jsonb",
         _ => "json",
@@ -2253,7 +2253,7 @@ async fn json_array_ends_with_fun(api: &mut dyn TestApi) -> crate::Result<()> {
     let path: Expression = json_extract(col!("obj"), path.clone(), false).into();
 
     // Assert ends with number
-    let select = Select::from_table(&table).so_that(path.clone().json_array_ends_with("3"));
+    let select = Select::from_table(&table).so_that(path.clone().json_array_ends_into("3"));
     let row = api.conn().select(select).await?.into_single()?;
     assert_eq!(
         Some(&serde_json::json!({ "a": { "b": [1, 2, 3] } })),
@@ -2261,7 +2261,7 @@ async fn json_array_ends_with_fun(api: &mut dyn TestApi) -> crate::Result<()> {
     );
 
     // Assert ends with string
-    let select = Select::from_table(&table).so_that(path.clone().json_array_ends_with("\"bar\""));
+    let select = Select::from_table(&table).so_that(path.clone().json_array_ends_into("\"bar\""));
     let row = api.conn().select(select).await?.into_single()?;
     assert_eq!(
         Some(&serde_json::json!({ "a": { "b": ["foo", "bar"] } })),
@@ -2269,7 +2269,7 @@ async fn json_array_ends_with_fun(api: &mut dyn TestApi) -> crate::Result<()> {
     );
 
     // Assert ends with object
-    let select = Select::from_table(&table).so_that(path.clone().json_array_ends_with("{\"bar\": \"foo\"}"));
+    let select = Select::from_table(&table).so_that(path.clone().json_array_ends_into("{\"bar\": \"foo\"}"));
     let row = api.conn().select(select).await?.into_single()?;
     assert_eq!(
         Some(&serde_json::json!({ "a": { "b": [{ "foo": "bar" }, { "bar": "foo" }] } })),
@@ -2277,7 +2277,7 @@ async fn json_array_ends_with_fun(api: &mut dyn TestApi) -> crate::Result<()> {
     );
 
     // Assert ends with array
-    let select = Select::from_table(&table).so_that(path.clone().json_array_ends_with("[3, 4]"));
+    let select = Select::from_table(&table).so_that(path.clone().json_array_ends_into("[3, 4]"));
     let row = api.conn().select(select).await?.into_single()?;
     assert_eq!(
         Some(&serde_json::json!({ "a": { "b": [[1, 2], [3, 4]] } })),
@@ -2316,7 +2316,7 @@ async fn json_array_not_ends_with_fun(api: &mut dyn TestApi) -> crate::Result<()
     let path: Expression = json_extract(col!("obj"), path.clone(), false).into();
 
     // Assert NOT starts with number
-    let select = Select::from_table(&table).so_that(path.clone().json_array_not_ends_with("2"));
+    let select = Select::from_table(&table).so_that(path.clone().json_array_not_ends_into("2"));
     let row = api.conn().select(select).await?.into_single()?;
     assert_eq!(Some(&serde_json::json!({ "a": { "b": [4, 5] } })), row["obj"].as_json());
 
