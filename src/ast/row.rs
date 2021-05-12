@@ -376,12 +376,12 @@ impl<'a> Comparable<'a> for Row<'a> {
     }
 
     #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
-    fn json_type_equals<T>(self, item: T) -> Compare<'a>
+    fn json_type_equals<T>(self, json_type: T) -> Compare<'a>
     where
         T: Into<JsonType>,
     {
         let value: Expression<'a> = self.into();
 
-        value.json_type_equals(item)
+        value.json_type_equals(json_type)
     }
 }

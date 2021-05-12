@@ -470,10 +470,10 @@ impl<'a> Comparable<'a> for Expression<'a> {
     }
 
     #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
-    fn json_type_equals<T>(self, item: T) -> Compare<'a>
+    fn json_type_equals<T>(self, json_type: T) -> Compare<'a>
     where
         T: Into<JsonType>,
     {
-        Compare::JsonTypeEquals(Box::new(self), item.into())
+        Compare::JsonTypeEquals(Box::new(self), json_type.into())
     }
 }
