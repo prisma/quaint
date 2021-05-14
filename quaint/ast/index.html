@@ -10,6 +10,7 @@ actual query building is in the <a href="../visitor/index.html">visitor</a> modu
 <table><tr class="module-item"><td><a class="struct" href="struct.AggregateToString.html" title="quaint::ast::AggregateToString struct">AggregateToString</a></td><td class="docblock-short"><p>An aggregate function that concatenates strings from a group into a single
 string with various options.</p>
 </td></tr><tr class="module-item"><td><a class="struct" href="struct.Average.html" title="quaint::ast::Average struct">Average</a></td><td class="docblock-short"><p>A representation of the <code>AVG</code> function in the database.</p>
+</td></tr><tr class="module-item"><td><a class="struct" href="struct.Coalesce.html" title="quaint::ast::Coalesce struct">Coalesce</a></td><td class="docblock-short"><p>Returns the first non-null expression</p>
 </td></tr><tr class="module-item"><td><a class="struct" href="struct.Column.html" title="quaint::ast::Column struct">Column</a></td><td class="docblock-short"><p>A column definition.</p>
 </td></tr><tr class="module-item"><td><a class="struct" href="struct.CommonTableExpression.html" title="quaint::ast::CommonTableExpression struct">CommonTableExpression</a></td><td class="docblock-short"><p>A builder for a common table expression (CTE) statement, to be used in the
 <code>WITH</code> block of a <code>SELECT</code> statement.</p>
@@ -74,6 +75,7 @@ compatibility.</p>
 <table><tr class="module-item"><td><a class="fn" href="fn.aggregate_to_string.html" title="quaint::ast::aggregate_to_string fn">aggregate_to_string</a></td><td class="docblock-short"><p>Aggregates the given field into a string.</p>
 </td></tr><tr class="module-item"><td><a class="fn" href="fn.asterisk.html" title="quaint::ast::asterisk fn">asterisk</a></td><td class="docblock-short"><p>A quick alias to create an asterisk to a table.</p>
 </td></tr><tr class="module-item"><td><a class="fn" href="fn.avg.html" title="quaint::ast::avg fn">avg</a></td><td class="docblock-short"><p>Calculates the average value of a numeric column.</p>
+</td></tr><tr class="module-item"><td><a class="fn" href="fn.coalesce.html" title="quaint::ast::coalesce fn">coalesce</a></td><td class="docblock-short"><p>Returns the first non-null argument</p>
 </td></tr><tr class="module-item"><td><a class="fn" href="fn.count.html" title="quaint::ast::count fn">count</a></td><td class="docblock-short"><p>Count of the underlying table where the given expression is not null.</p>
 </td></tr><tr class="module-item"><td><a class="fn" href="fn.default_value.html" title="quaint::ast::default_value fn">default_value</a></td><td class="docblock-short"><p>A quick alias to create a default value expression.</p>
 </td></tr><tr class="module-item"><td><a class="fn" href="fn.json_extract.html" title="quaint::ast::json_extract fn">json_extract</a></td><td class="docblock-short"><p>Extracts a subset of a JSON blob given a path.

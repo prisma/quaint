@@ -1037,6 +1037,20 @@
 <span id="1034">1034</span>
 <span id="1035">1035</span>
 <span id="1036">1036</span>
+<span id="1037">1037</span>
+<span id="1038">1038</span>
+<span id="1039">1039</span>
+<span id="1040">1040</span>
+<span id="1041">1041</span>
+<span id="1042">1042</span>
+<span id="1043">1043</span>
+<span id="1044">1044</span>
+<span id="1045">1045</span>
+<span id="1046">1046</span>
+<span id="1047">1047</span>
+<span id="1048">1048</span>
+<span id="1049">1049</span>
+<span id="1050">1050</span>
 </pre><pre class="rust">
 <span class="doccomment">//! Visitors for reading an abstract SQL syntax tree, generating the query and</span>
 <span class="doccomment">//! gathering parameters in the right order.</span>
@@ -2013,6 +2027,20 @@
             <span class="ident">FunctionType::Maximum</span>(<span class="ident">max</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="self">self</span>.<span class="ident">write</span>(<span class="string">&quot;MAX&quot;</span>)<span class="question-mark">?</span>;
                 <span class="self">self</span>.<span class="ident">surround_with</span>(<span class="string">&quot;(&quot;</span>, <span class="string">&quot;)&quot;</span>, <span class="op">|</span><span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">s</span><span class="op">|</span> <span class="ident">s</span>.<span class="ident">visit_column</span>(<span class="ident">max</span>.<span class="ident">column</span>))<span class="question-mark">?</span>;
+            }
+            <span class="ident">FunctionType::Coalesce</span>(<span class="ident">coalesce</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="self">self</span>.<span class="ident">write</span>(<span class="string">&quot;COALESCE&quot;</span>)<span class="question-mark">?</span>;
+                <span class="self">self</span>.<span class="ident">surround_with</span>(<span class="string">&quot;(&quot;</span>, <span class="string">&quot;)&quot;</span>, <span class="op">|</span><span class="ident">s</span><span class="op">|</span> {
+                    <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">coalesce</span>.<span class="ident">exprs</span>.<span class="ident">len</span>();
+                    <span class="kw">for</span> (<span class="ident">index</span>, <span class="ident">expr</span>) <span class="kw">in</span> <span class="ident">coalesce</span>.<span class="ident">exprs</span>.<span class="ident">into_iter</span>().<span class="ident">enumerate</span>() {
+                        <span class="ident">s</span>.<span class="ident">visit_expression</span>(<span class="ident">expr</span>)<span class="question-mark">?</span>;
+                        <span class="kw">if</span> <span class="ident">index</span> <span class="op">&lt;</span> <span class="ident">len</span> <span class="op">-</span> <span class="number">1</span> {
+                            <span class="ident">s</span>.<span class="ident">write</span>(<span class="string">&quot;, &quot;</span>)<span class="question-mark">?</span>;
+                        }
+                    }
+
+                    <span class="prelude-val">Ok</span>(())
+                })<span class="question-mark">?</span>;
             }
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;json&quot;</span>, <span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;postgresql&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mysql&quot;</span>)))]</span>
             <span class="ident">FunctionType::JsonExtract</span>(<span class="ident">json_extract</span>) <span class="op">=</span><span class="op">&gt;</span> {
