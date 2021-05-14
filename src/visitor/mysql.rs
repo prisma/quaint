@@ -331,11 +331,13 @@ impl<'a> Visitor<'a> for Mysql<'a> {
         self.write(", ")?;
         self.visit_parameterized(Value::text("$[0]"))?;
         self.write(")")?;
+
         if not {
             self.write(" <> ")?;
         } else {
             self.write(" = ")?;
         }
+
         self.write("CAST(")?;
         self.visit_expression(right)?;
         self.write(" AS JSON)")?;
@@ -363,6 +365,7 @@ impl<'a> Visitor<'a> for Mysql<'a> {
         } else {
             self.write(" = ")?;
         }
+
         self.write("CAST(")?;
         self.visit_expression(right)?;
         self.write(" AS JSON)")?;

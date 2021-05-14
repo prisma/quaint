@@ -303,6 +303,7 @@ impl<'a> Visitor<'a> for Postgres<'a> {
         self.visit_expression(left)?;
         self.write(" @> ")?;
         self.visit_expression(right)?;
+
         if not {
             self.write(" )")?;
         }
