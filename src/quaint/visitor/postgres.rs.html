@@ -745,6 +745,8 @@
 <span id="742">742</span>
 <span id="743">743</span>
 <span id="744">744</span>
+<span id="745">745</span>
+<span id="746">746</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">ast</span>::<span class="kw-2">*</span>,
@@ -1017,6 +1019,7 @@
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mysql&quot;</span>)]</span>
             <span class="ident">JsonPath::String</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">panic!</span>(<span class="string">&quot;JSON path string notation is not supported for Postgres&quot;</span>),
             <span class="ident">JsonPath::Array</span>(<span class="ident">json_path</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="self">self</span>.<span class="ident">write</span>(<span class="string">&quot;(&quot;</span>)<span class="question-mark">?</span>;
                 <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="kw-2">*</span><span class="ident">json_extract</span>.<span class="ident">column</span>)<span class="question-mark">?</span>;
 
                 <span class="kw">if</span> <span class="ident">json_extract</span>.<span class="ident">extract_as_string</span> {
@@ -1037,7 +1040,8 @@
                         }
                     }
                     <span class="prelude-val">Ok</span>(())
-                })
+                })<span class="question-mark">?</span>;
+                <span class="self">self</span>.<span class="ident">write</span>(<span class="string">&quot;)&quot;</span>)
             }
         }
     }

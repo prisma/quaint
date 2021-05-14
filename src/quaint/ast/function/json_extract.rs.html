@@ -139,7 +139,7 @@
 <span class="doccomment">/// let extract: Expression = json_extract(Column::from((&quot;users&quot;, &quot;json&quot;)), JsonPath::array([&quot;a&quot;, &quot;b&quot;]), false).into();</span>
 <span class="doccomment">/// let query = Select::from_table(&quot;users&quot;).so_that(extract.equals(&quot;c&quot;));</span>
 <span class="doccomment">/// let (sql, params) = Postgres::build(query)?;</span>
-<span class="doccomment">/// assert_eq!(&quot;SELECT \&quot;users\&quot;.* FROM \&quot;users\&quot; WHERE \&quot;users\&quot;.\&quot;json\&quot;#&gt;ARRAY[$1, $2]::text[] = $3&quot;, sql);</span>
+<span class="doccomment">/// assert_eq!(&quot;SELECT \&quot;users\&quot;.* FROM \&quot;users\&quot; WHERE (\&quot;users\&quot;.\&quot;json\&quot;#&gt;ARRAY[$1, $2]::text[]) = $3&quot;, sql);</span>
 <span class="doccomment">/// assert_eq!(vec![Value::text(&quot;a&quot;), Value::text(&quot;b&quot;), Value::text(&quot;c&quot;)], params);</span>
 <span class="doccomment">/// # Ok(())</span>
 <span class="doccomment">/// # }</span>
