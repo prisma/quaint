@@ -1951,6 +1951,8 @@ async fn coalesce_fun(api: &mut dyn TestApi) -> crate::Result<()> {
     let row = api.conn().select(select).await?.into_single()?;
 
     assert_eq!(Some("Individual"), row["val"].as_str());
+
+    Ok(())
 }
 
 #[cfg(all(feature = "json", feature = "mysql"))]
