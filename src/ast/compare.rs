@@ -45,19 +45,19 @@ pub enum Compare<'a> {
     /// without visitor transformation in between.
     Raw(Box<Expression<'a>>, Cow<'a, str>, Box<Expression<'a>>),
     #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
-    JsonArrayContains(Box<Expression<'a>>, Box<Expression<'a>>),
-    #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
-    JsonArrayNotContains(Box<Expression<'a>>, Box<Expression<'a>>),
-    #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
-    JsonArrayBeginsWith(Box<Expression<'a>>, Box<Expression<'a>>),
-    #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
-    JsonArrayNotBeginsWith(Box<Expression<'a>>, Box<Expression<'a>>),
-    #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
-    JsonArrayEndsInto(Box<Expression<'a>>, Box<Expression<'a>>),
-    #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
-    JsonArrayNotEndsInto(Box<Expression<'a>>, Box<Expression<'a>>),
-    #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
-    JsonTypeEquals(Box<Expression<'a>>, JsonType),
+    // All json related comparators
+    JsonCompare(JsonCompare<'a>),
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub enum JsonCompare<'a> {
+    ArrayContains(Box<Expression<'a>>, Box<Expression<'a>>),
+    ArrayNotContains(Box<Expression<'a>>, Box<Expression<'a>>),
+    ArrayBeginsWith(Box<Expression<'a>>, Box<Expression<'a>>),
+    ArrayNotBeginsWith(Box<Expression<'a>>, Box<Expression<'a>>),
+    ArrayEndsInto(Box<Expression<'a>>, Box<Expression<'a>>),
+    ArrayNotEndsInto(Box<Expression<'a>>, Box<Expression<'a>>),
+    TypeEquals(Box<Expression<'a>>, JsonType),
 }
 
 #[derive(Debug, Clone, PartialEq)]

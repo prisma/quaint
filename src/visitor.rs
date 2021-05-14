@@ -855,19 +855,15 @@ pub trait Visitor<'a> {
                 self.visit_expression(*right)
             }
             #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
-            Compare::JsonArrayContains(left, right) => self.visit_json_array_contains(*left, *right, false),
-            #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
-            Compare::JsonArrayNotContains(left, right) => self.visit_json_array_contains(*left, *right, true),
-            #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
-            Compare::JsonArrayBeginsWith(left, right) => self.visit_json_array_begins_with(*left, *right, false),
-            #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
-            Compare::JsonArrayNotBeginsWith(left, right) => self.visit_json_array_begins_with(*left, *right, true),
-            #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
-            Compare::JsonArrayEndsInto(left, right) => self.visit_json_array_ends_into(*left, *right, false),
-            #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
-            Compare::JsonArrayNotEndsInto(left, right) => self.visit_json_array_ends_into(*left, *right, true),
-            #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
-            Compare::JsonTypeEquals(left, json_type) => self.visit_json_type_equals(*left, json_type),
+            Compare::JsonCompare(json_compare) => match json_compare {
+                JsonCompare::ArrayContains(left, right) => self.visit_json_array_contains(*left, *right, false),
+                JsonCompare::ArrayNotContains(left, right) => self.visit_json_array_contains(*left, *right, true),
+                JsonCompare::ArrayBeginsWith(left, right) => self.visit_json_array_begins_with(*left, *right, false),
+                JsonCompare::ArrayNotBeginsWith(left, right) => self.visit_json_array_begins_with(*left, *right, true),
+                JsonCompare::ArrayEndsInto(left, right) => self.visit_json_array_ends_into(*left, *right, false),
+                JsonCompare::ArrayNotEndsInto(left, right) => self.visit_json_array_ends_into(*left, *right, true),
+                JsonCompare::TypeEquals(left, json_type) => self.visit_json_type_equals(*left, json_type),
+            },
         }
     }
 
