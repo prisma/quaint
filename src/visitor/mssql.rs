@@ -1,15 +1,10 @@
 use super::Visitor;
+use crate::error::{Error, ErrorKind};
+use crate::prelude::Aliasable;
+use crate::prelude::Query;
 #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
 use crate::prelude::{JsonExtract, JsonType};
-use crate::{
-    ast::{
-        Column, Comparable, Expression, ExpressionKind, Insert, IntoRaw, Join, JoinData, Joinable, Merge, OnConflict,
-        Order, Ordering, Row, Table, TypeDataLength, TypeFamily, Values,
-    },
-    error::{Error, ErrorKind},
-    prelude::{Aliasable, Average, Query},
-    visitor, Value,
-};
+use crate::{ast::*, prelude::Average, visitor, Value};
 use std::{convert::TryFrom, fmt::Write, iter};
 
 static GENERATED_KEYS: &str = "@generated_keys";
@@ -340,6 +335,45 @@ impl<'a> Visitor<'a> for Mssql<'a> {
         match res {
             Some(res) => res,
             None => self.write("null"),
+        }
+    }
+
+    fn visit_cast_expression(&mut self, mut value: Expression<'a>, cast: CastType<'a>) -> visitor::Result {
+        if cast.mssql_enabled() {
+            let alias = value.alias.take();
+
+            self.surround_with("CAST(", ")", |this| {
+                this.visit_expression(value)?;
+                this.write(" AS ")?;
+
+                match cast.kind() {
+                    CastKind::Int2 => this.write("smallint"),
+                    CastKind::Int4 => this.write("int"),
+                    CastKind::Int8 => this.write("bigint"),
+                    CastKind::Float4 => this.write("real"),
+                    CastKind::Float8 => this.write("float"),
+                    CastKind::Decimal => this.write("numeric"),
+                    CastKind::Boolean => this.write("bit"),
+                    CastKind::Uuid => this.write("uniqueidentifier"),
+                    CastKind::Json => this.write("nvarchar"),
+                    CastKind::Jsonb => this.write("nvarchar"),
+                    CastKind::Date => this.write("date"),
+                    CastKind::Time => this.write("time"),
+                    CastKind::DateTime => this.write("datetime2"),
+                    CastKind::Bytes => this.write("varbinary"),
+                    CastKind::Text => this.write("nvarchar"),
+                    CastKind::Custom(r#type) => this.write(r#type),
+                }
+            })?;
+
+            if let Some(alias) = alias {
+                self.write(" AS ")?;
+                self.delimited_identifiers(&[&alias])?;
+            }
+
+            Ok(())
+        } else {
+            self.visit_expression(value)
         }
     }
 
@@ -1740,5 +1774,13 @@ mod tests {
             "SELECT [User].*, [Toto].* FROM [User] LEFT JOIN [Post] AS [p] ON [p].[userId] = [User].[id], [Toto]",
             sql
         );
+    }
+
+    #[test]
+    fn type_casts_smoke() {
+        let select = Select::default().value(1.cast_as(CastType::int2()).alias("val"));
+        let (sql, _) = Mssql::build(select).unwrap();
+
+        assert_eq!("SELECT CAST(@P1 AS smallint) AS [val]", sql);
     }
 }

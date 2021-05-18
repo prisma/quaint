@@ -152,6 +152,7 @@ macro_rules! expression {
                 Expression {
                     kind: ExpressionKind::$paramkind(that),
                     alias: None,
+                    cast: None,
                 }
             }
         }

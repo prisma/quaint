@@ -189,6 +189,45 @@ impl<'a> Visitor<'a> for Mysql<'a> {
         self.parameters.push(value);
     }
 
+    fn visit_cast_expression(&mut self, mut value: Expression<'a>, cast: CastType<'a>) -> visitor::Result {
+        if cast.mysql_enabled() {
+            let alias = value.alias.take();
+
+            self.surround_with("CAST(", ")", |this| {
+                this.visit_expression(value)?;
+                this.write(" AS ")?;
+
+                match cast.kind() {
+                    CastKind::Int2 => this.write("signed"),
+                    CastKind::Int4 => this.write("signed"),
+                    CastKind::Int8 => this.write("signed"),
+                    CastKind::Float4 => this.write("decimal"),
+                    CastKind::Float8 => this.write("decimal"),
+                    CastKind::Decimal => this.write("decimal"),
+                    CastKind::Boolean => this.write("unsigned"),
+                    CastKind::Uuid => this.write("char"),
+                    CastKind::Json => this.write("nchar"),
+                    CastKind::Jsonb => this.write("nchar"),
+                    CastKind::Date => this.write("date"),
+                    CastKind::Time => this.write("time"),
+                    CastKind::DateTime => this.write("datetime"),
+                    CastKind::Bytes => this.write("binary"),
+                    CastKind::Text => this.write("nchar"),
+                    CastKind::Custom(r#type) => this.write(r#type),
+                }
+            })?;
+
+            if let Some(alias) = alias {
+                self.write(" AS ")?;
+                self.delimited_identifiers(&[&alias])?;
+            }
+
+            Ok(())
+        } else {
+            self.visit_expression(value)
+        }
+    }
+
     fn visit_limit_and_offset(&mut self, limit: Option<Value<'a>>, offset: Option<Value<'a>>) -> visitor::Result {
         match (limit, offset) {
             (Some(limit), Some(offset)) => {
@@ -691,5 +730,13 @@ mod tests {
             "SELECT `User`.*, `Toto`.* FROM `User` LEFT JOIN `Post` AS `p` ON `p`.`userId` = `User`.`id`, `Toto`",
             sql
         );
+    }
+
+    #[test]
+    fn type_casts_smoke() {
+        let select = Select::default().value(1.cast_as(CastType::int2()).alias("val"));
+        let (sql, _) = Mysql::build(select).unwrap();
+
+        assert_eq!("SELECT CAST(? AS signed) AS `val`", sql);
     }
 }

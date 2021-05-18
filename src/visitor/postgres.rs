@@ -48,6 +48,43 @@ impl<'a> Visitor<'a> for Postgres<'a> {
         self.write(self.parameters.len())
     }
 
+    fn visit_cast_expression(&mut self, mut value: Expression<'a>, cast: CastType<'a>) -> visitor::Result {
+        if cast.postgres_enabled() {
+            let alias = value.alias.take();
+
+            self.surround_with("(", ")", |this| this.visit_expression(value))?;
+            self.write("::")?;
+
+            match cast.kind() {
+                CastKind::Int2 => self.write("int2")?,
+                CastKind::Int4 => self.write("int4")?,
+                CastKind::Int8 => self.write("int8")?,
+                CastKind::Float4 => self.write("float4")?,
+                CastKind::Float8 => self.write("float8")?,
+                CastKind::Decimal => self.write("numeric")?,
+                CastKind::Boolean => self.write("boolean")?,
+                CastKind::Uuid => self.write("uuid")?,
+                CastKind::Json => self.write("json")?,
+                CastKind::Jsonb => self.write("jsonb")?,
+                CastKind::Date => self.write("date")?,
+                CastKind::Time => self.write("time")?,
+                CastKind::DateTime => self.write("timestamp")?,
+                CastKind::Bytes => self.write("bytea")?,
+                CastKind::Text => self.write("text")?,
+                CastKind::Custom(r#type) => self.write(r#type)?,
+            }
+
+            if let Some(alias) = alias {
+                self.write(" AS ")?;
+                self.delimited_identifiers(&[&alias])?;
+            }
+
+            Ok(())
+        } else {
+            self.visit_expression(value)
+        }
+    }
+
     fn visit_limit_and_offset(&mut self, limit: Option<Value<'a>>, offset: Option<Value<'a>>) -> visitor::Result {
         match (limit, offset) {
             (Some(limit), Some(offset)) => {
@@ -742,5 +779,13 @@ mod tests {
         let (sql, _) = Postgres::build(q).unwrap();
 
         assert_eq!("SELECT \"User\".*, \"Toto\".* FROM \"User\" LEFT JOIN \"Post\" AS \"p\" ON \"p\".\"userId\" = \"User\".\"id\", \"Toto\"", sql);
+    }
+
+    #[test]
+    fn type_casts_smoke() {
+        let select = Select::default().value(1.cast_as(CastType::int2()).alias("val"));
+        let (sql, _) = Postgres::build(select).unwrap();
+
+        assert_eq!("SELECT ($1)::int2 AS \"val\"", sql);
     }
 }

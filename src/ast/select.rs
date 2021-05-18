@@ -21,6 +21,7 @@ impl<'a> From<Select<'a>> for Expression<'a> {
         Expression {
             kind: ExpressionKind::Selection(SelectQuery::Select(Box::new(sel))),
             alias: None,
+            cast: None,
         }
     }
 }

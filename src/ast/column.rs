@@ -5,22 +5,36 @@ use crate::{
 };
 use std::borrow::Cow;
 
+/// The maximum length of the column.
 #[derive(Debug, Clone, Copy)]
 pub enum TypeDataLength {
+    /// Number of either bytes or characters.
     Constant(u16),
+    /// Stored outside of the row in the heap, usually either two or four
+    /// gigabytes.
     Maximum,
 }
 
+/// The type family of the column.
 #[derive(Debug, Clone, Copy)]
 pub enum TypeFamily {
+    /// Textual data with an optional length.
     Text(Option<TypeDataLength>),
+    /// Integers.
     Int,
+    /// Floating point values, 32-bit.
     Float,
+    /// Floating point values, 64-bit.
     Double,
+    /// Trues and falses.
     Boolean,
+    /// Unique identifiers.
     Uuid,
+    /// Date, time and datetime.
     DateTime,
+    /// Numerics with an arbitrary scale and precision.
     Decimal(Option<(u8, u8)>),
+    /// Blobs with an optional length.
     Bytes(Option<TypeDataLength>),
 }
 
@@ -104,6 +118,7 @@ impl<'a> From<Column<'a>> for Expression<'a> {
         Expression {
             kind: ExpressionKind::Column(Box::new(col)),
             alias: None,
+            cast: None,
         }
     }
 }

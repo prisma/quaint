@@ -117,6 +117,9 @@ pub trait Visitor<'a> {
     #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
     fn visit_json_type_equals(&mut self, left: Expression<'a>, json_type: JsonType) -> Result;
 
+    /// Visit an expression with a type cast.
+    fn visit_cast_expression(&mut self, value: Expression<'a>, cast: CastType<'a>) -> Result;
+
     /// A visit to a value we parameterize
     fn visit_parameterized(&mut self, value: Value<'a>) -> Result {
         self.add_parameter(value);
@@ -441,38 +444,42 @@ pub trait Visitor<'a> {
     }
 
     /// A visit to a value used in an expression
-    fn visit_expression(&mut self, value: Expression<'a>) -> Result {
-        match value.kind {
-            ExpressionKind::Value(value) => self.visit_expression(*value)?,
-            ExpressionKind::ConditionTree(tree) => self.visit_conditions(tree)?,
-            ExpressionKind::Compare(compare) => self.visit_compare(compare)?,
-            ExpressionKind::Parameterized(val) => self.visit_parameterized(val)?,
-            ExpressionKind::RawValue(val) => self.visit_raw_value(val.0)?,
-            ExpressionKind::Column(column) => self.visit_column(*column)?,
-            ExpressionKind::Row(row) => self.visit_row(row)?,
-            ExpressionKind::Selection(selection) => {
-                self.surround_with("(", ")", |ref mut s| s.visit_selection(selection))?
-            }
-            ExpressionKind::Function(function) => self.visit_function(*function)?,
-            ExpressionKind::Op(op) => self.visit_operation(*op)?,
-            ExpressionKind::Values(values) => self.visit_values(*values)?,
-            ExpressionKind::Asterisk(table) => match table {
-                Some(table) => {
-                    self.visit_table(*table, false)?;
-                    self.write(".*")?
+    fn visit_expression(&mut self, mut value: Expression<'a>) -> Result {
+        match value.cast.take() {
+            None => {
+                match value.kind {
+                    ExpressionKind::Value(value) => self.visit_expression(*value)?,
+                    ExpressionKind::ConditionTree(tree) => self.visit_conditions(tree)?,
+                    ExpressionKind::Compare(compare) => self.visit_compare(compare)?,
+                    ExpressionKind::Parameterized(val) => self.visit_parameterized(val)?,
+                    ExpressionKind::RawValue(val) => self.visit_raw_value(val.0)?,
+                    ExpressionKind::Column(column) => self.visit_column(*column)?,
+                    ExpressionKind::Row(row) => self.visit_row(row)?,
+                    ExpressionKind::Selection(selection) => {
+                        self.surround_with("(", ")", |ref mut s| s.visit_selection(selection))?
+                    }
+                    ExpressionKind::Function(function) => self.visit_function(*function)?,
+                    ExpressionKind::Op(op) => self.visit_operation(*op)?,
+                    ExpressionKind::Values(values) => self.visit_values(*values)?,
+                    ExpressionKind::Asterisk(table) => match table {
+                        Some(table) => {
+                            self.visit_table(*table, false)?;
+                            self.write(".*")?
+                        }
+                        None => self.write("*")?,
+                    },
+                    ExpressionKind::Default => self.write("DEFAULT")?,
                 }
-                None => self.write("*")?,
-            },
-            ExpressionKind::Default => self.write("DEFAULT")?,
+
+                if let Some(alias) = value.alias {
+                    self.write(" AS ")?;
+                    self.delimited_identifiers(&[&*alias])?;
+                };
+
+                Ok(())
+            }
+            Some(cast) => self.visit_cast_expression(value, cast),
         }
-
-        if let Some(alias) = value.alias {
-            self.write(" AS ")?;
-
-            self.delimited_identifiers(&[&*alias])?;
-        };
-
-        Ok(())
     }
 
     fn visit_multiple_tuple_comparison(&mut self, left: Row<'a>, right: Values<'a>, negate: bool) -> Result {

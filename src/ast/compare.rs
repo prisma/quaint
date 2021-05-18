@@ -230,6 +230,7 @@ impl<'a> From<Compare<'a>> for Expression<'a> {
         Expression {
             kind: ExpressionKind::Compare(cmp),
             alias: None,
+            cast: None,
         }
     }
 }

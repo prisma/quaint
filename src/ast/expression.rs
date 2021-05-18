@@ -4,12 +4,15 @@ use crate::ast::*;
 use query::SelectQuery;
 use std::borrow::Cow;
 
+use super::castable::{CastType, Castable};
+
 /// An expression that can be positioned in a query. Can be a single value or a
 /// statement that is evaluated into a value.
 #[derive(Debug, Clone, PartialEq)]
 pub struct Expression<'a> {
     pub(crate) kind: ExpressionKind<'a>,
     pub(crate) alias: Option<Cow<'a, str>>,
+    pub(crate) cast: Option<CastType<'a>>,
 }
 
 impl<'a> Expression<'a> {
@@ -28,6 +31,7 @@ impl<'a> Expression<'a> {
         Self {
             kind: ExpressionKind::Row(row),
             alias: None,
+            cast: None,
         }
     }
 
@@ -40,6 +44,7 @@ impl<'a> Expression<'a> {
         Self {
             kind: ExpressionKind::Selection(selection),
             alias: None,
+            cast: None,
         }
     }
 
@@ -114,6 +119,7 @@ impl<'a> Expression<'a> {
                 let expr = Expression {
                     kind: ExpressionKind::Selection(selection),
                     alias: self.alias,
+                    cast: self.cast,
                 };
 
                 (expr, ctes)
@@ -124,6 +130,7 @@ impl<'a> Expression<'a> {
                     let expr = Expression {
                         kind: ExpressionKind::Compare(compare),
                         alias: self.alias,
+                        cast: self.cast,
                     };
 
                     (expr, Vec::new())
@@ -133,6 +140,7 @@ impl<'a> Expression<'a> {
                     let expr = Expression {
                         kind: ExpressionKind::Compare(comp),
                         alias: self.alias,
+                        cast: self.cast,
                     };
 
                     (expr, ctes)
@@ -144,12 +152,24 @@ impl<'a> Expression<'a> {
                 let expr = Expression {
                     kind: ExpressionKind::ConditionTree(tree),
                     alias: self.alias,
+                    cast: self.cast,
                 };
 
                 (expr, ctes)
             }
             _ => (self, Vec::new()),
         }
+    }
+}
+
+impl<'a, E> Castable<'a, Expression<'a>> for E
+where
+    E: Into<Expression<'a>>,
+{
+    fn cast_as(self, r#type: castable::CastType<'a>) -> Expression<'a> {
+        let mut exp = self.into();
+        exp.cast = Some(r#type);
+        exp
     }
 }
 
@@ -199,6 +219,7 @@ pub fn asterisk() -> Expression<'static> {
     Expression {
         kind: ExpressionKind::Asterisk(None),
         alias: None,
+        cast: None,
     }
 }
 
@@ -207,6 +228,7 @@ pub fn default_value() -> Expression<'static> {
     Expression {
         kind: ExpressionKind::Default,
         alias: None,
+        cast: None,
     }
 }
 
@@ -217,6 +239,7 @@ impl<'a> From<Function<'a>> for Expression<'a> {
         Expression {
             kind: ExpressionKind::Function(Box::new(f)),
             alias: None,
+            cast: None,
         }
     }
 }
@@ -226,6 +249,7 @@ impl<'a> From<Raw<'a>> for Expression<'a> {
         Expression {
             kind: ExpressionKind::RawValue(r),
             alias: None,
+            cast: None,
         }
     }
 }
@@ -235,6 +259,7 @@ impl<'a> From<Values<'a>> for Expression<'a> {
         Expression {
             kind: ExpressionKind::Values(Box::new(p)),
             alias: None,
+            cast: None,
         }
     }
 }
@@ -244,6 +269,7 @@ impl<'a> From<SqlOp<'a>> for Expression<'a> {
         Expression {
             kind: ExpressionKind::Op(Box::new(p)),
             alias: None,
+            cast: None,
         }
     }
 }
@@ -256,6 +282,7 @@ where
         Expression {
             kind: ExpressionKind::Parameterized(p.into()),
             alias: None,
+            cast: None,
         }
     }
 }
@@ -272,7 +299,11 @@ where
 
 impl<'a> From<ExpressionKind<'a>> for Expression<'a> {
     fn from(kind: ExpressionKind<'a>) -> Self {
-        Self { kind, alias: None }
+        Self {
+            kind,
+            alias: None,
+            cast: None,
+        }
     }
 }
 
