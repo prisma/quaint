@@ -166,12 +166,6 @@ impl<'a> GetRow for SqliteRow<'a> {
                     }
                     _ => Value::integer(i),
                 },
-                #[cfg(feature = "bigdecimal")]
-                ValueRef::Real(f) if column.is_real() => {
-                    use bigdecimal::{BigDecimal, FromPrimitive};
-
-                    Value::numeric(BigDecimal::from_f64(f).unwrap())
-                }
                 ValueRef::Real(f) => Value::double(f),
                 #[cfg(feature = "chrono")]
                 ValueRef::Text(bytes) if column.is_datetime() => {
