@@ -238,18 +238,22 @@ impl<'a> CastType<'a> {
         self
     }
 
+    #[cfg(feature = "postgresql")]
     pub(crate) fn postgres_enabled(&self) -> bool {
         self.on_databases.contains(CastDatabase::Postgres)
     }
 
+    #[cfg(feature = "mysql")]
     pub(crate) fn mysql_enabled(&self) -> bool {
         self.on_databases.contains(CastDatabase::Mysql)
     }
 
+    #[cfg(feature = "mssql")]
     pub(crate) fn mssql_enabled(&self) -> bool {
         self.on_databases.contains(CastDatabase::Mssql)
     }
 
+    #[cfg(any(feature = "mssql", feature = "mysql", feature = "mssql"))]
     pub(crate) fn kind(&self) -> &CastKind<'a> {
         &self.kind
     }
