@@ -129,6 +129,7 @@ impl<'a> From<ConditionTree<'a>> for Expression<'a> {
         Expression {
             kind: ExpressionKind::ConditionTree(ct),
             alias: None,
+            cast: None,
         }
     }
 }
@@ -138,6 +139,7 @@ impl<'a> From<Select<'a>> for ConditionTree<'a> {
         let exp = Expression {
             kind: ExpressionKind::Value(Box::new(sel.into())),
             alias: None,
+            cast: None,
         };
 
         ConditionTree::single(exp)

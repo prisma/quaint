@@ -1898,7 +1898,6 @@ async fn ints_read_write_to_numeric(api: &mut dyn TestApi) -> crate::Result<()> 
     let table = api.create_table("id int, value numeric(12,2)").await?;
 
     let insert = Insert::multi_into(&table, &["id", "value"])
-        .values(vec![Value::integer(1), Value::double(1234.5)])
         .values(vec![Value::integer(2), Value::integer(1234)])
         .values(vec![Value::integer(3), Value::integer(12345)]);
 
@@ -1909,37 +1908,10 @@ async fn ints_read_write_to_numeric(api: &mut dyn TestApi) -> crate::Result<()> 
 
     for (i, row) in rows.into_iter().enumerate() {
         match i {
-            0 => assert_eq!(Value::numeric(BigDecimal::from_str("1234.5").unwrap()), row["value"]),
-            1 => assert_eq!(Value::numeric(BigDecimal::from_str("1234.0").unwrap()), row["value"]),
+            0 => assert_eq!(Value::numeric(BigDecimal::from_str("1234.0").unwrap()), row["value"]),
             _ => assert_eq!(Value::numeric(BigDecimal::from_str("12345.0").unwrap()), row["value"]),
         }
     }
-
-    Ok(())
-}
-
-#[cfg(feature = "bigdecimal")]
-#[test_each_connector(tags("postgresql"))]
-async fn bigdecimal_read_write_to_floating(api: &mut dyn TestApi) -> crate::Result<()> {
-    use bigdecimal::BigDecimal;
-    use std::str::FromStr;
-
-    let table = api.create_table("id int, a float4, b float8").await?;
-    let val = BigDecimal::from_str("0.1").unwrap();
-
-    let insert = Insert::multi_into(&table, &["id", "a", "b"]).values(vec![
-        Value::integer(1),
-        Value::numeric(val.clone()),
-        Value::numeric(val.clone()),
-    ]);
-
-    api.conn().execute(insert.into()).await?;
-
-    let select = Select::from_table(&table);
-    let row = api.conn().select(select).await?.into_single()?;
-
-    assert_eq!(Value::float(0.1), row["a"]);
-    assert_eq!(Value::double(0.1), row["b"]);
 
     Ok(())
 }
@@ -2348,6 +2320,224 @@ async fn json_array_not_ends_into_fun(api: &mut dyn TestApi) -> crate::Result<()
     let select = Select::from_table(&table).so_that(path.clone().json_array_not_ends_into("2"));
     let row = api.conn().select(select).await?.into_single()?;
     assert_eq!(Some(&serde_json::json!({ "a": { "b": [4, 5] } })), row["obj"].as_json());
+
+    Ok(())
+}
+
+#[cfg(feature = "mysql")]
+#[test_each_connector(tags("mysql"))]
+async fn mysql_type_casts(api: &mut dyn TestApi) -> crate::Result<()> {
+    #[cfg(feature = "bigdecimal")]
+    use std::str::FromStr;
+
+    let casts = vec![
+        (Value::integer(1), CastType::int2(), Value::integer(1)),
+        (Value::integer(1), CastType::int4(), Value::integer(1)),
+        (Value::integer(1), CastType::int8(), Value::integer(1)),
+        // You cannot cast to boolean :P
+        (Value::boolean(true), CastType::boolean(), Value::integer(1)),
+        (Value::text("asdf"), CastType::text(), Value::text("asdf")),
+        (
+            Value::bytes(b"DEADBEEF".to_vec()),
+            CastType::bytes(),
+            Value::bytes(b"DEADBEEF".to_vec()),
+        ),
+        #[cfg(feature = "uuid")]
+        (
+            Value::uuid(uuid::Uuid::parse_str("936DA01F9ABD4d9d80C702AF85C822A8").unwrap()),
+            CastType::uuid(),
+            Value::text("936da01f-9abd-4d9d-80c7-02af85c822a8"),
+        ),
+        #[cfg(feature = "bigdecimal")]
+        (
+            Value::float(1.0),
+            CastType::float4(),
+            Value::numeric(bigdecimal::BigDecimal::from_str("1.0").unwrap()),
+        ),
+        #[cfg(feature = "bigdecimal")]
+        (
+            Value::float(1.0),
+            CastType::float8(),
+            Value::numeric(bigdecimal::BigDecimal::from_str("1.0").unwrap()),
+        ),
+        #[cfg(feature = "bigdecimal")]
+        (
+            Value::numeric(bigdecimal::BigDecimal::from_str("1.0").unwrap()),
+            CastType::decimal(),
+            Value::numeric(bigdecimal::BigDecimal::from_str("1.0").unwrap()),
+        ),
+        #[cfg(feature = "chrono")]
+        (
+            Value::time(chrono::NaiveTime::from_hms(16, 20, 0)),
+            CastType::time(),
+            Value::time(chrono::NaiveTime::from_hms(16, 20, 0)),
+        ),
+        #[cfg(feature = "chrono")]
+        (
+            Value::datetime(chrono::DateTime::from_utc(
+                chrono::NaiveDate::from_ymd(2015, 3, 14).and_hms(16, 20, 0),
+                chrono::Utc,
+            )),
+            CastType::datetime(),
+            Value::datetime(chrono::DateTime::from_utc(
+                chrono::NaiveDate::from_ymd(2015, 3, 14).and_hms(16, 20, 0),
+                chrono::Utc,
+            )),
+        ),
+    ];
+
+    for (input, cast, output) in casts.into_iter() {
+        let select = Select::default().value(input.cast_as(cast));
+        let result = api.conn().select(select).await?.into_single()?.into_single()?;
+
+        assert_eq!(output, result);
+    }
+
+    Ok(())
+}
+
+#[cfg(feature = "postgresql")]
+#[test_each_connector(tags("postgresql"))]
+async fn postgres_type_casts(api: &mut dyn TestApi) -> crate::Result<()> {
+    #[cfg(feature = "bigdecimal")]
+    use std::str::FromStr;
+
+    let casts = vec![
+        (Value::integer(1), CastType::int2(), Value::integer(1)),
+        (Value::integer(1), CastType::int4(), Value::integer(1)),
+        (Value::integer(1), CastType::int8(), Value::integer(1)),
+        (Value::float(1.0), CastType::float4(), Value::float(1.0)),
+        (Value::double(1.0), CastType::float8(), Value::double(1.0)),
+        (Value::boolean(true), CastType::boolean(), Value::boolean(true)),
+        (Value::text("asdf"), CastType::text(), Value::text("asdf")),
+        (
+            Value::bytes(b"DEADBEEF".to_vec()),
+            CastType::bytes(),
+            Value::bytes(b"DEADBEEF".to_vec()),
+        ),
+        #[cfg(feature = "uuid")]
+        (
+            Value::uuid(uuid::Uuid::parse_str("936DA01F9ABD4d9d80C702AF85C822A8").unwrap()),
+            CastType::uuid(),
+            Value::uuid(uuid::Uuid::parse_str("936DA01F9ABD4d9d80C702AF85C822A8").unwrap()),
+        ),
+        #[cfg(feature = "bigdecimal")]
+        (
+            Value::numeric(bigdecimal::BigDecimal::from_str("1.0").unwrap()),
+            CastType::decimal(),
+            Value::numeric(bigdecimal::BigDecimal::from_str("1.0").unwrap()),
+        ),
+        #[cfg(feature = "json")]
+        (
+            Value::json(serde_json::json!({"a": "b"})),
+            CastType::json(),
+            Value::json(serde_json::json!({"a": "b"})),
+        ),
+        #[cfg(feature = "json")]
+        (
+            Value::json(serde_json::json!({"a": "b"})),
+            CastType::jsonb(),
+            Value::json(serde_json::json!({"a": "b"})),
+        ),
+        #[cfg(feature = "chrono")]
+        (
+            Value::date(chrono::NaiveDate::from_ymd(2015, 3, 14)),
+            CastType::date(),
+            Value::date(chrono::NaiveDate::from_ymd(2015, 3, 14)),
+        ),
+        #[cfg(feature = "chrono")]
+        (
+            Value::time(chrono::NaiveTime::from_hms(16, 20, 0)),
+            CastType::time(),
+            Value::time(chrono::NaiveTime::from_hms(16, 20, 0)),
+        ),
+        #[cfg(feature = "chrono")]
+        (
+            Value::datetime(chrono::DateTime::from_utc(
+                chrono::NaiveDate::from_ymd(2015, 3, 14).and_hms(16, 20, 0),
+                chrono::Utc,
+            )),
+            CastType::datetime(),
+            Value::datetime(chrono::DateTime::from_utc(
+                chrono::NaiveDate::from_ymd(2015, 3, 14).and_hms(16, 20, 0),
+                chrono::Utc,
+            )),
+        ),
+    ];
+
+    for (input, cast, output) in casts.into_iter() {
+        let select = Select::default().value(input.cast_as(cast));
+        let result = api.conn().select(select).await?.into_single()?.into_single()?;
+
+        assert_eq!(output, result);
+    }
+
+    Ok(())
+}
+
+#[cfg(feature = "mssql")]
+#[test_each_connector(tags("mssql"))]
+async fn mssql_type_casts(api: &mut dyn TestApi) -> crate::Result<()> {
+    #[cfg(feature = "bigdecimal")]
+    use std::str::FromStr;
+
+    let casts = vec![
+        (Value::integer(1), CastType::int2(), Value::integer(1)),
+        (Value::integer(1), CastType::int4(), Value::integer(1)),
+        (Value::integer(1), CastType::int8(), Value::integer(1)),
+        (Value::float(1.0), CastType::float4(), Value::float(1.0)),
+        (Value::double(1.0), CastType::float8(), Value::double(1.0)),
+        (Value::boolean(true), CastType::boolean(), Value::boolean(true)),
+        (Value::text("asdf"), CastType::text(), Value::text("asdf")),
+        (
+            Value::bytes(b"DEADBEEF".to_vec()),
+            CastType::bytes(),
+            Value::bytes(b"DEADBEEF".to_vec()),
+        ),
+        #[cfg(feature = "uuid")]
+        (
+            Value::uuid(uuid::Uuid::parse_str("936DA01F9ABD4d9d80C702AF85C822A8").unwrap()),
+            CastType::uuid(),
+            Value::uuid(uuid::Uuid::parse_str("936DA01F9ABD4d9d80C702AF85C822A8").unwrap()),
+        ),
+        #[cfg(feature = "bigdecimal")]
+        (
+            Value::numeric(bigdecimal::BigDecimal::from_str("1.0").unwrap()),
+            CastType::decimal(),
+            Value::numeric(bigdecimal::BigDecimal::from_str("1.0").unwrap()),
+        ),
+        #[cfg(feature = "chrono")]
+        (
+            Value::date(chrono::NaiveDate::from_ymd(2015, 3, 14)),
+            CastType::date(),
+            Value::date(chrono::NaiveDate::from_ymd(2015, 3, 14)),
+        ),
+        #[cfg(feature = "chrono")]
+        (
+            Value::time(chrono::NaiveTime::from_hms(16, 20, 0)),
+            CastType::time(),
+            Value::time(chrono::NaiveTime::from_hms(16, 20, 0)),
+        ),
+        #[cfg(feature = "chrono")]
+        (
+            Value::datetime(chrono::DateTime::from_utc(
+                chrono::NaiveDate::from_ymd(2015, 3, 14).and_hms(16, 20, 0),
+                chrono::Utc,
+            )),
+            CastType::datetime(),
+            Value::datetime(chrono::DateTime::from_utc(
+                chrono::NaiveDate::from_ymd(2015, 3, 14).and_hms(16, 20, 0),
+                chrono::Utc,
+            )),
+        ),
+    ];
+
+    for (input, cast, output) in casts.into_iter() {
+        let select = Select::default().value(input.cast_as(cast));
+        let result = api.conn().select(select).await?.into_single()?.into_single()?;
+
+        assert_eq!(output, result);
+    }
 
     Ok(())
 }

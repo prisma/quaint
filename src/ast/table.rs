@@ -54,6 +54,7 @@ impl<'a> Table<'a> {
         Expression {
             kind: ExpressionKind::Asterisk(Some(Box::new(self))),
             alias: None,
+            cast: None,
         }
     }
 

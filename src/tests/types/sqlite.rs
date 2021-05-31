@@ -3,7 +3,7 @@ use crate::tests::test_api::sqlite_test_api;
 use crate::tests::test_api::TestApi;
 #[cfg(feature = "chrono")]
 use crate::{ast::*, connector::Queryable};
-#[cfg(feature = "bigdecimal")]
+#[cfg(feature = "chrono")]
 use std::str::FromStr;
 
 test_type!(integer(
@@ -18,36 +18,6 @@ test_type!(integer(
     Value::integer(i32::MAX),
     Value::integer(i64::MIN),
     Value::integer(i64::MAX)
-));
-
-#[cfg(feature = "bigdecimal")]
-test_type!(real(
-    sqlite,
-    "REAL",
-    Value::Numeric(None),
-    Value::numeric(bigdecimal::BigDecimal::from_str("1.12345").unwrap())
-));
-
-#[cfg(feature = "bigdecimal")]
-test_type!(float_decimal(
-    sqlite,
-    "FLOAT",
-    (Value::Numeric(None), Value::Float(None)),
-    (
-        Value::numeric(bigdecimal::BigDecimal::from_str("3.14").unwrap()),
-        Value::double(3.14)
-    )
-));
-
-#[cfg(feature = "bigdecimal")]
-test_type!(double_decimal(
-    sqlite,
-    "DOUBLE",
-    (Value::Numeric(None), Value::Double(None)),
-    (
-        Value::numeric(bigdecimal::BigDecimal::from_str("3.14").unwrap()),
-        Value::double(3.14)
-    )
 ));
 
 test_type!(text(sqlite, "TEXT", Value::Text(None), Value::text("foobar huhuu")));

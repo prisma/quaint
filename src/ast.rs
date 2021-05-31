@@ -5,6 +5,7 @@
 //! actual query building is in the [visitor](../visitor/index.html) module.
 //!
 //! For prelude, all important imports are in `quaint::ast::*`.
+mod castable;
 mod column;
 mod compare;
 mod conditions;
@@ -29,6 +30,7 @@ mod union;
 mod update;
 mod values;
 
+pub use castable::*;
 pub use column::{Column, DefaultValue, TypeDataLength, TypeFamily};
 pub use compare::{Comparable, Compare, JsonCompare, JsonType};
 pub use conditions::ConditionTree;

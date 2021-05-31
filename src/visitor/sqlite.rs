@@ -188,6 +188,10 @@ impl<'a> Visitor<'a> for Sqlite<'a> {
         self.parameters.push(value);
     }
 
+    fn visit_cast_expression(&mut self, value: Expression<'a>, _cast: CastType<'a>) -> visitor::Result {
+        self.visit_expression(value)
+    }
+
     fn visit_limit_and_offset(&mut self, limit: Option<Value<'a>>, offset: Option<Value<'a>>) -> visitor::Result {
         match (limit, offset) {
             (Some(limit), Some(offset)) => {
