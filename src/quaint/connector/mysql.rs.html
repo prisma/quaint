@@ -466,6 +466,21 @@
 <span id="463">463</span>
 <span id="464">464</span>
 <span id="465">465</span>
+<span id="466">466</span>
+<span id="467">467</span>
+<span id="468">468</span>
+<span id="469">469</span>
+<span id="470">470</span>
+<span id="471">471</span>
+<span id="472">472</span>
+<span id="473">473</span>
+<span id="474">474</span>
+<span id="475">475</span>
+<span id="476">476</span>
+<span id="477">477</span>
+<span id="478">478</span>
+<span id="479">479</span>
+<span id="480">480</span>
 </pre><pre class="rust">
 <span class="kw">mod</span> <span class="ident">conversion</span>;
 <span class="kw">mod</span> <span class="ident">error</span>;
@@ -535,6 +550,12 @@
                 <span class="self">self</span>.<span class="ident">url</span>.<span class="ident">username</span>().<span class="ident">into</span>()
             }
         }
+    }
+
+    <span class="doccomment">/// The number of statements to cache. If not set, uses `mysql_async`</span>
+    <span class="doccomment">/// default (32). Setting to 0 disables cache.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">statement_cache_size</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">query_params</span>.<span class="ident">statement_cache_size</span>
     }
 
     <span class="doccomment">/// The percent-decoded database password.</span>
@@ -609,6 +630,7 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pool_timeout</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Duration::from_secs</span>(<span class="number">10</span>));
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">max_connection_lifetime</span> <span class="op">=</span> <span class="prelude-val">None</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">max_idle_connection_lifetime</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Duration::from_secs</span>(<span class="number">300</span>));
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">statement_cache_size</span> <span class="op">=</span> <span class="prelude-val">None</span>;
 
         <span class="kw">for</span> (<span class="ident">k</span>, <span class="ident">v</span>) <span class="kw">in</span> <span class="ident">url</span>.<span class="ident">query_pairs</span>() {
             <span class="kw">match</span> <span class="ident">k</span>.<span class="ident">as_ref</span>() {
@@ -618,6 +640,12 @@
                         .<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">Error::builder</span>(<span class="ident">ErrorKind::InvalidConnectionArguments</span>).<span class="ident">build</span>())<span class="question-mark">?</span>;
 
                     <span class="ident">connection_limit</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">as_int</span>);
+                }
+                <span class="string">&quot;statement_cache_size&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="kw">let</span> <span class="ident">as_int</span> <span class="op">=</span> <span class="ident">v</span>
+                        .<span class="ident">parse</span>()
+                        .<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">Error::builder</span>(<span class="ident">ErrorKind::InvalidConnectionArguments</span>).<span class="ident">build</span>())<span class="question-mark">?</span>;
+                    <span class="ident">statement_cache_size</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">as_int</span>);
                 }
                 <span class="string">&quot;sslcert&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="ident">use_ssl</span> <span class="op">=</span> <span class="bool-val">true</span>;
@@ -712,6 +740,7 @@
             <span class="ident">pool_timeout</span>,
             <span class="ident">max_connection_lifetime</span>,
             <span class="ident">max_idle_connection_lifetime</span>,
+            <span class="ident">statement_cache_size</span>,
         })
     }
 
@@ -722,6 +751,7 @@
 
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">to_opts_builder</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">my::OptsBuilder</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">config</span> <span class="op">=</span> <span class="ident">my::OptsBuilder::default</span>()
+            .<span class="ident">stmt_cache_size</span>(<span class="self">self</span>.<span class="ident">statement_cache_size</span>())
             .<span class="ident">user</span>(<span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">username</span>()))
             .<span class="ident">pass</span>(<span class="self">self</span>.<span class="ident">password</span>())
             .<span class="ident">db_name</span>(<span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">dbname</span>()));
@@ -735,7 +765,6 @@
             }
         }
 
-        <span class="ident">config</span> <span class="op">=</span> <span class="ident">config</span>.<span class="ident">stmt_cache_size</span>(<span class="prelude-val">Some</span>(<span class="number">1000</span>));
         <span class="ident">config</span> <span class="op">=</span> <span class="ident">config</span>.<span class="ident">conn_ttl</span>(<span class="prelude-val">Some</span>(<span class="ident">Duration::from_secs</span>(<span class="number">5</span>)));
 
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">query_params</span>.<span class="ident">use_ssl</span> {
@@ -757,6 +786,7 @@
     <span class="ident">pool_timeout</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span>,
     <span class="ident">max_connection_lifetime</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span>,
     <span class="ident">max_idle_connection_lifetime</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span>,
+    <span class="ident">statement_cache_size</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">Mysql</span> {

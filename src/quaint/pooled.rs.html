@@ -484,6 +484,7 @@
 <span id="481">481</span>
 <span id="482">482</span>
 <span id="483">483</span>
+<span id="484">484</span>
 </pre><pre class="rust">
 <span class="doccomment">//! # A connection pool to a SQL database.</span>
 <span class="doccomment">//!</span>
@@ -553,8 +554,7 @@
 <span class="doccomment">//!   `BEGIN` to avoid possible collisions with statements created in other</span>
 <span class="doccomment">//!   sessions.</span>
 <span class="doccomment">//! - `statement_cache_size`, number of prepared statements kept cached.</span>
-<span class="doccomment">//!   Defaults to 500, which means caching is off. If `pgbouncer` mode is enabled,</span>
-<span class="doccomment">//!   caching is always off.</span>
+<span class="doccomment">//!   Defaults to 500. If `pgbouncer` mode is enabled, caching is always off.</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! ## MySQL</span>
 <span class="doccomment">//!</span>
@@ -575,6 +575,8 @@
 <span class="doccomment">//! - `pool_timeout` defined in seconds. If all connections are in use, the</span>
 <span class="doccomment">//!   database will return a `PoolTimeout` error after waiting for the given time.</span>
 <span class="doccomment">//!   If set to zero, no timeout.</span>
+<span class="doccomment">//! - `statement_cache_size`, number of prepared statements kept cached.</span>
+<span class="doccomment">//!   Defaults to 32. Set to 0 to disable caching.</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! ## Microsoft SQL Server</span>
 <span class="doccomment">//!</span>
