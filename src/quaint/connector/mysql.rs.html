@@ -481,11 +481,84 @@
 <span id="478">478</span>
 <span id="479">479</span>
 <span id="480">480</span>
+<span id="481">481</span>
+<span id="482">482</span>
+<span id="483">483</span>
+<span id="484">484</span>
+<span id="485">485</span>
+<span id="486">486</span>
+<span id="487">487</span>
+<span id="488">488</span>
+<span id="489">489</span>
+<span id="490">490</span>
+<span id="491">491</span>
+<span id="492">492</span>
+<span id="493">493</span>
+<span id="494">494</span>
+<span id="495">495</span>
+<span id="496">496</span>
+<span id="497">497</span>
+<span id="498">498</span>
+<span id="499">499</span>
+<span id="500">500</span>
+<span id="501">501</span>
+<span id="502">502</span>
+<span id="503">503</span>
+<span id="504">504</span>
+<span id="505">505</span>
+<span id="506">506</span>
+<span id="507">507</span>
+<span id="508">508</span>
+<span id="509">509</span>
+<span id="510">510</span>
+<span id="511">511</span>
+<span id="512">512</span>
+<span id="513">513</span>
+<span id="514">514</span>
+<span id="515">515</span>
+<span id="516">516</span>
+<span id="517">517</span>
+<span id="518">518</span>
+<span id="519">519</span>
+<span id="520">520</span>
+<span id="521">521</span>
+<span id="522">522</span>
+<span id="523">523</span>
+<span id="524">524</span>
+<span id="525">525</span>
+<span id="526">526</span>
+<span id="527">527</span>
+<span id="528">528</span>
+<span id="529">529</span>
+<span id="530">530</span>
+<span id="531">531</span>
+<span id="532">532</span>
+<span id="533">533</span>
+<span id="534">534</span>
+<span id="535">535</span>
+<span id="536">536</span>
+<span id="537">537</span>
+<span id="538">538</span>
+<span id="539">539</span>
+<span id="540">540</span>
+<span id="541">541</span>
+<span id="542">542</span>
+<span id="543">543</span>
+<span id="544">544</span>
+<span id="545">545</span>
+<span id="546">546</span>
+<span id="547">547</span>
+<span id="548">548</span>
+<span id="549">549</span>
+<span id="550">550</span>
+<span id="551">551</span>
+<span id="552">552</span>
 </pre><pre class="rust">
 <span class="kw">mod</span> <span class="ident">conversion</span>;
 <span class="kw">mod</span> <span class="ident">error</span>;
 
 <span class="kw">use</span> <span class="ident">async_trait::async_trait</span>;
+<span class="kw">use</span> <span class="ident">lru_cache::LruCache</span>;
 <span class="kw">use</span> <span class="ident">mysql_async</span>::{
     <span class="self">self</span> <span class="kw">as</span> <span class="ident">my</span>,
     <span class="ident">prelude</span>::{<span class="ident">Query</span> <span class="kw">as</span> <span class="kw">_</span>, <span class="ident">Queryable</span> <span class="kw">as</span> <span class="kw">_</span>},
@@ -516,6 +589,7 @@
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">url</span>: <span class="ident">MysqlUrl</span>,
     <span class="ident">socket_timeout</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span>,
     <span class="ident">is_healthy</span>: <span class="ident">AtomicBool</span>,
+    <span class="ident">statement_cache</span>: <span class="ident">Mutex</span><span class="op">&lt;</span><span class="ident">LruCache</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">my::Statement</span><span class="op">&gt;</span><span class="op">&gt;</span>,
 }
 
 <span class="doccomment">/// Wraps a connection url and exposes the parsing logic used by quaint, including default values.</span>
@@ -550,12 +624,6 @@
                 <span class="self">self</span>.<span class="ident">url</span>.<span class="ident">username</span>().<span class="ident">into</span>()
             }
         }
-    }
-
-    <span class="doccomment">/// The number of statements to cache. If not set, uses `mysql_async`</span>
-    <span class="doccomment">/// default (32). Setting to 0 disables cache.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">statement_cache_size</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">query_params</span>.<span class="ident">statement_cache_size</span>
     }
 
     <span class="doccomment">/// The percent-decoded database password.</span>
@@ -618,6 +686,14 @@
         <span class="self">self</span>.<span class="ident">query_params</span>.<span class="ident">max_idle_connection_lifetime</span>
     }
 
+    <span class="kw">fn</span> <span class="ident">statement_cache_size</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
+        <span class="self">self</span>.<span class="ident">query_params</span>.<span class="ident">statement_cache_size</span>
+    }
+
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">cache</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">LruCache</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">my::Statement</span><span class="op">&gt;</span> {
+        <span class="ident">LruCache::new</span>(<span class="self">self</span>.<span class="ident">query_params</span>.<span class="ident">statement_cache_size</span>)
+    }
+
     <span class="kw">fn</span> <span class="ident">parse_query_params</span>(<span class="ident">url</span>: <span class="kw-2">&amp;</span><span class="ident">Url</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">MysqlUrlQueryParams</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ssl_opts</span> <span class="op">=</span> <span class="ident">my::SslOpts::default</span>();
         <span class="ident">ssl_opts</span> <span class="op">=</span> <span class="ident">ssl_opts</span>.<span class="ident">with_danger_accept_invalid_certs</span>(<span class="bool-val">true</span>);
@@ -630,7 +706,7 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pool_timeout</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Duration::from_secs</span>(<span class="number">10</span>));
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">max_connection_lifetime</span> <span class="op">=</span> <span class="prelude-val">None</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">max_idle_connection_lifetime</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Duration::from_secs</span>(<span class="number">300</span>));
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">statement_cache_size</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="number">1000</span>);
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">statement_cache_size</span> <span class="op">=</span> <span class="number">1000</span>;
 
         <span class="kw">for</span> (<span class="ident">k</span>, <span class="ident">v</span>) <span class="kw">in</span> <span class="ident">url</span>.<span class="ident">query_pairs</span>() {
             <span class="kw">match</span> <span class="ident">k</span>.<span class="ident">as_ref</span>() {
@@ -642,10 +718,9 @@
                     <span class="ident">connection_limit</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">as_int</span>);
                 }
                 <span class="string">&quot;statement_cache_size&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="kw">let</span> <span class="ident">as_int</span> <span class="op">=</span> <span class="ident">v</span>
+                    <span class="ident">statement_cache_size</span> <span class="op">=</span> <span class="ident">v</span>
                         .<span class="ident">parse</span>()
                         .<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">Error::builder</span>(<span class="ident">ErrorKind::InvalidConnectionArguments</span>).<span class="ident">build</span>())<span class="question-mark">?</span>;
-                    <span class="ident">statement_cache_size</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">as_int</span>);
                 }
                 <span class="string">&quot;sslcert&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="ident">use_ssl</span> <span class="op">=</span> <span class="bool-val">true</span>;
@@ -751,7 +826,7 @@
 
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">to_opts_builder</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">my::OptsBuilder</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">config</span> <span class="op">=</span> <span class="ident">my::OptsBuilder::default</span>()
-            .<span class="ident">stmt_cache_size</span>(<span class="self">self</span>.<span class="ident">statement_cache_size</span>())
+            .<span class="ident">stmt_cache_size</span>(<span class="prelude-val">Some</span>(<span class="number">0</span>))
             .<span class="ident">user</span>(<span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">username</span>()))
             .<span class="ident">pass</span>(<span class="self">self</span>.<span class="ident">password</span>())
             .<span class="ident">db_name</span>(<span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">dbname</span>()));
@@ -786,7 +861,7 @@
     <span class="ident">pool_timeout</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span>,
     <span class="ident">max_connection_lifetime</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span>,
     <span class="ident">max_idle_connection_lifetime</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span>,
-    <span class="ident">statement_cache_size</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>,
+    <span class="ident">statement_cache_size</span>: <span class="ident">usize</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">Mysql</span> {
@@ -798,21 +873,94 @@
         <span class="prelude-val">Ok</span>(<span class="self">Self</span> {
             <span class="ident">socket_timeout</span>: <span class="ident">url</span>.<span class="ident">query_params</span>.<span class="ident">socket_timeout</span>,
             <span class="ident">conn</span>: <span class="ident">Mutex::new</span>(<span class="ident">conn</span>),
+            <span class="ident">statement_cache</span>: <span class="ident">Mutex::new</span>(<span class="ident">url</span>.<span class="ident">cache</span>()),
             <span class="ident">url</span>,
             <span class="ident">is_healthy</span>: <span class="ident">AtomicBool::new</span>(<span class="bool-val">true</span>),
         })
     }
 
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">perform_io</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">fut</span>: <span class="ident">F</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">crate</span><span class="ident">::Result</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
+    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">perform_io</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">U</span>, <span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">op</span>: <span class="ident">U</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">crate</span><span class="ident">::Result</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
     <span class="kw">where</span>
-        <span class="ident">F</span>: <span class="ident">Future</span><span class="op">&lt;</span><span class="ident">Output</span> <span class="op">=</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">my::Error</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+        <span class="ident">F</span>: <span class="ident">Future</span><span class="op">&lt;</span><span class="ident">Output</span> <span class="op">=</span> <span class="kw">crate</span><span class="ident">::Result</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+        <span class="ident">U</span>: <span class="ident">FnOnce</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">F</span>,
     {
-        <span class="kw">match</span> <span class="kw">super</span><span class="ident">::timeout::socket</span>(<span class="self">self</span>.<span class="ident">socket_timeout</span>, <span class="ident">fut</span>).<span class="kw">await</span> {
+        <span class="kw">match</span> <span class="kw">super</span><span class="ident">::timeout::socket</span>(<span class="self">self</span>.<span class="ident">socket_timeout</span>, <span class="ident">op</span>()).<span class="kw">await</span> {
             <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="kw">if</span> <span class="ident">e</span>.<span class="ident">is_closed</span>() <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="self">self</span>.<span class="ident">is_healthy</span>.<span class="ident">store</span>(<span class="bool-val">false</span>, <span class="ident">Ordering::SeqCst</span>);
                 <span class="prelude-val">Err</span>(<span class="ident">e</span>)
             }
-            <span class="ident">res</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">res</span>,
+            <span class="ident">res</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">res</span><span class="question-mark">?</span>),
+        }
+    }
+
+    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">prepared</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">U</span>, <span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">sql</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">op</span>: <span class="ident">U</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">crate</span><span class="ident">::Result</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
+    <span class="kw">where</span>
+        <span class="ident">F</span>: <span class="ident">Future</span><span class="op">&lt;</span><span class="ident">Output</span> <span class="op">=</span> <span class="kw">crate</span><span class="ident">::Result</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+        <span class="ident">U</span>: <span class="ident">Fn</span>(<span class="ident">my::Statement</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">F</span>,
+    {
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">url</span>.<span class="ident">statement_cache_size</span>() <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
+            <span class="self">self</span>.<span class="ident">perform_io</span>(<span class="op">|</span><span class="op">|</span> <span class="kw">async</span> <span class="kw">move</span> {
+                <span class="kw">let</span> <span class="ident">stmt</span> <span class="op">=</span> {
+                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">conn</span>.<span class="ident">lock</span>().<span class="kw">await</span>;
+                    <span class="ident">conn</span>.<span class="ident">prep</span>(<span class="ident">sql</span>).<span class="kw">await</span><span class="question-mark">?</span>
+                };
+
+                <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">op</span>(<span class="ident">stmt</span>.<span class="ident">clone</span>()).<span class="kw">await</span>;
+
+                {
+                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">conn</span>.<span class="ident">lock</span>().<span class="kw">await</span>;
+                    <span class="ident">conn</span>.<span class="ident">close</span>(<span class="ident">stmt</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+                }
+
+                <span class="ident">res</span>
+            })
+            .<span class="kw">await</span>
+        } <span class="kw">else</span> {
+            <span class="self">self</span>.<span class="ident">perform_io</span>(<span class="op">|</span><span class="op">|</span> <span class="kw">async</span> <span class="kw">move</span> {
+                <span class="kw">let</span> <span class="ident">stmt</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">fetch_cached</span>(<span class="ident">sql</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+                <span class="ident">op</span>(<span class="ident">stmt</span>).<span class="kw">await</span>
+            })
+            .<span class="kw">await</span>
+        }
+    }
+
+    <span class="attribute">#[<span class="ident">tracing::instrument</span>(<span class="ident">skip</span>(<span class="self">self</span>))]</span>
+    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">fetch_cached</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">sql</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">crate</span><span class="ident">::Result</span><span class="op">&lt;</span><span class="ident">my::Statement</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cache</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">statement_cache</span>.<span class="ident">lock</span>().<span class="kw">await</span>;
+        <span class="kw">let</span> <span class="ident">capacity</span> <span class="op">=</span> <span class="ident">cache</span>.<span class="ident">capacity</span>();
+        <span class="kw">let</span> <span class="ident">stored</span> <span class="op">=</span> <span class="ident">cache</span>.<span class="ident">len</span>();
+
+        <span class="kw">match</span> <span class="ident">cache</span>.<span class="ident">get_mut</span>(<span class="ident">sql</span>) {
+            <span class="prelude-val">Some</span>(<span class="ident">stmt</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="macro">tracing::trace!</span>(
+                    <span class="ident">message</span> <span class="op">=</span> <span class="string">&quot;CACHE HIT!&quot;</span>,
+                    <span class="ident">query</span> <span class="op">=</span> <span class="ident">sql</span>,
+                    <span class="ident">capacity</span> <span class="op">=</span> <span class="ident">capacity</span>,
+                    <span class="ident">stored</span> <span class="op">=</span> <span class="ident">stored</span>,
+                );
+
+                <span class="prelude-val">Ok</span>(<span class="ident">stmt</span>.<span class="ident">clone</span>()) <span class="comment">// arc&#39;d</span>
+            }
+            <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="macro">tracing::trace!</span>(
+                    <span class="ident">message</span> <span class="op">=</span> <span class="string">&quot;CACHE MISS!&quot;</span>,
+                    <span class="ident">query</span> <span class="op">=</span> <span class="ident">sql</span>,
+                    <span class="ident">capacity</span> <span class="op">=</span> <span class="ident">capacity</span>,
+                    <span class="ident">stored</span> <span class="op">=</span> <span class="ident">stored</span>,
+                );
+
+                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">conn</span>.<span class="ident">lock</span>().<span class="kw">await</span>;
+                <span class="kw">if</span> <span class="ident">cache</span>.<span class="ident">capacity</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">cache</span>.<span class="ident">len</span>() {
+                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="kw">_</span>, <span class="ident">stmt</span>)) <span class="op">=</span> <span class="ident">cache</span>.<span class="ident">remove_lru</span>() {
+                        <span class="ident">conn</span>.<span class="ident">close</span>(<span class="ident">stmt</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+                    }
+                }
+
+                <span class="kw">let</span> <span class="ident">stmt</span> <span class="op">=</span> <span class="ident">conn</span>.<span class="ident">prep</span>(<span class="ident">sql</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+                <span class="ident">cache</span>.<span class="ident">insert</span>(<span class="ident">sql</span>.<span class="ident">to_string</span>(), <span class="ident">stmt</span>.<span class="ident">clone</span>());
+
+                <span class="prelude-val">Ok</span>(<span class="ident">stmt</span>)
+            }
         }
     }
 }
@@ -834,27 +982,25 @@
     <span class="attribute">#[<span class="ident">tracing::instrument</span>(<span class="ident">skip</span>(<span class="self">self</span>, <span class="ident">params</span>))]</span>
     <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">query_raw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">sql</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">params</span>: <span class="kw-2">&amp;</span>[<span class="ident">Value</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">crate</span><span class="ident">::Result</span><span class="op">&lt;</span><span class="ident">ResultSet</span><span class="op">&gt;</span> {
         <span class="ident">metrics::query</span>(<span class="string">&quot;mysql.query_raw&quot;</span>, <span class="ident">sql</span>, <span class="ident">params</span>, <span class="kw">move</span> <span class="op">|</span><span class="op">|</span> <span class="kw">async</span> <span class="kw">move</span> {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">conn</span>.<span class="ident">lock</span>().<span class="kw">await</span>;
-            <span class="kw">let</span> <span class="ident">stmt</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">perform_io</span>(<span class="ident">conn</span>.<span class="ident">prep</span>(<span class="ident">sql</span>)).<span class="kw">await</span><span class="question-mark">?</span>;
+            <span class="self">self</span>.<span class="ident">prepared</span>(<span class="ident">sql</span>, <span class="op">|</span><span class="ident">stmt</span><span class="op">|</span> <span class="kw">async</span> <span class="kw">move</span> {
+                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">conn</span>.<span class="ident">lock</span>().<span class="kw">await</span>;
+                <span class="kw">let</span> <span class="ident">rows</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">my::Row</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">conn</span>.<span class="ident">exec</span>(<span class="kw-2">&amp;</span><span class="ident">stmt</span>, <span class="ident">conversion::conv_params</span>(<span class="ident">params</span>)<span class="question-mark">?</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+                <span class="kw">let</span> <span class="ident">columns</span> <span class="op">=</span> <span class="ident">stmt</span>.<span class="ident">columns</span>().<span class="ident">iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="ident">s</span>.<span class="ident">name_str</span>().<span class="ident">into_owned</span>()).<span class="ident">collect</span>();
 
-            <span class="kw">let</span> <span class="ident">rows</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">my::Row</span><span class="op">&gt;</span> <span class="op">=</span> <span class="self">self</span>
-                .<span class="ident">perform_io</span>(<span class="ident">conn</span>.<span class="ident">exec</span>(<span class="kw-2">&amp;</span><span class="ident">stmt</span>, <span class="ident">conversion::conv_params</span>(<span class="ident">params</span>)<span class="question-mark">?</span>))
-                .<span class="kw">await</span><span class="question-mark">?</span>;
+                <span class="kw">let</span> <span class="ident">last_id</span> <span class="op">=</span> <span class="ident">conn</span>.<span class="ident">last_insert_id</span>();
+                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">result_set</span> <span class="op">=</span> <span class="ident">ResultSet::new</span>(<span class="ident">columns</span>, <span class="ident">Vec::new</span>());
 
-            <span class="kw">let</span> <span class="ident">columns</span> <span class="op">=</span> <span class="ident">stmt</span>.<span class="ident">columns</span>().<span class="ident">iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="ident">s</span>.<span class="ident">name_str</span>().<span class="ident">into_owned</span>()).<span class="ident">collect</span>();
+                <span class="kw">for</span> <span class="kw-2">mut</span> <span class="ident">row</span> <span class="kw">in</span> <span class="ident">rows</span> {
+                    <span class="ident">result_set</span>.<span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">row</span>.<span class="ident">take_result_row</span>()<span class="question-mark">?</span>);
+                }
 
-            <span class="kw">let</span> <span class="ident">last_id</span> <span class="op">=</span> <span class="ident">conn</span>.<span class="ident">last_insert_id</span>();
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">result_set</span> <span class="op">=</span> <span class="ident">ResultSet::new</span>(<span class="ident">columns</span>, <span class="ident">Vec::new</span>());
+                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">id</span>) <span class="op">=</span> <span class="ident">last_id</span> {
+                    <span class="ident">result_set</span>.<span class="ident">set_last_insert_id</span>(<span class="ident">id</span>);
+                };
 
-            <span class="kw">for</span> <span class="kw-2">mut</span> <span class="ident">row</span> <span class="kw">in</span> <span class="ident">rows</span> {
-                <span class="ident">result_set</span>.<span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">row</span>.<span class="ident">take_result_row</span>()<span class="question-mark">?</span>);
-            }
-
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">id</span>) <span class="op">=</span> <span class="ident">last_id</span> {
-                <span class="ident">result_set</span>.<span class="ident">set_last_insert_id</span>(<span class="ident">id</span>);
-            };
-
-            <span class="prelude-val">Ok</span>(<span class="ident">result_set</span>)
+                <span class="prelude-val">Ok</span>(<span class="ident">result_set</span>)
+            })
+            .<span class="kw">await</span>
         })
         .<span class="kw">await</span>
     }
@@ -862,11 +1008,13 @@
     <span class="attribute">#[<span class="ident">tracing::instrument</span>(<span class="ident">skip</span>(<span class="self">self</span>, <span class="ident">params</span>))]</span>
     <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">execute_raw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">sql</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">params</span>: <span class="kw-2">&amp;</span>[<span class="ident">Value</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">crate</span><span class="ident">::Result</span><span class="op">&lt;</span><span class="ident">u64</span><span class="op">&gt;</span> {
         <span class="ident">metrics::query</span>(<span class="string">&quot;mysql.execute_raw&quot;</span>, <span class="ident">sql</span>, <span class="ident">params</span>, <span class="kw">move</span> <span class="op">|</span><span class="op">|</span> <span class="kw">async</span> <span class="kw">move</span> {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">conn</span>.<span class="ident">lock</span>().<span class="kw">await</span>;
-            <span class="self">self</span>.<span class="ident">perform_io</span>(<span class="ident">conn</span>.<span class="ident">exec_drop</span>(<span class="ident">sql</span>, <span class="ident">conversion::conv_params</span>(<span class="ident">params</span>)<span class="question-mark">?</span>))
-                .<span class="kw">await</span><span class="question-mark">?</span>;
+            <span class="self">self</span>.<span class="ident">prepared</span>(<span class="ident">sql</span>, <span class="op">|</span><span class="ident">stmt</span><span class="op">|</span> <span class="kw">async</span> <span class="kw">move</span> {
+                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">conn</span>.<span class="ident">lock</span>().<span class="kw">await</span>;
+                <span class="ident">conn</span>.<span class="ident">exec_drop</span>(<span class="ident">stmt</span>, <span class="ident">conversion::conv_params</span>(<span class="ident">params</span>)<span class="question-mark">?</span>).<span class="kw">await</span><span class="question-mark">?</span>;
 
-            <span class="prelude-val">Ok</span>(<span class="ident">conn</span>.<span class="ident">affected_rows</span>())
+                <span class="prelude-val">Ok</span>(<span class="ident">conn</span>.<span class="ident">affected_rows</span>())
+            })
+            .<span class="kw">await</span>
         })
         .<span class="kw">await</span>
     }
@@ -874,9 +1022,8 @@
     <span class="attribute">#[<span class="ident">tracing::instrument</span>(<span class="ident">skip</span>(<span class="self">self</span>))]</span>
     <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">raw_cmd</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">cmd</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw">crate</span><span class="ident">::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="ident">metrics::query</span>(<span class="string">&quot;mysql.raw_cmd&quot;</span>, <span class="ident">cmd</span>, <span class="kw-2">&amp;</span>[], <span class="kw">move</span> <span class="op">|</span><span class="op">|</span> <span class="kw">async</span> <span class="kw">move</span> {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">conn</span>.<span class="ident">lock</span>().<span class="kw">await</span>;
-
-            <span class="kw">let</span> <span class="ident">fut</span> <span class="op">=</span> <span class="kw">async</span> {
+            <span class="self">self</span>.<span class="ident">perform_io</span>(<span class="op">|</span><span class="op">|</span> <span class="kw">async</span> <span class="kw">move</span> {
+                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">conn</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">conn</span>.<span class="ident">lock</span>().<span class="kw">await</span>;
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">cmd</span>.<span class="ident">run</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="ident">conn</span>).<span class="kw">await</span><span class="question-mark">?</span>;
 
                 <span class="kw">loop</span> {
@@ -889,11 +1036,8 @@
                 }
 
                 <span class="prelude-val">Ok</span>(())
-            };
-
-            <span class="self">self</span>.<span class="ident">perform_io</span>(<span class="ident">fut</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-
-            <span class="prelude-val">Ok</span>(())
+            })
+            .<span class="kw">await</span>
         })
         .<span class="kw">await</span>
     }
