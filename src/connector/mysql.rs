@@ -269,9 +269,9 @@ impl MysqlUrl {
             socket_timeout,
             connect_timeout,
             pool_timeout,
-            prefer_socket,
             max_connection_lifetime,
             max_idle_connection_lifetime,
+            prefer_socket,
             statement_cache_size,
         })
     }
