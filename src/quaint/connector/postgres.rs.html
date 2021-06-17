@@ -812,6 +812,19 @@
 <span id="810">810</span>
 <span id="811">811</span>
 <span id="812">812</span>
+<span id="813">813</span>
+<span id="814">814</span>
+<span id="815">815</span>
+<span id="816">816</span>
+<span id="817">817</span>
+<span id="818">818</span>
+<span id="819">819</span>
+<span id="820">820</span>
+<span id="821">821</span>
+<span id="822">822</span>
+<span id="823">823</span>
+<span id="824">824</span>
+<span id="825">825</span>
 </pre><pre class="rust">
 <span class="kw">mod</span> <span class="ident">conversion</span>;
 <span class="kw">mod</span> <span class="ident">error</span>;
@@ -840,6 +853,11 @@
 <span class="kw">use</span> <span class="ident">url::Url</span>;
 
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const</span> <span class="ident">DEFAULT_SCHEMA</span>: <span class="kw-2">&amp;</span><span class="ident">str</span> <span class="op">=</span> <span class="string">&quot;public&quot;</span>;
+
+<span class="doccomment">/// The underlying postgres driver. Only available with the `expose-drivers`</span>
+<span class="doccomment">/// Cargo feature.</span>
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;expose-drivers&quot;</span>)]</span>
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">tokio_postgres</span>;
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>)]</span>
 <span class="kw">struct</span> <span class="ident">Hidden</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">T</span>);
@@ -1323,6 +1341,14 @@
             <span class="ident">statement_cache</span>: <span class="ident">Mutex::new</span>(<span class="ident">url</span>.<span class="ident">cache</span>()),
             <span class="ident">is_healthy</span>: <span class="ident">AtomicBool::new</span>(<span class="bool-val">true</span>),
         })
+    }
+
+    <span class="doccomment">/// The underlying tokio_postgres::Client. Only available with the</span>
+    <span class="doccomment">/// `expose-drivers` Cargo feature. This is a lower level API when you need</span>
+    <span class="doccomment">/// to get into database specific features.</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;expose-drivers&quot;</span>)]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">client</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">tokio_postgres::Client</span> {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">client</span>.<span class="number">0</span>
     }
 
     <span class="attribute">#[<span class="ident">tracing::instrument</span>(<span class="ident">skip</span>(<span class="self">self</span>))]</span>
