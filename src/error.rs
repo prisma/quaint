@@ -232,6 +232,9 @@ pub enum ErrorKind {
         actual
     )]
     IncorrectNumberOfParameters { expected: usize, actual: usize },
+
+    #[error("Error in creating a foreign key constraint: {}", message)]
+    ForeignKeyCreationError { message: String },
 }
 
 impl ErrorKind {

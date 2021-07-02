@@ -33,6 +33,17 @@ impl From<my::Error> for Error {
 
                 builder.build()
             }
+            my::Error::Server(ServerError { ref message, code, .. }) if code == 1317 => {
+                let kind = ErrorKind::ForeignKeyCreationError {
+                    message: message.into(),
+                };
+
+                let mut builder = Error::builder(kind);
+
+                builder.set_original_code(format!("{}", code));
+                builder.set_original_message(message);
+                builder.build()
+            }
             my::Error::Server(ServerError { ref message, code, .. }) if code == 1451 || code == 1452 => {
                 let constraint = message
                     .split_whitespace()
