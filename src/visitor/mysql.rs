@@ -454,6 +454,30 @@ impl<'a> Visitor<'a> for Mysql<'a> {
 
         Ok(())
     }
+
+    #[cfg(any(feature = "postgresql", feature = "mysql"))]
+    fn visit_text_search(&mut self, text_search: crate::prelude::TextSearch<'a>) -> visitor::Result {
+        let len = text_search.columns.len();
+        self.surround_with("MATCH(", ")", |s| {
+            for (i, column) in text_search.columns.into_iter().enumerate() {
+                s.visit_column(column)?;
+
+                if i < (len - 1) {
+                    s.write(", ")?;
+                }
+            }
+
+            Ok(())
+        })
+    }
+
+    #[cfg(any(feature = "postgresql", feature = "mysql"))]
+    fn visit_matches(&mut self, left: Expression<'a>, right: std::borrow::Cow<'a, str>) -> visitor::Result {
+        self.visit_expression(left)?;
+        self.surround_with("AGAINST(", " IN NATURAL LANGUAGE MODE)", |s| {
+            s.visit_parameterized(Value::text(right))
+        })
+    }
 }
 
 #[cfg(test)]
