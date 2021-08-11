@@ -329,6 +329,9 @@
 <span id="329">329</span>
 <span id="330">330</span>
 <span id="331">331</span>
+<span id="332">332</span>
+<span id="333">333</span>
+<span id="334">334</span>
 </pre><pre class="rust">
 <span class="doccomment">//! Error module</span>
 <span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">borrow::Cow</span>, <span class="ident">fmt</span>, <span class="ident">io</span>, <span class="ident">num</span>};
@@ -564,6 +567,9 @@
         <span class="ident">actual</span>
     )]</span>
     <span class="ident">IncorrectNumberOfParameters</span> { <span class="ident">expected</span>: <span class="ident">usize</span>, <span class="ident">actual</span>: <span class="ident">usize</span> },
+
+    <span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;Transaction was already closed: {}&quot;</span>, <span class="ident">_0</span>)]</span>
+    <span class="ident">TransactionAlreadyClosed</span>(<span class="ident">String</span>),
 }
 
 <span class="kw">impl</span> <span class="ident">ErrorKind</span> {
