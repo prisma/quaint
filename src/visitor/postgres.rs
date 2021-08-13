@@ -373,6 +373,34 @@ impl<'a> Visitor<'a> for Postgres<'a> {
             JsonType::Null => self.visit_expression(Value::text("null").into()),
         }
     }
+
+    #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
+    fn visit_json_greater_than(&mut self, left: Box<Expression<'a>>, right: Box<Expression<'a>>) -> visitor::Result {
+        self.visit_compare(Compare::GreaterThan(left, right))
+    }
+
+    #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
+    fn visit_json_greater_than_or_equals(
+        &mut self,
+        left: Box<Expression<'a>>,
+        right: Box<Expression<'a>>,
+    ) -> visitor::Result {
+        self.visit_compare(Compare::GreaterThanOrEquals(left, right))
+    }
+
+    #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
+    fn visit_json_less_than(&mut self, left: Box<Expression<'a>>, right: Box<Expression<'a>>) -> visitor::Result {
+        self.visit_compare(Compare::LessThan(left, right))
+    }
+
+    #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
+    fn visit_json_less_than_or_equals(
+        &mut self,
+        left: Box<Expression<'a>>,
+        right: Box<Expression<'a>>,
+    ) -> visitor::Result {
+        self.visit_compare(Compare::LessThanOrEquals(left, right))
+    }
 }
 
 #[cfg(test)]

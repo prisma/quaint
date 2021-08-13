@@ -476,4 +476,42 @@ impl<'a> Comparable<'a> for Expression<'a> {
     {
         Compare::JsonCompare(JsonCompare::TypeEquals(Box::new(self), json_type.into()))
     }
+
+    #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
+    fn json_greater_than<T>(self, comparison: T) -> Compare<'a>
+    where
+        T: Into<Expression<'a>>,
+    {
+        Compare::JsonCompare(JsonCompare::GreaterThan(Box::new(self), Box::new(comparison.into())))
+    }
+
+    #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
+    fn json_greater_than_or_equals<T>(self, comparison: T) -> Compare<'a>
+    where
+        T: Into<Expression<'a>>,
+    {
+        Compare::JsonCompare(JsonCompare::GreaterThanOrEquals(
+            Box::new(self),
+            Box::new(comparison.into()),
+        ))
+    }
+
+    #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
+    fn json_less_than<T>(self, comparison: T) -> Compare<'a>
+    where
+        T: Into<Expression<'a>>,
+    {
+        Compare::JsonCompare(JsonCompare::LessThan(Box::new(self), Box::new(comparison.into())))
+    }
+
+    #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
+    fn json_less_than_or_equals<T>(self, comparison: T) -> Compare<'a>
+    where
+        T: Into<Expression<'a>>,
+    {
+        Compare::JsonCompare(JsonCompare::LessThanOrEquals(
+            Box::new(self),
+            Box::new(comparison.into()),
+        ))
+    }
 }

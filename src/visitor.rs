@@ -115,6 +115,18 @@ pub trait Visitor<'a> {
     fn visit_json_array_ends_into(&mut self, left: Expression<'a>, right: Expression<'a>, not: bool) -> Result;
 
     #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
+    fn visit_json_greater_than(&mut self, left: Box<Expression<'a>>, right: Box<Expression<'a>>) -> Result;
+
+    #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
+    fn visit_json_greater_than_or_equals(&mut self, left: Box<Expression<'a>>, right: Box<Expression<'a>>) -> Result;
+
+    #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
+    fn visit_json_less_than(&mut self, left: Box<Expression<'a>>, right: Box<Expression<'a>>) -> Result;
+
+    #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
+    fn visit_json_less_than_or_equals(&mut self, left: Box<Expression<'a>>, right: Box<Expression<'a>>) -> Result;
+
+    #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
     fn visit_json_type_equals(&mut self, left: Expression<'a>, json_type: JsonType) -> Result;
 
     /// A visit to a value we parameterize
@@ -856,6 +868,10 @@ pub trait Visitor<'a> {
             }
             #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
             Compare::JsonCompare(json_compare) => match json_compare {
+                JsonCompare::GreaterThan(left, right) => self.visit_json_greater_than(left, right),
+                JsonCompare::GreaterThanOrEquals(left, right) => self.visit_json_greater_than_or_equals(left, right),
+                JsonCompare::LessThan(left, right) => self.visit_json_less_than(left, right),
+                JsonCompare::LessThanOrEquals(left, right) => self.visit_json_less_than_or_equals(left, right),
                 JsonCompare::ArrayContains(left, right) => self.visit_json_array_contains(*left, *right, false),
                 JsonCompare::ArrayNotContains(left, right) => self.visit_json_array_contains(*left, *right, true),
                 JsonCompare::ArrayBeginsWith(left, right) => self.visit_json_array_begins_with(*left, *right, false),

@@ -51,6 +51,10 @@ pub enum Compare<'a> {
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum JsonCompare<'a> {
+    GreaterThan(Box<Expression<'a>>, Box<Expression<'a>>),
+    GreaterThanOrEquals(Box<Expression<'a>>, Box<Expression<'a>>),
+    LessThan(Box<Expression<'a>>, Box<Expression<'a>>),
+    LessThanOrEquals(Box<Expression<'a>>, Box<Expression<'a>>),
     ArrayContains(Box<Expression<'a>>, Box<Expression<'a>>),
     ArrayNotContains(Box<Expression<'a>>, Box<Expression<'a>>),
     ArrayBeginsWith(Box<Expression<'a>>, Box<Expression<'a>>),
@@ -751,6 +755,78 @@ pub trait Comparable<'a> {
     where
         T: Into<Expression<'a>>;
 
+    /// Tests if the left JSON value is greater than the right JSON value.
+    ///
+    /// ```rust
+    /// # use quaint::{ast::*, visitor::{Visitor, Mysql}};
+    /// # fn main() -> Result<(), quaint::error::Error> {
+    /// let query = Select::from_table("users").so_that("json".json_greater_than("1"));
+    /// let (sql, params) = Mysql::build(query)?;
+    ///
+    /// assert_eq!("SELECT `users`.* FROM `users` WHERE `json` > CAST(? AS JSON)", sql);
+    /// assert_eq!(vec![Value::from("1")], params);
+    /// # Ok(())
+    /// # }
+    /// ```
+    #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
+    fn json_greater_than<T>(self, comparison: T) -> Compare<'a>
+    where
+        T: Into<Expression<'a>>;
+
+    /// Tests if the left JSON value is greater than or equal to the right JSON value.
+    ///
+    /// ```rust
+    /// # use quaint::{ast::*, visitor::{Visitor, Mysql}};
+    /// # fn main() -> Result<(), quaint::error::Error> {
+    /// let query = Select::from_table("users").so_that("json".json_greater_than_or_equals("1"));
+    /// let (sql, params) = Mysql::build(query)?;
+    ///
+    /// assert_eq!("SELECT `users`.* FROM `users` WHERE `json` >= CAST(? AS JSON)", sql);
+    /// assert_eq!(vec![Value::from("1")], params);
+    /// # Ok(())
+    /// # }
+    /// ```
+    #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
+    fn json_greater_than_or_equals<T>(self, comparison: T) -> Compare<'a>
+    where
+        T: Into<Expression<'a>>;
+
+    /// Tests if the left JSON value is lesser than the right JSON value.
+    ///
+    /// ```rust
+    /// # use quaint::{ast::*, visitor::{Visitor, Mysql}};
+    /// # fn main() -> Result<(), quaint::error::Error> {
+    /// let query = Select::from_table("users").so_that("json".json_less_than("1"));
+    /// let (sql, params) = Mysql::build(query)?;
+    ///
+    /// assert_eq!("SELECT `users`.* FROM `users` WHERE `json` < CAST(? AS JSON)", sql);
+    /// assert_eq!(vec![Value::from("1")], params);
+    /// # Ok(())
+    /// # }
+    /// ```
+    #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
+    fn json_less_than<T>(self, comparison: T) -> Compare<'a>
+    where
+        T: Into<Expression<'a>>;
+
+    /// Tests if the left JSON value is lesser than or equal to the right JSON value.
+    ///
+    /// ```rust
+    /// # use quaint::{ast::*, visitor::{Visitor, Mysql}};
+    /// # fn main() -> Result<(), quaint::error::Error> {
+    /// let query = Select::from_table("users").so_that("json".json_less_than_or_equals("1"));
+    /// let (sql, params) = Mysql::build(query)?;
+    ///
+    /// assert_eq!("SELECT `users`.* FROM `users` WHERE `json` <= CAST(? AS JSON)", sql);
+    /// assert_eq!(vec![Value::from("1")], params);
+    /// # Ok(())
+    /// # }
+    /// ```
+    #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
+    fn json_less_than_or_equals<T>(self, comparison: T) -> Compare<'a>
+    where
+        T: Into<Expression<'a>>;
+
     /// Tests if the JSON value is of a certain type.
     ///
     /// ```rust
@@ -1033,6 +1109,50 @@ where
         let val: Expression<'a> = col.into();
 
         val.json_array_not_ends_into(item)
+    }
+
+    #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
+    fn json_greater_than<T>(self, comparison: T) -> Compare<'a>
+    where
+        T: Into<Expression<'a>>,
+    {
+        let col: Column<'a> = self.into();
+        let val: Expression<'a> = col.into();
+
+        val.json_greater_than(comparison)
+    }
+
+    #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
+    fn json_greater_than_or_equals<T>(self, comparison: T) -> Compare<'a>
+    where
+        T: Into<Expression<'a>>,
+    {
+        let col: Column<'a> = self.into();
+        let val: Expression<'a> = col.into();
+
+        val.json_greater_than_or_equals(comparison)
+    }
+
+    #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
+    fn json_less_than<T>(self, comparison: T) -> Compare<'a>
+    where
+        T: Into<Expression<'a>>,
+    {
+        let col: Column<'a> = self.into();
+        let val: Expression<'a> = col.into();
+
+        val.json_less_than(comparison)
+    }
+
+    #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
+    fn json_less_than_or_equals<T>(self, comparison: T) -> Compare<'a>
+    where
+        T: Into<Expression<'a>>,
+    {
+        let col: Column<'a> = self.into();
+        let val: Expression<'a> = col.into();
+
+        val.json_less_than_or_equals(comparison)
     }
 
     #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]

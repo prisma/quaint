@@ -408,6 +408,46 @@ impl<'a> Visitor<'a> for Mysql<'a> {
 
         self.write(")")
     }
+
+    fn visit_json_greater_than(&mut self, left: Box<Expression<'a>>, right: Box<Expression<'a>>) -> visitor::Result {
+        self.visit_expression(*left)?;
+        self.write(" > ")?;
+        self.write("CAST(")?;
+        self.visit_expression(*right)?;
+        self.write(" AS JSON)")
+    }
+
+    fn visit_json_greater_than_or_equals(
+        &mut self,
+        left: Box<Expression<'a>>,
+        right: Box<Expression<'a>>,
+    ) -> visitor::Result {
+        self.visit_expression(*left)?;
+        self.write(" >= ")?;
+        self.write("CAST(")?;
+        self.visit_expression(*right)?;
+        self.write(" AS JSON)")
+    }
+
+    fn visit_json_less_than(&mut self, left: Box<Expression<'a>>, right: Box<Expression<'a>>) -> visitor::Result {
+        self.visit_expression(*left)?;
+        self.write(" < ")?;
+        self.write("CAST(")?;
+        self.visit_expression(*right)?;
+        self.write(" AS JSON)")
+    }
+
+    fn visit_json_less_than_or_equals(
+        &mut self,
+        left: Box<Expression<'a>>,
+        right: Box<Expression<'a>>,
+    ) -> visitor::Result {
+        self.visit_expression(*left)?;
+        self.write(" <= ")?;
+        self.write("CAST(")?;
+        self.visit_expression(*right)?;
+        self.write(" AS JSON)")
+    }
 }
 
 #[cfg(test)]

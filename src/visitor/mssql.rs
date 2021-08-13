@@ -619,6 +619,34 @@ impl<'a> Visitor<'a> for Mssql<'a> {
     fn visit_json_type_equals(&mut self, _left: Expression<'a>, _json_type: JsonType) -> visitor::Result {
         unimplemented!("JSON_TYPE is not yet supported on MSSQL")
     }
+
+    #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
+    fn visit_json_greater_than(&mut self, _left: Box<Expression<'a>>, _right: Box<Expression<'a>>) -> visitor::Result {
+        unimplemented!("JSON filtering is not yet supported on MSSQL")
+    }
+
+    #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
+    fn visit_json_greater_than_or_equals(
+        &mut self,
+        _left: Box<Expression<'a>>,
+        _right: Box<Expression<'a>>,
+    ) -> visitor::Result {
+        unimplemented!("JSON filtering is not yet supported on MSSQL")
+    }
+
+    #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
+    fn visit_json_less_than(&mut self, _left: Box<Expression<'a>>, _right: Box<Expression<'a>>) -> visitor::Result {
+        unimplemented!("JSON filtering is not yet supported on MSSQL")
+    }
+
+    #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
+    fn visit_json_less_than_or_equals(
+        &mut self,
+        _left: Box<Expression<'a>>,
+        _right: Box<Expression<'a>>,
+    ) -> visitor::Result {
+        unimplemented!("JSON filtering is not yet supported on MSSQL")
+    }
 }
 
 #[cfg(test)]
