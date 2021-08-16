@@ -410,76 +410,84 @@ impl<'a> Visitor<'a> for Mysql<'a> {
     }
 
     fn visit_greater_than(&mut self, left: Expression<'a>, right: Expression<'a>) -> visitor::Result {
-        let compares_json = left.is_json_extract_fun() && right.is_json_value();
+        let compares_json_left = left.is_json_value() && right.is_json_extract_fun();
+        let compares_json_right = left.is_json_extract_fun() && right.is_json_value();
 
-        self.visit_expression(left)?;
-        self.write(" > ")?;
-
-        if compares_json {
-            self.write("CAST(")?;
+        if compares_json_left {
+            self.surround_with("CAST(", " AS JSON)", |s| s.visit_expression(left))?;
+        } else {
+            self.visit_expression(left)?;
         }
 
-        self.visit_expression(right)?;
+        self.write(" > ")?;
 
-        if compares_json {
-            self.write(" AS JSON)")?;
+        if compares_json_right {
+            self.surround_with("CAST(", " AS JSON)", |s| s.visit_expression(right))?;
+        } else {
+            self.visit_expression(right)?;
         }
 
         Ok(())
     }
 
     fn visit_greater_than_or_equals(&mut self, left: Expression<'a>, right: Expression<'a>) -> visitor::Result {
-        let compares_json = left.is_json_extract_fun() && right.is_json_value();
+        let compares_json_left = left.is_json_value() && right.is_json_extract_fun();
+        let compares_json_right = left.is_json_extract_fun() && right.is_json_value();
 
-        self.visit_expression(left)?;
-        self.write(" >= ")?;
-
-        if compares_json {
-            self.write("CAST(")?;
+        if compares_json_left {
+            self.surround_with("CAST(", " AS JSON)", |s| s.visit_expression(left))?;
+        } else {
+            self.visit_expression(left)?;
         }
 
-        self.visit_expression(right)?;
+        self.write(" >= ")?;
 
-        if compares_json {
-            self.write(" AS JSON)")?;
+        if compares_json_right {
+            self.surround_with("CAST(", " AS JSON)", |s| s.visit_expression(right))?;
+        } else {
+            self.visit_expression(right)?;
         }
 
         Ok(())
     }
 
     fn visit_less_than(&mut self, left: Expression<'a>, right: Expression<'a>) -> visitor::Result {
-        let compares_json = left.is_json_extract_fun() && right.is_json_value();
+        let compares_json_left = left.is_json_value() && right.is_json_extract_fun();
+        let compares_json_right = left.is_json_extract_fun() && right.is_json_value();
 
-        self.visit_expression(left)?;
-        self.write(" < ")?;
-
-        if compares_json {
-            self.write("CAST(")?;
+        if compares_json_left {
+            self.surround_with("CAST(", " AS JSON)", |s| s.visit_expression(left))?;
+        } else {
+            self.visit_expression(left)?;
         }
 
-        self.visit_expression(right)?;
+        self.write(" < ")?;
 
-        if compares_json {
-            self.write(" AS JSON)")?;
+        if compares_json_right {
+            self.surround_with("CAST(", " AS JSON)", |s| s.visit_expression(right))?;
+        } else {
+            self.visit_expression(right)?;
         }
 
         Ok(())
     }
 
     fn visit_less_than_or_equals(&mut self, left: Expression<'a>, right: Expression<'a>) -> visitor::Result {
-        let compares_json = left.is_json_extract_fun() && right.is_json_value();
+        let compares_json_left = left.is_json_value() && right.is_json_extract_fun();
+        let compares_json_right = left.is_json_extract_fun() && right.is_json_value();
 
-        self.visit_expression(left)?;
-        self.write(" <= ")?;
-
-        if compares_json {
-            self.write("CAST(")?;
+        if compares_json_left {
+            self.surround_with("CAST(", " AS JSON)", |s| s.visit_expression(left))?;
+        } else {
+            self.visit_expression(left)?;
         }
 
-        self.visit_expression(right)?;
+        self.write(" <= ")?;
 
-        if compares_json {
-            self.write(" AS JSON)")?;
+        if compares_json_right {
+            self.surround_with("CAST(", " AS JSON)", |s| s.visit_expression(right))?;
+        } else {
+            self.visit_expression(right)?;
         }
 
         Ok(())
