@@ -2497,6 +2497,8 @@ async fn json_gt_gte_lt_lte_fun(api: &mut dyn TestApi) -> crate::Result<()> {
         res.get(2).unwrap()["json"].as_json()
     );
     assert_eq!(None, res.get(3));
+
+    Ok(())
 }
 
 // TODO: Figure out a way to test MySQL. We can't create FULLTEXT indexes on temporary InnoDB tables.
