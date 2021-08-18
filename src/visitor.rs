@@ -117,10 +117,10 @@ pub trait Visitor<'a> {
     #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
     fn visit_json_type_equals(&mut self, left: Expression<'a>, json_type: JsonType) -> Result;
 
-    #[cfg(any(feature = "postgresql", feature = "mysql"))]
+    #[cfg(feature = "postgresql")]
     fn visit_text_search(&mut self, text_search: TextSearch<'a>) -> Result;
 
-    #[cfg(any(feature = "postgresql", feature = "mysql"))]
+    #[cfg(feature = "postgresql")]
     fn visit_matches(&mut self, left: Expression<'a>, right: std::borrow::Cow<'a, str>) -> Result;
 
     /// A visit to a value we parameterize
@@ -878,7 +878,7 @@ pub trait Visitor<'a> {
                 JsonCompare::ArrayNotEndsInto(left, right) => self.visit_json_array_ends_into(*left, *right, true),
                 JsonCompare::TypeEquals(left, json_type) => self.visit_json_type_equals(*left, json_type),
             },
-            #[cfg(any(feature = "postgresql", feature = "mysql"))]
+            #[cfg(feature = "postgresql")]
             Compare::Matches(left, right) => self.visit_matches(*left, right),
         }
     }
@@ -998,7 +998,7 @@ pub trait Visitor<'a> {
             FunctionType::JsonExtract(json_extract) => {
                 self.visit_json_extract(json_extract)?;
             }
-            #[cfg(any(feature = "postgresql", feature = "mysql"))]
+            #[cfg(feature = "postgresql")]
             FunctionType::TextSearch(text_search) => {
                 self.visit_text_search(text_search)?;
             }

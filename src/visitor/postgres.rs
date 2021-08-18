@@ -374,7 +374,7 @@ impl<'a> Visitor<'a> for Postgres<'a> {
         }
     }
 
-    #[cfg(any(feature = "postgresql", feature = "mysql"))]
+    #[cfg(feature = "postgresql")]
     fn visit_text_search(&mut self, text_search: crate::prelude::TextSearch<'a>) -> visitor::Result {
         let len = text_search.columns.len();
         self.surround_with("to_tsvector(", ")", |s| {
@@ -390,7 +390,7 @@ impl<'a> Visitor<'a> for Postgres<'a> {
         })
     }
 
-    #[cfg(any(feature = "postgresql", feature = "mysql"))]
+    #[cfg(feature = "postgresql")]
     fn visit_matches(&mut self, left: Expression<'a>, right: std::borrow::Cow<'a, str>) -> visitor::Result {
         self.visit_expression(left)?;
         self.write(" @@ ")?;

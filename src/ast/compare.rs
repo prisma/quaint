@@ -48,7 +48,7 @@ pub enum Compare<'a> {
     #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
     JsonCompare(JsonCompare<'a>),
     // `left AGAINST (right)
-    #[cfg(any(feature = "postgresql", feature = "mysql"))]
+    #[cfg(feature = "postgresql")]
     Matches(Box<Expression<'a>>, Cow<'a, str>),
 }
 
@@ -785,7 +785,7 @@ pub trait Comparable<'a> {
     /// # Ok(())    
     /// # }
     /// ```
-    #[cfg(any(feature = "postgresql", feature = "mysql"))]
+    #[cfg(feature = "postgresql")]
     fn matches<T>(self, query: T) -> Compare<'a>
     where
         T: Into<Cow<'a, str>>;
@@ -1066,7 +1066,7 @@ where
         val.json_type_equals(json_type)
     }
 
-    #[cfg(any(feature = "postgresql", feature = "mysql"))]
+    #[cfg(feature = "postgresql")]
     fn matches<T>(self, query: T) -> Compare<'a>
     where
         T: Into<Cow<'a, str>>,

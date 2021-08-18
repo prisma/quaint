@@ -385,7 +385,7 @@ impl<'a> Comparable<'a> for Row<'a> {
         value.json_type_equals(json_type)
     }
 
-    #[cfg(any(feature = "postgresql", feature = "mysql"))]
+    #[cfg(feature = "postgresql")]
     fn matches<T>(self, query: T) -> Compare<'a>
     where
         T: Into<Cow<'a, str>>,

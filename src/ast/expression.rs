@@ -489,7 +489,7 @@ impl<'a> Comparable<'a> for Expression<'a> {
         Compare::JsonCompare(JsonCompare::TypeEquals(Box::new(self), json_type.into()))
     }
 
-    #[cfg(any(feature = "postgresql", feature = "mysql"))]
+    #[cfg(feature = "postgresql")]
     fn matches<T>(self, query: T) -> Compare<'a>
     where
         T: Into<Cow<'a, str>>,

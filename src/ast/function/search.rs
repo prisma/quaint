@@ -19,7 +19,7 @@ pub struct TextSearch<'a> {
 /// # Ok(())    
 /// # }
 /// ```
-#[cfg(any(feature = "postgresql", feature = "mysql"))]
+#[cfg(feature = "postgresql")]
 pub fn text_search<'a, T: Clone>(columns: &[T]) -> super::Function<'a>
 where
     T: Into<Column<'a>>,
