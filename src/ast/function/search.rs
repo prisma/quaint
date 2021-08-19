@@ -11,10 +11,15 @@ pub struct TextSearch<'a> {
 /// ```rust
 /// # use quaint::{ast::*, visitor::{Visitor, Postgres}};
 /// # fn main() -> Result<(), quaint::error::Error> {
-/// let search: Expression = text_search(&vec![Column::from("name"), Column::from("ingredients")]).into();
+/// let search: Expression = text_search(&[Column::from("name"), Column::from("ingredients")]).into();
 /// let query = Select::from_table("recipes").so_that(search.matches("chicken"));
 /// let (sql, params) = Postgres::build(query)?;
-/// assert_eq!("SELECT \"recipes\".* FROM \"recipes\" WHERE to_tsvector(\"name\"|| ' ' ||\"ingredients\") @@ to_tsquery($1)", sql);
+///
+/// assert_eq!(
+///    "SELECT \"recipes\".* FROM \"recipes\" \
+///     WHERE to_tsvector(\"name\"|| ' ' ||\"ingredients\") @@ to_tsquery($1)", sql
+/// );
+///
 /// assert_eq!(params, vec![Value::from("chicken")]);
 /// # Ok(())    
 /// # }
