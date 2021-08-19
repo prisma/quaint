@@ -393,7 +393,7 @@ impl<'a> Visitor<'a> for Postgres<'a> {
     #[cfg(feature = "postgresql")]
     fn visit_matches(&mut self, left: Expression<'a>, right: std::borrow::Cow<'a, str>, not: bool) -> visitor::Result {
         if not {
-            self.write("( NOT ")?;
+            self.write("(NOT ")?;
         }
 
         self.visit_expression(left)?;
@@ -401,7 +401,7 @@ impl<'a> Visitor<'a> for Postgres<'a> {
         self.surround_with("to_tsquery(", ")", |s| s.visit_parameterized(Value::text(right)))?;
 
         if not {
-            self.write(" )")?;
+            self.write(")")?;
         }
 
         Ok(())
