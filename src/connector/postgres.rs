@@ -268,11 +268,11 @@ impl PostgresUrl {
         let mut identity_file = None;
         let mut identity_password = None;
         let mut ssl_accept_mode = SslAcceptMode::AcceptInvalidCerts;
-        
+
         let mut connect_timeout = Some(Duration::from_secs(5));
         let mut connection_limit = None;
         let mut pool_timeout = Some(Duration::from_secs(10));
-        
+
         let mut host = None;
         let mut socket_timeout = None;
 
@@ -322,16 +322,16 @@ impl PostgresUrl {
                                 message = "Unsupported SSL accept mode, defaulting to `strict`",
                                 mode = &*v
                             );
-                            
+
                             ssl_accept_mode = SslAcceptMode::Strict;
                         }
                     };
                 }
                 "connect_timeout" => {
                     let as_int = v
-                    .parse()
-                    .map_err(|_| Error::builder(ErrorKind::InvalidConnectionArguments).build())?;
-                    
+                        .parse()
+                        .map_err(|_| Error::builder(ErrorKind::InvalidConnectionArguments).build())?;
+
                     if as_int == 0 {
                         connect_timeout = None;
                     } else {
@@ -346,9 +346,9 @@ impl PostgresUrl {
                 }
                 "pool_timeout" => {
                     let as_int = v
-                    .parse()
-                    .map_err(|_| Error::builder(ErrorKind::InvalidConnectionArguments).build())?;
-                    
+                        .parse()
+                        .map_err(|_| Error::builder(ErrorKind::InvalidConnectionArguments).build())?;
+
                     if as_int == 0 {
                         pool_timeout = None;
                     } else {
@@ -360,8 +360,8 @@ impl PostgresUrl {
                 }
                 "socket_timeout" => {
                     let as_int = v
-                    .parse()
-                    .map_err(|_| Error::builder(ErrorKind::InvalidConnectionArguments).build())?;
+                        .parse()
+                        .map_err(|_| Error::builder(ErrorKind::InvalidConnectionArguments).build())?;
                     socket_timeout = Some(Duration::from_secs(as_int));
                 }
                 "statement_cache_size" => {
@@ -371,9 +371,9 @@ impl PostgresUrl {
                 }
                 "max_connection_lifetime" => {
                     let as_int = v
-                    .parse()
-                    .map_err(|_| Error::builder(ErrorKind::InvalidConnectionArguments).build())?;
-                    
+                        .parse()
+                        .map_err(|_| Error::builder(ErrorKind::InvalidConnectionArguments).build())?;
+
                     if as_int == 0 {
                         max_connection_lifetime = None;
                     } else {
@@ -384,10 +384,10 @@ impl PostgresUrl {
                     let as_int = v
                         .parse()
                         .map_err(|_| Error::builder(ErrorKind::InvalidConnectionArguments).build())?;
-                        
-                        if as_int == 0 {
-                            max_idle_connection_lifetime = None;
-                        } else {
+
+                    if as_int == 0 {
+                        max_idle_connection_lifetime = None;
+                    } else {
                         max_idle_connection_lifetime = Some(Duration::from_secs(as_int));
                     }
                 }

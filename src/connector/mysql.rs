@@ -156,11 +156,11 @@ impl MysqlUrl {
         let mut connect_timeout = Some(Duration::from_secs(5));
         let mut connection_limit = None;
         let mut pool_timeout = Some(Duration::from_secs(10));
-        
+
         let mut socket = None;
         let mut socket_timeout = None;
         let mut prefer_socket = None;
-        
+
         let mut statement_cache_size = 1000;
         let mut max_connection_lifetime = None;
         let mut max_idle_connection_lifetime = Some(Duration::from_secs(300));
@@ -195,9 +195,9 @@ impl MysqlUrl {
                 }
                 "connect_timeout" => {
                     let as_int = v
-                    .parse::<u64>()
-                    .map_err(|_| Error::builder(ErrorKind::InvalidConnectionArguments).build())?;
-                    
+                        .parse::<u64>()
+                        .map_err(|_| Error::builder(ErrorKind::InvalidConnectionArguments).build())?;
+
                     connect_timeout = match as_int {
                         0 => None,
                         _ => Some(Duration::from_secs(as_int)),
@@ -212,9 +212,9 @@ impl MysqlUrl {
                 }
                 "pool_timeout" => {
                     let as_int = v
-                    .parse::<u64>()
-                    .map_err(|_| Error::builder(ErrorKind::InvalidConnectionArguments).build())?;
-                    
+                        .parse::<u64>()
+                        .map_err(|_| Error::builder(ErrorKind::InvalidConnectionArguments).build())?;
+
                     pool_timeout = match as_int {
                         0 => None,
                         _ => Some(Duration::from_secs(as_int)),
@@ -225,14 +225,14 @@ impl MysqlUrl {
                 }
                 "socket_timeout" => {
                     let as_int = v
-                    .parse()
-                    .map_err(|_| Error::builder(ErrorKind::InvalidConnectionArguments).build())?;
+                        .parse()
+                        .map_err(|_| Error::builder(ErrorKind::InvalidConnectionArguments).build())?;
                     socket_timeout = Some(Duration::from_secs(as_int));
                 }
                 "prefer_socket" => {
                     let as_bool = v
-                    .parse::<bool>()
-                    .map_err(|_| Error::builder(ErrorKind::InvalidConnectionArguments).build())?;
+                        .parse::<bool>()
+                        .map_err(|_| Error::builder(ErrorKind::InvalidConnectionArguments).build())?;
                     prefer_socket = Some(as_bool)
                 }
                 "statement_cache_size" => {
