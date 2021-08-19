@@ -25,6 +25,11 @@
 //!
 //! - `connection_limit` defines the maximum number of connections opened to the
 //!   database.
+//! - `pool_timeout` defined in seconds. If all connections are in use, the
+//!   database will return a `PoolTimeout` error after waiting for the given time.
+//!   If set to zero, no timeout.
+//! - `max_connection_lifetime`, TODO
+//! - `max_idle_connection_lifetime`, TODO
 //!
 //! ## SQLite
 //!
@@ -105,6 +110,7 @@
 //! - `connectTimeout` defined in seconds (default: 5). Connecting to a
 //!   database will return a `ConnectTimeout` error if taking more than the
 //!   defined value. Defaults to 5 seconds, disabled if set to zero.
+//!
 //! - `poolTimeout` defined in seconds. If all connections are in use, the
 //!   database will return a `Timeout` error after waiting for the given time.
 //!   If set to zero, no timeout.
