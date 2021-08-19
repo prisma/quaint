@@ -1058,6 +1058,8 @@
 <span id="1058">1058</span>
 <span id="1059">1059</span>
 <span id="1060">1060</span>
+<span id="1061">1061</span>
+<span id="1062">1062</span>
 </pre><pre class="rust">
 <span class="doccomment">//! Visitors for reading an abstract SQL syntax tree, generating the query and</span>
 <span class="doccomment">//! gathering parameters in the right order.</span>
@@ -1182,7 +1184,7 @@
     <span class="kw">fn</span> <span class="ident">visit_text_search</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">text_search</span>: <span class="ident">TextSearch</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span>;
 
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;postgresql&quot;</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">visit_matches</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">left</span>: <span class="ident">Expression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>, <span class="ident">right</span>: <span class="ident">std::borrow::Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">str</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span>;
+    <span class="kw">fn</span> <span class="ident">visit_matches</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">left</span>: <span class="ident">Expression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>, <span class="ident">right</span>: <span class="ident">std::borrow::Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">str</span><span class="op">&gt;</span>, <span class="ident">not</span>: <span class="ident">bool</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span>;
 
     <span class="doccomment">/// A visit to a value we parameterize</span>
     <span class="kw">fn</span> <span class="ident">visit_parameterized</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">value</span>: <span class="ident">Value</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span> {
@@ -1940,7 +1942,9 @@
                 <span class="ident">JsonCompare::TypeEquals</span>(<span class="ident">left</span>, <span class="ident">json_type</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">visit_json_type_equals</span>(<span class="kw-2">*</span><span class="ident">left</span>, <span class="ident">json_type</span>),
             },
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;postgresql&quot;</span>)]</span>
-            <span class="ident">Compare::Matches</span>(<span class="ident">left</span>, <span class="ident">right</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">visit_matches</span>(<span class="kw-2">*</span><span class="ident">left</span>, <span class="ident">right</span>),
+            <span class="ident">Compare::Matches</span>(<span class="ident">left</span>, <span class="ident">right</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">visit_matches</span>(<span class="kw-2">*</span><span class="ident">left</span>, <span class="ident">right</span>, <span class="bool-val">false</span>),
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;postgresql&quot;</span>)]</span>
+            <span class="ident">Compare::NotMatches</span>(<span class="ident">left</span>, <span class="ident">right</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">visit_matches</span>(<span class="kw-2">*</span><span class="ident">left</span>, <span class="ident">right</span>, <span class="bool-val">true</span>),
         }
     }
 

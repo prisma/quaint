@@ -767,6 +767,16 @@
 <span id="767">767</span>
 <span id="768">768</span>
 <span id="769">769</span>
+<span id="770">770</span>
+<span id="771">771</span>
+<span id="772">772</span>
+<span id="773">773</span>
+<span id="774">774</span>
+<span id="775">775</span>
+<span id="776">776</span>
+<span id="777">777</span>
+<span id="778">778</span>
+<span id="779">779</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">ast</span>::<span class="kw-2">*</span>,
@@ -1161,10 +1171,20 @@
     }
 
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;postgresql&quot;</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">visit_matches</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">left</span>: <span class="ident">Expression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>, <span class="ident">right</span>: <span class="ident">std::borrow::Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">str</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">visitor::Result</span> {
+    <span class="kw">fn</span> <span class="ident">visit_matches</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">left</span>: <span class="ident">Expression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>, <span class="ident">right</span>: <span class="ident">std::borrow::Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">str</span><span class="op">&gt;</span>, <span class="ident">not</span>: <span class="ident">bool</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">visitor::Result</span> {
+        <span class="kw">if</span> <span class="ident">not</span> {
+            <span class="self">self</span>.<span class="ident">write</span>(<span class="string">&quot;(NOT &quot;</span>)<span class="question-mark">?</span>;
+        }
+
         <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="ident">left</span>)<span class="question-mark">?</span>;
         <span class="self">self</span>.<span class="ident">write</span>(<span class="string">&quot; @@ &quot;</span>)<span class="question-mark">?</span>;
-        <span class="self">self</span>.<span class="ident">surround_with</span>(<span class="string">&quot;to_tsquery(&quot;</span>, <span class="string">&quot;)&quot;</span>, <span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="ident">s</span>.<span class="ident">visit_parameterized</span>(<span class="ident">Value::text</span>(<span class="ident">right</span>)))
+        <span class="self">self</span>.<span class="ident">surround_with</span>(<span class="string">&quot;to_tsquery(&quot;</span>, <span class="string">&quot;)&quot;</span>, <span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="ident">s</span>.<span class="ident">visit_parameterized</span>(<span class="ident">Value::text</span>(<span class="ident">right</span>)))<span class="question-mark">?</span>;
+
+        <span class="kw">if</span> <span class="ident">not</span> {
+            <span class="self">self</span>.<span class="ident">write</span>(<span class="string">&quot;)&quot;</span>)<span class="question-mark">?</span>;
+        }
+
+        <span class="prelude-val">Ok</span>(())
     }
 }
 
