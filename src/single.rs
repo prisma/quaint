@@ -99,7 +99,7 @@ impl Quaint {
     /// - `sslaccept` either `strict` or `accept_invalid_certs`. If strict, the
     ///   certificate needs to be valid and in the CA certificates.
     ///   `accept_invalid_certs` accepts any certificate from the server and can
-    ///   lead to weakened security. Defaults to `strict`.
+    ///   lead to weakened security. Defaults to `accept_invalid_certs`.
     ///
     /// - `connect_timeout` defined in seconds (default: 5). Connecting to a
     ///   database will return a `ConnectTimeout` error if taking more than the
@@ -116,12 +116,14 @@ impl Quaint {
     ///
     /// Microsoft SQL Server:
     ///
-    /// - `encrypt` if set to `true` encrypts all traffic over TLS. If `false`, only
-    ///   the login details are encrypted. A special value `DANGER_PLAINTEXT` will
-    ///   disable TLS completely, including sending login credentials as plaintext.
     /// - `user` sets the login name.
     /// - `password` sets the login password.
     /// - `database` sets the database to connect to.
+    /// - `schema` the name of the lookup schema. Only stored to the connection,
+    ///   must be used in every query to be effective.
+    /// - `encrypt` if set to `true` encrypts all traffic over TLS. If `false`, only
+    ///   the login details are encrypted. A special value `DANGER_PLAINTEXT` will
+    ///   disable TLS completely, including sending login credentials as plaintext.
     /// - `trustServerCertificate` if set to `true`, accepts any kind of certificate
     ///   from the server.
     /// - `socketTimeout` defined in seconds. If set, a query will return a
@@ -129,10 +131,6 @@ impl Quaint {
     /// - `connectTimeout` defined in seconds (default: 5). Connecting to a
     ///   database will return a `ConnectTimeout` error if taking more than the
     ///   defined value.
-    /// - `connectionLimit` defines the maximum number of connections opened to the
-    ///   database.
-    /// - `schema` the name of the lookup schema. Only stored to the connection,
-    ///   must be used in every query to be effective.
     /// - `isolationLevel` the transaction isolation level. Possible values:
     ///   `READ UNCOMMITTED`, `READ COMMITTED`, `REPEATABLE READ`, `SNAPSHOT`,
     ///   `SERIALIZABLE`.
