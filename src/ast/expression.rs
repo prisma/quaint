@@ -55,6 +55,7 @@ impl<'a> Expression<'a> {
     }
 
     #[allow(dead_code)]
+    #[cfg(feature = "json")]
     pub(crate) fn into_json_value(self) -> Option<serde_json::Value> {
         match self.kind {
             #[cfg(feature = "json")]

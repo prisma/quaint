@@ -32,6 +32,7 @@ impl<'a> Mysql<'a> {
     }
 
     fn visit_numeric_comparison(&mut self, left: Expression<'a>, right: Expression<'a>, sign: &str) -> visitor::Result {
+        #[cfg(feature = "json")]
         fn json_to_quaint_value<'a>(json: serde_json::Value) -> crate::Result<Value<'a>> {
             match json {
                 serde_json::Value::String(str) => Ok(Value::text(str)),
@@ -57,6 +58,7 @@ impl<'a> Mysql<'a> {
         }
 
         match (left, right) {
+            #[cfg(feature = "json")]
             (left, right) if left.is_json_value() && right.is_json_extract_fun() => {
                 let quaint_value = json_to_quaint_value(left.into_json_value().unwrap())?;
 
@@ -64,6 +66,7 @@ impl<'a> Mysql<'a> {
                 self.write(format!(" {} ", sign))?;
                 self.visit_expression(right)?;
             }
+            #[cfg(feature = "json")]
             (left, right) if left.is_json_extract_fun() && right.is_json_value() => {
                 let quaint_value = json_to_quaint_value(right.into_json_value().unwrap())?;
 
