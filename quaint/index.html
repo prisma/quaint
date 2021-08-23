@@ -25,8 +25,7 @@ different databases.</li>
 <p>Quaint provides two options to connect to the underlying database.</p>
 <p>The <a href="single/struct.Quaint.html">single connection method</a>:</p>
 
-<div class="example-wrap"><pre class="rust rust-example-rendered">
-<span class="kw">use</span> <span class="ident">quaint</span>::{<span class="ident">prelude</span>::<span class="kw-2">*</span>, <span class="ident">single::Quaint</span>};
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">quaint</span>::{<span class="ident">prelude</span>::<span class="kw-2">*</span>, <span class="ident">single::Quaint</span>};
 
 <span class="attribute">#[<span class="ident">tokio::main</span>]</span>
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">main</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">quaint::error::Error</span><span class="op">&gt;</span> {
@@ -39,11 +38,10 @@ different databases.</li>
     );
 
     <span class="prelude-val">Ok</span>(())
-}</pre></div>
+}</code></pre></div>
 <p>The <a href="pooled/struct.Quaint.html">pooled method</a>:</p>
 
-<div class="example-wrap"><pre class="rust rust-example-rendered">
-<span class="kw">use</span> <span class="ident">quaint</span>::{<span class="ident">prelude</span>::<span class="kw-2">*</span>, <span class="ident">pooled::Quaint</span>};
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">quaint</span>::{<span class="ident">prelude</span>::<span class="kw-2">*</span>, <span class="ident">pooled::Quaint</span>};
 
 <span class="attribute">#[<span class="ident">tokio::main</span>]</span>
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">main</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">quaint::error::Error</span><span class="op">&gt;</span> {
@@ -57,7 +55,7 @@ different databases.</li>
     );
 
     <span class="prelude-val">Ok</span>(())
-}</pre></div>
+}</code></pre></div>
 <h3 id="using-the-ast-module" class="section-header"><a href="#using-the-ast-module">Using the AST module</a></h3>
 <p>The crate can be used as an SQL string builder using the <a href="ast/index.html">ast</a> and
 <a href="visitor/index.html">visitor</a> modules.</p>
@@ -65,8 +63,7 @@ different databases.</li>
 syntax for the database.</p>
 <p>The visitor returns the query as a string and its parameters as a vector.</p>
 
-<div class="example-wrap"><pre class="rust rust-example-rendered">
-<span class="kw">let</span> <span class="ident">conditions</span> <span class="op">=</span> <span class="string">&quot;word&quot;</span>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">let</span> <span class="ident">conditions</span> <span class="op">=</span> <span class="string">&quot;word&quot;</span>
     .<span class="ident">equals</span>(<span class="string">&quot;meow&quot;</span>)
     .<span class="ident">and</span>(<span class="string">&quot;age&quot;</span>.<span class="ident">less_than</span>(<span class="number">10</span>))
     .<span class="ident">and</span>(<span class="string">&quot;paw&quot;</span>.<span class="ident">equals</span>(<span class="string">&quot;warm&quot;</span>));
@@ -86,7 +83,7 @@ syntax for the database.</p>
         <span class="ident">Value::from</span>(<span class="string">&quot;warm&quot;</span>),
     ],
     <span class="ident">params</span>
-);</pre></div>
+);</code></pre></div>
 </div></details><h2 id="modules" class="section-header"><a href="#modules">Modules</a></h2>
 <div class="item-table"><div class="item-left module-item"><a class="mod" href="ast/index.html" title="quaint::ast mod">ast</a></div><div class="item-right docblock-short"><p>An abstract syntax tree for SQL queries.</p>
 </div><div class="item-left module-item"><a class="mod" href="connector/index.html" title="quaint::connector mod">connector</a></div><div class="item-right docblock-short"><p>A set of abstractions for database connections.</p>

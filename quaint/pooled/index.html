@@ -111,8 +111,7 @@ must be used in every query to be effective.</li>
 </ul>
 <p>To create a new <code>Quaint</code> pool connecting to a PostgreSQL database:</p>
 
-<div class="example-wrap"><pre class="rust rust-example-rendered">
-<span class="kw">use</span> <span class="ident">quaint</span>::{<span class="ident">prelude</span>::<span class="kw-2">*</span>, <span class="ident">pooled::Quaint</span>};
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">quaint</span>::{<span class="ident">prelude</span>::<span class="kw-2">*</span>, <span class="ident">pooled::Quaint</span>};
 <span class="kw">use</span> <span class="ident">std::time::Duration</span>;
 
 <span class="attribute">#[<span class="ident">tokio::main</span>]</span>
@@ -132,7 +131,7 @@ must be used in every query to be effective.</li>
     );
 
     <span class="prelude-val">Ok</span>(())
-}</pre></div>
+}</code></pre></div>
 </div></details><h2 id="structs" class="section-header"><a href="#structs">Structs</a></h2>
 <div class="item-table"><div class="item-left module-item"><a class="struct" href="struct.Builder.html" title="quaint::pooled::Builder struct">Builder</a></div><div class="item-right docblock-short"><p>A <code>Builder</code> to construct an instance of a <a href="pooled.Quaint"><code>Quaint</code></a> pool.</p>
 </div><div class="item-left module-item"><a class="struct" href="struct.PooledConnection.html" title="quaint::pooled::PooledConnection struct">PooledConnection</a></div><div class="item-right docblock-short"><p>A connection from the pool. Implements
