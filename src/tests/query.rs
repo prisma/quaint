@@ -1204,7 +1204,7 @@ async fn deletes(api: &mut dyn TestApi) -> crate::Result<()> {
     Ok(())
 }
 
-// Figure out why it doesn't work on MariaDB
+// TODO: Figure out why it doesn't work on MariaDB
 // Error { kind: QueryError(Server(ServerError { code: 1115, message: "Unknown character set: 'gb18030'", state: "42000" })), original_code: Some("1115"), original_message: Some("Unknown character set: 'gb18030'") }
 #[test_each_connector(tags("mysql"), ignore("mysql_mariadb"))]
 async fn text_columns_with_non_utf8_encodings_can_be_queried(api: &mut dyn TestApi) -> crate::Result<()> {
