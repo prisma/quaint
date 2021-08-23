@@ -1962,6 +1962,7 @@ async fn coalesce_fun(api: &mut dyn TestApi) -> crate::Result<()> {
     Ok(())
 }
 
+#[cfg(feature = "json")]
 fn value_into_json(value: &Value) -> Option<serde_json::Value> {
     match value.clone() {
         // MariaDB returns JSON as text
