@@ -39,8 +39,8 @@ impl FromStr for Tags {
 }
 
 /// All the tags, sorted by name.
-fn tag_names<'a>() -> Vec<(&'a str, Tags)> {
-    vec![
+fn tag_names<'a>() -> [(&'a str, Tags); 7] {
+    [
         ("mssql", Tags::MSSQL),
         ("mysql", Tags::MYSQL5_7 | Tags::MYSQL8 | Tags::MYSQL_MARIADB),
         ("mysql5_7", Tags::MYSQL5_7),
