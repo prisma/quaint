@@ -1955,6 +1955,20 @@ async fn coalesce_fun(api: &mut dyn TestApi) -> crate::Result<()> {
     Ok(())
 }
 
+fn value_into_json(value: &Value) -> Option<serde_json::Value> {
+    match value.clone() {
+        // MariaDB returns JSON as text
+        Value::Text(Some(text)) => {
+            let json: serde_json::Value =
+                serde_json::from_str(&text).expect(format!("expected parsable text to json, found {}", text).as_str());
+
+            Some(json)
+        }
+        Value::Json(Some(json)) => Some(json),
+        _ => None,
+    }
+}
+
 #[cfg(all(feature = "json", feature = "mysql"))]
 #[test_each_connector(tags("mysql"))]
 async fn json_extract_path_fun(api: &mut dyn TestApi) -> crate::Result<()> {
@@ -1969,28 +1983,37 @@ async fn json_extract_path_fun(api: &mut dyn TestApi) -> crate::Result<()> {
     api.conn().insert(third_insert.into()).await?;
 
     let extract: Expression = json_extract(col!("obj"), JsonPath::string("$.a.b"), false).into();
-    let select = Select::from_table(&table).so_that(extract.equals("c"));
-    let row = api.conn().select(select).await?.into_single()?;
+    let select = Select::from_table(&table).so_that(extract.equals(serde_json::json!("c")));
+    let mut res = api.conn().select(select).await?.into_iter();
 
     // Test object extraction
-    assert_eq!(Some(&serde_json::json!({ "a": { "b": "c" } })), row["obj"].as_json());
+    assert_eq!(
+        Some(serde_json::json!({ "a": { "b": "c" } })),
+        value_into_json(&res.next().unwrap()["obj"])
+    );
+    assert_eq!(None, res.next());
 
     let extract: Expression = json_extract(col!("obj"), JsonPath::string("$.a.b[1]"), false).into();
-    let select = Select::from_table(&table).so_that(extract.equals(2));
-    let row = api.conn().select(select).await?.into_single()?;
+    let select = Select::from_table(&table).so_that(extract.equals(serde_json::json!(2)));
+    let mut res = api.conn().select(select).await?.into_iter();
 
     // Test array index extraction
     assert_eq!(
-        Some(&serde_json::json!({ "a": { "b": [1, 2, 3] } })),
-        row["obj"].as_json()
+        Some(serde_json::json!({ "a": { "b": [1, 2, 3] } })),
+        value_into_json(&res.next().unwrap()["obj"])
     );
+    assert_eq!(None, res.next());
 
     let extract: Expression = json_extract(col!("obj"), JsonPath::string("$.\"a\\\":{\""), false).into();
-    let select = Select::from_table(&table).so_that(extract.equals("b"));
-    let row = api.conn().select(select).await?.into_single()?;
+    let select = Select::from_table(&table).so_that(extract.equals(serde_json::json!("b")));
+    let mut res = api.conn().select(select).await?.into_iter();
 
     // Test escaped chars in keys
-    assert_eq!(Some(&serde_json::json!({ "a\":{": "b" })), row["obj"].as_json());
+    assert_eq!(
+        Some(serde_json::json!({ "a\":{": "b" })),
+        value_into_json(&res.next().unwrap()["obj"])
+    );
+    assert_eq!(None, res.next());
 
     Ok(())
 }
@@ -2014,34 +2037,40 @@ async fn json_extract_array_path_fun(api: &mut dyn TestApi) -> crate::Result<()>
     let extract: Expression = json_extract(col!("obj"), JsonPath::array(["a", "b"]), false).into();
     let select = Select::from_table(&table).so_that(extract.equals("\"c\""));
     let row = api.conn().select(select).await?.into_single()?;
-    assert_eq!(Some(&serde_json::json!({ "a": { "b": "c" } })), row["obj"].as_json());
+    assert_eq!(
+        Some(serde_json::json!({ "a": { "b": "c" } })),
+        value_into_json(&row["obj"])
+    );
 
     // Test equality with Json value
     let extract: Expression = json_extract(col!("obj"), JsonPath::array(["a", "b"]), false).into();
-    let select = Select::from_table(&table).so_that(extract.equals(serde_json::Value::String("c".to_owned())));
+    let select = Select::from_table(&table).so_that(extract.equals(serde_json::json!("c")));
     let row = api.conn().select(select).await?.into_single()?;
-    assert_eq!(Some(&serde_json::json!({ "a": { "b": "c" } })), row["obj"].as_json());
+    assert_eq!(
+        Some(serde_json::json!({ "a": { "b": "c" } })),
+        value_into_json(&row["obj"])
+    );
 
     // Test array index extraction
     let extract: Expression = json_extract(col!("obj"), JsonPath::array(["a", "b", "1"]), false).into();
-    let select = Select::from_table(&table).so_that(extract.equals("2"));
+    let select = Select::from_table(&table).so_that(extract.equals(serde_json::json!(2)));
     let row = api.conn().select(select).await?.into_single()?;
     assert_eq!(
-        Some(&serde_json::json!({ "a": { "b": [1, 2, 3] } })),
-        row["obj"].as_json()
+        Some(serde_json::json!({ "a": { "b": [1, 2, 3] } })),
+        value_into_json(&row["obj"])
     );
 
     // Test escaped chars in keys
     let extract: Expression = json_extract(col!("obj"), JsonPath::array(["a\":{"]), false).into();
-    let select = Select::from_table(&table).so_that(extract.equals("\"b\""));
+    let select = Select::from_table(&table).so_that(extract.equals(serde_json::json!("b")));
     let row = api.conn().select(select).await?.into_single()?;
-    assert_eq!(Some(&serde_json::json!({ "a\":{": "b" })), row["obj"].as_json());
+    assert_eq!(Some(serde_json::json!({ "a\":{": "b" })), value_into_json(&row["obj"]));
 
     Ok(())
 }
 
 #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
-#[test_each_connector(tags("postgresql", "mysql"))]
+#[test_each_connector(tags("postgresql", "mysql"), ignore("mysql_mariadb"))]
 async fn json_array_contains_fun(api: &mut dyn TestApi) -> crate::Result<()> {
     let json_type = match api.system() {
         "postgres" => "jsonb",
@@ -2077,32 +2106,32 @@ async fn json_array_contains_fun(api: &mut dyn TestApi) -> crate::Result<()> {
     let select = Select::from_table(&table).so_that(path.clone().json_array_contains("[2]"));
     let row = api.conn().select(select).await?.into_single()?;
     assert_eq!(
-        Some(&serde_json::json!({ "a": { "b": [1, 2, 3] } })),
-        row["obj"].as_json()
+        Some(serde_json::json!({ "a": { "b": [1, 2, 3] } })),
+        value_into_json(&row["obj"])
     );
 
     // Assert contains string
     let select = Select::from_table(&table).so_that(path.clone().json_array_contains("[\"bar\"]"));
     let row = api.conn().select(select).await?.into_single()?;
     assert_eq!(
-        Some(&serde_json::json!({ "a": { "b": ["foo", "bar"] } })),
-        row["obj"].as_json()
+        Some(serde_json::json!({ "a": { "b": ["foo", "bar"] } })),
+        value_into_json(&row["obj"])
     );
 
     // Assert contains object
     let select = Select::from_table(&table).so_that(path.clone().json_array_contains("[{\"bar\": \"foo\"}]"));
     let row = api.conn().select(select).await?.into_single()?;
     assert_eq!(
-        Some(&serde_json::json!({ "a": { "b": [{ "foo": "bar" }, { "bar": "foo" }] } })),
-        row["obj"].as_json()
+        Some(serde_json::json!({ "a": { "b": [{ "foo": "bar" }, { "bar": "foo" }] } })),
+        value_into_json(&row["obj"])
     );
 
     // Assert contains array
     let select = Select::from_table(&table).so_that(path.clone().json_array_contains("[[1, 2]]"));
     let row = api.conn().select(select).await?.into_single()?;
     assert_eq!(
-        Some(&serde_json::json!({ "a": { "b": [[1, 2], [3, 4]] } })),
-        row["obj"].as_json()
+        Some(serde_json::json!({ "a": { "b": [[1, 2], [3, 4]] } })),
+        value_into_json(&row["obj"])
     );
 
     Ok(())
@@ -2139,13 +2168,16 @@ async fn json_array_not_contains_fun(api: &mut dyn TestApi) -> crate::Result<()>
     // Assert NOT contains number
     let select = Select::from_table(&table).so_that(path.clone().json_array_not_contains("[2]"));
     let row = api.conn().select(select).await?.into_single()?;
-    assert_eq!(Some(&serde_json::json!({ "a": { "b": [4, 5] } })), row["obj"].as_json());
+    assert_eq!(
+        Some(serde_json::json!({ "a": { "b": [4, 5] } })),
+        value_into_json(&row["obj"])
+    );
 
     Ok(())
 }
 
 #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
-#[test_each_connector(tags("postgresql", "mysql"))]
+#[test_each_connector(tags("postgresql", "mysql"), ignore("mysql_mariadb"))]
 async fn json_array_begins_with_fun(api: &mut dyn TestApi) -> crate::Result<()> {
     let json_type = match api.system() {
         "postgres" => "jsonb",
@@ -2181,39 +2213,39 @@ async fn json_array_begins_with_fun(api: &mut dyn TestApi) -> crate::Result<()> 
     let select = Select::from_table(&table).so_that(path.clone().json_array_begins_with("1"));
     let row = api.conn().select(select).await?.into_single()?;
     assert_eq!(
-        Some(&serde_json::json!({ "a": { "b": [1, 2, 3] } })),
-        row["obj"].as_json()
+        Some(serde_json::json!({ "a": { "b": [1, 2, 3] } })),
+        value_into_json(&row["obj"])
     );
 
     // Assert starts with string
     let select = Select::from_table(&table).so_that(path.clone().json_array_begins_with("\"foo\""));
     let row = api.conn().select(select).await?.into_single()?;
     assert_eq!(
-        Some(&serde_json::json!({ "a": { "b": ["foo", "bar"] } })),
-        row["obj"].as_json()
+        Some(serde_json::json!({ "a": { "b": ["foo", "bar"] } })),
+        value_into_json(&row["obj"])
     );
 
     // Assert starts with object
     let select = Select::from_table(&table).so_that(path.clone().json_array_begins_with("{\"foo\": \"bar\"}"));
     let row = api.conn().select(select).await?.into_single()?;
     assert_eq!(
-        Some(&serde_json::json!({ "a": { "b": [{ "foo": "bar" }, { "bar": "foo" }] } })),
-        row["obj"].as_json()
+        Some(serde_json::json!({ "a": { "b": [{ "foo": "bar" }, { "bar": "foo" }] } })),
+        value_into_json(&row["obj"])
     );
 
     // Assert starts with array
     let select = Select::from_table(&table).so_that(path.clone().json_array_begins_with("[1, 2]"));
     let row = api.conn().select(select).await?.into_single()?;
     assert_eq!(
-        Some(&serde_json::json!({ "a": { "b": [[1, 2], [3, 4]] } })),
-        row["obj"].as_json()
+        Some(serde_json::json!({ "a": { "b": [[1, 2], [3, 4]] } })),
+        value_into_json(&row["obj"])
     );
 
     Ok(())
 }
 
 #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
-#[test_each_connector(tags("postgresql", "mysql"))]
+#[test_each_connector(tags("postgresql", "mysql"), ignore("mysql_mariadb"))]
 async fn json_array_not_begins_with_fun(api: &mut dyn TestApi) -> crate::Result<()> {
     let json_type = match api.system() {
         "postgres" => "jsonb",
@@ -2243,13 +2275,16 @@ async fn json_array_not_begins_with_fun(api: &mut dyn TestApi) -> crate::Result<
     // Assert NOT starts with number
     let select = Select::from_table(&table).so_that(path.clone().json_array_not_begins_with("1"));
     let row = api.conn().select(select).await?.into_single()?;
-    assert_eq!(Some(&serde_json::json!({ "a": { "b": [4, 5] } })), row["obj"].as_json());
+    assert_eq!(
+        Some(serde_json::json!({ "a": { "b": [4, 5] } })),
+        value_into_json(&row["obj"])
+    );
 
     Ok(())
 }
 
 #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
-#[test_each_connector(tags("postgresql", "mysql"))]
+#[test_each_connector(tags("postgresql", "mysql"), ignore("mysql_mariadb"))]
 async fn json_array_ends_into_fun(api: &mut dyn TestApi) -> crate::Result<()> {
     let json_type = match api.system() {
         "postgres" => "jsonb",
@@ -2285,39 +2320,39 @@ async fn json_array_ends_into_fun(api: &mut dyn TestApi) -> crate::Result<()> {
     let select = Select::from_table(&table).so_that(path.clone().json_array_ends_into("3"));
     let row = api.conn().select(select).await?.into_single()?;
     assert_eq!(
-        Some(&serde_json::json!({ "a": { "b": [1, 2, 3] } })),
-        row["obj"].as_json()
+        Some(serde_json::json!({ "a": { "b": [1, 2, 3] } })),
+        value_into_json(&row["obj"])
     );
 
-    // Assert ends with string
+    // // Assert ends with string
     let select = Select::from_table(&table).so_that(path.clone().json_array_ends_into("\"bar\""));
     let row = api.conn().select(select).await?.into_single()?;
     assert_eq!(
-        Some(&serde_json::json!({ "a": { "b": ["foo", "bar"] } })),
-        row["obj"].as_json()
+        Some(serde_json::json!({ "a": { "b": ["foo", "bar"] } })),
+        value_into_json(&row["obj"])
     );
 
     // Assert ends with object
     let select = Select::from_table(&table).so_that(path.clone().json_array_ends_into("{\"bar\": \"foo\"}"));
     let row = api.conn().select(select).await?.into_single()?;
     assert_eq!(
-        Some(&serde_json::json!({ "a": { "b": [{ "foo": "bar" }, { "bar": "foo" }] } })),
-        row["obj"].as_json()
+        Some(serde_json::json!({ "a": { "b": [{ "foo": "bar" }, { "bar": "foo" }] } })),
+        value_into_json(&row["obj"])
     );
 
     // Assert ends with array
     let select = Select::from_table(&table).so_that(path.clone().json_array_ends_into("[3, 4]"));
     let row = api.conn().select(select).await?.into_single()?;
     assert_eq!(
-        Some(&serde_json::json!({ "a": { "b": [[1, 2], [3, 4]] } })),
-        row["obj"].as_json()
+        Some(serde_json::json!({ "a": { "b": [[1, 2], [3, 4]] } })),
+        value_into_json(&row["obj"])
     );
 
     Ok(())
 }
 
 #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
-#[test_each_connector(tags("postgresql", "mysql"))]
+#[test_each_connector(tags("postgresql", "mysql"), ignore("mysql_mariadb"))]
 async fn json_array_not_ends_into_fun(api: &mut dyn TestApi) -> crate::Result<()> {
     let json_type = match api.system() {
         "postgres" => "jsonb",
@@ -2347,7 +2382,10 @@ async fn json_array_not_ends_into_fun(api: &mut dyn TestApi) -> crate::Result<()
     // Assert NOT starts with number
     let select = Select::from_table(&table).so_that(path.clone().json_array_not_ends_into("2"));
     let row = api.conn().select(select).await?.into_single()?;
-    assert_eq!(Some(&serde_json::json!({ "a": { "b": [4, 5] } })), row["obj"].as_json());
+    assert_eq!(
+        Some(serde_json::json!({ "a": { "b": [4, 5] } })),
+        value_into_json(&row["obj"])
+    );
 
     Ok(())
 }
@@ -2384,12 +2422,12 @@ async fn json_gt_gte_lt_lte_fun(api: &mut dyn TestApi) -> crate::Result<()> {
     let select = Select::from_table(&table).so_that(path.clone().greater_than(Value::json(serde_json::json!(1))));
     let res = api.conn().select(select).await?;
     assert_eq!(
-        Some(&serde_json::json!({ "a": { "b": 50 } })),
-        res.get(0).unwrap()["json"].as_json()
+        Some(serde_json::json!({ "a": { "b": 50 } })),
+        value_into_json(&res.get(0).unwrap()["json"])
     );
     assert_eq!(
-        Some(&serde_json::json!({ "a": { "b": 100 } })),
-        res.get(1).unwrap()["json"].as_json()
+        Some(serde_json::json!({ "a": { "b": 100 } })),
+        value_into_json(&res.get(1).unwrap()["json"])
     );
     assert_eq!(None, res.get(2));
 
@@ -2398,8 +2436,8 @@ async fn json_gt_gte_lt_lte_fun(api: &mut dyn TestApi) -> crate::Result<()> {
     let select = Select::from_table(&table).so_that(json_value.greater_than(path.clone()));
     let res = api.conn().select(select).await?;
     assert_eq!(
-        Some(&serde_json::json!({ "a": { "b": 1 } })),
-        res.get(0).unwrap()["json"].as_json()
+        Some(serde_json::json!({ "a": { "b": 1 } })),
+        value_into_json(&res.get(0).unwrap()["json"])
     );
     assert_eq!(None, res.get(1));
 
@@ -2408,16 +2446,16 @@ async fn json_gt_gte_lt_lte_fun(api: &mut dyn TestApi) -> crate::Result<()> {
         Select::from_table(&table).so_that(path.clone().greater_than_or_equals(Value::json(serde_json::json!(1))));
     let res = api.conn().select(select).await?;
     assert_eq!(
-        Some(&serde_json::json!({ "a": { "b": 1 } })),
-        res.get(0).unwrap()["json"].as_json()
+        Some(serde_json::json!({ "a": { "b": 1 } })),
+        value_into_json(&res.get(0).unwrap()["json"])
     );
     assert_eq!(
-        Some(&serde_json::json!({ "a": { "b": 50 } })),
-        res.get(1).unwrap()["json"].as_json()
+        Some(serde_json::json!({ "a": { "b": 50 } })),
+        value_into_json(&res.get(1).unwrap()["json"])
     );
     assert_eq!(
-        Some(&serde_json::json!({ "a": { "b": 100 } })),
-        res.get(2).unwrap()["json"].as_json()
+        Some(serde_json::json!({ "a": { "b": 100 } })),
+        value_into_json(&res.get(2).unwrap()["json"])
     );
     assert_eq!(None, res.get(3));
 
@@ -2426,12 +2464,12 @@ async fn json_gt_gte_lt_lte_fun(api: &mut dyn TestApi) -> crate::Result<()> {
     let select = Select::from_table(&table).so_that(json_value.greater_than_or_equals(path.clone()));
     let res = api.conn().select(select).await?;
     assert_eq!(
-        Some(&serde_json::json!({ "a": { "b": 1 } })),
-        res.get(0).unwrap()["json"].as_json()
+        Some(serde_json::json!({ "a": { "b": 1 } })),
+        value_into_json(&res.get(0).unwrap()["json"])
     );
     assert_eq!(
-        Some(&serde_json::json!({ "a": { "b": 50 } })),
-        res.get(1).unwrap()["json"].as_json()
+        Some(serde_json::json!({ "a": { "b": 50 } })),
+        value_into_json(&res.get(1).unwrap()["json"])
     );
     assert_eq!(None, res.get(2));
 
@@ -2439,12 +2477,12 @@ async fn json_gt_gte_lt_lte_fun(api: &mut dyn TestApi) -> crate::Result<()> {
     let select = Select::from_table(&table).so_that(path.clone().less_than(Value::json(serde_json::json!(100))));
     let res = api.conn().select(select).await?;
     assert_eq!(
-        Some(&serde_json::json!({ "a": { "b": 1 } })),
-        res.get(0).unwrap()["json"].as_json()
+        Some(serde_json::json!({ "a": { "b": 1 } })),
+        value_into_json(&res.get(0).unwrap()["json"])
     );
     assert_eq!(
-        Some(&serde_json::json!({ "a": { "b": 50 } })),
-        res.get(1).unwrap()["json"].as_json()
+        Some(serde_json::json!({ "a": { "b": 50 } })),
+        value_into_json(&res.get(1).unwrap()["json"])
     );
     assert_eq!(None, res.get(2));
 
@@ -2453,12 +2491,12 @@ async fn json_gt_gte_lt_lte_fun(api: &mut dyn TestApi) -> crate::Result<()> {
     let select = Select::from_table(&table).so_that(json_value.less_than(path.clone()));
     let res = api.conn().select(select).await?;
     assert_eq!(
-        Some(&serde_json::json!({ "a": { "b": 50 } })),
-        res.get(0).unwrap()["json"].as_json()
+        Some(serde_json::json!({ "a": { "b": 50 } })),
+        value_into_json(&res.get(0).unwrap()["json"])
     );
     assert_eq!(
-        Some(&serde_json::json!({ "a": { "b": 100 } })),
-        res.get(1).unwrap()["json"].as_json()
+        Some(serde_json::json!({ "a": { "b": 100 } })),
+        value_into_json(&res.get(1).unwrap()["json"])
     );
     assert_eq!(None, res.get(2));
 
@@ -2467,16 +2505,16 @@ async fn json_gt_gte_lt_lte_fun(api: &mut dyn TestApi) -> crate::Result<()> {
         Select::from_table(&table).so_that(path.clone().less_than_or_equals(Value::json(serde_json::json!(100))));
     let res = api.conn().select(select).await?;
     assert_eq!(
-        Some(&serde_json::json!({ "a": { "b": 1 } })),
-        res.get(0).unwrap()["json"].as_json()
+        Some(serde_json::json!({ "a": { "b": 1 } })),
+        value_into_json(&res.get(0).unwrap()["json"])
     );
     assert_eq!(
-        Some(&serde_json::json!({ "a": { "b": 50 } })),
-        res.get(1).unwrap()["json"].as_json()
+        Some(serde_json::json!({ "a": { "b": 50 } })),
+        value_into_json(&res.get(1).unwrap()["json"])
     );
     assert_eq!(
-        Some(&serde_json::json!({ "a": { "b": 100 } })),
-        res.get(2).unwrap()["json"].as_json()
+        Some(serde_json::json!({ "a": { "b": 100 } })),
+        value_into_json(&res.get(2).unwrap()["json"])
     );
     assert_eq!(None, res.get(3));
 
@@ -2485,16 +2523,16 @@ async fn json_gt_gte_lt_lte_fun(api: &mut dyn TestApi) -> crate::Result<()> {
     let select = Select::from_table(&table).so_that(json_value.less_than_or_equals(path));
     let res = api.conn().select(select).await?;
     assert_eq!(
-        Some(&serde_json::json!({ "a": { "b": 1 } })),
-        res.get(0).unwrap()["json"].as_json()
+        Some(serde_json::json!({ "a": { "b": 1 } })),
+        value_into_json(&res.get(0).unwrap()["json"])
     );
     assert_eq!(
-        Some(&serde_json::json!({ "a": { "b": 50 } })),
-        res.get(1).unwrap()["json"].as_json()
+        Some(serde_json::json!({ "a": { "b": 50 } })),
+        value_into_json(&res.get(1).unwrap()["json"])
     );
     assert_eq!(
-        Some(&serde_json::json!({ "a": { "b": 100 } })),
-        res.get(2).unwrap()["json"].as_json()
+        Some(serde_json::json!({ "a": { "b": 100 } })),
+        value_into_json(&res.get(2).unwrap()["json"])
     );
     assert_eq!(None, res.get(3));
 
