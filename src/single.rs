@@ -59,6 +59,14 @@ impl Quaint {
     ///
     /// PostgreSQL:
     ///
+    /// - `schema` the default search path.
+    /// - `pgbouncer` either `true` or `false`. If set, allows usage with the
+    ///   pgBouncer connection pool in transaction mode. Additionally a transaction
+    ///   is required for every query for the mode to work. When starting a new
+    ///   transaction, a deallocation query `DEALLOCATE ALL` is executed right after
+    ///   `BEGIN` to avoid possible collisions with statements created in other
+    ///   sessions.
+    ///
     /// - `sslmode` either `disable`, `prefer` or `require`. [Read more](https://docs.rs/tokio-postgres/0.5.0-alpha.1/tokio_postgres/config/enum.SslMode.html)
     /// - `sslcert` should point to a PEM certificate file.
     /// - `sslidentity` should point to a PKCS12 certificate database.
@@ -67,22 +75,18 @@ impl Quaint {
     ///   certificate needs to be valid and in the CA certificates.
     ///   `accept_invalid_certs` accepts any certificate from the server and can
     ///   lead to weakened security. Defaults to `strict`.
-    /// - `schema` the default search path.
+    ///
+    /// - `connect_timeout` defined in seconds (default: 5). Connecting to a
+    ///   database will return a `ConnectTimeout` error if taking more than the
+    ///   defined value.
+    ///
     /// - `host` additionally the host can be given as a parameter, typically in
     ///   cases when connectiong to the database through a unix socket to
     ///   separate the database name from the database path, such as
     ///   `postgresql:///dbname?host=/var/run/postgresql`.
     /// - `socket_timeout` defined in seconds. If set, a query will return a
     ///   `Timeout` error if it fails to resolve before given time.
-    /// - `connect_timeout` defined in seconds (default: 5). Connecting to a
-    ///   database will return a `ConnectTimeout` error if taking more than the
-    ///   defined value.
-    /// - `pgbouncer` either `true` or `false`. If set, allows usage with the
-    ///   pgBouncer connection pool in transaction mode. Additionally a transaction
-    ///   is required for every query for the mode to work. When starting a new
-    ///   transaction, a deallocation query `DEALLOCATE ALL` is executed right after
-    ///   `BEGIN` to avoid possible collisions with statements created in other
-    ///   sessions.
+    ///
     /// - `statement_cache_size`, number of prepared statements kept cached.
     ///   Defaults to 500, which means caching is off. If `pgbouncer` mode is enabled,
     ///   caching is always off.
@@ -95,23 +99,31 @@ impl Quaint {
     /// - `sslaccept` either `strict` or `accept_invalid_certs`. If strict, the
     ///   certificate needs to be valid and in the CA certificates.
     ///   `accept_invalid_certs` accepts any certificate from the server and can
-    ///   lead to weakened security. Defaults to `strict`.
-    /// - `socket` needed when connecting to MySQL database through a unix
-    ///   socket. When set, the host parameter is dismissed.
-    /// - `socket_timeout` defined in seconds. If set, a query will return a
-    ///   `Timeout` error if it fails to resolve before given time.
+    ///   lead to weakened security. Defaults to `accept_invalid_certs`.
+    ///
     /// - `connect_timeout` defined in seconds (default: 5). Connecting to a
     ///   database will return a `ConnectTimeout` error if taking more than the
     ///   defined value.
     ///
+    /// - `socket` needed when connecting to MySQL database through a unix
+    ///   socket. When set, the host parameter is dismissed.
+    /// - `socket_timeout` defined in seconds. If set, a query will return a
+    ///   `Timeout` error if it fails to resolve before given time.
+    ///
+    /// - `statement_cache_size`, number of prepared statements kept cached.
+    ///   Defaults to 500, which means caching is off. If `pgbouncer` mode is enabled,
+    ///   caching is always off.
+    ///
     /// Microsoft SQL Server:
     ///
-    /// - `encrypt` if set to `true` encrypts all traffic over TLS. If `false`, only
-    ///   the login details are encrypted. A special value `DANGER_PLAINTEXT` will
-    ///   disable TLS completely, including sending login credentials as plaintext.
     /// - `user` sets the login name.
     /// - `password` sets the login password.
     /// - `database` sets the database to connect to.
+    /// - `schema` the name of the lookup schema. Only stored to the connection,
+    ///   must be used in every query to be effective.
+    /// - `encrypt` if set to `true` encrypts all traffic over TLS. If `false`, only
+    ///   the login details are encrypted. A special value `DANGER_PLAINTEXT` will
+    ///   disable TLS completely, including sending login credentials as plaintext.
     /// - `trustServerCertificate` if set to `true`, accepts any kind of certificate
     ///   from the server.
     /// - `socketTimeout` defined in seconds. If set, a query will return a
@@ -119,10 +131,6 @@ impl Quaint {
     /// - `connectTimeout` defined in seconds (default: 5). Connecting to a
     ///   database will return a `ConnectTimeout` error if taking more than the
     ///   defined value.
-    /// - `connectionLimit` defines the maximum number of connections opened to the
-    ///   database.
-    /// - `schema` the name of the lookup schema. Only stored to the connection,
-    ///   must be used in every query to be effective.
     /// - `isolationLevel` the transaction isolation level. Possible values:
     ///   `READ UNCOMMITTED`, `READ COMMITTED`, `REPEATABLE READ`, `SNAPSHOT`,
     ///   `SERIALIZABLE`.

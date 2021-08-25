@@ -260,24 +260,31 @@ impl PostgresUrl {
     }
 
     fn parse_query_params(url: &Url) -> Result<PostgresUrlQueryParams, Error> {
-        let mut connection_limit = None;
         let mut schema = None;
+        let mut pg_bouncer = false;
+
+        let mut ssl_mode = SslMode::Prefer;
         let mut certificate_file = None;
         let mut identity_file = None;
         let mut identity_password = None;
         let mut ssl_accept_mode = SslAcceptMode::AcceptInvalidCerts;
-        let mut ssl_mode = SslMode::Prefer;
+
+        let mut connect_timeout = Some(Duration::from_secs(5));
+        let mut connection_limit = None;
+        let mut pool_timeout = Some(Duration::from_secs(10));
+
         let mut host = None;
         let mut socket_timeout = None;
-        let mut connect_timeout = Some(Duration::from_secs(5));
-        let mut pool_timeout = Some(Duration::from_secs(10));
-        let mut pg_bouncer = false;
+
         let mut statement_cache_size = 500;
         let mut max_connection_lifetime = None;
         let mut max_idle_connection_lifetime = Some(Duration::from_secs(300));
 
         for (k, v) in url.query_pairs() {
             match k.as_ref() {
+                "schema" => {
+                    schema = Some(v.to_string());
+                }
                 "pgbouncer" => {
                     pg_bouncer = v
                         .parse()
@@ -302,11 +309,6 @@ impl PostgresUrl {
                 "sslpassword" => {
                     identity_password = Some(v.to_string());
                 }
-                "statement_cache_size" => {
-                    statement_cache_size = v
-                        .parse()
-                        .map_err(|_| Error::builder(ErrorKind::InvalidConnectionArguments).build())?;
-                }
                 "sslaccept" => {
                     match v.as_ref() {
                         "strict" => {
@@ -325,24 +327,6 @@ impl PostgresUrl {
                         }
                     };
                 }
-                "schema" => {
-                    schema = Some(v.to_string());
-                }
-                "connection_limit" => {
-                    let as_int: usize = v
-                        .parse()
-                        .map_err(|_| Error::builder(ErrorKind::InvalidConnectionArguments).build())?;
-                    connection_limit = Some(as_int);
-                }
-                "host" => {
-                    host = Some(v.to_string());
-                }
-                "socket_timeout" => {
-                    let as_int = v
-                        .parse()
-                        .map_err(|_| Error::builder(ErrorKind::InvalidConnectionArguments).build())?;
-                    socket_timeout = Some(Duration::from_secs(as_int));
-                }
                 "connect_timeout" => {
                     let as_int = v
                         .parse()
@@ -354,6 +338,12 @@ impl PostgresUrl {
                         connect_timeout = Some(Duration::from_secs(as_int));
                     }
                 }
+                "connection_limit" => {
+                    let as_int: usize = v
+                        .parse()
+                        .map_err(|_| Error::builder(ErrorKind::InvalidConnectionArguments).build())?;
+                    connection_limit = Some(as_int);
+                }
                 "pool_timeout" => {
                     let as_int = v
                         .parse()
@@ -364,6 +354,20 @@ impl PostgresUrl {
                     } else {
                         pool_timeout = Some(Duration::from_secs(as_int));
                     }
+                }
+                "host" => {
+                    host = Some(v.to_string());
+                }
+                "socket_timeout" => {
+                    let as_int = v
+                        .parse()
+                        .map_err(|_| Error::builder(ErrorKind::InvalidConnectionArguments).build())?;
+                    socket_timeout = Some(Duration::from_secs(as_int));
+                }
+                "statement_cache_size" => {
+                    statement_cache_size = v
+                        .parse()
+                        .map_err(|_| Error::builder(ErrorKind::InvalidConnectionArguments).build())?;
                 }
                 "max_connection_lifetime" => {
                     let as_int = v
@@ -394,20 +398,20 @@ impl PostgresUrl {
         }
 
         Ok(PostgresUrlQueryParams {
+            schema,
+            pg_bouncer,
+            ssl_mode,
             ssl_params: SslParams {
                 certificate_file,
                 identity_file,
                 ssl_accept_mode,
                 identity_password: Hidden(identity_password),
             },
-            connection_limit,
-            schema,
-            ssl_mode,
-            host,
             connect_timeout,
+            connection_limit,
             pool_timeout,
+            host,
             socket_timeout,
-            pg_bouncer,
             statement_cache_size,
             max_connection_lifetime,
             max_idle_connection_lifetime,
@@ -445,15 +449,15 @@ impl PostgresUrl {
 
 #[derive(Debug, Clone)]
 pub(crate) struct PostgresUrlQueryParams {
-    ssl_params: SslParams,
-    connection_limit: Option<usize>,
     schema: Option<String>,
-    ssl_mode: SslMode,
     pg_bouncer: bool,
+    ssl_mode: SslMode,
+    ssl_params: SslParams,
+    connect_timeout: Option<Duration>,
+    connection_limit: Option<usize>,
+    pool_timeout: Option<Duration>,
     host: Option<String>,
     socket_timeout: Option<Duration>,
-    connect_timeout: Option<Duration>,
-    pool_timeout: Option<Duration>,
     statement_cache_size: usize,
     max_connection_lifetime: Option<Duration>,
     max_idle_connection_lifetime: Option<Duration>,

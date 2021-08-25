@@ -110,7 +110,7 @@ impl MysqlUrl {
         self.url.port().unwrap_or(3306)
     }
 
-    /// The connection timeout.
+    /// The connect timeout.
     pub fn connect_timeout(&self) -> Option<Duration> {
         self.query_params.connect_timeout
     }
@@ -151,32 +151,22 @@ impl MysqlUrl {
     fn parse_query_params(url: &Url) -> Result<MysqlUrlQueryParams, Error> {
         let mut ssl_opts = my::SslOpts::default();
         ssl_opts = ssl_opts.with_danger_accept_invalid_certs(true);
-
-        let mut connection_limit = None;
         let mut use_ssl = false;
+
+        let mut connect_timeout = Some(Duration::from_secs(5));
+        let mut connection_limit = None;
+        let mut pool_timeout = Some(Duration::from_secs(10));
+
         let mut socket = None;
         let mut socket_timeout = None;
-        let mut connect_timeout = Some(Duration::from_secs(5));
-        let mut pool_timeout = Some(Duration::from_secs(10));
+        let mut prefer_socket = None;
+
+        let mut statement_cache_size = 1000;
         let mut max_connection_lifetime = None;
         let mut max_idle_connection_lifetime = Some(Duration::from_secs(300));
-        let mut prefer_socket = None;
-        let mut statement_cache_size = 1000;
 
         for (k, v) in url.query_pairs() {
             match k.as_ref() {
-                "connection_limit" => {
-                    let as_int: usize = v
-                        .parse()
-                        .map_err(|_| Error::builder(ErrorKind::InvalidConnectionArguments).build())?;
-
-                    connection_limit = Some(as_int);
-                }
-                "statement_cache_size" => {
-                    statement_cache_size = v
-                        .parse()
-                        .map_err(|_| Error::builder(ErrorKind::InvalidConnectionArguments).build())?;
-                }
                 "sslcert" => {
                     use_ssl = true;
                     ssl_opts = ssl_opts.with_root_cert_path(Some(Path::new(&*v).to_path_buf()));
@@ -188,6 +178,47 @@ impl MysqlUrl {
                 "sslpassword" => {
                     use_ssl = true;
                     ssl_opts = ssl_opts.with_password(Some(v.to_string()));
+                }
+                "sslaccept" => {
+                    match v.as_ref() {
+                        "strict" => {
+                            ssl_opts = ssl_opts.with_danger_accept_invalid_certs(false);
+                        }
+                        "accept_invalid_certs" => {}
+                        _ => {
+                            tracing::debug!(
+                                message = "Unsupported SSL accept mode, defaulting to `accept_invalid_certs`",
+                                mode = &*v
+                            );
+                        }
+                    };
+                }
+                "connect_timeout" => {
+                    let as_int = v
+                        .parse::<u64>()
+                        .map_err(|_| Error::builder(ErrorKind::InvalidConnectionArguments).build())?;
+
+                    connect_timeout = match as_int {
+                        0 => None,
+                        _ => Some(Duration::from_secs(as_int)),
+                    };
+                }
+                "connection_limit" => {
+                    let as_int: usize = v
+                        .parse()
+                        .map_err(|_| Error::builder(ErrorKind::InvalidConnectionArguments).build())?;
+
+                    connection_limit = Some(as_int);
+                }
+                "pool_timeout" => {
+                    let as_int = v
+                        .parse::<u64>()
+                        .map_err(|_| Error::builder(ErrorKind::InvalidConnectionArguments).build())?;
+
+                    pool_timeout = match as_int {
+                        0 => None,
+                        _ => Some(Duration::from_secs(as_int)),
+                    };
                 }
                 "socket" => {
                     socket = Some(v.replace("(", "").replace(")", ""));
@@ -204,39 +235,10 @@ impl MysqlUrl {
                         .map_err(|_| Error::builder(ErrorKind::InvalidConnectionArguments).build())?;
                     prefer_socket = Some(as_bool)
                 }
-                "connect_timeout" => {
-                    let as_int = v
-                        .parse::<u64>()
+                "statement_cache_size" => {
+                    statement_cache_size = v
+                        .parse()
                         .map_err(|_| Error::builder(ErrorKind::InvalidConnectionArguments).build())?;
-
-                    connect_timeout = match as_int {
-                        0 => None,
-                        _ => Some(Duration::from_secs(as_int)),
-                    };
-                }
-                "pool_timeout" => {
-                    let as_int = v
-                        .parse::<u64>()
-                        .map_err(|_| Error::builder(ErrorKind::InvalidConnectionArguments).build())?;
-
-                    pool_timeout = match as_int {
-                        0 => None,
-                        _ => Some(Duration::from_secs(as_int)),
-                    };
-                }
-                "sslaccept" => {
-                    match v.as_ref() {
-                        "strict" => {
-                            ssl_opts = ssl_opts.with_danger_accept_invalid_certs(false);
-                        }
-                        "accept_invalid_certs" => {}
-                        _ => {
-                            tracing::debug!(
-                                message = "Unsupported SSL accept mode, defaulting to `accept_invalid_certs`",
-                                mode = &*v
-                            );
-                        }
-                    };
                 }
                 "max_connection_lifetime" => {
                     let as_int = v
@@ -267,17 +269,17 @@ impl MysqlUrl {
         }
 
         Ok(MysqlUrlQueryParams {
-            ssl_opts,
-            connection_limit,
             use_ssl,
+            ssl_opts,
+            connect_timeout,
+            connection_limit,
+            pool_timeout,
             socket,
             socket_timeout,
-            connect_timeout,
-            pool_timeout,
-            max_connection_lifetime,
-            max_idle_connection_lifetime,
             prefer_socket,
             statement_cache_size,
+            max_connection_lifetime,
+            max_idle_connection_lifetime,
         })
     }
 
@@ -318,17 +320,17 @@ impl MysqlUrl {
 
 #[derive(Debug, Clone)]
 pub(crate) struct MysqlUrlQueryParams {
-    ssl_opts: my::SslOpts,
-    connection_limit: Option<usize>,
     use_ssl: bool,
+    ssl_opts: my::SslOpts,
+    connect_timeout: Option<Duration>,
+    connection_limit: Option<usize>,
+    pool_timeout: Option<Duration>,
     socket: Option<String>,
     socket_timeout: Option<Duration>,
-    connect_timeout: Option<Duration>,
-    pool_timeout: Option<Duration>,
-    max_connection_lifetime: Option<Duration>,
-    max_idle_connection_lifetime: Option<Duration>,
     prefer_socket: Option<bool>,
     statement_cache_size: usize,
+    max_connection_lifetime: Option<Duration>,
+    max_idle_connection_lifetime: Option<Duration>,
 }
 
 impl Mysql {
