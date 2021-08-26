@@ -587,7 +587,7 @@ mod tests {
     #[test]
     fn equality_with_a_json_value() {
         let expected = expected_values(
-            r#"SELECT `users`.* FROM `users` WHERE JSON_CONTAINS(`jsonField`, ?) AND JSON_CONTAINS(?, `jsonField`)"#,
+            r#"SELECT `users`.* FROM `users` WHERE (JSON_CONTAINS(`jsonField`, ?) AND JSON_CONTAINS(?, `jsonField`))"#,
             vec![serde_json::json!({"a": "b"}), serde_json::json!({"a": "b"})],
         );
 
@@ -602,7 +602,7 @@ mod tests {
     #[test]
     fn difference_with_a_json_value() {
         let expected = expected_values(
-            r#"SELECT `users`.* FROM `users` WHERE NOT JSON_CONTAINS(`jsonField`, ?) OR NOT JSON_CONTAINS(?, `jsonField`)"#,
+            r#"SELECT `users`.* FROM `users` WHERE (NOT JSON_CONTAINS(`jsonField`, ?) OR NOT JSON_CONTAINS(?, `jsonField`))"#,
             vec![serde_json::json!({"a": "b"}), serde_json::json!({"a": "b"})],
         );
 
