@@ -192,6 +192,23 @@
 <span id="192">192</span>
 <span id="193">193</span>
 <span id="194">194</span>
+<span id="195">195</span>
+<span id="196">196</span>
+<span id="197">197</span>
+<span id="198">198</span>
+<span id="199">199</span>
+<span id="200">200</span>
+<span id="201">201</span>
+<span id="202">202</span>
+<span id="203">203</span>
+<span id="204">204</span>
+<span id="205">205</span>
+<span id="206">206</span>
+<span id="207">207</span>
+<span id="208">208</span>
+<span id="209">209</span>
+<span id="210">210</span>
+<span id="211">211</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::error</span>::<span class="kw-2">*</span>;
 <span class="kw">use</span> <span class="ident">libsqlite3_sys</span> <span class="kw">as</span> <span class="ident">ffi</span>;
 <span class="kw">use</span> <span class="ident">rusqlite::types::FromSqlError</span>;
@@ -311,6 +328,23 @@
                 });
 
                 <span class="ident">builder</span>.<span class="ident">set_original_code</span>(<span class="string">&quot;787&quot;</span>);
+                <span class="ident">builder</span>.<span class="ident">set_original_message</span>(<span class="ident">description</span>);
+
+                <span class="ident">builder</span>.<span class="ident">build</span>()
+            }
+
+            <span class="ident">rusqlite::Error::SqliteFailure</span>(
+                <span class="ident">ffi::Error</span> {
+                    <span class="ident">code</span>: <span class="ident">ffi::ErrorCode::ConstraintViolation</span>,
+                    <span class="ident">extended_code</span>: <span class="number">1811</span>,
+                },
+                <span class="prelude-val">Some</span>(<span class="ident">description</span>),
+            ) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">builder</span> <span class="op">=</span> <span class="ident">Error::builder</span>(<span class="ident">ErrorKind::ForeignKeyConstraintViolation</span> {
+                    <span class="ident">constraint</span>: <span class="ident">DatabaseConstraint::ForeignKey</span>,
+                });
+
+                <span class="ident">builder</span>.<span class="ident">set_original_code</span>(<span class="string">&quot;1811&quot;</span>);
                 <span class="ident">builder</span>.<span class="ident">set_original_message</span>(<span class="ident">description</span>);
 
                 <span class="ident">builder</span>.<span class="ident">build</span>()
