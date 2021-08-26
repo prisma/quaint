@@ -759,6 +759,7 @@ mod tests {
     }
 
     #[test]
+    #[cfg(feature = "json")]
     fn test_json_negation() {
         let conditions = ConditionTree::not("json".equals(Value::Json(Some(serde_json::Value::Null))));
         let (sql, _) = Mysql::build(Select::from_table("test").so_that(conditions)).unwrap();
@@ -770,6 +771,7 @@ mod tests {
     }
 
     #[test]
+    #[cfg(feature = "json")]
     fn test_json_not_negation() {
         let conditions = ConditionTree::not("json".not_equals(Value::Json(Some(serde_json::Value::Null))));
         let (sql, _) = Mysql::build(Select::from_table("test").so_that(conditions)).unwrap();
