@@ -730,8 +730,6 @@
 <span id="730">730</span>
 <span id="731">731</span>
 <span id="732">732</span>
-<span id="733">733</span>
-<span id="734">734</span>
 </pre><pre class="rust"><code><span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;bigdecimal&quot;</span>)]</span>
 <span class="kw">mod</span> <span class="ident">decimal</span>;
 
@@ -741,15 +739,13 @@
     <span class="ident">error</span>::{<span class="ident">Error</span>, <span class="ident">ErrorKind</span>},
 };
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;bigdecimal&quot;</span>)]</span>
-<span class="kw">use</span> <span class="ident">bigdecimal</span>::{<span class="ident">BigDecimal</span>, <span class="ident">FromPrimitive</span>, <span class="ident">ToPrimitive</span>};
+<span class="kw">use</span> <span class="ident">bigdecimal</span>::{<span class="ident">num_bigint::BigInt</span>, <span class="ident">BigDecimal</span>, <span class="ident">FromPrimitive</span>, <span class="ident">ToPrimitive</span>};
 <span class="kw">use</span> <span class="ident">bit_vec::BitVec</span>;
 <span class="kw">use</span> <span class="ident">bytes::BytesMut</span>;
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;chrono&quot;</span>)]</span>
 <span class="kw">use</span> <span class="ident">chrono</span>::{<span class="ident">DateTime</span>, <span class="ident">NaiveDateTime</span>, <span class="ident">Utc</span>};
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;bigdecimal&quot;</span>)]</span>
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use</span> <span class="ident">decimal::DecimalWrapper</span>;
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;bigdecimal&quot;</span>)]</span>
-<span class="kw">use</span> <span class="ident">num_bigint::BigInt</span>;
 <span class="kw">use</span> <span class="ident">postgres_types</span>::{<span class="ident">FromSql</span>, <span class="ident">ToSql</span>};
 <span class="kw">use</span> <span class="ident">std::error::Error</span> <span class="kw">as</span> <span class="ident">StdError</span>;
 <span class="kw">use</span> <span class="ident">tokio_postgres</span>::{

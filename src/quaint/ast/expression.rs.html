@@ -517,6 +517,14 @@
 <span id="517">517</span>
 <span id="518">518</span>
 <span id="519">519</span>
+<span id="520">520</span>
+<span id="521">521</span>
+<span id="522">522</span>
+<span id="523">523</span>
+<span id="524">524</span>
+<span id="525">525</span>
+<span id="526">526</span>
+<span id="527">527</span>
 </pre><pre class="rust"><code><span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;json&quot;</span>, <span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;postgresql&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mysql&quot;</span>)))]</span>
 <span class="kw">use</span> <span class="ident"><span class="kw">super</span>::compare</span>::{<span class="ident">JsonCompare</span>, <span class="ident">JsonType</span>};
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::ast</span>::<span class="kw-2">*</span>;
@@ -985,7 +993,9 @@
     <span class="kw">where</span>
         <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     {
-        <span class="ident">Compare::JsonCompare</span>(<span class="ident">JsonCompare::ArrayBeginsWith</span>(<span class="ident">Box::new</span>(<span class="self">self</span>), <span class="ident">Box::new</span>(<span class="ident">item</span>.<span class="ident">into</span>())))
+        <span class="kw">let</span> <span class="ident">array_starts_with</span>: <span class="ident">Expression</span> <span class="op">=</span> <span class="ident">json_extract_first_array_elem</span>(<span class="self">self</span>).<span class="ident">into</span>();
+
+        <span class="ident">Compare::Equals</span>(<span class="ident">Box::new</span>(<span class="ident">array_starts_with</span>), <span class="ident">Box::new</span>(<span class="ident">item</span>.<span class="ident">into</span>()))
     }
 
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;json&quot;</span>, <span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;postgresql&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mysql&quot;</span>)))]</span>
@@ -993,7 +1003,9 @@
     <span class="kw">where</span>
         <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     {
-        <span class="ident">Compare::JsonCompare</span>(<span class="ident">JsonCompare::ArrayNotBeginsWith</span>(<span class="ident">Box::new</span>(<span class="self">self</span>), <span class="ident">Box::new</span>(<span class="ident">item</span>.<span class="ident">into</span>())))
+        <span class="kw">let</span> <span class="ident">array_starts_with</span>: <span class="ident">Expression</span> <span class="op">=</span> <span class="ident">json_extract_first_array_elem</span>(<span class="self">self</span>).<span class="ident">into</span>();
+
+        <span class="ident">Compare::NotEquals</span>(<span class="ident">Box::new</span>(<span class="ident">array_starts_with</span>), <span class="ident">Box::new</span>(<span class="ident">item</span>.<span class="ident">into</span>()))
     }
 
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;json&quot;</span>, <span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;postgresql&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mysql&quot;</span>)))]</span>
@@ -1001,7 +1013,9 @@
     <span class="kw">where</span>
         <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     {
-        <span class="ident">Compare::JsonCompare</span>(<span class="ident">JsonCompare::ArrayEndsInto</span>(<span class="ident">Box::new</span>(<span class="self">self</span>), <span class="ident">Box::new</span>(<span class="ident">item</span>.<span class="ident">into</span>())))
+        <span class="kw">let</span> <span class="ident">array_ends_into</span>: <span class="ident">Expression</span> <span class="op">=</span> <span class="ident">json_extract_last_array_elem</span>(<span class="self">self</span>).<span class="ident">into</span>();
+
+        <span class="ident">Compare::Equals</span>(<span class="ident">Box::new</span>(<span class="ident">array_ends_into</span>), <span class="ident">Box::new</span>(<span class="ident">item</span>.<span class="ident">into</span>()))
     }
 
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;json&quot;</span>, <span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;postgresql&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mysql&quot;</span>)))]</span>
@@ -1009,7 +1023,9 @@
     <span class="kw">where</span>
         <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     {
-        <span class="ident">Compare::JsonCompare</span>(<span class="ident">JsonCompare::ArrayNotEndsInto</span>(<span class="ident">Box::new</span>(<span class="self">self</span>), <span class="ident">Box::new</span>(<span class="ident">item</span>.<span class="ident">into</span>())))
+        <span class="kw">let</span> <span class="ident">array_ends_into</span>: <span class="ident">Expression</span> <span class="op">=</span> <span class="ident">json_extract_last_array_elem</span>(<span class="self">self</span>).<span class="ident">into</span>();
+
+        <span class="ident">Compare::NotEquals</span>(<span class="ident">Box::new</span>(<span class="ident">array_ends_into</span>), <span class="ident">Box::new</span>(<span class="ident">item</span>.<span class="ident">into</span>()))
     }
 
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;json&quot;</span>, <span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;postgresql&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mysql&quot;</span>)))]</span>

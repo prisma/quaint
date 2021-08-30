@@ -1120,6 +1120,37 @@
 <span id="1120">1120</span>
 <span id="1121">1121</span>
 <span id="1122">1122</span>
+<span id="1123">1123</span>
+<span id="1124">1124</span>
+<span id="1125">1125</span>
+<span id="1126">1126</span>
+<span id="1127">1127</span>
+<span id="1128">1128</span>
+<span id="1129">1129</span>
+<span id="1130">1130</span>
+<span id="1131">1131</span>
+<span id="1132">1132</span>
+<span id="1133">1133</span>
+<span id="1134">1134</span>
+<span id="1135">1135</span>
+<span id="1136">1136</span>
+<span id="1137">1137</span>
+<span id="1138">1138</span>
+<span id="1139">1139</span>
+<span id="1140">1140</span>
+<span id="1141">1141</span>
+<span id="1142">1142</span>
+<span id="1143">1143</span>
+<span id="1144">1144</span>
+<span id="1145">1145</span>
+<span id="1146">1146</span>
+<span id="1147">1147</span>
+<span id="1148">1148</span>
+<span id="1149">1149</span>
+<span id="1150">1150</span>
+<span id="1151">1151</span>
+<span id="1152">1152</span>
+<span id="1153">1153</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">super</span>::ExpressionKind</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::ast</span>::{<span class="ident">Column</span>, <span class="ident">ConditionTree</span>, <span class="ident">Expression</span>};
 <span class="kw">use</span> <span class="ident">std::borrow::Cow</span>;
@@ -1181,10 +1212,6 @@
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">JsonCompare</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="ident">ArrayContains</span>(<span class="ident">Box</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>, <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>),
     <span class="ident">ArrayNotContains</span>(<span class="ident">Box</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>, <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>),
-    <span class="ident">ArrayBeginsWith</span>(<span class="ident">Box</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>, <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>),
-    <span class="ident">ArrayNotBeginsWith</span>(<span class="ident">Box</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>, <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>),
-    <span class="ident">ArrayEndsInto</span>(<span class="ident">Box</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>, <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>),
-    <span class="ident">ArrayNotEndsInto</span>(<span class="ident">Box</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>, <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>),
     <span class="ident">TypeEquals</span>(<span class="ident">Box</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>, <span class="ident">JsonType</span>),
 }
 
@@ -1760,12 +1787,13 @@
     <span class="doccomment">/// ```rust</span>
     <span class="doccomment">/// # use quaint::{ast::*, visitor::{Visitor, Mysql}};</span>
     <span class="doccomment">/// # fn main() -&gt; Result&lt;(), quaint::error::Error&gt; {</span>
-    <span class="doccomment">/// let query = Select::from_table(&quot;users&quot;).so_that(&quot;json&quot;.json_array_contains(&quot;1&quot;));</span>
+    <span class="doccomment">/// let query = Select::from_table(&quot;users&quot;)</span>
+    <span class="doccomment">///     .so_that(&quot;json&quot;.json_array_contains(serde_json::json!(1)));</span>
     <span class="doccomment">/// let (sql, params) = Mysql::build(query)?;</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// assert_eq!(&quot;SELECT `users`.* FROM `users` WHERE JSON_CONTAINS(`json`, ?)&quot;, sql);</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// assert_eq!(vec![Value::from(&quot;1&quot;)], params);</span>
+    <span class="doccomment">/// assert_eq!(vec![Value::from(serde_json::json!(1))], params);</span>
     <span class="doccomment">/// # Ok(())</span>
     <span class="doccomment">/// # }</span>
     <span class="doccomment">/// ```</span>
@@ -1779,12 +1807,13 @@
     <span class="doccomment">/// ```rust</span>
     <span class="doccomment">/// # use quaint::{ast::*, visitor::{Visitor, Mysql}};</span>
     <span class="doccomment">/// # fn main() -&gt; Result&lt;(), quaint::error::Error&gt; {</span>
-    <span class="doccomment">/// let query = Select::from_table(&quot;users&quot;).so_that(&quot;json&quot;.json_array_not_contains(&quot;1&quot;));</span>
+    <span class="doccomment">/// let query = Select::from_table(&quot;users&quot;)</span>
+    <span class="doccomment">///     .so_that(&quot;json&quot;.json_array_not_contains(serde_json::json!(1)));</span>
     <span class="doccomment">/// let (sql, params) = Mysql::build(query)?;</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// assert_eq!(&quot;SELECT `users`.* FROM `users` WHERE JSON_CONTAINS(`json`, ?) = FALSE&quot;, sql);</span>
+    <span class="doccomment">/// assert_eq!(vec![Value::from(serde_json::json!(1))], params);</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// assert_eq!(vec![Value::from(&quot;1&quot;)], params);</span>
     <span class="doccomment">/// # Ok(())</span>
     <span class="doccomment">/// # }</span>
     <span class="doccomment">/// ```</span>
@@ -1798,15 +1827,23 @@
     <span class="doccomment">/// ```rust</span>
     <span class="doccomment">/// # use quaint::{ast::*, visitor::{Visitor, Mysql}};</span>
     <span class="doccomment">/// # fn main() -&gt; Result&lt;(), quaint::error::Error&gt; {</span>
-    <span class="doccomment">/// let query = Select::from_table(&quot;users&quot;).so_that(&quot;json&quot;.json_array_begins_with(&quot;1&quot;));</span>
+    <span class="doccomment">/// let query = Select::from_table(&quot;users&quot;)</span>
+    <span class="doccomment">///     .so_that(&quot;json&quot;.json_array_begins_with(serde_json::json!(1)));</span>
     <span class="doccomment">/// let (sql, params) = Mysql::build(query)?;</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// assert_eq!(&quot;SELECT `users`.* FROM `users` WHERE JSON_EXTRACT(`json`, ?) = CAST(? AS JSON)&quot;, sql);</span>
-    <span class="doccomment">///</span>
+    <span class="doccomment">/// assert_eq!(</span>
+    <span class="doccomment">///   &quot;SELECT `users`.* FROM `users` WHERE \</span>
+    <span class="doccomment">///      (JSON_CONTAINS(JSON_EXTRACT(`json`, ?), ?) AND \</span>
+    <span class="doccomment">///      JSON_CONTAINS(?, JSON_EXTRACT(`json`, ?)))&quot;,</span>
+    <span class="doccomment">///   sql</span>
+    <span class="doccomment">/// );</span>
     <span class="doccomment">/// assert_eq!(vec![</span>
     <span class="doccomment">///     Value::from(&quot;$[0]&quot;),</span>
-    <span class="doccomment">///     Value::from(&quot;1&quot;),</span>
+    <span class="doccomment">///     Value::from(serde_json::json!(1)),</span>
+    <span class="doccomment">///     Value::from(serde_json::json!(1)),</span>
+    <span class="doccomment">///     Value::from(&quot;$[0]&quot;),</span>
     <span class="doccomment">/// ], params);</span>
+    <span class="doccomment">///</span>
     <span class="doccomment">/// # Ok(())</span>
     <span class="doccomment">/// # }</span>
     <span class="doccomment">/// ```</span>
@@ -1820,15 +1857,23 @@
     <span class="doccomment">/// ```rust</span>
     <span class="doccomment">/// # use quaint::{ast::*, visitor::{Visitor, Mysql}};</span>
     <span class="doccomment">/// # fn main() -&gt; Result&lt;(), quaint::error::Error&gt; {</span>
-    <span class="doccomment">/// let query = Select::from_table(&quot;users&quot;).so_that(&quot;json&quot;.json_array_not_begins_with(&quot;1&quot;));</span>
+    <span class="doccomment">/// let query = Select::from_table(&quot;users&quot;)</span>
+    <span class="doccomment">///   .so_that(&quot;json&quot;.json_array_not_begins_with(serde_json::json!(1)));</span>
     <span class="doccomment">/// let (sql, params) = Mysql::build(query)?;</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// assert_eq!(&quot;SELECT `users`.* FROM `users` WHERE JSON_EXTRACT(`json`, ?) &lt;&gt; CAST(? AS JSON)&quot;, sql);</span>
-    <span class="doccomment">///</span>
+    <span class="doccomment">/// assert_eq!(</span>
+    <span class="doccomment">///   &quot;SELECT `users`.* FROM `users` WHERE \</span>
+    <span class="doccomment">///      (NOT JSON_CONTAINS(JSON_EXTRACT(`json`, ?), ?) OR \</span>
+    <span class="doccomment">///      NOT JSON_CONTAINS(?, JSON_EXTRACT(`json`, ?)))&quot;,</span>
+    <span class="doccomment">///   sql</span>
+    <span class="doccomment">/// );</span>
     <span class="doccomment">/// assert_eq!(vec![</span>
     <span class="doccomment">///     Value::from(&quot;$[0]&quot;),</span>
-    <span class="doccomment">///     Value::from(&quot;1&quot;),</span>
+    <span class="doccomment">///     Value::from(serde_json::json!(1)),</span>
+    <span class="doccomment">///     Value::from(serde_json::json!(1)),</span>
+    <span class="doccomment">///     Value::from(&quot;$[0]&quot;),</span>
     <span class="doccomment">/// ], params);</span>
+    <span class="doccomment">///</span>
     <span class="doccomment">/// # Ok(())</span>
     <span class="doccomment">/// # }</span>
     <span class="doccomment">/// ```</span>
@@ -1842,14 +1887,21 @@
     <span class="doccomment">/// ```rust</span>
     <span class="doccomment">/// # use quaint::{ast::*, visitor::{Visitor, Mysql}};</span>
     <span class="doccomment">/// # fn main() -&gt; Result&lt;(), quaint::error::Error&gt; {</span>
-    <span class="doccomment">/// let query = Select::from_table(&quot;users&quot;).so_that(&quot;json&quot;.json_array_ends_into(&quot;1&quot;));</span>
+    <span class="doccomment">/// let query = Select::from_table(&quot;users&quot;)</span>
+    <span class="doccomment">///     .so_that(&quot;json&quot;.json_array_ends_into(serde_json::json!(1)));</span>
     <span class="doccomment">/// let (sql, params) = Mysql::build(query)?;</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// assert_eq!(</span>
     <span class="doccomment">///   &quot;SELECT `users`.* FROM `users` WHERE \</span>
-    <span class="doccomment">///   JSON_EXTRACT(`json`, CONCAT(\&#39;$[\&#39;, JSON_LENGTH(`json`) - 1, \&#39;]\&#39;)) = CAST(? AS JSON)&quot;, sql);</span>
+    <span class="doccomment">///      (JSON_CONTAINS(JSON_EXTRACT(`json`, CONCAT(&#39;$[&#39;, JSON_LENGTH(`json`) - 1, &#39;]&#39;)), ?) AND \</span>
+    <span class="doccomment">///      JSON_CONTAINS(?, JSON_EXTRACT(`json`, CONCAT(&#39;$[&#39;, JSON_LENGTH(`json`) - 1, &#39;]&#39;))))&quot;,</span>
+    <span class="doccomment">///   sql</span>
+    <span class="doccomment">/// );</span>
+    <span class="doccomment">/// assert_eq!(vec![</span>
+    <span class="doccomment">///    Value::from(serde_json::json!(1)),</span>
+    <span class="doccomment">///    Value::from(serde_json::json!(1)),</span>
+    <span class="doccomment">/// ], params);</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// assert_eq!(vec![Value::from(&quot;1&quot;)], params);</span>
     <span class="doccomment">/// # Ok(())</span>
     <span class="doccomment">/// # }</span>
     <span class="doccomment">/// ```</span>
@@ -1863,14 +1915,21 @@
     <span class="doccomment">/// ```rust</span>
     <span class="doccomment">/// # use quaint::{ast::*, visitor::{Visitor, Mysql}};</span>
     <span class="doccomment">/// # fn main() -&gt; Result&lt;(), quaint::error::Error&gt; {</span>
-    <span class="doccomment">/// let query = Select::from_table(&quot;users&quot;).so_that(&quot;json&quot;.json_array_not_ends_into(&quot;1&quot;));</span>
+    <span class="doccomment">/// let query = Select::from_table(&quot;users&quot;).so_that(&quot;json&quot;.json_array_not_ends_into(serde_json::json!(1)));</span>
     <span class="doccomment">/// let (sql, params) = Mysql::build(query)?;</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// assert_eq!(</span>
     <span class="doccomment">///   &quot;SELECT `users`.* FROM `users` WHERE \</span>
-    <span class="doccomment">///   JSON_EXTRACT(`json`, CONCAT(\&#39;$[\&#39;, JSON_LENGTH(`json`) - 1, \&#39;]\&#39;)) &lt;&gt; CAST(? AS JSON)&quot;, sql);</span>
+    <span class="doccomment">///      (NOT JSON_CONTAINS(JSON_EXTRACT(`json`, CONCAT(&#39;$[&#39;, JSON_LENGTH(`json`) - 1, &#39;]&#39;)), ?) OR \</span>
+    <span class="doccomment">///      NOT JSON_CONTAINS(?, JSON_EXTRACT(`json`, CONCAT(&#39;$[&#39;, JSON_LENGTH(`json`) - 1, &#39;]&#39;))))&quot;,</span>
+    <span class="doccomment">///   sql</span>
+    <span class="doccomment">/// );</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// assert_eq!(vec![Value::from(&quot;1&quot;)], params);</span>
+    <span class="doccomment">/// assert_eq!(vec![</span>
+    <span class="doccomment">///    Value::from(serde_json::json!(1)),</span>
+    <span class="doccomment">///    Value::from(serde_json::json!(1)),</span>
+    <span class="doccomment">/// ], params);</span>
+    <span class="doccomment">///</span>
     <span class="doccomment">/// # Ok(())</span>
     <span class="doccomment">/// # }</span>
     <span class="doccomment">/// ```</span>
@@ -1913,6 +1972,7 @@
     <span class="doccomment">/// );</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// assert_eq!(params, vec![Value::from(&quot;chicken&quot;)]);</span>
+    <span class="doccomment">///</span>
     <span class="doccomment">/// # Ok(())    </span>
     <span class="doccomment">/// # }</span>
     <span class="doccomment">/// ```</span>
@@ -1936,6 +1996,7 @@
     <span class="doccomment">/// );</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// assert_eq!(params, vec![Value::from(&quot;chicken&quot;)]);</span>
+    <span class="doccomment">///</span>
     <span class="doccomment">/// # Ok(())    </span>
     <span class="doccomment">/// # }</span>
     <span class="doccomment">/// ```</span>
@@ -1957,6 +2018,7 @@
     <span class="doccomment">/// assert_eq!(vec![</span>
     <span class="doccomment">///     Value::from(&quot;%bar%&quot;),</span>
     <span class="doccomment">/// ], params);</span>
+    <span class="doccomment">///</span>
     <span class="doccomment">/// # Ok(())</span>
     <span class="doccomment">/// # }</span>
     <span class="doccomment">/// ```</span>

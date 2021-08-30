@@ -248,10 +248,14 @@
 <span id="248">248</span>
 <span id="249">249</span>
 <span id="250">250</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">bigdecimal</span>::{<span class="ident">BigDecimal</span>, <span class="ident">ToPrimitive</span>, <span class="ident">Zero</span>};
+<span id="251">251</span>
+<span id="252">252</span>
+</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">bigdecimal</span>::{
+    <span class="ident">num_bigint</span>::{<span class="ident">BigInt</span>, <span class="ident">Sign</span>},
+    <span class="ident">BigDecimal</span>, <span class="ident">ToPrimitive</span>, <span class="ident">Zero</span>,
+};
 <span class="kw">use</span> <span class="ident">byteorder</span>::{<span class="ident">BigEndian</span>, <span class="ident">ReadBytesExt</span>};
 <span class="kw">use</span> <span class="ident">bytes</span>::{<span class="ident">BufMut</span>, <span class="ident">BytesMut</span>};
-<span class="kw">use</span> <span class="ident">num_bigint</span>::{<span class="ident">BigInt</span>, <span class="ident">Sign</span>};
 <span class="kw">use</span> <span class="ident">postgres_types</span>::{<span class="ident">to_sql_checked</span>, <span class="ident">FromSql</span>, <span class="ident">IsNull</span>, <span class="ident">ToSql</span>, <span class="ident">Type</span>};
 <span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">cmp</span>, <span class="ident">convert::TryInto</span>, <span class="ident">error</span>, <span class="ident">fmt</span>, <span class="ident">io::Cursor</span>};
 
