@@ -2026,7 +2026,7 @@ async fn json_extract_path_fun(api: &mut dyn TestApi) -> crate::Result<()> {
     Ok(())
 }
 
-#[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
+#[cfg(all(feature = "json", feature = "postgresql"))]
 async fn json_extract_array_path_postgres(api: &mut dyn TestApi, json_type: &str) -> crate::Result<()> {
     let table = api
         .create_table(&format!("{}, obj {}", api.autogen_id("id"), json_type))
