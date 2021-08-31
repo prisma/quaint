@@ -2026,6 +2026,7 @@ async fn json_extract_path_fun(api: &mut dyn TestApi) -> crate::Result<()> {
     Ok(())
 }
 
+#[cfg(feature = "json")]
 async fn json_extract_array_path_postgres(api: &mut dyn TestApi, json_type: &str) -> crate::Result<()> {
     let table = api
         .create_table(&format!("{}, obj {}", api.autogen_id("id"), json_type))
@@ -2091,6 +2092,7 @@ async fn json_extract_array_path_fun_on_json(api: &mut dyn TestApi) -> crate::Re
     Ok(())
 }
 
+#[cfg(feature = "json")]
 async fn json_array_contains(api: &mut dyn TestApi, json_type: &str) -> crate::Result<()> {
     use test_setup::Tags;
 
@@ -2195,6 +2197,7 @@ async fn json_array_contains_fun(api: &mut dyn TestApi) -> crate::Result<()> {
     Ok(())
 }
 
+#[cfg(feature = "json")]
 async fn json_array_not_contains(api: &mut dyn TestApi, json_type: &str) -> crate::Result<()> {
     let table = api
         .create_table(&format!("{}, obj {}", api.autogen_id("id"), json_type))
@@ -2252,6 +2255,7 @@ async fn json_array_not_contains_fun(api: &mut dyn TestApi) -> crate::Result<()>
     Ok(())
 }
 
+#[cfg(feature = "json")]
 async fn json_array_begins_with(api: &mut dyn TestApi, json_type: &str) -> crate::Result<()> {
     let table = api
         .create_table(&format!("{}, obj {}", api.autogen_id("id"), json_type))
@@ -2343,6 +2347,7 @@ async fn json_array_begins_with_fun(api: &mut dyn TestApi) -> crate::Result<()> 
     Ok(())
 }
 
+#[cfg(feature = "json")]
 async fn json_array_not_begins_with(api: &mut dyn TestApi, json_type: &str) -> crate::Result<()> {
     let table = api
         .create_table(&format!("{}, obj {}", api.autogen_id("id"), json_type))
@@ -2401,6 +2406,7 @@ async fn json_array_not_begins_with_fun(api: &mut dyn TestApi) -> crate::Result<
     Ok(())
 }
 
+#[cfg(feature = "json")]
 async fn json_array_ends_into(api: &mut dyn TestApi, json_type: &str) -> crate::Result<()> {
     let table = api
         .create_table(&format!("{}, obj {}", api.autogen_id("id"), json_type))
@@ -2493,6 +2499,7 @@ async fn json_array_ends_into_fun(api: &mut dyn TestApi) -> crate::Result<()> {
     Ok(())
 }
 
+#[cfg(feature = "json")]
 async fn json_array_not_ends_into(api: &mut dyn TestApi, json_type: &str) -> crate::Result<()> {
     let table = api
         .create_table(&format!("{}, obj {}", api.autogen_id("id"), json_type))
@@ -2552,6 +2559,7 @@ async fn json_array_not_ends_into_fun(api: &mut dyn TestApi) -> crate::Result<()
     Ok(())
 }
 
+#[cfg(feature = "json")]
 async fn json_gt_gte_lt_lte(api: &mut dyn TestApi, json_type: &str) -> crate::Result<()> {
     let table = api
         .create_table(&format!("{}, json {}", api.autogen_id("id"), json_type))
