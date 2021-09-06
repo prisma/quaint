@@ -1010,14 +1010,14 @@ pub trait Visitor<'a> {
             }
             #[cfg(feature = "postgresql")]
             FunctionType::TextSearchRelevance(text_search_relevance) => {
-                let len = text_search_relevance.columns.len();
-                let columns = text_search_relevance.columns;
+                let len = text_search_relevance.exprs.len();
+                let exprs = text_search_relevance.exprs;
                 let query = text_search_relevance.query;
 
                 self.write("ts_rank(")?;
                 self.surround_with("to_tsvector(", ")", |s| {
-                    for (i, column) in columns.into_iter().enumerate() {
-                        s.visit_expression(column)?;
+                    for (i, expr) in exprs.into_iter().enumerate() {
+                        s.visit_expression(expr)?;
 
                         if i < (len - 1) {
                             s.write("|| ' ' ||")?;
