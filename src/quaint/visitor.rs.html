@@ -1064,6 +1064,28 @@
 <span id="1064">1064</span>
 <span id="1065">1065</span>
 <span id="1066">1066</span>
+<span id="1067">1067</span>
+<span id="1068">1068</span>
+<span id="1069">1069</span>
+<span id="1070">1070</span>
+<span id="1071">1071</span>
+<span id="1072">1072</span>
+<span id="1073">1073</span>
+<span id="1074">1074</span>
+<span id="1075">1075</span>
+<span id="1076">1076</span>
+<span id="1077">1077</span>
+<span id="1078">1078</span>
+<span id="1079">1079</span>
+<span id="1080">1080</span>
+<span id="1081">1081</span>
+<span id="1082">1082</span>
+<span id="1083">1083</span>
+<span id="1084">1084</span>
+<span id="1085">1085</span>
+<span id="1086">1086</span>
+<span id="1087">1087</span>
+<span id="1088">1088</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Visitors for reading an abstract SQL syntax tree, generating the query and</span>
 <span class="doccomment">//! gathering parameters in the right order.</span>
 <span class="doccomment">//!</span>
@@ -2073,6 +2095,28 @@
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;postgresql&quot;</span>)]</span>
             <span class="ident">FunctionType::TextSearch</span>(<span class="ident">text_search</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="self">self</span>.<span class="ident">visit_text_search</span>(<span class="ident">text_search</span>)<span class="question-mark">?</span>;
+            }
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;postgresql&quot;</span>)]</span>
+            <span class="ident">FunctionType::TextSearchRelevance</span>(<span class="ident">text_search_relevance</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">text_search_relevance</span>.<span class="ident">exprs</span>.<span class="ident">len</span>();
+                <span class="kw">let</span> <span class="ident">exprs</span> <span class="op">=</span> <span class="ident">text_search_relevance</span>.<span class="ident">exprs</span>;
+                <span class="kw">let</span> <span class="ident">query</span> <span class="op">=</span> <span class="ident">text_search_relevance</span>.<span class="ident">query</span>;
+
+                <span class="self">self</span>.<span class="ident">write</span>(<span class="string">&quot;ts_rank(&quot;</span>)<span class="question-mark">?</span>;
+                <span class="self">self</span>.<span class="ident">surround_with</span>(<span class="string">&quot;to_tsvector(&quot;</span>, <span class="string">&quot;)&quot;</span>, <span class="op">|</span><span class="ident">s</span><span class="op">|</span> {
+                    <span class="kw">for</span> (<span class="ident">i</span>, <span class="ident">expr</span>) <span class="kw">in</span> <span class="ident">exprs</span>.<span class="ident">into_iter</span>().<span class="ident">enumerate</span>() {
+                        <span class="ident">s</span>.<span class="ident">visit_expression</span>(<span class="ident">expr</span>)<span class="question-mark">?</span>;
+
+                        <span class="kw">if</span> <span class="ident">i</span> <span class="op">&lt;</span> (<span class="ident">len</span> <span class="op">-</span> <span class="number">1</span>) {
+                            <span class="ident">s</span>.<span class="ident">write</span>(<span class="string">&quot;|| &#39; &#39; ||&quot;</span>)<span class="question-mark">?</span>;
+                        }
+                    }
+
+                    <span class="prelude-val">Ok</span>(())
+                })<span class="question-mark">?</span>;
+                <span class="self">self</span>.<span class="ident">write</span>(<span class="string">&quot;, &quot;</span>)<span class="question-mark">?</span>;
+                <span class="self">self</span>.<span class="ident">surround_with</span>(<span class="string">&quot;to_tsquery(&quot;</span>, <span class="string">&quot;)&quot;</span>, <span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="ident">s</span>.<span class="ident">visit_parameterized</span>(<span class="ident">Value::text</span>(<span class="ident">query</span>)))<span class="question-mark">?</span>;
+                <span class="self">self</span>.<span class="ident">write</span>(<span class="string">&quot;)&quot;</span>)<span class="question-mark">?</span>;
             }
         };
 
