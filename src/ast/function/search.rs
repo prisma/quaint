@@ -4,7 +4,7 @@ use std::borrow::Cow;
 #[derive(Debug, Clone, PartialEq)]
 /// Holds the columns on which to perform a full-text search
 pub struct TextSearch<'a> {
-    pub(crate) columns: Vec<Column<'a>>,
+    pub(crate) columns: Vec<Expression<'a>>,
 }
 
 /// Performs a full-text search. Use it in combination with the `.matches()` comparable.
@@ -28,9 +28,9 @@ pub struct TextSearch<'a> {
 #[cfg(feature = "postgresql")]
 pub fn text_search<'a, T: Clone>(columns: &[T]) -> super::Function<'a>
 where
-    T: Into<Column<'a>>,
+    T: Into<Expression<'a>>,
 {
-    let columns: Vec<Column> = columns.iter().map(|c| c.clone().into()).collect();
+    let columns: Vec<Expression> = columns.iter().map(|c| c.clone().into()).collect();
     let fun = TextSearch { columns };
 
     fun.into()

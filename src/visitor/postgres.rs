@@ -362,7 +362,7 @@ impl<'a> Visitor<'a> for Postgres<'a> {
         let len = text_search.columns.len();
         self.surround_with("to_tsvector(", ")", |s| {
             for (i, column) in text_search.columns.into_iter().enumerate() {
-                s.visit_column(column)?;
+                s.visit_expression(column)?;
 
                 if i < (len - 1) {
                     s.write("|| ' ' ||")?;

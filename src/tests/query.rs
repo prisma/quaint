@@ -2751,7 +2751,7 @@ async fn text_search_fun(api: &mut dyn TestApi) -> crate::Result<()> {
     api.conn().insert(insert_2.into()).await?;
 
     // Search on multiple columns at the same time
-    let search: Expression = text_search(&vec!["name", "ingredients"]).into();
+    let search: Expression = text_search(&[col!("name"), col!("ingredients")]).into();
     let q = Select::from_table(&table).so_that(search.matches("chicken"));
     let res = api.conn().select(q).await?;
     let row_one = res.get(0).unwrap();
@@ -2766,7 +2766,7 @@ async fn text_search_fun(api: &mut dyn TestApi) -> crate::Result<()> {
     );
 
     // Search on a single column
-    let search: Expression = text_search(&["name"]).into();
+    let search: Expression = text_search(&[col!("name")]).into();
     let q = Select::from_table(&table).so_that(search.matches("chicken"));
     let row = api.conn().select(q).await?.into_single()?;
 
@@ -2774,7 +2774,7 @@ async fn text_search_fun(api: &mut dyn TestApi) -> crate::Result<()> {
     assert_eq!(row["ingredients"], Value::from("Chicken, Curry, Rice"));
 
     // Search on a single column with NOT
-    let search: Expression = text_search(&["name"]).into();
+    let search: Expression = text_search(&[col!("name")]).into();
     let q = Select::from_table(&table).so_that(search.not_matches("salad"));
     let row = api.conn().select(q).await?.into_single()?;
 
