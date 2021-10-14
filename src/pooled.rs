@@ -180,7 +180,6 @@ pub struct Builder {
     health_check_interval: Option<Duration>,
     test_on_check_out: bool,
     pool_timeout: Option<Duration>,
-    application_name: Option<&str>,
 }
 
 impl Builder {
@@ -198,7 +197,6 @@ impl Builder {
             health_check_interval: None,
             test_on_check_out: false,
             pool_timeout: None,
-            application_name: None,
         })
     }
 
@@ -291,10 +289,6 @@ impl Builder {
         self.health_check_interval = Some(health_check_interval);
     }
 
-    pub fn application_name(&mut self, application_name: &str) {
-        self.application_name = Some(application_name);
-    }
-
     /// Consume the builder and create a new instance of a pool.
     pub fn build(self) -> Quaint {
         let connection_info = Arc::new(self.connection_info);
@@ -308,7 +302,6 @@ impl Builder {
             .get_timeout(None) // we handle timeouts here
             .health_check_interval(self.health_check_interval)
             .test_on_check_out(self.test_on_check_out)
-            .application_name(self.application_name)
             .build(self.manager);
 
         Quaint {
@@ -400,7 +393,6 @@ impl Quaint {
                 let pool_timeout = url.pool_timeout();
                 let max_connection_lifetime = url.max_connection_lifetime();
                 let max_idle_connection_lifetime = url.max_idle_connection_lifetime();
-                let application_name = url.application_name();
 
                 let manager = QuaintManager::Postgres { url };
                 let mut builder = Builder::new(s, manager)?;
@@ -419,10 +411,6 @@ impl Quaint {
 
                 if let Some(max_idle_lifetime) = max_idle_connection_lifetime {
                     builder.max_idle_lifetime(max_idle_lifetime);
-                }
-
-                if let Some(application_name) = application_name {
-                    builder.application_name(application_name);
                 }
 
                 Ok(builder)
