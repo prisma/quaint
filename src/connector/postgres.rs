@@ -443,6 +443,10 @@ impl PostgresUrl {
         config.dbname(self.dbname());
         config.pgbouncer_mode(self.query_params.pg_bouncer);
 
+        if let Some(application_name) = self.query_params.application_name {
+            config.application_name(application_name);
+        }
+
         if let Some(connect_timeout) = self.query_params.connect_timeout {
             config.connect_timeout(connect_timeout);
         };
