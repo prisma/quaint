@@ -214,6 +214,16 @@ impl ConnectionInfo {
         }
     }
 
+    /// The provided application_name, if applicable.
+    pub fn application_name(&self) -> Option<&str> {
+        #[allow(unreachable_patterns)]
+        match self {
+            #[cfg(feature = "postgresql")]
+            ConnectionInfo::Postgres(url) => url.application_name(),
+            _ => None,
+        }
+    }
+
     /// A string describing the database location, meant for error messages. It will be the host
     /// and port on MySQL/Postgres, and the file path on SQLite.
     pub fn database_location(&self) -> String {
