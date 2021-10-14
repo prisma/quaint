@@ -340,7 +340,7 @@
 <span class="kw">impl</span> <span class="ident">ResultSet</span> {
     <span class="doccomment">/// Takes the first row and deserializes it.</span>
     <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::wrong_self_convention</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_first</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">DeserializeOwned</span><span class="op">&gt;</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_first</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">DeserializeOwned</span><span class="op">&gt;</span>(<span class="self">self</span>) -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
         <span class="ident">from_row</span>(<span class="self">self</span>.<span class="ident">into_single</span>()<span class="question-mark">?</span>)
     }
 }
@@ -348,7 +348,7 @@
 <span class="doccomment">/// Deserialize each row of a [`ResultSet`](../connector/struct.ResultSet.html).</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// For an example, see the docs for [`from_row`](fn.from_row.html).</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_rows</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">DeserializeOwned</span><span class="op">&gt;</span>(<span class="ident">result_set</span>: <span class="ident">ResultSet</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_rows</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">DeserializeOwned</span><span class="op">&gt;</span>(<span class="ident">result_set</span>: <span class="ident">ResultSet</span>) -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">deserialized_rows</span> <span class="op">=</span> <span class="ident">Vec::with_capacity</span>(<span class="ident">result_set</span>.<span class="ident">len</span>());
 
     <span class="kw">for</span> <span class="ident">row</span> <span class="kw">in</span> <span class="ident">result_set</span> {
@@ -384,7 +384,7 @@
 <span class="doccomment">/// # Ok(())</span>
 <span class="doccomment">/// # }</span>
 <span class="doccomment">/// ```</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_row</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">DeserializeOwned</span><span class="op">&gt;</span>(<span class="ident">row</span>: <span class="ident">ResultRow</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_row</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">DeserializeOwned</span><span class="op">&gt;</span>(<span class="ident">row</span>: <span class="ident">ResultRow</span>) -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">deserializer</span> <span class="op">=</span> <span class="ident">RowDeserializer</span>(<span class="ident">row</span>);
 
     <span class="ident">T::deserialize</span>(<span class="ident">deserializer</span>).<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> <span class="ident">Error::builder</span>(<span class="ident">ErrorKind::FromRowError</span>(<span class="ident">e</span>)).<span class="ident">build</span>())
@@ -398,7 +398,7 @@
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span> <span class="ident">Deserializer</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">RowDeserializer</span> {
     <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">DeserializeError</span>;
 
-    <span class="kw">fn</span> <span class="ident">deserialize_any</span><span class="op">&lt;</span><span class="ident">V</span>: <span class="ident">Visitor</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">visitor</span>: <span class="ident">V</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">V::Value</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">deserialize_any</span><span class="op">&lt;</span><span class="ident">V</span>: <span class="ident">Visitor</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">visitor</span>: <span class="ident">V</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">V::Value</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">ResultRow</span> { <span class="ident">columns</span>, <span class="kw-2">mut</span> <span class="ident">values</span> } <span class="op">=</span> <span class="self">self</span>.<span class="number">0</span>;
 
         <span class="kw">let</span> <span class="ident">kvs</span> <span class="op">=</span> <span class="ident">columns</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>().<span class="ident">map</span>(<span class="kw">move</span> <span class="op">|</span>(<span class="ident">v</span>, <span class="ident">k</span>)<span class="op">|</span> {
@@ -423,7 +423,7 @@
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span> <span class="ident">IntoDeserializer</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span>, <span class="ident">DeserializeError</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Value</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span> {
     <span class="kw">type</span> <span class="ident">Deserializer</span> <span class="op">=</span> <span class="ident">ValueDeserializer</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span>;
 
-    <span class="kw">fn</span> <span class="ident">into_deserializer</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident"><span class="self">Self</span>::Deserializer</span> {
+    <span class="kw">fn</span> <span class="ident">into_deserializer</span>(<span class="self">self</span>) -&gt; <span class="ident"><span class="self">Self</span>::Deserializer</span> {
         <span class="ident">ValueDeserializer</span>(<span class="self">self</span>)
     }
 }
@@ -434,75 +434,75 @@
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span> <span class="ident">Deserializer</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ValueDeserializer</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span> {
     <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">DeserializeError</span>;
 
-    <span class="kw">fn</span> <span class="ident">deserialize_any</span><span class="op">&lt;</span><span class="ident">V</span>: <span class="ident">Visitor</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">visitor</span>: <span class="ident">V</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">V::Value</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">deserialize_any</span><span class="op">&lt;</span><span class="ident">V</span>: <span class="ident">Visitor</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">visitor</span>: <span class="ident">V</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">V::Value</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="self">self</span>.<span class="number">0</span> {
-            <span class="ident">Value::Text</span>(<span class="prelude-val">Some</span>(<span class="ident">s</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">visitor</span>.<span class="ident">visit_string</span>(<span class="ident">s</span>.<span class="ident">into_owned</span>()),
-            <span class="ident">Value::Text</span>(<span class="prelude-val">None</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">visitor</span>.<span class="ident">visit_none</span>(),
-            <span class="ident">Value::Bytes</span>(<span class="prelude-val">Some</span>(<span class="ident">bytes</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">visitor</span>.<span class="ident">visit_bytes</span>(<span class="ident">bytes</span>.<span class="ident">as_ref</span>()),
-            <span class="ident">Value::Bytes</span>(<span class="prelude-val">None</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">visitor</span>.<span class="ident">visit_none</span>(),
-            <span class="ident">Value::Enum</span>(<span class="prelude-val">Some</span>(<span class="ident">s</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">visitor</span>.<span class="ident">visit_string</span>(<span class="ident">s</span>.<span class="ident">into_owned</span>()),
-            <span class="ident">Value::Enum</span>(<span class="prelude-val">None</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">visitor</span>.<span class="ident">visit_none</span>(),
-            <span class="ident">Value::Integer</span>(<span class="prelude-val">Some</span>(<span class="ident">i</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">visitor</span>.<span class="ident">visit_i64</span>(<span class="ident">i</span>),
-            <span class="ident">Value::Integer</span>(<span class="prelude-val">None</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">visitor</span>.<span class="ident">visit_none</span>(),
-            <span class="ident">Value::Boolean</span>(<span class="prelude-val">Some</span>(<span class="ident">b</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">visitor</span>.<span class="ident">visit_bool</span>(<span class="ident">b</span>),
-            <span class="ident">Value::Boolean</span>(<span class="prelude-val">None</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">visitor</span>.<span class="ident">visit_none</span>(),
-            <span class="ident">Value::Char</span>(<span class="prelude-val">Some</span>(<span class="ident">c</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">visitor</span>.<span class="ident">visit_char</span>(<span class="ident">c</span>),
-            <span class="ident">Value::Char</span>(<span class="prelude-val">None</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">visitor</span>.<span class="ident">visit_none</span>(),
-            <span class="ident">Value::Float</span>(<span class="prelude-val">Some</span>(<span class="ident">num</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">visitor</span>.<span class="ident">visit_f64</span>(<span class="ident">num</span> <span class="kw">as</span> <span class="ident">f64</span>),
-            <span class="ident">Value::Float</span>(<span class="prelude-val">None</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">visitor</span>.<span class="ident">visit_none</span>(),
-            <span class="ident">Value::Double</span>(<span class="prelude-val">Some</span>(<span class="ident">num</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">visitor</span>.<span class="ident">visit_f64</span>(<span class="ident">num</span>),
-            <span class="ident">Value::Double</span>(<span class="prelude-val">None</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">visitor</span>.<span class="ident">visit_none</span>(),
+            <span class="ident">Value::Text</span>(<span class="prelude-val">Some</span>(<span class="ident">s</span>)) =&gt; <span class="ident">visitor</span>.<span class="ident">visit_string</span>(<span class="ident">s</span>.<span class="ident">into_owned</span>()),
+            <span class="ident">Value::Text</span>(<span class="prelude-val">None</span>) =&gt; <span class="ident">visitor</span>.<span class="ident">visit_none</span>(),
+            <span class="ident">Value::Bytes</span>(<span class="prelude-val">Some</span>(<span class="ident">bytes</span>)) =&gt; <span class="ident">visitor</span>.<span class="ident">visit_bytes</span>(<span class="ident">bytes</span>.<span class="ident">as_ref</span>()),
+            <span class="ident">Value::Bytes</span>(<span class="prelude-val">None</span>) =&gt; <span class="ident">visitor</span>.<span class="ident">visit_none</span>(),
+            <span class="ident">Value::Enum</span>(<span class="prelude-val">Some</span>(<span class="ident">s</span>)) =&gt; <span class="ident">visitor</span>.<span class="ident">visit_string</span>(<span class="ident">s</span>.<span class="ident">into_owned</span>()),
+            <span class="ident">Value::Enum</span>(<span class="prelude-val">None</span>) =&gt; <span class="ident">visitor</span>.<span class="ident">visit_none</span>(),
+            <span class="ident">Value::Integer</span>(<span class="prelude-val">Some</span>(<span class="ident">i</span>)) =&gt; <span class="ident">visitor</span>.<span class="ident">visit_i64</span>(<span class="ident">i</span>),
+            <span class="ident">Value::Integer</span>(<span class="prelude-val">None</span>) =&gt; <span class="ident">visitor</span>.<span class="ident">visit_none</span>(),
+            <span class="ident">Value::Boolean</span>(<span class="prelude-val">Some</span>(<span class="ident">b</span>)) =&gt; <span class="ident">visitor</span>.<span class="ident">visit_bool</span>(<span class="ident">b</span>),
+            <span class="ident">Value::Boolean</span>(<span class="prelude-val">None</span>) =&gt; <span class="ident">visitor</span>.<span class="ident">visit_none</span>(),
+            <span class="ident">Value::Char</span>(<span class="prelude-val">Some</span>(<span class="ident">c</span>)) =&gt; <span class="ident">visitor</span>.<span class="ident">visit_char</span>(<span class="ident">c</span>),
+            <span class="ident">Value::Char</span>(<span class="prelude-val">None</span>) =&gt; <span class="ident">visitor</span>.<span class="ident">visit_none</span>(),
+            <span class="ident">Value::Float</span>(<span class="prelude-val">Some</span>(<span class="ident">num</span>)) =&gt; <span class="ident">visitor</span>.<span class="ident">visit_f64</span>(<span class="ident">num</span> <span class="kw">as</span> <span class="ident">f64</span>),
+            <span class="ident">Value::Float</span>(<span class="prelude-val">None</span>) =&gt; <span class="ident">visitor</span>.<span class="ident">visit_none</span>(),
+            <span class="ident">Value::Double</span>(<span class="prelude-val">Some</span>(<span class="ident">num</span>)) =&gt; <span class="ident">visitor</span>.<span class="ident">visit_f64</span>(<span class="ident">num</span>),
+            <span class="ident">Value::Double</span>(<span class="prelude-val">None</span>) =&gt; <span class="ident">visitor</span>.<span class="ident">visit_none</span>(),
 
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;bigdecimal&quot;</span>)]</span>
-            <span class="ident">Value::Numeric</span>(<span class="prelude-val">Some</span>(<span class="ident">num</span>)) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">Value::Numeric</span>(<span class="prelude-val">Some</span>(<span class="ident">num</span>)) =&gt; {
                 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::bigdecimal::ToPrimitive</span>;
                 <span class="ident">visitor</span>.<span class="ident">visit_f64</span>(<span class="ident">num</span>.<span class="ident">to_f64</span>().<span class="ident">unwrap</span>())
             }
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;bigdecimal&quot;</span>)]</span>
-            <span class="ident">Value::Numeric</span>(<span class="prelude-val">None</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">visitor</span>.<span class="ident">visit_none</span>(),
+            <span class="ident">Value::Numeric</span>(<span class="prelude-val">None</span>) =&gt; <span class="ident">visitor</span>.<span class="ident">visit_none</span>(),
 
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;uuid&quot;</span>)]</span>
-            <span class="ident">Value::Uuid</span>(<span class="prelude-val">Some</span>(<span class="ident">uuid</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">visitor</span>.<span class="ident">visit_string</span>(<span class="ident">uuid</span>.<span class="ident">to_string</span>()),
+            <span class="ident">Value::Uuid</span>(<span class="prelude-val">Some</span>(<span class="ident">uuid</span>)) =&gt; <span class="ident">visitor</span>.<span class="ident">visit_string</span>(<span class="ident">uuid</span>.<span class="ident">to_string</span>()),
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;uuid&quot;</span>)]</span>
-            <span class="ident">Value::Uuid</span>(<span class="prelude-val">None</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">visitor</span>.<span class="ident">visit_none</span>(),
+            <span class="ident">Value::Uuid</span>(<span class="prelude-val">None</span>) =&gt; <span class="ident">visitor</span>.<span class="ident">visit_none</span>(),
 
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;json&quot;</span>)]</span>
-            <span class="ident">Value::Json</span>(<span class="prelude-val">Some</span>(<span class="ident">value</span>)) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">Value::Json</span>(<span class="prelude-val">Some</span>(<span class="ident">value</span>)) =&gt; {
                 <span class="kw">let</span> <span class="ident">de</span> <span class="op">=</span> <span class="ident">value</span>.<span class="ident">into_deserializer</span>();
 
                 <span class="ident">de</span>.<span class="ident">deserialize_any</span>(<span class="ident">visitor</span>)
                     .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> <span class="ident">serde::de::value::Error::custom</span>(<span class="macro">format!</span>(<span class="string">&quot;Error deserializing JSON value: {}&quot;</span>, <span class="ident">err</span>)))
             }
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;json&quot;</span>)]</span>
-            <span class="ident">Value::Json</span>(<span class="prelude-val">None</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">visitor</span>.<span class="ident">visit_none</span>(),
+            <span class="ident">Value::Json</span>(<span class="prelude-val">None</span>) =&gt; <span class="ident">visitor</span>.<span class="ident">visit_none</span>(),
 
-            <span class="ident">Value::Xml</span>(<span class="prelude-val">Some</span>(<span class="ident">s</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">visitor</span>.<span class="ident">visit_string</span>(<span class="ident">s</span>.<span class="ident">into_owned</span>()),
-            <span class="ident">Value::Xml</span>(<span class="prelude-val">None</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">visitor</span>.<span class="ident">visit_none</span>(),
-
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;chrono&quot;</span>)]</span>
-            <span class="ident">Value::DateTime</span>(<span class="prelude-val">Some</span>(<span class="ident">dt</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">visitor</span>.<span class="ident">visit_string</span>(<span class="ident">dt</span>.<span class="ident">to_rfc3339</span>()),
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;chrono&quot;</span>)]</span>
-            <span class="ident">Value::DateTime</span>(<span class="prelude-val">None</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">visitor</span>.<span class="ident">visit_none</span>(),
+            <span class="ident">Value::Xml</span>(<span class="prelude-val">Some</span>(<span class="ident">s</span>)) =&gt; <span class="ident">visitor</span>.<span class="ident">visit_string</span>(<span class="ident">s</span>.<span class="ident">into_owned</span>()),
+            <span class="ident">Value::Xml</span>(<span class="prelude-val">None</span>) =&gt; <span class="ident">visitor</span>.<span class="ident">visit_none</span>(),
 
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;chrono&quot;</span>)]</span>
-            <span class="ident">Value::Date</span>(<span class="prelude-val">Some</span>(<span class="ident">d</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">visitor</span>.<span class="ident">visit_string</span>(<span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">d</span>)),
+            <span class="ident">Value::DateTime</span>(<span class="prelude-val">Some</span>(<span class="ident">dt</span>)) =&gt; <span class="ident">visitor</span>.<span class="ident">visit_string</span>(<span class="ident">dt</span>.<span class="ident">to_rfc3339</span>()),
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;chrono&quot;</span>)]</span>
-            <span class="ident">Value::Date</span>(<span class="prelude-val">None</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">visitor</span>.<span class="ident">visit_none</span>(),
+            <span class="ident">Value::DateTime</span>(<span class="prelude-val">None</span>) =&gt; <span class="ident">visitor</span>.<span class="ident">visit_none</span>(),
 
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;chrono&quot;</span>)]</span>
-            <span class="ident">Value::Time</span>(<span class="prelude-val">Some</span>(<span class="ident">t</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">visitor</span>.<span class="ident">visit_string</span>(<span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">t</span>)),
+            <span class="ident">Value::Date</span>(<span class="prelude-val">Some</span>(<span class="ident">d</span>)) =&gt; <span class="ident">visitor</span>.<span class="ident">visit_string</span>(<span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">d</span>)),
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;chrono&quot;</span>)]</span>
-            <span class="ident">Value::Time</span>(<span class="prelude-val">None</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">visitor</span>.<span class="ident">visit_none</span>(),
+            <span class="ident">Value::Date</span>(<span class="prelude-val">None</span>) =&gt; <span class="ident">visitor</span>.<span class="ident">visit_none</span>(),
 
-            <span class="ident">Value::Array</span>(<span class="prelude-val">Some</span>(<span class="ident">values</span>)) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;chrono&quot;</span>)]</span>
+            <span class="ident">Value::Time</span>(<span class="prelude-val">Some</span>(<span class="ident">t</span>)) =&gt; <span class="ident">visitor</span>.<span class="ident">visit_string</span>(<span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">t</span>)),
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;chrono&quot;</span>)]</span>
+            <span class="ident">Value::Time</span>(<span class="prelude-val">None</span>) =&gt; <span class="ident">visitor</span>.<span class="ident">visit_none</span>(),
+
+            <span class="ident">Value::Array</span>(<span class="prelude-val">Some</span>(<span class="ident">values</span>)) =&gt; {
                 <span class="kw">let</span> <span class="ident">deserializer</span> <span class="op">=</span> <span class="ident">serde::de::value::SeqDeserializer::new</span>(<span class="ident">values</span>.<span class="ident">into_iter</span>());
                 <span class="ident">visitor</span>.<span class="ident">visit_seq</span>(<span class="ident">deserializer</span>)
             }
-            <span class="ident">Value::Array</span>(<span class="prelude-val">None</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">visitor</span>.<span class="ident">visit_none</span>(),
+            <span class="ident">Value::Array</span>(<span class="prelude-val">None</span>) =&gt; <span class="ident">visitor</span>.<span class="ident">visit_none</span>(),
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">deserialize_option</span><span class="op">&lt;</span><span class="ident">V</span>: <span class="ident">Visitor</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">visitor</span>: <span class="ident">V</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">V::Value</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">deserialize_option</span><span class="op">&lt;</span><span class="ident">V</span>: <span class="ident">Visitor</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">visitor</span>: <span class="ident">V</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">V::Value</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="self">self</span>.<span class="number">0</span>.<span class="ident">is_null</span>() {
             <span class="ident">visitor</span>.<span class="ident">visit_none</span>()
         } <span class="kw">else</span> {
@@ -510,14 +510,14 @@
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">deserialize_bytes</span><span class="op">&lt;</span><span class="ident">V</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">visitor</span>: <span class="ident">V</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">V::Value</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span>
+    <span class="kw">fn</span> <span class="ident">deserialize_bytes</span><span class="op">&lt;</span><span class="ident">V</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">visitor</span>: <span class="ident">V</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">V::Value</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span>
     <span class="kw">where</span>
         <span class="ident">V</span>: <span class="ident">Visitor</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span>,
     {
         <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Value::Bytes</span>(<span class="prelude-val">Some</span>(<span class="ident">bytes</span>)) <span class="op">=</span> <span class="self">self</span>.<span class="number">0</span> {
             <span class="kw">match</span> <span class="ident">bytes</span> {
-                <span class="ident">Cow::Borrowed</span>(<span class="ident">bytes</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">visitor</span>.<span class="ident">visit_borrowed_bytes</span>(<span class="ident">bytes</span>),
-                <span class="ident">Cow::Owned</span>(<span class="ident">bytes</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">visitor</span>.<span class="ident">visit_byte_buf</span>(<span class="ident">bytes</span>),
+                <span class="ident">Cow::Borrowed</span>(<span class="ident">bytes</span>) =&gt; <span class="ident">visitor</span>.<span class="ident">visit_borrowed_bytes</span>(<span class="ident">bytes</span>),
+                <span class="ident">Cow::Owned</span>(<span class="ident">bytes</span>) =&gt; <span class="ident">visitor</span>.<span class="ident">visit_byte_buf</span>(<span class="ident">bytes</span>),
             }
         } <span class="kw">else</span> {
             <span class="prelude-val">Err</span>(<span class="ident">DeserializeError::invalid_type</span>(
@@ -535,7 +535,7 @@
 }
 
 <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">make_row</span>(<span class="ident">cols</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>, <span class="ident">Value</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span><span class="op">&gt;</span>)<span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ResultRow</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">make_row</span>(<span class="ident">cols</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>, <span class="ident">Value</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span><span class="op">&gt;</span>)<span class="op">&gt;</span>) -&gt; <span class="ident">ResultRow</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">columns</span> <span class="op">=</span> <span class="ident">Vec::with_capacity</span>(<span class="ident">cols</span>.<span class="ident">len</span>());
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">values</span> <span class="op">=</span> <span class="ident">Vec::with_capacity</span>(<span class="ident">cols</span>.<span class="ident">len</span>());
 
