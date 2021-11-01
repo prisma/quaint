@@ -117,6 +117,19 @@ impl<'a> Visitor<'a> for Postgres<'a> {
             Value::Date(date) => date.map(|date| self.write(format!("'{}'", date))),
             #[cfg(feature = "chrono")]
             Value::Time(time) => time.map(|time| self.write(format!("'{}'", time))),
+
+            #[cfg(feature = "time")]
+            Value::DateTime(dt) => dt.map(|dt| {
+                self.write(format!(
+                    "'{}'",
+                    dt.format(&time::format_description::well_known::Rfc3339)
+                        .expect("DateTime composed of invalid parts and cannot be formatted"),
+                ))
+            }),
+            #[cfg(feature = "time")]
+            Value::Date(date) => date.map(|date| self.write(format!("'{}'", date))),
+            #[cfg(feature = "time")]
+            Value::Time(time) => time.map(|time| self.write(format!("'{}'", time))),
         };
 
         match res {
@@ -778,6 +791,18 @@ mod tests {
         let (sql, params) = Postgres::build(Select::default().value(dt.raw())).unwrap();
 
         assert_eq!(format!("SELECT '{}'", dt.to_rfc3339(),), sql);
+        assert!(params.is_empty());
+    }
+
+    #[test]
+    #[cfg(feature = "time")]
+    fn test_raw_time03_datetime() {
+        let dt = time::OffsetDateTime::now_utc();
+        let (sql, params) = Postgres::build(Select::default().value(dt.raw())).unwrap();
+
+        let formatted = dt.format(&time::format_description::well_known::Rfc3339).unwrap();
+
+        assert_eq!(format!("SELECT '{}'", formatted,), sql);
         assert!(params.is_empty());
     }
 

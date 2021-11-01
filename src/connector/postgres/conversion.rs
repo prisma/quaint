@@ -16,6 +16,8 @@ use chrono::{DateTime, NaiveDateTime, Utc};
 pub(crate) use decimal::DecimalWrapper;
 use postgres_types::{FromSql, ToSql};
 use std::error::Error as StdError;
+#[cfg(feature = "time")]
+use time::PrimitiveDateTime;
 use tokio_postgres::{
     types::{self, IsNull, Kind, Type as PostgresType},
     Row as PostgresRow, Statement as PostgresStatement,
@@ -197,6 +199,79 @@ impl GetRow for PostgresRow {
                     }
                     None => Value::Time(None),
                 },
+
+                #[cfg(feature = "time")]
+                PostgresType::TIMESTAMP => match row.try_get(i)? {
+                    Some(val) => {
+                        let val: time::PrimitiveDateTime = val;
+                        Value::datetime(val.assume_utc())
+                    }
+                    None => Value::DateTime(None),
+                },
+                #[cfg(feature = "time")]
+                PostgresType::TIMESTAMPTZ => match row.try_get(i)? {
+                    Some(val) => Value::datetime(val),
+                    None => Value::DateTime(None),
+                },
+                #[cfg(feature = "time")]
+                PostgresType::DATE => match row.try_get(i)? {
+                    Some(val) => Value::date(val),
+                    None => Value::Date(None),
+                },
+                #[cfg(feature = "time")]
+                PostgresType::TIME => match row.try_get(i)? {
+                    Some(val) => Value::time(val),
+                    None => Value::Time(None),
+                },
+                #[cfg(feature = "time")]
+                PostgresType::TIMESTAMP_ARRAY => match row.try_get(i)? {
+                    Some(val) => {
+                        let val: Vec<PrimitiveDateTime> = val;
+
+                        let dates = val.into_iter().map(|x| Value::datetime(x.assume_utc()));
+
+                        Value::array(dates)
+                    }
+                    None => Value::Array(None),
+                },
+
+                #[cfg(feature = "time")]
+                PostgresType::TIMESTAMPTZ_ARRAY => match row.try_get(i)? {
+                    Some(val) => {
+                        let val: Vec<time::OffsetDateTime> = val;
+                        let dates = val.into_iter().map(Value::datetime);
+                        Value::array(dates)
+                    }
+                    None => Value::Array(None),
+                },
+                #[cfg(feature = "time")]
+                PostgresType::DATE_ARRAY => match row.try_get(i)? {
+                    Some(val) => {
+                        let val: Vec<time::Date> = val;
+                        Value::array(val.into_iter().map(Value::date))
+                    }
+                    None => Value::Array(None),
+                },
+                #[cfg(feature = "time")]
+                PostgresType::TIME_ARRAY => match row.try_get(i)? {
+                    Some(val) => {
+                        let val: Vec<time::Time> = val;
+                        Value::array(val.into_iter().map(Value::time))
+                    }
+                    None => Value::Array(None),
+                },
+                #[cfg(feature = "time")]
+                PostgresType::TIMETZ_ARRAY => match row.try_get(i)? {
+                    Some(val) => {
+                        let val: Vec<time::Time> = val;
+
+                        let dates = val.into_iter().map(|time| Value::time(time));
+
+                        Value::array(dates)
+                    }
+                    None => Value::Array(None),
+                },
+
                 #[cfg(feature = "uuid")]
                 PostgresType::UUID => match row.try_get(i)? {
                     Some(val) => {
@@ -681,6 +756,24 @@ impl<'a> ToSql for Value<'a> {
             }),
             #[cfg(feature = "chrono")]
             (Value::DateTime(value), _) => value.map(|value| value.naive_utc().to_sql(ty, out)),
+
+            #[cfg(feature = "time")]
+            (Value::DateTime(value), &PostgresType::DATE) => value.map(|value| value.date().to_sql(ty, out)),
+            #[cfg(feature = "time")]
+            (Value::Date(value), _) => value.map(|value| value.to_sql(ty, out)),
+            #[cfg(feature = "time")]
+            (Value::Time(value), _) => value.map(|value| value.to_sql(ty, out)),
+            #[cfg(feature = "time")]
+            (Value::DateTime(value), &PostgresType::TIME) => value.map(|value| value.time().to_sql(ty, out)),
+            #[cfg(feature = "time")]
+            (Value::DateTime(value), &PostgresType::TIMETZ) => value.map(|value| {
+                let result = value.time().to_sql(ty, out)?;
+                // We assume UTC. see https://www.postgresql.org/docs/9.5/datatype-datetime.html
+                out.extend_from_slice(&[0; 4]);
+                Ok(result)
+            }),
+            #[cfg(feature = "time")]
+            (Value::DateTime(value), _) => value.map(|value| value.to_sql(ty, out)),
         };
 
         match res {

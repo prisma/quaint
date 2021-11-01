@@ -309,3 +309,63 @@ test_type!(bytea_array(
         Value::bytes(b"BEEFBEEF".to_vec())
     ])
 ));
+
+#[cfg(feature = "time")]
+test_type!(date(
+    postgresql,
+    "date",
+    Value::Date(None),
+    Value::date(time::macros::date!(2020 - 4 - 20))
+));
+
+#[cfg(feature = "time")]
+test_type!(date_array(
+    postgresql,
+    "date[]",
+    Value::Array(None),
+    Value::array(vec![time::macros::date!(2020 - 4 - 20)])
+));
+
+#[cfg(feature = "time")]
+test_type!(time(
+    postgresql,
+    "time",
+    Value::Time(None),
+    Value::time(time::macros::time!(16:20:00))
+));
+
+#[cfg(feature = "time")]
+test_type!(time_array(
+    postgresql,
+    "time[]",
+    Value::Array(None),
+    Value::array(vec![time::macros::time!(16:20:00)])
+));
+
+#[cfg(feature = "time")]
+test_type!(timestamp(postgresql, "timestamp", Value::DateTime(None), {
+    let dt = time::macros::datetime!(2020-02-27 19:10:22 UTC);
+
+    Value::datetime(dt)
+}));
+
+#[cfg(feature = "time")]
+test_type!(timestamp_array(postgresql, "timestamp[]", Value::Array(None), {
+    let dt = time::macros::datetime!(2020-02-27 19:10:22 UTC);
+
+    Value::array(vec![dt])
+}));
+
+#[cfg(feature = "time")]
+test_type!(timestamptz(postgresql, "timestamptz", Value::DateTime(None), {
+    let dt = time::macros::datetime!(2020-02-27 19:10:22 UTC);
+
+    Value::datetime(dt)
+}));
+
+#[cfg(feature = "time")]
+test_type!(timestamptz_array(postgresql, "timestamptz[]", Value::Array(None), {
+    let dt = time::macros::datetime!(2020-02-27 19:10:22 UTC);
+
+    Value::array(vec![dt])
+}));

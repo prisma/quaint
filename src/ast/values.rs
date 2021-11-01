@@ -12,6 +12,8 @@ use std::{
     convert::TryFrom,
     fmt,
 };
+#[cfg(feature = "time")]
+use time::{Date, OffsetDateTime, Time};
 #[cfg(feature = "uuid")]
 use uuid::Uuid;
 
@@ -84,6 +86,19 @@ pub enum Value<'a> {
     #[cfg_attr(feature = "docs", doc(cfg(feature = "chrono")))]
     /// A time value.
     Time(Option<NaiveTime>),
+
+    /// A datetime value.
+    #[cfg(feature = "time")]
+    #[cfg_attr(feature = "docs", doc(cfg(feature = "time")))]
+    DateTime(Option<OffsetDateTime>),
+    /// A date value.
+    #[cfg(feature = "time")]
+    #[cfg_attr(feature = "docs", doc(cfg(feature = "time")))]
+    Date(Option<Date>),
+    /// A time value.
+    #[cfg(feature = "time")]
+    #[cfg_attr(feature = "docs", doc(cfg(feature = "time")))]
+    Time(Option<Time>),
 }
 
 pub(crate) struct Params<'a>(pub(crate) &'a [Value<'a>]);
@@ -141,6 +156,13 @@ impl<'a> fmt::Display for Value<'a> {
             Value::Date(val) => val.map(|v| write!(f, "{}", v)),
             #[cfg(feature = "chrono")]
             Value::Time(val) => val.map(|v| write!(f, "{}", v)),
+
+            #[cfg(feature = "time")]
+            Value::DateTime(val) => val.map(|v| write!(f, "{}", v)),
+            #[cfg(feature = "time")]
+            Value::Date(val) => val.map(|v| write!(f, "{}", v)),
+            #[cfg(feature = "time")]
+            Value::Time(val) => val.map(|v| write!(f, "{}", v)),
         };
 
         match res {
@@ -190,6 +212,18 @@ impl<'a> From<Value<'a>> for serde_json::Value {
             #[cfg(feature = "chrono")]
             Value::Date(date) => date.map(|date| serde_json::Value::String(format!("{}", date))),
             #[cfg(feature = "chrono")]
+            Value::Time(time) => time.map(|time| serde_json::Value::String(format!("{}", time))),
+
+            #[cfg(feature = "time")]
+            Value::DateTime(dt) => dt.map(|dt| {
+                serde_json::Value::String(
+                    dt.format(&time::format_description::well_known::Rfc3339)
+                        .expect("DateTime composed of invalid parts and cannot be formatted"),
+                )
+            }),
+            #[cfg(feature = "time")]
+            Value::Date(date) => date.map(|date| serde_json::Value::String(format!("{}", date))),
+            #[cfg(feature = "time")]
             Value::Time(time) => time.map(|time| serde_json::Value::String(format!("{}", time))),
         };
 
@@ -303,6 +337,27 @@ impl<'a> Value<'a> {
         Value::Time(Some(value))
     }
 
+    /// Creates a new datetime value.
+    #[cfg(feature = "time")]
+    #[cfg_attr(feature = "docs", doc(cfg(feature = "time")))]
+    pub const fn datetime(value: OffsetDateTime) -> Self {
+        Value::DateTime(Some(value))
+    }
+
+    /// Creates a new date value.
+    #[cfg(feature = "time")]
+    #[cfg_attr(feature = "docs", doc(cfg(feature = "time")))]
+    pub const fn date(value: Date) -> Self {
+        Value::Date(Some(value))
+    }
+
+    /// Creates a new time value.
+    #[cfg(feature = "time")]
+    #[cfg_attr(feature = "docs", doc(cfg(feature = "time")))]
+    pub const fn time(value: Time) -> Self {
+        Value::Time(Some(value))
+    }
+
     /// Creates a new JSON value.
     #[cfg(feature = "json")]
     #[cfg_attr(feature = "docs", doc(cfg(feature = "json")))]
@@ -343,6 +398,13 @@ impl<'a> Value<'a> {
             Value::Time(t) => t.is_none(),
             #[cfg(feature = "json")]
             Value::Json(json) => json.is_none(),
+
+            #[cfg(feature = "time")]
+            Value::DateTime(dt) => dt.is_none(),
+            #[cfg(feature = "time")]
+            Value::Date(d) => d.is_none(),
+            #[cfg(feature = "time")]
+            Value::Time(t) => t.is_none(),
         }
     }
 
@@ -607,6 +669,57 @@ impl<'a> Value<'a> {
             _ => None,
         }
     }
+
+    /// `true` if the `Value` is a DateTime.
+    #[cfg(feature = "time")]
+    #[cfg_attr(feature = "docs", doc(cfg(feature = "time")))]
+    pub const fn is_datetime(&self) -> bool {
+        matches!(self, Value::DateTime(_))
+    }
+
+    /// Returns a `DateTime` if the value is a `DateTime`, otherwise `None`.
+    #[cfg(feature = "time")]
+    #[cfg_attr(feature = "docs", doc(cfg(feature = "time")))]
+    pub const fn as_datetime(&self) -> Option<OffsetDateTime> {
+        match self {
+            Value::DateTime(dt) => *dt,
+            _ => None,
+        }
+    }
+
+    /// `true` if the `Value` is a Date.
+    #[cfg(feature = "time")]
+    #[cfg_attr(feature = "docs", doc(cfg(feature = "time")))]
+    pub const fn is_date(&self) -> bool {
+        matches!(self, Value::Date(_))
+    }
+
+    /// Returns a `NaiveDate` if the value is a `Date`, otherwise `None`.
+    #[cfg(feature = "time")]
+    #[cfg_attr(feature = "docs", doc(cfg(feature = "time")))]
+    pub const fn as_date(&self) -> Option<Date> {
+        match self {
+            Value::Date(dt) => *dt,
+            _ => None,
+        }
+    }
+
+    /// `true` if the `Value` is a `Time`.
+    #[cfg(feature = "time")]
+    #[cfg_attr(feature = "docs", doc(cfg(feature = "time")))]
+    pub const fn is_time(&self) -> bool {
+        matches!(self, Value::Time(_))
+    }
+
+    /// Returns a `NaiveTime` if the value is a `Time`, otherwise `None`.
+    #[cfg(feature = "time")]
+    #[cfg_attr(feature = "docs", doc(cfg(feature = "time")))]
+    pub const fn as_time(&self) -> Option<Time> {
+        match self {
+            Value::Time(time) => *time,
+            _ => None,
+        }
+    }
 }
 
 value!(val: i64, Integer, val);
@@ -636,6 +749,16 @@ value!(val: JsonValue, Json, val);
 #[cfg(feature = "uuid")]
 #[cfg_attr(feature = "docs", doc(cfg(feature = "uuid")))]
 value!(val: Uuid, Uuid, val);
+
+#[cfg(feature = "time")]
+#[cfg_attr(feature = "docs", doc(cfg(feature = "time")))]
+value!(val: time::OffsetDateTime, DateTime, val);
+#[cfg(feature = "time")]
+#[cfg_attr(feature = "docs", doc(cfg(feature = "time")))]
+value!(val: time::Date, Date, val);
+#[cfg(feature = "time")]
+#[cfg_attr(feature = "docs", doc(cfg(feature = "time")))]
+value!(val: time::Time, Time, val);
 
 impl<'a> TryFrom<Value<'a>> for i64 {
     type Error = Error;
@@ -694,6 +817,18 @@ impl<'a> TryFrom<Value<'a>> for DateTime<Utc> {
     type Error = Error;
 
     fn try_from(value: Value<'a>) -> Result<DateTime<Utc>, Self::Error> {
+        value
+            .as_datetime()
+            .ok_or_else(|| Error::builder(ErrorKind::conversion("Not a datetime")).build())
+    }
+}
+
+#[cfg(feature = "time")]
+#[cfg_attr(feature = "docs", doc(cfg(feature = "time")))]
+impl<'a> TryFrom<Value<'a>> for OffsetDateTime {
+    type Error = Error;
+
+    fn try_from(value: Value<'a>) -> Result<OffsetDateTime, Self::Error> {
         value
             .as_datetime()
             .ok_or_else(|| Error::builder(ErrorKind::conversion("Not a datetime")).build())
@@ -825,6 +960,17 @@ mod tests {
         let datetime = DateTime::from_str("2019-07-27T05:30:30Z").expect("parsing date/time");
         let pv = Value::array(vec![datetime]);
         let values: Vec<DateTime<Utc>> = pv.into_vec().expect("convert into Vec<DateTime>");
+        assert_eq!(values, vec![datetime]);
+    }
+
+    #[test]
+    #[cfg(feature = "time")]
+    fn a_parameterized_value_of_time_datetimes_can_be_converted_into_a_vec() {
+        let datetime =
+            time::OffsetDateTime::parse("2019-07-27T05:30:30Z", &time::format_description::well_known::Rfc3339)
+                .expect("parsing date/time");
+        let pv = Value::array(vec![datetime]);
+        let values: Vec<OffsetDateTime> = pv.into_vec().expect("convert into Vec<DateTime>");
         assert_eq!(values, vec![datetime]);
     }
 
