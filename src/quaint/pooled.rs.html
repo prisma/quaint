@@ -482,6 +482,10 @@
 <span id="482">482</span>
 <span id="483">483</span>
 <span id="484">484</span>
+<span id="485">485</span>
+<span id="486">486</span>
+<span id="487">487</span>
+<span id="488">488</span>
 </pre><pre class="rust"><code><span class="doccomment">//! # A connection pool to a SQL database.</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! A pool is created through the [`builder`] method, starting from a connection</span>
@@ -949,7 +953,11 @@
             <span class="prelude-val">Ok</span>(<span class="ident">conn</span>) =&gt; <span class="ident">conn</span>,
             <span class="prelude-val">Err</span>(<span class="ident">mobc::Error::Timeout</span>) =&gt; {
                 <span class="kw">let</span> <span class="ident">state</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">state</span>().<span class="kw">await</span>;
-                <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">Error::builder</span>(<span class="ident">ErrorKind::pool_timeout</span>(<span class="ident">state</span>.<span class="ident">max_open</span>, <span class="ident">state</span>.<span class="ident">in_use</span>)).<span class="ident">build</span>());
+                <span class="comment">// We can use unwrap here because a pool timeout has to be set to use a connection pool</span>
+                <span class="kw">let</span> <span class="ident">timeout_duration</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">pool_timeout</span>.<span class="ident">unwrap</span>();
+                <span class="kw">return</span> <span class="prelude-val">Err</span>(
+                    <span class="ident">Error::builder</span>(<span class="ident">ErrorKind::pool_timeout</span>(<span class="ident">state</span>.<span class="ident">max_open</span>, <span class="ident">state</span>.<span class="ident">in_use</span>, <span class="ident">timeout_duration</span>)).<span class="ident">build</span>(),
+                );
             }
             <span class="prelude-val">Err</span>(<span class="ident">mobc::Error::Inner</span>(<span class="ident">e</span>)) =&gt; <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>),
             <span class="prelude-val">Err</span>(<span class="ident">e</span> @ <span class="ident">mobc::Error::BadConn</span>) =&gt; {

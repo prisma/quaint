@@ -335,9 +335,20 @@
 <span id="335">335</span>
 <span id="336">336</span>
 <span id="337">337</span>
+<span id="338">338</span>
+<span id="339">339</span>
+<span id="340">340</span>
+<span id="341">341</span>
+<span id="342">342</span>
+<span id="343">343</span>
+<span id="344">344</span>
+<span id="345">345</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Error module</span>
 <span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">borrow::Cow</span>, <span class="ident">fmt</span>, <span class="ident">io</span>, <span class="ident">num</span>};
 <span class="kw">use</span> <span class="ident">thiserror::Error</span>;
+
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;pooled&quot;</span>)]</span>
+<span class="kw">use</span> <span class="ident">std::time::Duration</span>;
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>)]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">DatabaseConstraint</span> {
@@ -543,11 +554,12 @@
     <span class="ident">ConnectionClosed</span>,
 
     <span class="attribute">#[<span class="ident">error</span>(
-        <span class="string">&quot;Timed out fetching a connection from the pool (connection limit: {}, in use: {})&quot;</span>,
+        <span class="string">&quot;Timed out fetching a connection from the pool (connection limit: {}, in use: {}, pool timeout {})&quot;</span>,
         <span class="ident">max_open</span>,
-        <span class="ident">in_use</span>
+        <span class="ident">in_use</span>,
+        <span class="ident">timeout</span>
     )]</span>
-    <span class="ident">PoolTimeout</span> { <span class="ident">max_open</span>: <span class="ident">u64</span>, <span class="ident">in_use</span>: <span class="ident">u64</span> },
+    <span class="ident">PoolTimeout</span> { <span class="ident">max_open</span>: <span class="ident">u64</span>, <span class="ident">in_use</span>: <span class="ident">u64</span>, <span class="ident">timeout</span>: <span class="ident">u64</span> },
 
     <span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;Timed out during query execution.&quot;</span>)]</span>
     <span class="ident">SocketTimeout</span>,
@@ -593,8 +605,12 @@
     }
 
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;pooled&quot;</span>)]</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">pool_timeout</span>(<span class="ident">max_open</span>: <span class="ident">u64</span>, <span class="ident">in_use</span>: <span class="ident">u64</span>) -&gt; <span class="self">Self</span> {
-        <span class="ident"><span class="self">Self</span>::PoolTimeout</span> { <span class="ident">max_open</span>, <span class="ident">in_use</span> }
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">pool_timeout</span>(<span class="ident">max_open</span>: <span class="ident">u64</span>, <span class="ident">in_use</span>: <span class="ident">u64</span>, <span class="ident">timeout</span>: <span class="ident">Duration</span>) -&gt; <span class="self">Self</span> {
+        <span class="ident"><span class="self">Self</span>::PoolTimeout</span> {
+            <span class="ident">max_open</span>,
+            <span class="ident">in_use</span>,
+            <span class="ident">timeout</span>: <span class="ident">timeout</span>.<span class="ident">as_secs</span>(),
+        }
     }
 }
 
