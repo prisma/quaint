@@ -112,6 +112,7 @@ impl<'a> Visitor<'a> for Mysql<'a> {
 
     fn visit_raw_value(&mut self, value: Value<'a>) -> visitor::Result {
         let res = match value {
+            Value::UnsignedInteger(i) => i.map(|i| self.write(i)),
             Value::Integer(i) => i.map(|i| self.write(i)),
             Value::Float(d) => d.map(|f| match f {
                 f if f.is_nan() => self.write("'NaN'"),

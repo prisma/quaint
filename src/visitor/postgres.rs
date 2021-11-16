@@ -71,6 +71,7 @@ impl<'a> Visitor<'a> for Postgres<'a> {
 
     fn visit_raw_value(&mut self, value: Value<'a>) -> visitor::Result {
         let res = match value {
+            Value::UnsignedInteger(i) => i.map(|i| self.write(i)),
             Value::Integer(i) => i.map(|i| self.write(i)),
             Value::Text(t) => t.map(|t| self.write(format!("'{}'", t))),
             Value::Enum(e) => e.map(|e| self.write(e)),
