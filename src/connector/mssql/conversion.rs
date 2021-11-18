@@ -20,7 +20,7 @@ pub fn conv_params<'a>(params: &'a [Value<'a>]) -> crate::Result<Vec<&'a dyn ToS
 impl<'a> ToSql for Value<'a> {
     fn to_sql(&self) -> ColumnData<'_> {
         match self {
-            Value::UnsignedInteger(_) => panic!("Unsigned integers are not supported on SQL Server."),
+            Value::UnsignedInteger(val) => ColumnData::I64((*val).map(|v| v as i64)),
             Value::Integer(val) => val.to_sql(),
             Value::Float(val) => val.to_sql(),
             Value::Double(val) => val.to_sql(),

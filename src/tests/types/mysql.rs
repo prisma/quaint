@@ -90,6 +90,14 @@ test_type!(bigint(
     Value::integer(i64::MAX)
 ));
 
+test_type!(bigint_unsigned(
+    mysql,
+    "bigint unsigned",
+    Value::UnsignedInteger(None),
+    Value::unsigned_integer(u64::MIN),
+    Value::unsigned_integer(u64::MAX)
+));
+
 #[cfg(feature = "bigdecimal")]
 test_type!(decimal(
     mysql,

@@ -108,7 +108,9 @@ impl TypeIdentifier for my::Column {
     fn is_integer(&self) -> bool {
         use ColumnType::*;
 
-        if !self.flags().intersects(ColumnFlags::UNSIGNED_FLAG) {
+        if self.flags().intersects(ColumnFlags::UNSIGNED_FLAG) && self.column_type() == MYSQL_TYPE_LONGLONG {
+            false
+        } else {
             matches!(
                 self.column_type(),
                 MYSQL_TYPE_TINY
@@ -118,19 +120,13 @@ impl TypeIdentifier for my::Column {
                     | MYSQL_TYPE_YEAR
                     | MYSQL_TYPE_INT24
             )
-        } else {
-            false
         }
     }
 
     fn is_unsigned_integer(&self) -> bool {
         use ColumnType::*;
 
-        if self.flags().intersects(ColumnFlags::UNSIGNED_FLAG) {
-            matches!(self.column_type(), MYSQL_TYPE_LONG | MYSQL_TYPE_LONGLONG)
-        } else {
-            false
-        }
+        self.flags().intersects(ColumnFlags::UNSIGNED_FLAG) && self.column_type() == MYSQL_TYPE_LONGLONG
     }
 
     fn is_datetime(&self) -> bool {

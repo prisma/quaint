@@ -71,7 +71,7 @@ impl<'a> Visitor<'a> for Postgres<'a> {
 
     fn visit_raw_value(&mut self, value: Value<'a>) -> visitor::Result {
         let res = match value {
-            Value::UnsignedInteger(i) => i.map(|i| self.write(i)),
+            Value::UnsignedInteger(i) => i.map(|i| self.write(i as i64)),
             Value::Integer(i) => i.map(|i| self.write(i)),
             Value::Text(t) => t.map(|t| self.write(format!("'{}'", t))),
             Value::Enum(e) => e.map(|e| self.write(e)),
@@ -465,7 +465,10 @@ mod tests {
 
     #[test]
     fn test_limit_and_offset_when_both_are_set() {
-        let expected = expected_values("SELECT \"users\".* FROM \"users\" LIMIT $1 OFFSET $2", vec![10, 2]);
+        let expected = expected_values(
+            "SELECT \"users\".* FROM \"users\" LIMIT $1 OFFSET $2",
+            vec![10u64, 2u64],
+        );
         let query = Select::from_table("users").limit(10).offset(2);
         let (sql, params) = Postgres::build(query).unwrap();
 
@@ -475,7 +478,7 @@ mod tests {
 
     #[test]
     fn test_limit_and_offset_when_only_offset_is_set() {
-        let expected = expected_values("SELECT \"users\".* FROM \"users\" OFFSET $1", vec![10]);
+        let expected = expected_values("SELECT \"users\".* FROM \"users\" OFFSET $1", vec![10u64]);
         let query = Select::from_table("users").offset(10);
         let (sql, params) = Postgres::build(query).unwrap();
 
@@ -485,7 +488,7 @@ mod tests {
 
     #[test]
     fn test_limit_and_offset_when_only_limit_is_set() {
-        let expected = expected_values("SELECT \"users\".* FROM \"users\" LIMIT $1", vec![10]);
+        let expected = expected_values("SELECT \"users\".* FROM \"users\" LIMIT $1", vec![10u64]);
         let query = Select::from_table("users").limit(10);
         let (sql, params) = Postgres::build(query).unwrap();
 

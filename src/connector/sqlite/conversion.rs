@@ -226,7 +226,7 @@ impl<'a> ToColumnNames for SqliteRows<'a> {
 impl<'a> ToSql for Value<'a> {
     fn to_sql(&self) -> Result<ToSqlOutput, RusqlError> {
         let value = match self {
-            Value::UnsignedInteger(_) => panic!("Unsigned integers are not supported in SQLite."),
+            Value::UnsignedInteger(integer) => integer.map(|integer| integer as i64).map(ToSqlOutput::from),
             Value::Integer(integer) => integer.map(ToSqlOutput::from),
             Value::Float(float) => float.map(|f| f as f64).map(ToSqlOutput::from),
             Value::Double(double) => double.map(ToSqlOutput::from),
