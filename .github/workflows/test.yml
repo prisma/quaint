@@ -2,7 +2,7 @@ name: Cargo tests
 on:
   push:
     branches:
-      - master
+      - main
   pull_request:
 jobs:
   clippy:
@@ -91,7 +91,7 @@ jobs:
   rustdoc:
     needs: [clippy, format, cargo-test]
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/master'
+    if: github.ref == 'refs/heads/main'
 
     steps:
       - uses: actions/checkout@v2
