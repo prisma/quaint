@@ -54,7 +54,7 @@ pub struct TextSearchRelevance<'a> {
 ///
 /// assert_eq!(
 ///    "SELECT \"recipes\".* FROM \"recipes\" WHERE \
-///     ts_rank(to_tsvector(concat_ws(' ', \"name\",\"ingredients\"), to_tsquery($1)) > $2", sql
+///     ts_rank(to_tsvector(concat_ws(' ', \"name\",\"ingredients\")), to_tsquery($1)) > $2", sql
 /// );
 ///
 /// assert_eq!(params, vec![Value::from("chicken"), Value::from(0.1)]);
