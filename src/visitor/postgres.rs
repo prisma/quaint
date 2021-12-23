@@ -394,6 +394,31 @@ impl<'a> Visitor<'a> for Postgres<'a> {
 
         Ok(())
     }
+
+    #[cfg(any(feature = "postgresql", feature = "mysql"))]
+    fn visit_text_search_relevance(&mut self, text_search_relevance: TextSearchRelevance<'a>) -> visitor::Result {
+        let len = text_search_relevance.exprs.len();
+        let exprs = text_search_relevance.exprs;
+        let query = text_search_relevance.query;
+
+        self.write("ts_rank(")?;
+        self.surround_with("to_tsvector(concat_ws(' ', ", "))", |s| {
+            for (i, expr) in exprs.into_iter().enumerate() {
+                s.visit_expression(expr)?;
+
+                if i < (len - 1) {
+                    s.write(",")?;
+                }
+            }
+
+            Ok(())
+        })?;
+        self.write(", ")?;
+        self.surround_with("to_tsquery(", ")", |s| s.visit_parameterized(Value::text(query)))?;
+        self.write(")")?;
+
+        Ok(())
+    }
 }
 
 #[cfg(test)]

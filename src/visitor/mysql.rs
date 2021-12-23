@@ -475,6 +475,18 @@ impl<'a> Visitor<'a> for Mysql<'a> {
         Ok(())
     }
 
+    #[cfg(any(feature = "postgresql", feature = "mysql"))]
+    fn visit_text_search_relevance(&mut self, text_search_relevance: TextSearchRelevance<'a>) -> visitor::Result {
+        let exprs = text_search_relevance.exprs;
+        let query = text_search_relevance.query;
+
+        let text_search = TextSearch { exprs };
+
+        self.visit_matches(text_search.into(), query, false)?;
+
+        Ok(())
+    }
+
     #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
     fn visit_json_extract_last_array_item(&mut self, extract: JsonExtractLastArrayElem<'a>) -> visitor::Result {
         self.write("JSON_EXTRACT(")?;
