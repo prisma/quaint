@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src&#x2F;visitor.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>visitor.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../quaint/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">   1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src&#x2F;visitor.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>visitor.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><script defer src="../../main.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script>
+    <noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a class="sidebar-logo" href="../../quaint/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.png" alt="logo"></div>
+        </a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../quaint/index.html"><img class="rust-logo" src="../../rust-logo.png" alt="logo"></a><nav class="sub"><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../wheel.svg"></a></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">   1</span>
 <span id="2">   2</span>
 <span id="3">   3</span>
 <span id="4">   4</span>
@@ -1090,21 +1092,6 @@
 <span id="1090">1090</span>
 <span id="1091">1091</span>
 <span id="1092">1092</span>
-<span id="1093">1093</span>
-<span id="1094">1094</span>
-<span id="1095">1095</span>
-<span id="1096">1096</span>
-<span id="1097">1097</span>
-<span id="1098">1098</span>
-<span id="1099">1099</span>
-<span id="1100">1100</span>
-<span id="1101">1101</span>
-<span id="1102">1102</span>
-<span id="1103">1103</span>
-<span id="1104">1104</span>
-<span id="1105">1105</span>
-<span id="1106">1106</span>
-<span id="1107">1107</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Visitors for reading an abstract SQL syntax tree, generating the query and</span>
 <span class="doccomment">//! gathering parameters in the right order.</span>
 <span class="doccomment">//!</span>
@@ -1224,11 +1211,14 @@
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;json&quot;</span>, <span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;postgresql&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mysql&quot;</span>)))]</span>
     <span class="kw">fn</span> <span class="ident">visit_json_type_equals</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">left</span>: <span class="ident">Expression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>, <span class="ident">json_type</span>: <span class="ident">JsonType</span>) -&gt; <span class="prelude-ty">Result</span>;
 
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;postgresql&quot;</span>)]</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;postgresql&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mysql&quot;</span>))]</span>
     <span class="kw">fn</span> <span class="ident">visit_text_search</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">text_search</span>: <span class="ident">TextSearch</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Result</span>;
 
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;postgresql&quot;</span>)]</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;postgresql&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mysql&quot;</span>))]</span>
     <span class="kw">fn</span> <span class="ident">visit_matches</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">left</span>: <span class="ident">Expression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>, <span class="ident">right</span>: <span class="ident">std::borrow::Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">str</span><span class="op">&gt;</span>, <span class="ident">not</span>: <span class="ident">bool</span>) -&gt; <span class="prelude-ty">Result</span>;
+
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;postgresql&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mysql&quot;</span>))]</span>
+    <span class="kw">fn</span> <span class="ident">visit_text_search_relevance</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">text_search_relevance</span>: <span class="ident">TextSearchRelevance</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Result</span>;
 
     <span class="doccomment">/// A visit to a value we parameterize</span>
     <span class="kw">fn</span> <span class="ident">visit_parameterized</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">value</span>: <span class="ident">Value</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Result</span> {
@@ -2126,31 +2116,13 @@
             <span class="ident">FunctionType::JsonExtractLastArrayElem</span>(<span class="ident">extract</span>) =&gt; {
                 <span class="self">self</span>.<span class="ident">visit_json_extract_last_array_item</span>(<span class="ident">extract</span>)<span class="question-mark">?</span>;
             }
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;postgresql&quot;</span>)]</span>
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;postgresql&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mysql&quot;</span>))]</span>
             <span class="ident">FunctionType::TextSearch</span>(<span class="ident">text_search</span>) =&gt; {
                 <span class="self">self</span>.<span class="ident">visit_text_search</span>(<span class="ident">text_search</span>)<span class="question-mark">?</span>;
             }
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;postgresql&quot;</span>)]</span>
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;postgresql&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mysql&quot;</span>))]</span>
             <span class="ident">FunctionType::TextSearchRelevance</span>(<span class="ident">text_search_relevance</span>) =&gt; {
-                <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">text_search_relevance</span>.<span class="ident">exprs</span>.<span class="ident">len</span>();
-                <span class="kw">let</span> <span class="ident">exprs</span> <span class="op">=</span> <span class="ident">text_search_relevance</span>.<span class="ident">exprs</span>;
-                <span class="kw">let</span> <span class="ident">query</span> <span class="op">=</span> <span class="ident">text_search_relevance</span>.<span class="ident">query</span>;
-
-                <span class="self">self</span>.<span class="ident">write</span>(<span class="string">&quot;ts_rank(&quot;</span>)<span class="question-mark">?</span>;
-                <span class="self">self</span>.<span class="ident">surround_with</span>(<span class="string">&quot;to_tsvector(&quot;</span>, <span class="string">&quot;)&quot;</span>, <span class="op">|</span><span class="ident">s</span><span class="op">|</span> {
-                    <span class="kw">for</span> (<span class="ident">i</span>, <span class="ident">expr</span>) <span class="kw">in</span> <span class="ident">exprs</span>.<span class="ident">into_iter</span>().<span class="ident">enumerate</span>() {
-                        <span class="ident">s</span>.<span class="ident">visit_expression</span>(<span class="ident">expr</span>)<span class="question-mark">?</span>;
-
-                        <span class="kw">if</span> <span class="ident">i</span> <span class="op">&lt;</span> (<span class="ident">len</span> <span class="op">-</span> <span class="number">1</span>) {
-                            <span class="ident">s</span>.<span class="ident">write</span>(<span class="string">&quot;|| &#39; &#39; ||&quot;</span>)<span class="question-mark">?</span>;
-                        }
-                    }
-
-                    <span class="prelude-val">Ok</span>(())
-                })<span class="question-mark">?</span>;
-                <span class="self">self</span>.<span class="ident">write</span>(<span class="string">&quot;, &quot;</span>)<span class="question-mark">?</span>;
-                <span class="self">self</span>.<span class="ident">surround_with</span>(<span class="string">&quot;to_tsquery(&quot;</span>, <span class="string">&quot;)&quot;</span>, <span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="ident">s</span>.<span class="ident">visit_parameterized</span>(<span class="ident">Value::text</span>(<span class="ident">query</span>)))<span class="question-mark">?</span>;
-                <span class="self">self</span>.<span class="ident">write</span>(<span class="string">&quot;)&quot;</span>)<span class="question-mark">?</span>;
+                <span class="self">self</span>.<span class="ident">visit_text_search_relevance</span>(<span class="ident">text_search_relevance</span>)<span class="question-mark">?</span>;
             }
         };
 
@@ -2213,6 +2185,5 @@
     }
 }
 </code></pre></div>
-</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="quaint" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
-    <script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script>
+</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="quaint" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.59.0-nightly (cfa4ac66c 2022-01-06)" ></div>
 </body></html>
