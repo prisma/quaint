@@ -1,3 +1,4 @@
+use crate::error::{Error, ErrorKind};
 use bigdecimal::{
     num_bigint::{BigInt, Sign},
     BigDecimal, ToPrimitive, Zero,
@@ -78,8 +79,12 @@ fn to_postgres(decimal: &BigDecimal) -> crate::Result<PostgresDecimal<Vec<i16>>>
     let scale: u16 = cmp::max(0, exp).try_into()?;
 
     let (sign, uint) = integer.into_parts();
-    let mut mantissa = uint.to_u128().unwrap();
-
+    let mut mantissa = uint.to_u128().ok_or_else(|| {
+        Error::builder(ErrorKind::conversion(
+            "PostgresDecimal contained an out-of-range mantissa",
+        ))
+        .build()
+    })?;
     // If our scale is not a multiple of 4, we need to go to the next
     // multiple.
     let groups_diff = scale % 4;
