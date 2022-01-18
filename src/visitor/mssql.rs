@@ -281,6 +281,7 @@ impl<'a> Visitor<'a> for Mssql<'a> {
 
     fn visit_raw_value(&mut self, value: Value<'a>) -> visitor::Result {
         let res = match value {
+            Value::UnsignedInteger(i) => i.map(|i| self.write(i as i64)),
             Value::Integer(i) => i.map(|i| self.write(i)),
             Value::Float(d) => d.map(|f| match f {
                 f if f.is_nan() => self.write("'NaN'"),
@@ -1108,7 +1109,7 @@ mod tests {
         let (sql, params) = Mssql::build(query).unwrap();
 
         assert_eq!(expected_sql, sql);
-        assert_eq!(vec![Value::integer(0), Value::integer(10)], params);
+        assert_eq!(vec![Value::integer(0), Value::unsigned_integer(10u64)], params);
     }
 
     #[test]
@@ -1118,7 +1119,7 @@ mod tests {
         let (sql, params) = Mssql::build(query).unwrap();
 
         assert_eq!(expected_sql, sql);
-        assert_eq!(vec![Value::integer(10)], params);
+        assert_eq!(vec![Value::unsigned_integer(10u64)], params);
     }
 
     #[test]
@@ -1132,7 +1133,10 @@ mod tests {
         let (sql, params) = Mssql::build(query).unwrap();
 
         assert_eq!(expected_sql, sql);
-        assert_eq!(vec![Value::integer(10), Value::integer(9)], params);
+        assert_eq!(
+            vec![Value::unsigned_integer(10u64), Value::unsigned_integer(9u64)],
+            params
+        );
     }
 
     #[test]
@@ -1142,7 +1146,10 @@ mod tests {
         let (sql, params) = Mssql::build(query).unwrap();
 
         assert_eq!(expected_sql, sql);
-        assert_eq!(vec![Value::integer(10), Value::integer(9)], params);
+        assert_eq!(
+            vec![Value::unsigned_integer(10u64), Value::unsigned_integer(9u64)],
+            params
+        );
     }
 
     #[test]

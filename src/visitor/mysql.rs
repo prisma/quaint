@@ -112,6 +112,7 @@ impl<'a> Visitor<'a> for Mysql<'a> {
 
     fn visit_raw_value(&mut self, value: Value<'a>) -> visitor::Result {
         let res = match value {
+            Value::UnsignedInteger(i) => i.map(|i| self.write(i)),
             Value::Integer(i) => i.map(|i| self.write(i)),
             Value::Float(d) => d.map(|f| match f {
                 f if f.is_nan() => self.write("'NaN'"),
@@ -259,7 +260,7 @@ impl<'a> Visitor<'a> for Mysql<'a> {
             (None, Some(Value::Integer(Some(offset)))) if offset < 1 => Ok(()),
             (None, Some(offset)) => {
                 self.write(" LIMIT ")?;
-                self.visit_parameterized(Value::from(9_223_372_036_854_775_807i64))?;
+                self.visit_parameterized(Value::from(18446744073709551615u64))?;
 
                 self.write(" OFFSET ")?;
                 self.visit_parameterized(offset)
@@ -563,7 +564,7 @@ mod tests {
 
     #[test]
     fn test_limit_and_offset_when_both_are_set() {
-        let expected = expected_values("SELECT `users`.* FROM `users` LIMIT ? OFFSET ?", vec![10, 2]);
+        let expected = expected_values("SELECT `users`.* FROM `users` LIMIT ? OFFSET ?", vec![10u64, 2u64]);
         let query = Select::from_table("users").limit(10).offset(2);
         let (sql, params) = Mysql::build(query).unwrap();
 
@@ -573,10 +574,7 @@ mod tests {
 
     #[test]
     fn test_limit_and_offset_when_only_offset_is_set() {
-        let expected = expected_values(
-            "SELECT `users`.* FROM `users` LIMIT ? OFFSET ?",
-            vec![9_223_372_036_854_775_807i64, 10],
-        );
+        let expected = expected_values("SELECT `users`.* FROM `users` LIMIT ? OFFSET ?", vec![u64::MAX, 10u64]);
 
         let query = Select::from_table("users").offset(10);
         let (sql, params) = Mysql::build(query).unwrap();
@@ -587,7 +585,7 @@ mod tests {
 
     #[test]
     fn test_limit_and_offset_when_only_limit_is_set() {
-        let expected = expected_values("SELECT `users`.* FROM `users` LIMIT ?", vec![10]);
+        let expected = expected_values("SELECT `users`.* FROM `users` LIMIT ?", vec![10u64]);
         let query = Select::from_table("users").limit(10);
         let (sql, params) = Mysql::build(query).unwrap();
 

@@ -506,8 +506,15 @@ impl<'a> ToSql for Value<'a> {
             (Value::Integer(integer), &PostgresType::TEXT) => {
                 integer.map(|integer| format!("{}", integer).to_sql(ty, out))
             }
+            (Value::UnsignedInteger(integer), &PostgresType::TEXT) => {
+                integer.map(|integer| format!("{}", integer).to_sql(ty, out))
+            }
             (Value::Integer(integer), &PostgresType::OID) => integer.map(|integer| (integer as u32).to_sql(ty, out)),
+            (Value::UnsignedInteger(integer), &PostgresType::OID) => {
+                integer.map(|integer| (integer as u32).to_sql(ty, out))
+            }
             (Value::Integer(integer), _) => integer.map(|integer| (integer as i64).to_sql(ty, out)),
+            (Value::UnsignedInteger(integer), _) => integer.map(|integer| (integer as i64).to_sql(ty, out)),
             (Value::Float(float), &PostgresType::FLOAT8) => float.map(|float| (float as f64).to_sql(ty, out)),
             #[cfg(feature = "bigdecimal")]
             (Value::Float(float), &PostgresType::NUMERIC) => float

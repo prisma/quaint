@@ -3,7 +3,7 @@ use crate::tests::test_api::sqlite_test_api;
 use crate::tests::test_api::TestApi;
 #[cfg(feature = "chrono")]
 use crate::{ast::*, connector::Queryable};
-#[cfg(feature = "bigdecimal")]
+#[allow(unused)]
 use std::str::FromStr;
 
 test_type!(integer(

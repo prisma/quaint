@@ -9,7 +9,6 @@ use mysql_async::{
     self as my,
     consts::{ColumnFlags, ColumnType},
 };
-use std::convert::TryFrom;
 
 #[tracing::instrument(skip(params))]
 pub fn conv_params<'a>(params: &[Value<'a>]) -> crate::Result<my::Params> {
@@ -22,6 +21,7 @@ pub fn conv_params<'a>(params: &[Value<'a>]) -> crate::Result<my::Params> {
 
         for pv in params {
             let res = match pv {
+                Value::UnsignedInteger(i) => i.map(my::Value::UInt),
                 Value::Integer(i) => i.map(my::Value::Int),
                 Value::Float(f) => f.map(my::Value::Float),
                 Value::Double(f) => f.map(my::Value::Double),
@@ -108,15 +108,25 @@ impl TypeIdentifier for my::Column {
     fn is_integer(&self) -> bool {
         use ColumnType::*;
 
-        matches!(
-            self.column_type(),
-            MYSQL_TYPE_TINY
-                | MYSQL_TYPE_SHORT
-                | MYSQL_TYPE_LONG
-                | MYSQL_TYPE_LONGLONG
-                | MYSQL_TYPE_YEAR
-                | MYSQL_TYPE_INT24
-        )
+        if self.flags().intersects(ColumnFlags::UNSIGNED_FLAG) && self.column_type() == MYSQL_TYPE_LONGLONG {
+            false
+        } else {
+            matches!(
+                self.column_type(),
+                MYSQL_TYPE_TINY
+                    | MYSQL_TYPE_SHORT
+                    | MYSQL_TYPE_LONG
+                    | MYSQL_TYPE_LONGLONG
+                    | MYSQL_TYPE_YEAR
+                    | MYSQL_TYPE_INT24
+            )
+        }
+    }
+
+    fn is_unsigned_integer(&self) -> bool {
+        use ColumnType::*;
+
+        self.flags().intersects(ColumnFlags::UNSIGNED_FLAG) && self.column_type() == MYSQL_TYPE_LONGLONG
     }
 
     fn is_datetime(&self) -> bool {
@@ -245,12 +255,7 @@ impl TakeRow for my::Row {
                 my::Value::Bytes(b) if column.character_set() == 63 => Value::bytes(b),
                 my::Value::Bytes(s) => Value::text(String::from_utf8(s)?),
                 my::Value::Int(i) => Value::integer(i),
-                my::Value::UInt(i) => Value::integer(i64::try_from(i).map_err(|_| {
-                    let msg = "Unsigned integers larger than 9_223_372_036_854_775_807 are currently not handled.";
-                    let kind = ErrorKind::value_out_of_range(msg);
-
-                    Error::builder(kind).build()
-                })?),
+                my::Value::UInt(i) => Value::unsigned_integer(i),
                 my::Value::Float(f) => Value::from(f),
                 my::Value::Double(f) => Value::from(f),
                 #[cfg(feature = "chrono")]
@@ -291,6 +296,7 @@ impl TakeRow for my::Row {
                     t if t.is_enum() => Value::Enum(None),
                     t if t.is_null() => Value::Integer(None),
                     t if t.is_integer() => Value::Integer(None),
+                    t if t.is_unsigned_integer() => Value::UnsignedInteger(None),
                     t if t.is_float() => Value::Float(None),
                     t if t.is_double() => Value::Double(None),
                     t if t.is_text() => Value::Text(None),

@@ -1295,16 +1295,16 @@ async fn unsigned_integers_are_handled(api: &mut dyn TestApi) -> crate::Result<(
 
     let insert = Insert::multi_into(&table, &["big"])
         .values((2,))
-        .values((std::i64::MAX,));
+        .values((std::u64::MAX - 1,));
     api.conn().insert(insert.into()).await?;
 
     let select = Select::from_table(&table).column("big").order_by("id");
     let roundtripped = api.conn().select(select).await?;
 
-    let expected = &[2, std::i64::MAX];
-    let actual: Vec<i64> = roundtripped
+    let expected = &[2, std::u64::MAX - 1];
+    let actual: Vec<u64> = roundtripped
         .into_iter()
-        .map(|row| row.at(0).unwrap().as_i64().unwrap())
+        .map(|row| row.at(0).unwrap().as_u64().unwrap())
         .collect();
 
     assert_eq!(actual, expected);
@@ -2868,6 +2868,22 @@ async fn delete_comment(api: &mut dyn TestApi) -> crate::Result<()> {
     let delete =
         Delete::from_table(&table).comment("trace_id='5bd66ef5095369c7b0d1f8f4bd33716a', parent_id='c532cb4098ac3dd2'");
     api.conn().delete(delete.into()).await?;
+
+    Ok(())
+}
+
+#[test_each_connector(tags("mysql"))]
+async fn unsigned_integer(api: &mut dyn TestApi) -> crate::Result<()> {
+    let table = api.create_table("id BIGINT UNSIGNED primary key").await?;
+
+    let insert = Insert::multi_into(&table, &["id"]).values((std::u64::MAX - 1,));
+
+    api.conn().query(insert.into()).await?;
+
+    let select = Select::from_table(&table).so_that("id".equals(std::u64::MAX - 1));
+    let result = api.conn().query(select.into()).await?;
+
+    assert!(!result.is_empty());
 
     Ok(())
 }

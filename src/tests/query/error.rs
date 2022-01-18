@@ -171,23 +171,6 @@ async fn int_unsigned_negative_value_out_of_range(api: &mut dyn TestApi) -> crat
     Ok(())
 }
 
-#[test_each_connector(tags("mysql"))]
-async fn bigint_unsigned_positive_value_out_of_range(api: &mut dyn TestApi) -> crate::Result<()> {
-    let table = api
-        .create_table("id int4 auto_increment primary key, big bigint unsigned")
-        .await?;
-
-    let insert = format!(r#"INSERT INTO `{}` (`big`) VALUES (18446744073709551615)"#, table);
-    api.conn().execute_raw(&insert, &[]).await.unwrap();
-    let result = api.conn().select(Select::from_table(&table)).await;
-
-    assert!(
-        matches!(result.unwrap_err().kind(), ErrorKind::ValueOutOfRange { message } if message == "Unsigned integers larger than 9_223_372_036_854_775_807 are currently not handled.")
-    );
-
-    Ok(())
-}
-
 #[test_each_connector(tags("mysql", "mssql", "postgresql"))]
 async fn length_mismatch(api: &mut dyn TestApi) -> crate::Result<()> {
     let table = api.create_table("value varchar(3)").await?;

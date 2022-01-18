@@ -40,6 +40,8 @@ where
 /// compatibility.
 #[derive(Debug, Clone, PartialEq)]
 pub enum Value<'a> {
+    /// 64-bit unsigned integer.
+    UnsignedInteger(Option<u64>),
     /// 64-bit signed integer.
     Integer(Option<i64>),
     /// 32-bit floating point.
@@ -107,6 +109,7 @@ impl<'a> fmt::Display for Params<'a> {
 impl<'a> fmt::Display for Value<'a> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let res = match self {
+            Value::UnsignedInteger(val) => val.map(|v| write!(f, "{}", v)),
             Value::Integer(val) => val.map(|v| write!(f, "{}", v)),
             Value::Float(val) => val.map(|v| write!(f, "{}", v)),
             Value::Double(val) => val.map(|v| write!(f, "{}", v)),
@@ -155,6 +158,7 @@ impl<'a> fmt::Display for Value<'a> {
 impl<'a> From<Value<'a>> for serde_json::Value {
     fn from(pv: Value<'a>) -> Self {
         let res = match pv {
+            Value::UnsignedInteger(i) => i.map(|i| serde_json::Value::Number(Number::from(i))),
             Value::Integer(i) => i.map(|i| serde_json::Value::Number(Number::from(i))),
             Value::Float(f) => f.map(|f| match Number::from_f64(f as f64) {
                 Some(number) => serde_json::Value::Number(number),
@@ -207,6 +211,14 @@ impl<'a> Value<'a> {
         I: Into<i64>,
     {
         Value::Integer(Some(value.into()))
+    }
+
+    /// Creates a new unsigned integer value.
+    pub fn unsigned_integer<I>(value: I) -> Self
+    where
+        I: Into<u64>,
+    {
+        Value::UnsignedInteger(Some(value.into()))
     }
 
     /// Creates a new decimal value.
@@ -321,6 +333,7 @@ impl<'a> Value<'a> {
     /// `true` if the `Value` is null.
     pub const fn is_null(&self) -> bool {
         match self {
+            Value::UnsignedInteger(i) => i.is_none(),
             Value::Integer(i) => i.is_none(),
             Value::Float(i) => i.is_none(),
             Value::Double(i) => i.is_none(),
@@ -412,7 +425,15 @@ impl<'a> Value<'a> {
 
     /// `true` if the `Value` is an integer.
     pub const fn is_integer(&self) -> bool {
-        matches!(self, Value::Integer(_))
+        matches!(self, Value::Integer(_) | Value::UnsignedInteger(_))
+    }
+
+    /// Returns an `u64` if the value is an integer, otherwise `None`.
+    pub const fn as_u64(&self) -> Option<u64> {
+        match self {
+            Value::UnsignedInteger(i) => *i,
+            _ => None,
+        }
     }
 
     /// Returns an `i64` if the value is an integer, otherwise `None`.
@@ -476,6 +497,7 @@ impl<'a> Value<'a> {
             Value::Boolean(_) => true,
             // For schemas which don't tag booleans
             Value::Integer(Some(i)) if *i == 0 || *i == 1 => true,
+            Value::UnsignedInteger(Some(i)) if *i == 0 || *i == 1 => true,
             _ => false,
         }
     }
@@ -486,6 +508,7 @@ impl<'a> Value<'a> {
             Value::Boolean(b) => *b,
             // For schemas which don't tag booleans
             Value::Integer(Some(i)) if *i == 0 || *i == 1 => Some(*i == 1),
+            Value::UnsignedInteger(Some(i)) if *i == 0 || *i == 1 => Some(*i == 1),
             _ => None,
         }
     }
@@ -610,10 +633,11 @@ impl<'a> Value<'a> {
 }
 
 value!(val: i64, Integer, val);
+value!(val: u64, UnsignedInteger, val);
 value!(val: bool, Boolean, val);
 value!(val: &'a str, Text, val.into());
 value!(val: String, Text, val.into());
-value!(val: usize, Integer, i64::try_from(val).unwrap());
+value!(val: usize, UnsignedInteger, u64::try_from(val).unwrap());
 value!(val: i32, Integer, i64::try_from(val).unwrap());
 value!(val: &'a [u8], Bytes, val.into());
 value!(val: f64, Double, val);

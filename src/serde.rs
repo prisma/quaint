@@ -116,6 +116,8 @@ impl<'de> Deserializer<'de> for ValueDeserializer<'de> {
             Value::Enum(None) => visitor.visit_none(),
             Value::Integer(Some(i)) => visitor.visit_i64(i),
             Value::Integer(None) => visitor.visit_none(),
+            Value::UnsignedInteger(Some(i)) => visitor.visit_u64(i),
+            Value::UnsignedInteger(None) => visitor.visit_none(),
             Value::Boolean(Some(b)) => visitor.visit_bool(b),
             Value::Boolean(None) => visitor.visit_none(),
             Value::Char(Some(c)) => visitor.visit_char(c),
@@ -244,7 +246,10 @@ mod tests {
 
     #[test]
     fn deserialize_user() {
-        let row = make_row(vec![("id", Value::integer(12)), ("name", "Georgina".into())]);
+        let row = make_row(vec![
+            ("id", Value::unsigned_integer(12u64)),
+            ("name", "Georgina".into()),
+        ]);
         let user: User = from_row(row).unwrap();
 
         assert_eq!(
@@ -260,7 +265,7 @@ mod tests {
     #[test]
     fn from_rows_works() {
         let first_row = make_row(vec![
-            ("id", Value::integer(12)),
+            ("id", Value::unsigned_integer(12u64)),
             ("name", "Georgina".into()),
             ("bio", Value::Text(None)),
         ]);
