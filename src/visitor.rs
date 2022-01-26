@@ -1030,6 +1030,10 @@ pub trait Visitor<'a> {
             FunctionType::TextSearchRelevance(text_search_relevance) => {
                 self.visit_text_search_relevance(text_search_relevance)?;
             }
+            #[cfg(any(feature = "mysql"))]
+            FunctionType::UuidToBin => {
+                self.write("(uuid_to_bin(uuid()))")?;
+            }
         };
 
         if let Some(alias) = fun.alias {

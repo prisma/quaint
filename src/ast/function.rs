@@ -71,6 +71,18 @@ pub(crate) enum FunctionType<'a> {
     TextSearch(TextSearch<'a>),
     #[cfg(any(feature = "postgresql", feature = "mysql"))]
     TextSearchRelevance(TextSearchRelevance<'a>),
+    #[cfg(any(feature = "mysql"))]
+    UuidToBin,
+}
+
+#[cfg(any(feature = "mysql"))]
+pub fn uuid_to_bin() -> Expression<'static> {
+    let func = Function {
+        typ_: FunctionType::UuidToBin,
+        alias: None
+    };
+
+    func.into()
 }
 
 impl<'a> Aliasable<'a> for Function<'a> {
@@ -84,6 +96,22 @@ impl<'a> Aliasable<'a> for Function<'a> {
         self
     }
 }
+
+// impl<'a> From<Uui> for Function<'a> {
+//     fn from(f: $kind<'a>) -> Self {
+//         Function {
+//             typ_: FunctionType::$kind(f),
+//             alias: None,
+//         }
+//     }
+// }
+
+
+// impl<'a> From<$kind<'a>> for Expression<'a> {
+//     fn from(f: $kind<'a>) -> Self {
+//         Function::from(f).into()
+//     }
+// }
 
 #[cfg(all(feature = "json", feature = "postgresql"))]
 function!(RowToJson);
