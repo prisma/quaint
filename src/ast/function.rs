@@ -91,7 +91,7 @@ pub(crate) enum FunctionType<'a> {
 pub fn uuid_to_bin() -> Expression<'static> {
     let func = Function {
         typ_: FunctionType::UuidToBin,
-        alias: None
+        alias: None,
     };
 
     func.into()
