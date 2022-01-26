@@ -1032,7 +1032,7 @@ pub trait Visitor<'a> {
             }
             #[cfg(any(feature = "mysql"))]
             FunctionType::UuidToBin => {
-                self.write("(uuid_to_bin(uuid()))")?;
+                self.write("uuid_to_bin(uuid())")?;
             }
         };
 

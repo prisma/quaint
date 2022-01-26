@@ -75,6 +75,18 @@ pub(crate) enum FunctionType<'a> {
     UuidToBin,
 }
 
+/// Generates the function uuid_to_bin(uuid()) returning a binary uuid in MySQL
+/// ```rust
+/// # use quaint::{ast::*, visitor::{Visitor, Mysql}};
+/// # fn main() -> Result<(), quaint::error::Error> {
+
+/// let query = Select::default().value(uuid_to_bin());
+/// let (sql, _) = Mysql::build(query)?;
+///
+/// assert_eq!("SELECT uuid_to_bin(uuid())", sql);
+/// # Ok(())
+/// # }
+/// ```
 #[cfg(any(feature = "mysql"))]
 pub fn uuid_to_bin() -> Expression<'static> {
     let func = Function {
@@ -96,22 +108,6 @@ impl<'a> Aliasable<'a> for Function<'a> {
         self
     }
 }
-
-// impl<'a> From<Uui> for Function<'a> {
-//     fn from(f: $kind<'a>) -> Self {
-//         Function {
-//             typ_: FunctionType::$kind(f),
-//             alias: None,
-//         }
-//     }
-// }
-
-
-// impl<'a> From<$kind<'a>> for Expression<'a> {
-//     fn from(f: $kind<'a>) -> Self {
-//         Function::from(f).into()
-//     }
-// }
 
 #[cfg(all(feature = "json", feature = "postgresql"))]
 function!(RowToJson);
