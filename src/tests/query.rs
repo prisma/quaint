@@ -2879,7 +2879,7 @@ async fn generate_binary_uuid(api: &mut dyn TestApi) -> crate::Result<()> {
     let res = api.conn().select(select).await?.into_single()?;
     let val = res.into_single()?;
 
-    // Just check is a byte and it has some value, it is a uuid!
+    // If it is a byte type and has a value, it's a generated UUID.
     assert!(matches!(val, Value::Bytes(x) if matches!(x, Some(_))));
 
     Ok(())
@@ -2892,7 +2892,7 @@ async fn generate_native_uuid(api: &mut dyn TestApi) -> crate::Result<()> {
     let res = api.conn().select(select).await?.into_single()?;
     let val = res.into_single()?;
 
-    // Just check is a text and it has some value, it is a string uuid!
+    // If it is a text type and has a value, it's a generated string UUID.
     assert!(matches!(val, Value::Text(x) if matches!(x, Some(_))));
 
     Ok(())
