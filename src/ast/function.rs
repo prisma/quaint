@@ -17,6 +17,9 @@ mod search;
 mod sum;
 mod upper;
 
+#[cfg(feature = "mysql")]
+mod uuid;
+
 pub use aggregate_to_string::*;
 pub use average::*;
 pub use coalesce::*;
@@ -35,6 +38,9 @@ pub use row_to_json::*;
 pub use search::*;
 pub use sum::*;
 pub use upper::*;
+
+#[cfg(feature = "mysql")]
+pub use self::uuid::*;
 
 use super::{Aliasable, Expression};
 use std::borrow::Cow;
@@ -71,30 +77,10 @@ pub(crate) enum FunctionType<'a> {
     TextSearch(TextSearch<'a>),
     #[cfg(any(feature = "postgresql", feature = "mysql"))]
     TextSearchRelevance(TextSearchRelevance<'a>),
-    #[cfg(any(feature = "mysql"))]
+    #[cfg(feature = "mysql")]
     UuidToBin,
-}
-
-/// Generates the function uuid_to_bin(uuid()) returning a binary uuid in MySQL
-/// ```rust
-/// # use quaint::{ast::*, visitor::{Visitor, Mysql}};
-/// # fn main() -> Result<(), quaint::error::Error> {
-
-/// let query = Select::default().value(uuid_to_bin());
-/// let (sql, _) = Mysql::build(query)?;
-///
-/// assert_eq!("SELECT uuid_to_bin(uuid())", sql);
-/// # Ok(())
-/// # }
-/// ```
-#[cfg(any(feature = "mysql"))]
-pub fn uuid_to_bin() -> Expression<'static> {
-    let func = Function {
-        typ_: FunctionType::UuidToBin,
-        alias: None,
-    };
-
-    func.into()
+    #[cfg(feature = "mysql")]
+    Uuid,
 }
 
 impl<'a> Aliasable<'a> for Function<'a> {
