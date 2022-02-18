@@ -30,6 +30,8 @@ mod update;
 mod values;
 
 pub use column::{Column, DefaultValue, TypeDataLength, TypeFamily};
+#[cfg(feature = "postgresql")]
+pub use compare::{LtreeCompare, LtreeQuery};
 pub use compare::{Comparable, Compare, JsonCompare, JsonType};
 pub use conditions::ConditionTree;
 pub use conjunctive::Conjunctive;

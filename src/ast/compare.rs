@@ -53,6 +53,8 @@ pub enum Compare<'a> {
     /// (NOT `left` @@ to_tsquery(`value`))
     #[cfg(feature = "postgresql")]
     NotMatches(Box<Expression<'a>>, Cow<'a, str>),
+    #[cfg(feature = "postgresql")]
+    LtreeCompare(LtreeCompare<'a>),
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -70,6 +72,44 @@ pub enum JsonType {
     Number,
     Boolean,
     Null,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+#[cfg(feature = "postgresql")]
+pub enum LtreeQuery<'a> {
+    String(Cow<'a, str>),
+    Array(Vec<Cow<'a, str>>),
+}
+
+#[cfg(feature = "postgresql")]
+impl<'a> LtreeQuery<'a> {
+    pub fn string<S>(string: S) -> LtreeQuery<'a>
+    where
+        S: Into<Cow<'a, str>>,
+    {
+        LtreeQuery::String(string.into())
+    }
+
+    pub fn array<A, V>(array: A) -> LtreeQuery<'a>
+    where
+        V: Into<Cow<'a, str>>,
+        A: Into<Vec<V>>,
+    {
+        LtreeQuery::Array(array.into().into_iter().map(|v| v.into()).collect())
+    }
+}
+
+#[derive(Debug, Clone, PartialEq)]
+#[cfg(feature = "postgresql")]
+pub enum LtreeCompare<'a> {
+    IsAncestor(Box<Expression<'a>>, LtreeQuery<'a>),
+    IsNotAncestor(Box<Expression<'a>>, LtreeQuery<'a>),
+    IsDescendant(Box<Expression<'a>>, LtreeQuery<'a>),
+    IsNotDescendant(Box<Expression<'a>>, LtreeQuery<'a>),
+    Matches(Box<Expression<'a>>, LtreeQuery<'a>),
+    DoesNotMatch(Box<Expression<'a>>, LtreeQuery<'a>),
+    MatchesFullText(Box<Expression<'a>>, LtreeQuery<'a>),
+    DoesNotMatchFullText(Box<Expression<'a>>, LtreeQuery<'a>),
 }
 
 impl<'a> Compare<'a> {
@@ -873,6 +913,185 @@ pub trait Comparable<'a> {
     where
         T: Into<Cow<'a, str>>,
         V: Into<Expression<'a>>;
+
+    /// Determines whether a given ltree is the ancestor of one or more lqueries
+    ///
+    /// ```rust
+    /// # use quaint::{ast::*, visitor::{Visitor, Postgres}};
+    /// # fn main() -> Result<(), quaint::error::Error> {
+    /// let query = Select::from_table("paths").so_that("path".ltree_is_ancestor(LtreeQuery::string("a.b.c")));
+    /// let (sql, params) = Postgres::build(query)?;
+    ///
+    /// assert_eq!("SELECT \"paths\".* FROM \"paths\" WHERE \"path\" @> $1", sql);
+    ///
+    /// assert_eq!(vec![
+    ///     Value::from("a.b.c")
+    /// ], params);
+    ///
+    /// # Ok(())
+    /// # }
+    /// ```
+    #[cfg(feature = "postgresql")]
+    fn ltree_is_ancestor<T>(self, ltree: T) -> Compare<'a>
+    where
+        T: Into<LtreeQuery<'a>>;
+
+    /// Determines whether a given ltree is not the ancestor of one or more lqueries
+    ///
+    /// ```rust
+    /// # use quaint::{ast::*, visitor::{Visitor, Postgres}};
+    /// # fn main() -> Result<(), quaint::error::Error> {
+    /// let query = Select::from_table("paths").so_that("path".ltree_is_not_ancestor(LtreeQuery::array(vec!["a.b.c", "d.e.f"])));
+    /// let (sql, params) = Postgres::build(query)?;
+    ///
+    /// assert_eq!("SELECT \"paths\".* FROM \"paths\" WHERE (NOT \"path\" @> ARRAY[$1,$2]::lquery[])", sql);
+    ///
+    /// assert_eq!(vec![
+    ///     Value::from("a.b.c"),
+    ///     Value::from("d.e.f")
+    /// ], params);
+    ///
+    /// # Ok(())
+    /// # }
+    /// ```
+    #[cfg(feature = "postgresql")]
+    fn ltree_is_not_ancestor<T>(self, ltree: T) -> Compare<'a>
+    where
+        T: Into<LtreeQuery<'a>>;
+
+    /// Determines whether a given ltree is the descendent of one or more lqueries
+    ///
+    /// ```rust
+    /// # use quaint::{ast::*, visitor::{Visitor, Postgres}};
+    /// # fn main() -> Result<(), quaint::error::Error> {
+    /// let query = Select::from_table("paths").so_that("path".ltree_is_descendant(LtreeQuery::string("a.b.c")));
+    /// let (sql, params) = Postgres::build(query)?;
+    ///
+    /// assert_eq!("SELECT \"paths\".* FROM \"paths\" WHERE \"path\" <@ $1", sql);
+    ///
+    /// assert_eq!(vec![
+    ///     Value::from("a.b.c")
+    /// ], params);
+    ///
+    /// # Ok(())
+    /// # }
+    /// ```
+    #[cfg(feature = "postgresql")]
+    fn ltree_is_descendant<T>(self, ltree: T) -> Compare<'a>
+    where
+        T: Into<LtreeQuery<'a>>;
+
+    /// Determines whether a given ltree is not the descendent of one or more lqueries
+    ///
+    /// ```rust
+    /// # use quaint::{ast::*, visitor::{Visitor, Postgres}};
+    /// # fn main() -> Result<(), quaint::error::Error> {
+    /// let query = Select::from_table("paths").so_that("path".ltree_is_not_descendant(LtreeQuery::array(vec!["a.b.c", "d.e.f"])));
+    /// let (sql, params) = Postgres::build(query)?;
+    ///
+    /// assert_eq!("SELECT \"paths\".* FROM \"paths\" WHERE (NOT \"path\" <@ ARRAY[$1,$2]::lquery[])", sql);
+    ///
+    /// assert_eq!(vec![
+    ///     Value::from("a.b.c"),
+    ///     Value::from("d.e.f")
+    /// ], params);
+    ///
+    /// # Ok(())
+    /// # }
+    /// ```
+    #[cfg(feature = "postgresql")]
+    fn ltree_is_not_descendant<T>(self, ltree: T) -> Compare<'a>
+    where
+        T: Into<LtreeQuery<'a>>;
+
+    /// Determines whether a given ltree matches one or more lqueries
+    ///
+    /// ```rust
+    /// # use quaint::{ast::*, visitor::{Visitor, Postgres}};
+    /// # fn main() -> Result<(), quaint::error::Error> {
+    /// let query = Select::from_table("paths").so_that("path".ltree_match(LtreeQuery::string("a.b.c")));
+    /// let (sql, params) = Postgres::build(query)?;
+    ///
+    /// assert_eq!("SELECT \"paths\".* FROM \"paths\" WHERE \"path\" ~ $1", sql);
+    ///
+    /// assert_eq!(vec![
+    ///     Value::from("a.b.c")
+    /// ], params);
+    ///
+    /// # Ok(())
+    /// # }
+    /// ```
+    #[cfg(feature = "postgresql")]
+    fn ltree_match<T>(self, lquery: T) -> Compare<'a>
+    where
+        T: Into<LtreeQuery<'a>>;
+
+    /// Determines whether a given ltree does not match one or more lqueries
+    ///
+    /// ```rust
+    /// # use quaint::{ast::*, visitor::{Visitor, Postgres}};
+    /// # fn main() -> Result<(), quaint::error::Error> {
+    /// let query = Select::from_table("paths").so_that("path".ltree_match(LtreeQuery::array(vec!["a.b.c", "d.e.f"])));
+    /// let (sql, params) = Postgres::build(query)?;
+    ///
+    /// assert_eq!("SELECT \"paths\".* FROM \"paths\" WHERE (NOT \"path\" ? ARRAY[$1,$2]::lquery[])", sql);
+    ///
+    /// assert_eq!(vec![
+    ///     Value::from("a.b.c"),
+    ///     Value::from("d.e.f")
+    /// ], params);
+    ///
+    /// # Ok(())
+    /// # }
+    /// ```
+    #[cfg(feature = "postgresql")]
+    fn ltree_does_not_match<T>(self, lquery: T) -> Compare<'a>
+    where
+        T: Into<LtreeQuery<'a>>;
+
+    /// Determines whether a given ltree matches fulltext one or more ltxtqueries
+    ///
+    /// ```rust
+    /// # use quaint::{ast::*, visitor::{Visitor, Postgres}};
+    /// # fn main() -> Result<(), quaint::error::Error> {
+    /// let query = Select::from_table("paths").so_that("path".ltree_match_fulltext(LtreeQuery::string("a.b.c")));
+    /// let (sql, params) = Postgres::build(query)?;
+    ///
+    /// assert_eq!("SELECT \"paths\".* FROM \"paths\" WHERE \"path\" @ $1", sql);
+    ///
+    /// assert_eq!(vec![
+    ///     Value::from("a.b.c")
+    /// ], params);
+    ///
+    /// # Ok(())
+    /// # }
+    /// ```
+    #[cfg(feature = "postgresql")]
+    fn ltree_match_fulltext<T>(self, ltxtquery: T) -> Compare<'a>
+    where
+        T: Into<LtreeQuery<'a>>;
+
+    /// Determines whether a given ltree does not match fulltext one or more ltxtqueries
+    ///
+    /// ```rust
+    /// # use quaint::{ast::*, visitor::{Visitor, Postgres}};
+    /// # fn main() -> Result<(), quaint::error::Error> {
+    /// let query = Select::from_table("paths").so_that("path".ltree_does_not_match_fulltext(LtreeQuery::string("a.b.c")));
+    /// let (sql, params) = Postgres::build(query)?;
+    ///
+    /// assert_eq!("SELECT \"paths\".* FROM \"paths\" WHERE (NOT \"path\" @ $1)", sql);
+    ///
+    /// assert_eq!(vec![
+    ///     Value::from("a.b.c")
+    /// ], params);
+    ///
+    /// # Ok(())
+    /// # }
+    /// ```
+    #[cfg(feature = "postgresql")]
+    fn ltree_does_not_match_fulltext<T>(self, ltxtquery: T) -> Compare<'a>
+    where
+        T: Into<LtreeQuery<'a>>;
 }
 
 impl<'a, U> Comparable<'a> for U
@@ -1149,5 +1368,93 @@ where
         let val: Expression<'a> = col.into();
 
         val.not_matches(query)
+    }
+
+    #[cfg(feature = "postgresql")]
+    fn ltree_is_ancestor<T>(self, ltree: T) -> Compare<'a>
+    where
+        T: Into<LtreeQuery<'a>>,
+    {
+        let col: Column<'a> = self.into();
+        let val: Expression<'a> = col.into();
+
+        val.ltree_is_ancestor(ltree)
+    }
+
+    #[cfg(feature = "postgresql")]
+    fn ltree_is_not_ancestor<T>(self, ltree: T) -> Compare<'a>
+    where
+        T: Into<LtreeQuery<'a>>,
+    {
+        let col: Column<'a> = self.into();
+        let val: Expression<'a> = col.into();
+
+        val.ltree_is_not_ancestor(ltree)
+    }
+
+    #[cfg(feature = "postgresql")]
+    fn ltree_is_descendant<T>(self, ltree: T) -> Compare<'a>
+    where
+        T: Into<LtreeQuery<'a>>,
+    {
+        let col: Column<'a> = self.into();
+        let val: Expression<'a> = col.into();
+
+        val.ltree_is_descendant(ltree)
+    }
+
+    #[cfg(feature = "postgresql")]
+    fn ltree_is_not_descendant<T>(self, ltree: T) -> Compare<'a>
+    where
+        T: Into<LtreeQuery<'a>>,
+    {
+        let col: Column<'a> = self.into();
+        let val: Expression<'a> = col.into();
+
+        val.ltree_is_not_descendant(ltree)
+    }
+
+    #[cfg(feature = "postgresql")]
+    fn ltree_match<T>(self, lquery: T) -> Compare<'a>
+    where
+        T: Into<LtreeQuery<'a>>,
+    {
+        let col: Column<'a> = self.into();
+        let val: Expression<'a> = col.into();
+
+        val.ltree_match(lquery)
+    }
+
+    #[cfg(feature = "postgresql")]
+    fn ltree_does_not_match<T>(self, lquery: T) -> Compare<'a>
+    where
+        T: Into<LtreeQuery<'a>>,
+    {
+        let col: Column<'a> = self.into();
+        let val: Expression<'a> = col.into();
+
+        val.ltree_does_not_match(lquery)
+    }
+
+    #[cfg(feature = "postgresql")]
+    fn ltree_match_fulltext<T>(self, ltxtquery: T) -> Compare<'a>
+    where
+        T: Into<LtreeQuery<'a>>,
+    {
+        let col: Column<'a> = self.into();
+        let val: Expression<'a> = col.into();
+
+        val.ltree_match_fulltext(ltxtquery)
+    }
+
+    #[cfg(feature = "postgresql")]
+    fn ltree_does_not_match_fulltext<T>(self, ltxtquery: T) -> Compare<'a>
+    where
+        T: Into<LtreeQuery<'a>>,
+    {
+        let col: Column<'a> = self.into();
+        let val: Expression<'a> = col.into();
+
+        val.ltree_does_not_match_fulltext(ltxtquery)
     }
 }

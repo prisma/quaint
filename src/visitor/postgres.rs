@@ -3,6 +3,8 @@ use crate::{
     visitor::{self, Visitor},
 };
 use std::fmt::{self, Write};
+use crate::error::Error;
+use crate::error::ErrorKind::Unsupported;
 
 /// A visitor to generate queries for the PostgreSQL database.
 ///
@@ -416,6 +418,137 @@ impl<'a> Visitor<'a> for Postgres<'a> {
 
         Ok(())
     }
+
+    #[cfg(feature = "postgresql")]
+    fn visit_ltree_is_ancestor(&mut self, left: Expression<'a>, query: LtreeQuery<'a>, not: bool) -> visitor::Result {
+        if not {
+            self.write("(NOT ")?;
+        }
+
+        self.visit_expression(left)?;
+        self.write(" @> ")?;
+
+        match query {
+            LtreeQuery::String(str) => self.visit_parameterized(Value::text(str))?,
+            LtreeQuery::Array(query_path) => {
+                let len = query_path.len();
+                self.surround_with("ARRAY[", "]::ltree[]", |s| {
+                    for (i, query_part) in query_path.into_iter().enumerate() {
+                        s.visit_parameterized(Value::text(query_part))?;
+
+                        if i < (len - 1) {
+                            s.write(",")?;
+                        }
+                    }
+                    Ok(())
+                })?;
+            }
+        }
+
+        if not {
+            self.write(")")?;
+        }
+
+        Ok(())
+    }
+
+    #[cfg(feature = "postgresql")]
+    fn visit_ltree_is_descendant(&mut self, left: Expression<'a>, query: LtreeQuery<'a>, not: bool) -> visitor::Result {
+        if not {
+            self.write("(NOT ")?;
+        }
+
+        self.visit_expression(left)?;
+        self.write(" <@ ")?;
+
+        match query {
+            LtreeQuery::String(str) => self.visit_parameterized(Value::text(str))?,
+            LtreeQuery::Array(query_path) => {
+                let len = query_path.len();
+                self.surround_with("ARRAY[", "]::ltree[]", |s| {
+                    for (i, query_part) in query_path.into_iter().enumerate() {
+                        s.visit_parameterized(Value::text(query_part))?;
+
+                        if i < (len - 1) {
+                            s.write(",")?;
+                        }
+                    }
+                    Ok(())
+                })?;
+            }
+        }
+
+        if not {
+            self.write(")")?;
+        }
+
+        Ok(())
+    }
+
+    #[cfg(feature = "postgresql")]
+    fn visit_ltree_match(&mut self, left: Expression<'a>, query: LtreeQuery<'a>, not: bool) -> visitor::Result {
+        if not {
+            self.write("(NOT ")?
+        }
+
+        self.visit_expression(left)?;
+
+        match query {
+            LtreeQuery::String(str) => {
+                self.write(" ~ ")?;
+                self.visit_parameterized(Value::text(str))?;
+            },
+            LtreeQuery::Array(query_path) => {
+                self.write(" ? ")?;
+
+                let len = query_path.len();
+                self.surround_with("ARRAY[", "]::lquery[]", |s| {
+                    for (i, query_part) in query_path.into_iter().enumerate() {
+                        s.visit_parameterized(Value::text(query_part))?;
+
+                        if i < (len - 1) {
+                            s.write(",")?;
+                        }
+                    }
+                    Ok(())
+                })?;
+            }
+        }
+
+        if not {
+            self.write(")")?;
+        }
+
+        Ok(())
+    }
+
+    #[cfg(feature = "postgresql")]
+    fn visit_ltree_match_fulltext(
+        &mut self,
+        left: Expression<'a>,
+        query: LtreeQuery<'a>,
+        not: bool,
+    ) -> visitor::Result {
+        match query {
+            LtreeQuery::String(str) => {
+                if not {
+                    self.write("(NOT ")?;
+                }
+
+                self.visit_expression(left)?;
+                self.write(" @ ")?;
+
+                self.visit_parameterized(Value::text(str))?;
+
+                if not {
+                    self.write(")")?;
+                }
+
+                Ok(())
+            },
+            LtreeQuery::Array(_) => Err(Error::builder(Unsupported("ltxtquery array".into())).build()),
+        }
+    }
 }
 
 #[cfg(test)]
@@ -459,7 +592,7 @@ mod tests {
     }
 
     #[test]
-    #[cfg(feature = "postgres")]
+    #[cfg(feature = "postgresql")]
     fn test_returning_insert() {
         let expected = expected_values(
             "INSERT INTO \"users\" (\"foo\") VALUES ($1) RETURNING \"foo\"",
@@ -832,5 +965,267 @@ mod tests {
         let (sql, _) = Postgres::build(q).unwrap();
 
         assert_eq!("SELECT \"User\".*, \"Toto\".* FROM \"User\" LEFT JOIN \"Post\" AS \"p\" ON \"p\".\"userId\" = \"User\".\"id\", \"Toto\"", sql);
+    }
+
+    #[test]
+    #[cfg(feature = "postgresql")]
+    fn test_ltree_is_ancestor() {
+        let expected = expected_values(
+            r#"SELECT "test".* FROM "test" WHERE "path" @> $1"#,
+            vec![Value::text("a.b.c")],
+        );
+
+        let query = Select::from_table("test")
+            .so_that(Column::from("path").ltree_is_ancestor(LtreeQuery::string(Cow::from("a.b.c"))));
+        let (sql, params) = Postgres::build(query).unwrap();
+
+        assert_eq!(expected.0, sql);
+        assert_eq!(expected.1, params);
+    }
+
+    #[test]
+    #[cfg(feature = "postgresql")]
+    fn test_ltree_is_ancestor_many() {
+        let expected = expected_values(
+            r#"SELECT "test".* FROM "test" WHERE "path" @> ARRAY[$1,$2]::ltree[]"#,
+            vec![Value::text("a.b.c"), Value::text("d.e.f")],
+        );
+        let query = Select::from_table("test").so_that(
+            Column::from("path").ltree_is_ancestor(LtreeQuery::array(vec![Cow::from("a.b.c"), Cow::from("d.e.f")])),
+        );
+        let (sql, params) = Postgres::build(query).unwrap();
+
+        assert_eq!(expected.0, sql);
+        assert_eq!(expected.1, params);
+    }
+
+    #[test]
+    #[cfg(feature = "postgresql")]
+    fn test_ltree_is_not_ancestor() {
+        let expected = expected_values(
+            r#"SELECT "test".* FROM "test" WHERE (NOT "path" @> $1)"#,
+            vec![Value::text("a.b.c")],
+        );
+
+        let query = Select::from_table("test")
+            .so_that(Column::from("path").ltree_is_not_ancestor(LtreeQuery::string(Cow::from("a.b.c"))));
+        let (sql, params) = Postgres::build(query).unwrap();
+
+        assert_eq!(expected.0, sql);
+        assert_eq!(expected.1, params);
+    }
+
+    #[test]
+    #[cfg(feature = "postgresql")]
+    fn test_ltree_is_not_ancestor_many() {
+        let expected = expected_values(
+            r#"SELECT "test".* FROM "test" WHERE (NOT "path" @> ARRAY[$1,$2]::ltree[])"#,
+            vec![Value::text("a.b.c"), Value::text("d.e.f")],
+        );
+
+        let query = Select::from_table("test").so_that(
+            Column::from("path").ltree_is_not_ancestor(LtreeQuery::array(vec![Cow::from("a.b.c"), Cow::from("d.e.f")])),
+        );
+        let (sql, params) = Postgres::build(query).unwrap();
+
+        assert_eq!(expected.0, sql);
+        assert_eq!(expected.1, params);
+    }
+
+    #[test]
+    #[cfg(feature = "postgresql")]
+    fn test_ltree_is_descendant() {
+        let expected = expected_values(
+            r#"SELECT "test".* FROM "test" WHERE "path" <@ $1"#,
+            vec![Value::text("a.b.c")],
+        );
+
+        let query = Select::from_table("test")
+            .so_that(Column::from("path").ltree_is_descendant(LtreeQuery::string(Cow::from("a.b.c"))));
+        let (sql, params) = Postgres::build(query).unwrap();
+
+        assert_eq!(expected.0, sql);
+        assert_eq!(expected.1, params);
+    }
+
+    #[test]
+    #[cfg(feature = "postgresql")]
+    fn test_ltree_is_descendant_many() {
+        let expected = expected_values(
+            r#"SELECT "test".* FROM "test" WHERE "path" <@ ARRAY[$1,$2]::ltree[]"#,
+            vec![Value::text("a.b.c"), Value::text("d.e.f")],
+        );
+
+        let query = Select::from_table("test").so_that(
+            Column::from("path").ltree_is_descendant(LtreeQuery::array(vec![Cow::from("a.b.c"), Cow::from("d.e.f")])),
+        );
+        let (sql, params) = Postgres::build(query).unwrap();
+
+        assert_eq!(expected.0, sql);
+        assert_eq!(expected.1, params);
+    }
+
+    #[test]
+    #[cfg(feature = "postgresql")]
+    fn test_ltree_is_not_descendant() {
+        let expected = expected_values(
+            r#"SELECT "test".* FROM "test" WHERE (NOT "path" <@ $1)"#,
+            vec![Value::text("a.b.c")],
+        );
+
+        let query = Select::from_table("test")
+            .so_that(Column::from("path").ltree_is_not_descendant(LtreeQuery::string(Cow::from("a.b.c"))));
+        let (sql, params) = Postgres::build(query).unwrap();
+
+        assert_eq!(expected.0, sql);
+        assert_eq!(expected.1, params);
+    }
+
+    #[test]
+    #[cfg(feature = "postgresql")]
+    fn test_ltree_is_not_descendant_many() {
+        let expected = expected_values(
+            r#"SELECT "test".* FROM "test" WHERE (NOT "path" <@ ARRAY[$1,$2]::ltree[])"#,
+            vec![Value::text("a.b.c"), Value::text("d.e.f")],
+        );
+
+        let query = Select::from_table("test").so_that(
+            Column::from("path")
+                .ltree_is_not_descendant(LtreeQuery::array(vec![Cow::from("a.b.c"), Cow::from("d.e.f")])),
+        );
+        let (sql, params) = Postgres::build(query).unwrap();
+
+        assert_eq!(expected.0, sql);
+        assert_eq!(expected.1, params);
+    }
+
+    #[test]
+    #[cfg(feature = "postgresql")]
+    fn test_ltree_is_match() {
+        let expected = expected_values(
+            r#"SELECT "test".* FROM "test" WHERE "path" ~ $1"#,
+            vec![Value::text("a.b.c")],
+        );
+
+        let query = Select::from_table("test")
+            .so_that(Column::from("path").ltree_match(LtreeQuery::string(Cow::from("a.b.c"))));
+        let (sql, params) = Postgres::build(query).unwrap();
+
+        assert_eq!(expected.0, sql);
+        assert_eq!(expected.1, params);
+    }
+
+    #[test]
+    #[cfg(feature = "postgresql")]
+    fn test_ltree_is_match_many() {
+        let expected = expected_values(
+            r#"SELECT "test".* FROM "test" WHERE "path" ? ARRAY[$1,$2]::lquery[]"#,
+            vec![Value::text("a.b.c"), Value::text("d.e.f")],
+        );
+
+        let query = Select::from_table("test")
+            .so_that(Column::from("path").ltree_match(LtreeQuery::array(vec![Cow::from("a.b.c"), Cow::from("d.e.f")])));
+        let (sql, params) = Postgres::build(query).unwrap();
+
+        assert_eq!(expected.0, sql);
+        assert_eq!(expected.1, params);
+    }
+
+    #[test]
+    #[cfg(feature = "postgresql")]
+    fn test_ltree_is_not_match() {
+        let expected = expected_values(
+            r#"SELECT "test".* FROM "test" WHERE (NOT "path" ~ $1)"#,
+            vec![Value::text("a.b.c")],
+        );
+
+        let query = Select::from_table("test")
+            .so_that(Column::from("path").ltree_does_not_match(LtreeQuery::string(Cow::from("a.b.c"))));
+        let (sql, params) = Postgres::build(query).unwrap();
+
+        assert_eq!(expected.0, sql);
+        assert_eq!(expected.1, params);
+    }
+
+    #[test]
+    #[cfg(feature = "postgresql")]
+    fn test_ltree_is_not_match_many() {
+        let expected = expected_values(
+            r#"SELECT "test".* FROM "test" WHERE (NOT "path" ? ARRAY[$1,$2]::lquery[])"#,
+            vec![Value::text("a.b.c"), Value::text("d.e.f")],
+        );
+
+        let query = Select::from_table("test").so_that(
+            Column::from("path").ltree_does_not_match(LtreeQuery::array(vec![Cow::from("a.b.c"), Cow::from("d.e.f")])),
+        );
+        let (sql, params) = Postgres::build(query).unwrap();
+
+        assert_eq!(expected.0, sql);
+        assert_eq!(expected.1, params);
+    }
+
+    #[test]
+    #[cfg(feature = "postgresql")]
+    fn test_ltree_is_match_fulltext() {
+        let expected = expected_values(
+            r#"SELECT "test".* FROM "test" WHERE "path" @ $1"#,
+            vec![Value::text("a.b.c")],
+        );
+
+        let query = Select::from_table("test")
+            .so_that(Column::from("path").ltree_match_fulltext(LtreeQuery::string(Cow::from("a.b.c"))));
+        let (sql, params) = Postgres::build(query).unwrap();
+
+        assert_eq!(expected.0, sql);
+        assert_eq!(expected.1, params);
+    }
+
+    #[test]
+    #[cfg(feature = "postgresql")]
+    fn test_ltree_is_match_fulltext_many() {
+        let query = Select::from_table("test").so_that(
+            Column::from("path").ltree_match_fulltext(LtreeQuery::array(vec![Cow::from("a.b.c"), Cow::from("d.e.f")])),
+        );
+
+        // This should error due to arrays of ltxtqueries not being supported
+        let success = match Postgres::build(query) {
+            Err(_) => true,
+            _ => false
+        };
+
+        assert!(success)
+    }
+
+    #[test]
+    #[cfg(feature = "postgresql")]
+    fn test_ltree_is_not_match_fulltext() {
+        let expected = expected_values(
+            r#"SELECT "test".* FROM "test" WHERE (NOT "path" @ $1)"#,
+            vec![Value::text("a.b.c")],
+        );
+
+        let query = Select::from_table("test")
+            .so_that(Column::from("path").ltree_does_not_match_fulltext(LtreeQuery::string(Cow::from("a.b.c"))));
+        let (sql, params) = Postgres::build(query).unwrap();
+
+        assert_eq!(expected.0, sql);
+        assert_eq!(expected.1, params);
+    }
+
+    #[test]
+    #[cfg(feature = "postgresql")]
+    fn test_ltree_is_not_match_fulltext_many() {
+        let query = Select::from_table("test").so_that(
+            Column::from("path")
+                .ltree_does_not_match_fulltext(LtreeQuery::array(vec![Cow::from("a.b.c"), Cow::from("d.e.f")])),
+        );
+
+        // This should error due to arrays of ltxtqueries not being supported
+        let success = match Postgres::build(query) {
+            Err(_) => true,
+            _ => false
+        };
+
+        assert!(success);
     }
 }
