@@ -7,16 +7,22 @@ use crate::connector::PostgresUrl;
 use crate::{
     ast,
     connector::{self, Queryable, Transaction, TransactionCapable},
-    error::Error,
 };
 use async_trait::async_trait;
-use mobc::{Connection as MobcPooled, Manager};
+
+pub type Connection = Box<dyn Queryable>;
 
 /// A connection from the pool. Implements
 /// [Queryable](connector/trait.Queryable.html).
 pub struct PooledConnection {
-    pub(crate) inner: MobcPooled<QuaintManager>,
+    pub(crate) inner: Connection,
 }
+
+// /// A connection from the pool. Implements
+// /// [Queryable](connector/trait.Queryable.html).
+// pub struct PooledConnection {
+//     pub(crate) inner: MobcPooled<ConnectionCreator>,
+// }
 
 impl TransactionCapable for PooledConnection {}
 
@@ -60,7 +66,7 @@ impl Queryable for PooledConnection {
 }
 
 #[doc(hidden)]
-pub enum QuaintManager {
+pub enum ConnectionCreator {
     #[cfg(feature = "mysql")]
     Mysql { url: MysqlUrl },
 
@@ -74,38 +80,34 @@ pub enum QuaintManager {
     Mssql { url: MssqlUrl },
 }
 
-#[async_trait]
-impl Manager for QuaintManager {
-    type Connection = Box<dyn Queryable>;
-    type Error = Error;
-
-    async fn connect(&self) -> crate::Result<Self::Connection> {
+impl ConnectionCreator {
+    pub async fn connect(&self) -> crate::Result<Connection> {
         let conn = match self {
             #[cfg(feature = "sqlite")]
-            QuaintManager::Sqlite { url, .. } => {
+            ConnectionCreator::Sqlite { url, .. } => {
                 use crate::connector::Sqlite;
 
                 let conn = Sqlite::new(url)?;
 
-                Ok(Box::new(conn) as Self::Connection)
+                Ok(Box::new(conn) as Connection)
             }
 
             #[cfg(feature = "mysql")]
-            QuaintManager::Mysql { url } => {
+            ConnectionCreator::Mysql { url } => {
                 use crate::connector::Mysql;
-                Ok(Box::new(Mysql::new(url.clone()).await?) as Self::Connection)
+                Ok(Box::new(Mysql::new(url.clone()).await?) as Connection)
             }
 
             #[cfg(feature = "postgresql")]
-            QuaintManager::Postgres { url } => {
+            ConnectionCreator::Postgres { url } => {
                 use crate::connector::PostgreSql;
-                Ok(Box::new(PostgreSql::new(url.clone()).await?) as Self::Connection)
+                Ok(Box::new(PostgreSql::new(url.clone()).await?) as Connection)
             }
 
             #[cfg(feature = "mssql")]
-            QuaintManager::Mssql { url } => {
+            ConnectionCreator::Mssql { url } => {
                 use crate::connector::Mssql;
-                Ok(Box::new(Mssql::new(url.clone()).await?) as Self::Connection)
+                Ok(Box::new(Mssql::new(url.clone()).await?) as Connection)
             }
         };
 
@@ -113,106 +115,5 @@ impl Manager for QuaintManager {
             .for_each(|_| tracing::debug!("Acquired database connection."));
 
         conn
-    }
-
-    async fn check(&self, conn: Self::Connection) -> crate::Result<Self::Connection> {
-        conn.raw_cmd("SELECT 1").await?;
-        Ok(conn)
-    }
-
-    fn validate(&self, conn: &mut Self::Connection) -> bool {
-        conn.is_healthy()
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use crate::pooled::Quaint;
-
-    #[tokio::test]
-    #[cfg(feature = "mysql")]
-    async fn mysql_default_connection_limit() {
-        let conn_string = std::env::var("TEST_MYSQL").expect("TEST_MYSQL connection string not set.");
-
-        let pool = Quaint::builder(&conn_string).unwrap().build();
-
-        assert_eq!(num_cpus::get_physical() * 2 + 1, pool.capacity().await as usize);
-    }
-
-    #[tokio::test]
-    #[cfg(feature = "mysql")]
-    async fn mysql_custom_connection_limit() {
-        let conn_string = format!(
-            "{}?connection_limit=10",
-            std::env::var("TEST_MYSQL").expect("TEST_MYSQL connection string not set.")
-        );
-
-        let pool = Quaint::builder(&conn_string).unwrap().build();
-
-        assert_eq!(10, pool.capacity().await as usize);
-    }
-
-    #[tokio::test]
-    #[cfg(feature = "postgresql")]
-    async fn psql_default_connection_limit() {
-        let conn_string = std::env::var("TEST_PSQL").expect("TEST_PSQL connection string not set.");
-
-        let pool = Quaint::builder(&conn_string).unwrap().build();
-
-        assert_eq!(num_cpus::get_physical() * 2 + 1, pool.capacity().await as usize);
-    }
-
-    #[tokio::test]
-    #[cfg(feature = "postgresql")]
-    async fn psql_custom_connection_limit() {
-        let conn_string = format!(
-            "{}?connection_limit=10",
-            std::env::var("TEST_PSQL").expect("TEST_PSQL connection string not set.")
-        );
-
-        let pool = Quaint::builder(&conn_string).unwrap().build();
-
-        assert_eq!(10, pool.capacity().await as usize);
-    }
-
-    #[tokio::test]
-    #[cfg(feature = "mssql")]
-    async fn mssql_default_connection_limit() {
-        let conn_string = std::env::var("TEST_MSSQL").expect("TEST_MSSQL connection string not set.");
-
-        let pool = Quaint::builder(&conn_string).unwrap().build();
-
-        assert_eq!(num_cpus::get_physical() * 2 + 1, pool.capacity().await as usize);
-    }
-
-    #[tokio::test]
-    #[cfg(feature = "mssql")]
-    async fn mssql_custom_connection_limit() {
-        let conn_string = format!(
-            "{};connectionLimit=10",
-            std::env::var("TEST_MSSQL").expect("TEST_MSSQL connection string not set.")
-        );
-
-        let pool = Quaint::builder(&conn_string).unwrap().build();
-
-        assert_eq!(10, pool.capacity().await as usize);
-    }
-
-    #[tokio::test]
-    #[cfg(feature = "sqlite")]
-    async fn test_default_connection_limit() {
-        let conn_string = format!("file:db/test.db",);
-        let pool = Quaint::builder(&conn_string).unwrap().build();
-
-        assert_eq!(num_cpus::get_physical() * 2 + 1, pool.capacity().await as usize);
-    }
-
-    #[tokio::test]
-    #[cfg(feature = "sqlite")]
-    async fn test_custom_connection_limit() {
-        let conn_string = format!("file:db/test.db?connection_limit=10",);
-        let pool = Quaint::builder(&conn_string).unwrap().build();
-
-        assert_eq!(10, pool.capacity().await as usize);
     }
 }
