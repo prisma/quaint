@@ -152,12 +152,14 @@
 // pub use manager::*;
 
 mod builder;
+mod deadpool_manager;
 mod manager;
 mod mobc_manager;
 mod quaint;
 /// The main entry point and an abstraction over database connections and
 /// connection handling.
 pub use builder::*;
+pub use deadpool_manager::*;
 pub use manager::*;
 pub use mobc_manager::*;
 pub use quaint::*;

@@ -1,30 +1,30 @@
-use async_trait::async_trait;
-
-use crate::{
-    connector::{self},
-    error::Error,
-};
-use mobc::{Manager, Pool};
 use std::ops::Deref;
 use std::time::Duration;
 
 use super::{
     Connection, ConnectionCreator, PoolManager, PoolManagerError, PoolManagerResult, PoolState, PooledConnection,
 };
-
 use crate::{
     ast,
-    connector::{Queryable, Transaction},
+    connector::{self, Queryable, Transaction},
+    error::Error,
 };
+use async_trait::async_trait;
+use deadpool::managed::{self, Manager, Pool, PoolError, RecycleError, RecycleResult, Timeouts};
 
-pub struct MobcManager {
+pub struct DeadpoolManager {
     pub(crate) connection_creator: ConnectionCreator,
 }
 
 #[async_trait]
-impl PoolManager for Pool<MobcManager> {
+impl PoolManager for Pool<DeadpoolManager> {
     async fn acquire_with_timeout(&self, timeout: Duration) -> PoolManagerResult {
-        match self.get_timeout(timeout).await {
+        let timeouts = Timeouts {
+            wait: Some(timeout),
+            create: None,
+            recycle: None,
+        };
+        match self.timeout_get(&timeouts).await {
             Ok(conn) => {
                 let pooled = PooledConnection { inner: Box::new(conn) };
                 Ok(pooled)
@@ -51,15 +51,8 @@ impl PoolManager for Pool<MobcManager> {
     }
 }
 
-// impl Deref<&dyn Queryable> {
-//     type Target = Connection;
-//     fn deref(&self) -> &Self::Target {
-//         &self.conn.as_ref().unwrap().raw.as_ref().unwrap()
-//     }
-// }
-
 #[async_trait]
-impl Queryable for mobc::Connection<MobcManager> {
+impl Queryable for managed::Object<DeadpoolManager> {
     async fn query(&self, q: ast::Query<'_>) -> crate::Result<connector::ResultSet> {
         self.deref().query(q).await
     }
@@ -98,35 +91,35 @@ impl Queryable for mobc::Connection<MobcManager> {
 }
 
 #[async_trait]
-impl Manager for MobcManager {
-    type Connection = Connection;
+impl Manager for DeadpoolManager {
+    type Type = Connection;
     type Error = Error;
 
-    async fn connect(&self) -> crate::Result<Self::Connection> {
+    async fn create(&self) -> crate::Result<Self::Type> {
         self.connection_creator.connect().await
     }
 
-    async fn check(&self, conn: Self::Connection) -> crate::Result<Self::Connection> {
-        conn.raw_cmd("SELECT 1").await?;
-        Ok(conn)
-    }
+    async fn recycle(&self, conn: &mut Connection) -> RecycleResult<Error> {
+        if !conn.is_healthy() {
+            //log::info!(target: "deadpool.postgres", "Connection could not be recycled: {}", e);
+            return Err(RecycleError::StaticMessage("Connection not healthy"));
+        }
 
-    fn validate(&self, conn: &mut Self::Connection) -> bool {
-        conn.is_healthy()
+        Ok(())
+
+        // match self.check(conn).await {
+        //     Ok(_) => Ok(()),
+        //     Err(_) => Err(RecycleError::StaticMessage("Connection check failed")),
+        // }
     }
 }
 
-impl From<mobc::Error<Error>> for PoolManagerError {
-    fn from(err: mobc::Error<Error>) -> PoolManagerError {
+impl From<PoolError<Error>> for PoolManagerError {
+    fn from(err: PoolError<Error>) -> PoolManagerError {
         match err {
-            mobc::Error::Timeout => PoolManagerError::Timeout,
-            mobc::Error::Inner(e) => PoolManagerError::Other(e),
-            e @ mobc::Error::BadConn => {
-                todo!("FIX ME")
-                // PoolManagerError::BadConn(e)
-                // let error = Error::builder(ErrorKind::ConnectionError(Box::new(e))).build();
-                // return Err(error);
-            }
+            PoolError::Timeout(_) => PoolManagerError::Timeout,
+            PoolError::Backend(e) => PoolManagerError::Other(e),
+            err => panic!("Unknown error {:?}", err),
         }
     }
 }

@@ -1,7 +1,8 @@
-use super::{mobc_manager::MobcManager, ConnectionCreator, Quaint};
+use super::{deadpool_manager::DeadpoolManager, mobc_manager::MobcManager, ConnectionCreator, PoolManager, Quaint};
 use crate::prelude::ConnectionInfo;
 use std::{sync::Arc, time::Duration};
 
+use deadpool::managed::{Pool as DeadPool, PoolConfig};
 use mobc::Pool as MobcPool;
 
 #[derive(PartialEq)]
@@ -41,7 +42,7 @@ impl Builder {
             health_check_interval: None,
             test_on_check_out: false,
             pool_timeout: None,
-            pool_library: PoolLibrary::Mobc,
+            pool_library: PoolLibrary::Deadpool,
         })
     }
 
@@ -144,11 +145,12 @@ impl Builder {
         let connection_info = std::sync::Arc::new(self.connection_info);
         Self::log_start(&connection_info, self.connection_limit);
 
-        let inner = if self.pool_library == PoolLibrary::Mobc {
+        let inner: Arc<Box<dyn PoolManager>> = if self.pool_library == PoolLibrary::Mobc {
             let manager = MobcManager {
                 connection_creator: self.connection_creator,
             };
-            MobcPool::builder()
+            println!("MOBC");
+            let m = MobcPool::builder()
                 .max_open(self.connection_limit as u64)
                 .max_idle(self.max_idle.unwrap_or(self.connection_limit as u64))
                 .max_idle_lifetime(self.max_idle_lifetime)
@@ -156,13 +158,22 @@ impl Builder {
                 .get_timeout(None) // we handle timeouts here
                 .health_check_interval(self.health_check_interval)
                 .test_on_check_out(self.test_on_check_out)
-                .build(manager)
+                .build(manager);
+
+            Arc::new(Box::new(m))
         } else {
-            todo!("")
+            println!("DEADPOOL");
+            let manager = DeadpoolManager {
+                connection_creator: self.connection_creator,
+            };
+            let pool_config = PoolConfig::new(self.connection_limit);
+            let b = DeadPool::builder(manager).config(pool_config);
+            let m = b.build().unwrap();
+            Arc::new(Box::new(m))
         };
 
         Quaint {
-            inner: Arc::new(Box::new(inner)),
+            inner: inner,
             connection_info,
             pool_timeout: self.pool_timeout,
         }
