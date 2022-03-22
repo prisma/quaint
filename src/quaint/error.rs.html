@@ -351,6 +351,9 @@
 <span id="346">346</span>
 <span id="347">347</span>
 <span id="348">348</span>
+<span id="349">349</span>
+<span id="350">350</span>
+<span id="351">351</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Error module</span>
 <span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">borrow::Cow</span>, <span class="ident">fmt</span>, <span class="ident">io</span>, <span class="ident">num</span>};
 <span class="kw">use</span> <span class="ident">thiserror::Error</span>;
@@ -569,6 +572,9 @@
     )]</span>
     <span class="ident">PoolTimeout</span> { <span class="ident">max_open</span>: <span class="ident">u64</span>, <span class="ident">in_use</span>: <span class="ident">u64</span>, <span class="ident">timeout</span>: <span class="ident">u64</span> },
 
+    <span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;The connection pool has been closed&quot;</span>)]</span>
+    <span class="ident">PoolClosed</span> {},
+
     <span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;Timed out during query execution.&quot;</span>)]</span>
     <span class="ident">SocketTimeout</span>,
 
@@ -700,5 +706,5 @@
     }
 }
 </code></pre></div>
-</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="quaint" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.61.0-nightly (c84f39e6c 2022-03-20)" ></div>
+</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="quaint" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.61.0-nightly (3c17c84a3 2022-03-21)" ></div>
 </body></html>
