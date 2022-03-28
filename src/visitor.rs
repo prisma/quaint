@@ -1059,7 +1059,6 @@ pub trait Visitor<'a> {
             }
             #[cfg(feature = "mysql")]
             FunctionType::Uuid => self.write("uuid()")?,
-            // TODO ltree
         };
 
         if let Some(alias) = fun.alias {
