@@ -2980,8 +2980,7 @@ async fn ltree_select_is_not_ancestor(api: &mut dyn TestApi) -> crate::Result<()
 
     api.conn().insert(insert.into()).await?;
 
-    let select =
-        Select::from_table(&table).so_that(col!("path").ltree_is_not_ancestor(LtreeQuery::string("A.B")));
+    let select = Select::from_table(&table).so_that(col!("path").ltree_is_not_ancestor(LtreeQuery::string("A.B")));
     let rows = api.conn().select(select).await?;
 
     assert_eq!(rows.len(), 5);
@@ -3015,8 +3014,8 @@ async fn ltree_select_is_not_ancestor_any(api: &mut dyn TestApi) -> crate::Resul
 
     api.conn().insert(insert.into()).await?;
 
-    let select =
-        Select::from_table(&table).so_that(col!("path").ltree_is_not_ancestor(LtreeQuery::array(vec!["A.B.C", "B.C.D"])));
+    let select = Select::from_table(&table)
+        .so_that(col!("path").ltree_is_not_ancestor(LtreeQuery::array(vec!["A.B.C", "B.C.D"])));
     let rows = api.conn().select(select).await?;
 
     assert_eq!(rows.len(), 2);
@@ -3112,8 +3111,7 @@ async fn ltree_select_is_not_descendant(api: &mut dyn TestApi) -> crate::Result<
 
     api.conn().insert(insert.into()).await?;
 
-    let select =
-        Select::from_table(&table).so_that(col!("path").ltree_is_not_descendant(LtreeQuery::string("A.B")));
+    let select = Select::from_table(&table).so_that(col!("path").ltree_is_not_descendant(LtreeQuery::string("A.B")));
     let rows = api.conn().select(select).await?;
 
     assert_eq!(rows.len(), 5);
@@ -3217,7 +3215,8 @@ async fn ltree_select_match_any(api: &mut dyn TestApi) -> crate::Result<()> {
 
     api.conn().insert(insert.into()).await?;
 
-    let select = Select::from_table(&table).so_that(col!("path").ltree_match(LtreeQuery::array(vec!["foo.baz|bar.!foo", "foo.*.foo"])));
+    let select = Select::from_table(&table)
+        .so_that(col!("path").ltree_match(LtreeQuery::array(vec!["foo.baz|bar.!foo", "foo.*.foo"])));
     let rows = api.conn().select(select).await?;
 
     assert_eq!(rows.len(), 7);
@@ -3255,7 +3254,8 @@ async fn ltree_select_not_match(api: &mut dyn TestApi) -> crate::Result<()> {
 
     api.conn().insert(insert.into()).await?;
 
-    let select = Select::from_table(&table).so_that(col!("path").ltree_does_not_match(LtreeQuery::string("foo.*.baz|bar")));
+    let select =
+        Select::from_table(&table).so_that(col!("path").ltree_does_not_match(LtreeQuery::string("foo.*.baz|bar")));
     let rows = api.conn().select(select).await?;
 
     assert_eq!(rows.len(), 3);
@@ -3289,7 +3289,8 @@ async fn ltree_select_not_match_any(api: &mut dyn TestApi) -> crate::Result<()> 
 
     api.conn().insert(insert.into()).await?;
 
-    let select = Select::from_table(&table).so_that(col!("path").ltree_does_not_match(LtreeQuery::array(vec!["foo.*.baz|bar", "foo.b*.*"])));
+    let select = Select::from_table(&table)
+        .so_that(col!("path").ltree_does_not_match(LtreeQuery::array(vec!["foo.*.baz|bar", "foo.b*.*"])));
     let rows = api.conn().select(select).await?;
 
     assert_eq!(rows.len(), 1);
@@ -3355,7 +3356,8 @@ async fn ltree_select_not_match_fulltext(api: &mut dyn TestApi) -> crate::Result
 
     api.conn().insert(insert.into()).await?;
 
-    let select = Select::from_table(&table).so_that(col!("path").ltree_does_not_match_fulltext(LtreeQuery::string("b* & !bar")));
+    let select =
+        Select::from_table(&table).so_that(col!("path").ltree_does_not_match_fulltext(LtreeQuery::string("b* & !bar")));
     let rows = api.conn().select(select).await?;
 
     assert_eq!(rows.len(), 6);

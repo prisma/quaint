@@ -1,12 +1,12 @@
 use super::Visitor;
-#[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
-use crate::prelude::{JsonExtract, JsonType};
 #[cfg(feature = "postgresql")]
 use crate::ast::LtreeQuery;
+#[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
+use crate::prelude::{JsonExtract, JsonType};
 use crate::{
     ast::{
-        Column, Comparable, Expression, ExpressionKind, Insert, IntoRaw, Join, JoinData, Joinable,
-        Merge, OnConflict, Order, Ordering, Row, Table, TypeDataLength, TypeFamily, Values,
+        Column, Comparable, Expression, ExpressionKind, Insert, IntoRaw, Join, JoinData, Joinable, Merge, OnConflict,
+        Order, Ordering, Row, Table, TypeDataLength, TypeFamily, Values,
     },
     error::{Error, ErrorKind},
     prelude::{Aliasable, Average, Query},
@@ -647,12 +647,22 @@ impl<'a> Visitor<'a> for Mssql<'a> {
     }
 
     #[cfg(feature = "postgresql")]
-    fn visit_ltree_is_ancestor(&mut self, _left: Expression<'a>, _right: LtreeQuery<'a>, _not: bool) -> visitor::Result {
+    fn visit_ltree_is_ancestor(
+        &mut self,
+        _left: Expression<'a>,
+        _right: LtreeQuery<'a>,
+        _not: bool,
+    ) -> visitor::Result {
         unimplemented!("Ltree is not supported on MSSQL");
     }
 
     #[cfg(feature = "postgresql")]
-    fn visit_ltree_is_descendant(&mut self, _left: Expression<'a>, _right: LtreeQuery<'a>, _not: bool) -> visitor::Result {
+    fn visit_ltree_is_descendant(
+        &mut self,
+        _left: Expression<'a>,
+        _right: LtreeQuery<'a>,
+        _not: bool,
+    ) -> visitor::Result {
         unimplemented!("Ltree is not supported on MSSQL");
     }
 
@@ -662,7 +672,12 @@ impl<'a> Visitor<'a> for Mssql<'a> {
     }
 
     #[cfg(feature = "postgresql")]
-    fn visit_ltree_match_fulltext(&mut self, _left: Expression<'a>, _right: LtreeQuery<'a>, _not: bool) -> visitor::Result {
+    fn visit_ltree_match_fulltext(
+        &mut self,
+        _left: Expression<'a>,
+        _right: LtreeQuery<'a>,
+        _not: bool,
+    ) -> visitor::Result {
         unimplemented!("Ltree is not supported on MSSQL");
     }
 }

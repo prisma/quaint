@@ -287,12 +287,22 @@ impl<'a> Visitor<'a> for Sqlite<'a> {
     }
 
     #[cfg(feature = "postgresql")]
-    fn visit_ltree_is_ancestor(&mut self, _left: Expression<'a>, _right: LtreeQuery<'a>, _not: bool) -> visitor::Result {
+    fn visit_ltree_is_ancestor(
+        &mut self,
+        _left: Expression<'a>,
+        _right: LtreeQuery<'a>,
+        _not: bool,
+    ) -> visitor::Result {
         unimplemented!("Ltree is not supported on SQLite");
     }
 
     #[cfg(feature = "postgresql")]
-    fn visit_ltree_is_descendant(&mut self, _left: Expression<'a>, _right: LtreeQuery<'a>, _not: bool) -> visitor::Result {
+    fn visit_ltree_is_descendant(
+        &mut self,
+        _left: Expression<'a>,
+        _right: LtreeQuery<'a>,
+        _not: bool,
+    ) -> visitor::Result {
         unimplemented!("Ltree is not supported on SQLite");
     }
 
@@ -302,7 +312,12 @@ impl<'a> Visitor<'a> for Sqlite<'a> {
     }
 
     #[cfg(feature = "postgresql")]
-    fn visit_ltree_match_fulltext(&mut self, _left: Expression<'a>, _right: LtreeQuery<'a>, _not: bool) -> visitor::Result {
+    fn visit_ltree_match_fulltext(
+        &mut self,
+        _left: Expression<'a>,
+        _right: LtreeQuery<'a>,
+        _not: bool,
+    ) -> visitor::Result {
         unimplemented!("Ltree is not supported on SQLite");
     }
 }

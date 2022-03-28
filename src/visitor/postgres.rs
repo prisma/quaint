@@ -1,10 +1,10 @@
+use crate::error::Error;
+use crate::error::ErrorKind::Unsupported;
 use crate::{
     ast::*,
     visitor::{self, Visitor},
 };
 use std::fmt::{self, Write};
-use crate::error::Error;
-use crate::error::ErrorKind::Unsupported;
 
 /// A visitor to generate queries for the PostgreSQL database.
 ///
@@ -497,7 +497,7 @@ impl<'a> Visitor<'a> for Postgres<'a> {
             LtreeQuery::String(str) => {
                 self.write(" ~ ")?;
                 self.visit_parameterized(Value::text(str))?;
-            },
+            }
             LtreeQuery::Array(query_path) => {
                 self.write(" ? ")?;
 
@@ -545,7 +545,7 @@ impl<'a> Visitor<'a> for Postgres<'a> {
                 }
 
                 Ok(())
-            },
+            }
             LtreeQuery::Array(_) => Err(Error::builder(Unsupported("ltxtquery array".into())).build()),
         }
     }
@@ -1190,7 +1190,7 @@ mod tests {
         // This should error due to arrays of ltxtqueries not being supported
         let success = match Postgres::build(query) {
             Err(_) => true,
-            _ => false
+            _ => false,
         };
 
         assert!(success)
@@ -1223,7 +1223,7 @@ mod tests {
         // This should error due to arrays of ltxtqueries not being supported
         let success = match Postgres::build(query) {
             Err(_) => true,
-            _ => false
+            _ => false,
         };
 
         assert!(success);
