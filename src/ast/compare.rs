@@ -944,7 +944,7 @@ pub trait Comparable<'a> {
     /// let query = Select::from_table("paths").so_that("path".ltree_is_not_ancestor(LtreeQuery::array(vec!["a.b.c", "d.e.f"])));
     /// let (sql, params) = Postgres::build(query)?;
     ///
-    /// assert_eq!("SELECT \"paths\".* FROM \"paths\" WHERE (NOT \"path\" @> ARRAY[$1,$2]::lquery[])", sql);
+    /// assert_eq!("SELECT \"paths\".* FROM \"paths\" WHERE (NOT \"path\" @> ARRAY[$1,$2]::ltree[])", sql);
     ///
     /// assert_eq!(vec![
     ///     Value::from("a.b.c"),
@@ -989,7 +989,7 @@ pub trait Comparable<'a> {
     /// let query = Select::from_table("paths").so_that("path".ltree_is_not_descendant(LtreeQuery::array(vec!["a.b.c", "d.e.f"])));
     /// let (sql, params) = Postgres::build(query)?;
     ///
-    /// assert_eq!("SELECT \"paths\".* FROM \"paths\" WHERE (NOT \"path\" <@ ARRAY[$1,$2]::lquery[])", sql);
+    /// assert_eq!("SELECT \"paths\".* FROM \"paths\" WHERE (NOT \"path\" <@ ARRAY[$1,$2]::ltree[])", sql);
     ///
     /// assert_eq!(vec![
     ///     Value::from("a.b.c"),
@@ -1031,7 +1031,7 @@ pub trait Comparable<'a> {
     /// ```rust
     /// # use quaint::{ast::*, visitor::{Visitor, Postgres}};
     /// # fn main() -> Result<(), quaint::error::Error> {
-    /// let query = Select::from_table("paths").so_that("path".ltree_match(LtreeQuery::array(vec!["a.b.c", "d.e.f"])));
+    /// let query = Select::from_table("paths").so_that("path".ltree_does_not_match(LtreeQuery::array(vec!["a.b.c", "d.e.f"])));
     /// let (sql, params) = Postgres::build(query)?;
     ///
     /// assert_eq!("SELECT \"paths\".* FROM \"paths\" WHERE (NOT \"path\" ? ARRAY[$1,$2]::lquery[])", sql);
