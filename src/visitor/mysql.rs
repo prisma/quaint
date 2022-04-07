@@ -507,6 +507,41 @@ impl<'a> Visitor<'a> for Mysql<'a> {
 
         Ok(())
     }
+
+    #[cfg(feature = "postgresql")]
+    fn visit_ltree_is_ancestor(
+        &mut self,
+        _left: Expression<'a>,
+        _right: LtreeQuery<'a>,
+        _not: bool,
+    ) -> visitor::Result {
+        unimplemented!("Ltree is not supported on MySQL");
+    }
+
+    #[cfg(feature = "postgresql")]
+    fn visit_ltree_is_descendant(
+        &mut self,
+        _left: Expression<'a>,
+        _right: LtreeQuery<'a>,
+        _not: bool,
+    ) -> visitor::Result {
+        unimplemented!("Ltree is not supported on MySQL");
+    }
+
+    #[cfg(feature = "postgresql")]
+    fn visit_ltree_match(&mut self, _left: Expression<'a>, _right: LtreeQuery<'a>, _not: bool) -> visitor::Result {
+        unimplemented!("Ltree is not supported on MySQL");
+    }
+
+    #[cfg(feature = "postgresql")]
+    fn visit_ltree_match_fulltext(
+        &mut self,
+        _left: Expression<'a>,
+        _right: LtreeQuery<'a>,
+        _not: bool,
+    ) -> visitor::Result {
+        unimplemented!("Ltree is not supported on MySQL");
+    }
 }
 
 #[cfg(test)]

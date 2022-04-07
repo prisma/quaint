@@ -12,6 +12,8 @@ services:
     networks:
       - databases
     tmpfs: /pgtmpfs12
+    volumes:
+      - ./db/scripts/postgres:/docker-entrypoint-initdb.d
 
   mysql57:
     image: mysql:5.7

@@ -1,5 +1,7 @@
 #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
 use super::compare::{JsonCompare, JsonType};
+#[cfg(feature = "postgresql")]
+use crate::ast::compare::LtreeCompare;
 use crate::ast::*;
 use query::SelectQuery;
 use std::borrow::Cow;
@@ -523,5 +525,69 @@ impl<'a> Comparable<'a> for Expression<'a> {
         T: Into<Cow<'a, str>>,
     {
         Compare::NotMatches(Box::new(self), query.into())
+    }
+
+    #[cfg(feature = "postgresql")]
+    fn ltree_is_ancestor<T>(self, ltree: T) -> Compare<'a>
+    where
+        T: Into<LtreeQuery<'a>>,
+    {
+        Compare::LtreeCompare(LtreeCompare::IsAncestor(Box::new(self), ltree.into()))
+    }
+
+    #[cfg(feature = "postgresql")]
+    fn ltree_is_not_ancestor<T>(self, ltree: T) -> Compare<'a>
+    where
+        T: Into<LtreeQuery<'a>>,
+    {
+        Compare::LtreeCompare(LtreeCompare::IsNotAncestor(Box::new(self), ltree.into()))
+    }
+
+    #[cfg(feature = "postgresql")]
+    fn ltree_is_descendant<T>(self, ltree: T) -> Compare<'a>
+    where
+        T: Into<LtreeQuery<'a>>,
+    {
+        Compare::LtreeCompare(LtreeCompare::IsDescendant(Box::new(self), ltree.into()))
+    }
+
+    #[cfg(feature = "postgresql")]
+    fn ltree_is_not_descendant<T>(self, ltree: T) -> Compare<'a>
+    where
+        T: Into<LtreeQuery<'a>>,
+    {
+        Compare::LtreeCompare(LtreeCompare::IsNotDescendant(Box::new(self), ltree.into()))
+    }
+
+    #[cfg(feature = "postgresql")]
+    fn ltree_match<T>(self, lquery: T) -> Compare<'a>
+    where
+        T: Into<LtreeQuery<'a>>,
+    {
+        Compare::LtreeCompare(LtreeCompare::Matches(Box::new(self), lquery.into()))
+    }
+
+    #[cfg(feature = "postgresql")]
+    fn ltree_does_not_match<T>(self, lquery: T) -> Compare<'a>
+    where
+        T: Into<LtreeQuery<'a>>,
+    {
+        Compare::LtreeCompare(LtreeCompare::DoesNotMatch(Box::new(self), lquery.into()))
+    }
+
+    #[cfg(feature = "postgresql")]
+    fn ltree_match_fulltext<T>(self, ltxtquery: T) -> Compare<'a>
+    where
+        T: Into<LtreeQuery<'a>>,
+    {
+        Compare::LtreeCompare(LtreeCompare::MatchesFullText(Box::new(self), ltxtquery.into()))
+    }
+
+    #[cfg(feature = "postgresql")]
+    fn ltree_does_not_match_fulltext<T>(self, ltxtquery: T) -> Compare<'a>
+    where
+        T: Into<LtreeQuery<'a>>,
+    {
+        Compare::LtreeCompare(LtreeCompare::DoesNotMatchFullText(Box::new(self), ltxtquery.into()))
     }
 }

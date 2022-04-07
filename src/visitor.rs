@@ -126,6 +126,18 @@ pub trait Visitor<'a> {
     #[cfg(any(feature = "postgresql", feature = "mysql"))]
     fn visit_text_search_relevance(&mut self, text_search_relevance: TextSearchRelevance<'a>) -> Result;
 
+    #[cfg(feature = "postgresql")]
+    fn visit_ltree_is_ancestor(&mut self, left: Expression<'a>, right: LtreeQuery<'a>, not: bool) -> Result;
+
+    #[cfg(feature = "postgresql")]
+    fn visit_ltree_is_descendant(&mut self, left: Expression<'a>, right: LtreeQuery<'a>, not: bool) -> Result;
+
+    #[cfg(feature = "postgresql")]
+    fn visit_ltree_match(&mut self, left: Expression<'a>, right: LtreeQuery<'a>, not: bool) -> Result;
+
+    #[cfg(feature = "postgresql")]
+    fn visit_ltree_match_fulltext(&mut self, left: Expression<'a>, right: LtreeQuery<'a>, not: bool) -> Result;
+
     /// A visit to a value we parameterize
     fn visit_parameterized(&mut self, value: Value<'a>) -> Result {
         self.add_parameter(value);
@@ -896,6 +908,17 @@ pub trait Visitor<'a> {
             Compare::Matches(left, right) => self.visit_matches(*left, right, false),
             #[cfg(feature = "postgresql")]
             Compare::NotMatches(left, right) => self.visit_matches(*left, right, true),
+            #[cfg(feature = "postgresql")]
+            Compare::LtreeCompare(ltree_compare) => match ltree_compare {
+                LtreeCompare::IsAncestor(left, right) => self.visit_ltree_is_ancestor(*left, right, false),
+                LtreeCompare::IsNotAncestor(left, right) => self.visit_ltree_is_ancestor(*left, right, true),
+                LtreeCompare::IsDescendant(left, right) => self.visit_ltree_is_descendant(*left, right, false),
+                LtreeCompare::IsNotDescendant(left, right) => self.visit_ltree_is_descendant(*left, right, true),
+                LtreeCompare::Matches(left, right) => self.visit_ltree_match(*left, right, false),
+                LtreeCompare::DoesNotMatch(left, right) => self.visit_ltree_match(*left, right, true),
+                LtreeCompare::MatchesFullText(left, right) => self.visit_ltree_match_fulltext(*left, right, false),
+                LtreeCompare::DoesNotMatchFullText(left, right) => self.visit_ltree_match_fulltext(*left, right, true),
+            },
         }
     }
 

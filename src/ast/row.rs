@@ -1,5 +1,7 @@
 #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
 use super::compare::JsonType;
+#[cfg(feature = "postgresql")]
+use crate::ast::LtreeQuery;
 use crate::ast::{Comparable, Compare, Expression};
 use std::borrow::Cow;
 
@@ -403,5 +405,85 @@ impl<'a> Comparable<'a> for Row<'a> {
         let value: Expression<'a> = self.into();
 
         value.not_matches(query)
+    }
+
+    #[cfg(feature = "postgresql")]
+    fn ltree_is_ancestor<T>(self, ltree: T) -> Compare<'a>
+    where
+        T: Into<LtreeQuery<'a>>,
+    {
+        let val: Expression<'a> = self.into();
+
+        val.ltree_is_ancestor(ltree)
+    }
+
+    #[cfg(feature = "postgresql")]
+    fn ltree_is_not_ancestor<T>(self, ltree: T) -> Compare<'a>
+    where
+        T: Into<LtreeQuery<'a>>,
+    {
+        let val: Expression<'a> = self.into();
+
+        val.ltree_is_not_ancestor(ltree)
+    }
+
+    #[cfg(feature = "postgresql")]
+    fn ltree_is_descendant<T>(self, ltree: T) -> Compare<'a>
+    where
+        T: Into<LtreeQuery<'a>>,
+    {
+        let val: Expression<'a> = self.into();
+
+        val.ltree_is_descendant(ltree)
+    }
+
+    #[cfg(feature = "postgresql")]
+    fn ltree_is_not_descendant<T>(self, ltree: T) -> Compare<'a>
+    where
+        T: Into<LtreeQuery<'a>>,
+    {
+        let val: Expression<'a> = self.into();
+
+        val.ltree_is_not_descendant(ltree)
+    }
+
+    #[cfg(feature = "postgresql")]
+    fn ltree_match<T>(self, lquery: T) -> Compare<'a>
+    where
+        T: Into<LtreeQuery<'a>>,
+    {
+        let val: Expression<'a> = self.into();
+
+        val.ltree_match(lquery)
+    }
+
+    #[cfg(feature = "postgresql")]
+    fn ltree_does_not_match<T>(self, lquery: T) -> Compare<'a>
+    where
+        T: Into<LtreeQuery<'a>>,
+    {
+        let val: Expression<'a> = self.into();
+
+        val.ltree_does_not_match(lquery)
+    }
+
+    #[cfg(feature = "postgresql")]
+    fn ltree_match_fulltext<T>(self, ltxtquery: T) -> Compare<'a>
+    where
+        T: Into<LtreeQuery<'a>>,
+    {
+        let val: Expression<'a> = self.into();
+
+        val.ltree_match_fulltext(ltxtquery)
+    }
+
+    #[cfg(feature = "postgresql")]
+    fn ltree_does_not_match_fulltext<T>(self, ltxtquery: T) -> Compare<'a>
+    where
+        T: Into<LtreeQuery<'a>>,
+    {
+        let val: Expression<'a> = self.into();
+
+        val.ltree_does_not_match_fulltext(ltxtquery)
     }
 }

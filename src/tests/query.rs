@@ -2897,3 +2897,535 @@ async fn generate_native_uuid(api: &mut dyn TestApi) -> crate::Result<()> {
 
     Ok(())
 }
+
+#[cfg(feature = "postgresql")]
+#[test_each_connector(tags("postgresql"))]
+async fn ltree_select_is_ancestor(api: &mut dyn TestApi) -> crate::Result<()> {
+    let table = api.create_table("path ltree").await?;
+
+    let insert = Insert::multi_into(&table, vec!["path"])
+        .values(vec!["A"])
+        .values(vec!["B"])
+        .values(vec!["C"])
+        .values(vec!["A.B"])
+        .values(vec!["A.B.C"])
+        .values(vec!["B.C.D"])
+        .values(vec!["C.D.E"]);
+
+    api.conn().insert(insert.into()).await?;
+
+    let select = Select::from_table(&table).so_that(col!("path").ltree_is_ancestor(LtreeQuery::string("A.B.C")));
+    let rows = api.conn().select(select).await?;
+
+    assert_eq!(rows.len(), 3);
+
+    for (i, row) in rows.into_iter().enumerate() {
+        match i {
+            0 => assert_eq!(Value::text("A"), row["path"]),
+            1 => assert_eq!(Value::text("A.B"), row["path"]),
+            _ => assert_eq!(Value::text("A.B.C"), row["path"]),
+        }
+    }
+
+    Ok(())
+}
+
+#[cfg(feature = "postgresql")]
+#[test_each_connector(tags("postgresql"))]
+async fn ltree_select_is_ancestor_any(api: &mut dyn TestApi) -> crate::Result<()> {
+    let table = api.create_table("path ltree").await?;
+
+    let insert = Insert::multi_into(&table, vec!["path"])
+        .values(vec!["A"])
+        .values(vec!["B"])
+        .values(vec!["C"])
+        .values(vec!["A.B"])
+        .values(vec!["A.B.C"])
+        .values(vec!["B.C.D"])
+        .values(vec!["C.D.E"]);
+
+    api.conn().insert(insert.into()).await?;
+
+    let select =
+        Select::from_table(&table).so_that(col!("path").ltree_is_ancestor(LtreeQuery::array(vec!["A.B", "B.C.D"])));
+    let rows = api.conn().select(select).await?;
+
+    assert_eq!(rows.len(), 4);
+
+    for (i, row) in rows.into_iter().enumerate() {
+        match i {
+            0 => assert_eq!(Value::text("A"), row["path"]),
+            1 => assert_eq!(Value::text("B"), row["path"]),
+            2 => assert_eq!(Value::text("A.B"), row["path"]),
+            _ => assert_eq!(Value::text("B.C.D"), row["path"]),
+        }
+    }
+
+    Ok(())
+}
+
+#[cfg(feature = "postgresql")]
+#[test_each_connector(tags("postgresql"))]
+async fn ltree_select_is_not_ancestor(api: &mut dyn TestApi) -> crate::Result<()> {
+    let table = api.create_table("path ltree").await?;
+
+    let insert = Insert::multi_into(&table, vec!["path"])
+        .values(vec!["A"])
+        .values(vec!["B"])
+        .values(vec!["C"])
+        .values(vec!["A.B"])
+        .values(vec!["A.B.C"])
+        .values(vec!["B.C.D"])
+        .values(vec!["C.D.E"]);
+
+    api.conn().insert(insert.into()).await?;
+
+    let select = Select::from_table(&table).so_that(col!("path").ltree_is_not_ancestor(LtreeQuery::string("A.B")));
+    let rows = api.conn().select(select).await?;
+
+    assert_eq!(rows.len(), 5);
+
+    for (i, row) in rows.into_iter().enumerate() {
+        match i {
+            0 => assert_eq!(Value::text("B"), row["path"]),
+            1 => assert_eq!(Value::text("C"), row["path"]),
+            2 => assert_eq!(Value::text("A.B.C"), row["path"]),
+            3 => assert_eq!(Value::text("B.C.D"), row["path"]),
+            _ => assert_eq!(Value::text("C.D.E"), row["path"]),
+        }
+    }
+
+    Ok(())
+}
+
+#[cfg(feature = "postgresql")]
+#[test_each_connector(tags("postgresql"))]
+async fn ltree_select_is_not_ancestor_any(api: &mut dyn TestApi) -> crate::Result<()> {
+    let table = api.create_table("path ltree").await?;
+
+    let insert = Insert::multi_into(&table, vec!["path"])
+        .values(vec!["A"])
+        .values(vec!["B"])
+        .values(vec!["C"])
+        .values(vec!["A.B"])
+        .values(vec!["A.B.C"])
+        .values(vec!["B.C.D"])
+        .values(vec!["C.D.E"]);
+
+    api.conn().insert(insert.into()).await?;
+
+    let select = Select::from_table(&table)
+        .so_that(col!("path").ltree_is_not_ancestor(LtreeQuery::array(vec!["A.B.C", "B.C.D"])));
+    let rows = api.conn().select(select).await?;
+
+    assert_eq!(rows.len(), 2);
+
+    for (i, row) in rows.into_iter().enumerate() {
+        match i {
+            0 => assert_eq!(Value::text("C"), row["path"]),
+            _ => assert_eq!(Value::text("C.D.E"), row["path"]),
+        }
+    }
+
+    Ok(())
+}
+
+#[cfg(feature = "postgresql")]
+#[test_each_connector(tags("postgresql"))]
+async fn ltree_select_is_descendant(api: &mut dyn TestApi) -> crate::Result<()> {
+    let table = api.create_table("path ltree").await?;
+
+    let insert = Insert::multi_into(&table, vec!["path"])
+        .values(vec!["A"])
+        .values(vec!["B"])
+        .values(vec!["C"])
+        .values(vec!["A.B"])
+        .values(vec!["A.B.C"])
+        .values(vec!["B.C.D"])
+        .values(vec!["C.D.E"]);
+
+    api.conn().insert(insert.into()).await?;
+
+    let select = Select::from_table(&table).so_that(col!("path").ltree_is_descendant(LtreeQuery::string("A.B")));
+    let rows = api.conn().select(select).await?;
+
+    assert_eq!(rows.len(), 2);
+
+    for (i, row) in rows.into_iter().enumerate() {
+        match i {
+            0 => assert_eq!(Value::text("A.B"), row["path"]),
+            _ => assert_eq!(Value::text("A.B.C"), row["path"]),
+        }
+    }
+
+    Ok(())
+}
+
+#[cfg(feature = "postgresql")]
+#[test_each_connector(tags("postgresql"))]
+async fn ltree_select_is_descendant_any(api: &mut dyn TestApi) -> crate::Result<()> {
+    let table = api.create_table("path ltree").await?;
+
+    let insert = Insert::multi_into(&table, vec!["path"])
+        .values(vec!["A"])
+        .values(vec!["B"])
+        .values(vec!["C"])
+        .values(vec!["A.B"])
+        .values(vec!["A.B.C"])
+        .values(vec!["B.C.D"])
+        .values(vec!["C.D.E"]);
+
+    api.conn().insert(insert.into()).await?;
+
+    let select =
+        Select::from_table(&table).so_that(col!("path").ltree_is_descendant(LtreeQuery::array(vec!["A.B", "B"])));
+    let rows = api.conn().select(select).await?;
+
+    assert_eq!(rows.len(), 4);
+
+    for (i, row) in rows.into_iter().enumerate() {
+        match i {
+            0 => assert_eq!(Value::text("B"), row["path"]),
+            1 => assert_eq!(Value::text("A.B"), row["path"]),
+            2 => assert_eq!(Value::text("A.B.C"), row["path"]),
+            _ => assert_eq!(Value::text("B.C.D"), row["path"]),
+        }
+    }
+
+    Ok(())
+}
+
+#[cfg(feature = "postgresql")]
+#[test_each_connector(tags("postgresql"))]
+async fn ltree_select_is_not_descendant(api: &mut dyn TestApi) -> crate::Result<()> {
+    let table = api.create_table("path ltree").await?;
+
+    let insert = Insert::multi_into(&table, vec!["path"])
+        .values(vec!["A"])
+        .values(vec!["B"])
+        .values(vec!["C"])
+        .values(vec!["A.B"])
+        .values(vec!["A.B.C"])
+        .values(vec!["B.C.D"])
+        .values(vec!["C.D.E"]);
+
+    api.conn().insert(insert.into()).await?;
+
+    let select = Select::from_table(&table).so_that(col!("path").ltree_is_not_descendant(LtreeQuery::string("A.B")));
+    let rows = api.conn().select(select).await?;
+
+    assert_eq!(rows.len(), 5);
+
+    for (i, row) in rows.into_iter().enumerate() {
+        match i {
+            0 => assert_eq!(Value::text("A"), row["path"]),
+            1 => assert_eq!(Value::text("B"), row["path"]),
+            2 => assert_eq!(Value::text("C"), row["path"]),
+            3 => assert_eq!(Value::text("B.C.D"), row["path"]),
+            _ => assert_eq!(Value::text("C.D.E"), row["path"]),
+        }
+    }
+
+    Ok(())
+}
+
+#[cfg(feature = "postgresql")]
+#[test_each_connector(tags("postgresql"))]
+async fn ltree_select_is_not_descendant_any(api: &mut dyn TestApi) -> crate::Result<()> {
+    let table = api.create_table("path ltree").await?;
+
+    let insert = Insert::multi_into(&table, vec!["path"])
+        .values(vec!["A"])
+        .values(vec!["B"])
+        .values(vec!["C"])
+        .values(vec!["A.B"])
+        .values(vec!["A.B.C"])
+        .values(vec!["B.C.D"])
+        .values(vec!["C.D.E"]);
+
+    api.conn().insert(insert.into()).await?;
+
+    let select =
+        Select::from_table(&table).so_that(col!("path").ltree_is_not_descendant(LtreeQuery::array(vec!["A.B", "C"])));
+    let rows = api.conn().select(select).await?;
+
+    assert_eq!(rows.len(), 3);
+
+    for (i, row) in rows.into_iter().enumerate() {
+        match i {
+            0 => assert_eq!(Value::text("A"), row["path"]),
+            1 => assert_eq!(Value::text("B"), row["path"]),
+            _ => assert_eq!(Value::text("B.C.D"), row["path"]),
+        }
+    }
+
+    Ok(())
+}
+
+#[cfg(feature = "postgresql")]
+#[test_each_connector(tags("postgresql"))]
+async fn ltree_select_match(api: &mut dyn TestApi) -> crate::Result<()> {
+    let table = api.create_table("path ltree").await?;
+
+    let insert = Insert::multi_into(&table, vec!["path"])
+        .values(vec!["foo.foo.foo"])
+        .values(vec!["foo.foo.baz"])
+        .values(vec!["foo.foo.bar"])
+        .values(vec!["foo.baz.baz"])
+        .values(vec!["foo.baz.bar"])
+        .values(vec!["foo.baz.foo"])
+        .values(vec!["foo.bar.bar"])
+        .values(vec!["foo.bar.baz"])
+        .values(vec!["foo.bar.foo"]);
+
+    api.conn().insert(insert.into()).await?;
+
+    let select = Select::from_table(&table).so_that(col!("path").ltree_match(LtreeQuery::string("foo.baz|bar.!foo")));
+    let rows = api.conn().select(select).await?;
+
+    assert_eq!(rows.len(), 4);
+
+    for (i, row) in rows.into_iter().enumerate() {
+        match i {
+            0 => assert_eq!(Value::text("foo.baz.baz"), row["path"]),
+            1 => assert_eq!(Value::text("foo.baz.bar"), row["path"]),
+            2 => assert_eq!(Value::text("foo.bar.bar"), row["path"]),
+            _ => assert_eq!(Value::text("foo.bar.baz"), row["path"]),
+        }
+    }
+
+    Ok(())
+}
+
+#[cfg(feature = "postgresql")]
+#[test_each_connector(tags("postgresql"))]
+async fn ltree_select_match_any(api: &mut dyn TestApi) -> crate::Result<()> {
+    let table = api.create_table("path ltree").await?;
+
+    let insert = Insert::multi_into(&table, vec!["path"])
+        .values(vec!["foo.foo.foo"])
+        .values(vec!["foo.foo.baz"])
+        .values(vec!["foo.foo.bar"])
+        .values(vec!["foo.baz.baz"])
+        .values(vec!["foo.baz.bar"])
+        .values(vec!["foo.baz.foo"])
+        .values(vec!["foo.bar.bar"])
+        .values(vec!["foo.bar.baz"])
+        .values(vec!["foo.bar.foo"]);
+
+    api.conn().insert(insert.into()).await?;
+
+    let select = Select::from_table(&table)
+        .so_that(col!("path").ltree_match(LtreeQuery::array(vec!["foo.baz|bar.!foo", "foo.*.foo"])));
+    let rows = api.conn().select(select).await?;
+
+    assert_eq!(rows.len(), 7);
+
+    for (i, row) in rows.into_iter().enumerate() {
+        match i {
+            0 => assert_eq!(Value::text("foo.foo.foo"), row["path"]),
+            1 => assert_eq!(Value::text("foo.baz.baz"), row["path"]),
+            2 => assert_eq!(Value::text("foo.baz.bar"), row["path"]),
+            3 => assert_eq!(Value::text("foo.baz.foo"), row["path"]),
+            4 => assert_eq!(Value::text("foo.bar.bar"), row["path"]),
+            5 => assert_eq!(Value::text("foo.bar.baz"), row["path"]),
+            _ => assert_eq!(Value::text("foo.bar.foo"), row["path"]),
+        }
+    }
+
+    Ok(())
+}
+
+#[cfg(feature = "postgresql")]
+#[test_each_connector(tags("postgresql"))]
+async fn ltree_select_not_match(api: &mut dyn TestApi) -> crate::Result<()> {
+    let table = api.create_table("path ltree").await?;
+
+    let insert = Insert::multi_into(&table, vec!["path"])
+        .values(vec!["foo.foo.foo"])
+        .values(vec!["foo.foo.baz"])
+        .values(vec!["foo.foo.bar"])
+        .values(vec!["foo.baz.baz"])
+        .values(vec!["foo.baz.bar"])
+        .values(vec!["foo.baz.foo"])
+        .values(vec!["foo.bar.bar"])
+        .values(vec!["foo.bar.baz"])
+        .values(vec!["foo.bar.foo"]);
+
+    api.conn().insert(insert.into()).await?;
+
+    let select =
+        Select::from_table(&table).so_that(col!("path").ltree_does_not_match(LtreeQuery::string("foo.*.baz|bar")));
+    let rows = api.conn().select(select).await?;
+
+    assert_eq!(rows.len(), 3);
+
+    for (i, row) in rows.into_iter().enumerate() {
+        match i {
+            0 => assert_eq!(Value::text("foo.foo.foo"), row["path"]),
+            1 => assert_eq!(Value::text("foo.baz.foo"), row["path"]),
+            _ => assert_eq!(Value::text("foo.bar.foo"), row["path"]),
+        }
+    }
+
+    Ok(())
+}
+
+#[cfg(feature = "postgresql")]
+#[test_each_connector(tags("postgresql"))]
+async fn ltree_select_not_match_any(api: &mut dyn TestApi) -> crate::Result<()> {
+    let table = api.create_table("path ltree").await?;
+
+    let insert = Insert::multi_into(&table, vec!["path"])
+        .values(vec!["foo.foo.foo"])
+        .values(vec!["foo.foo.baz"])
+        .values(vec!["foo.foo.bar"])
+        .values(vec!["foo.baz.baz"])
+        .values(vec!["foo.baz.bar"])
+        .values(vec!["foo.baz.foo"])
+        .values(vec!["foo.bar.bar"])
+        .values(vec!["foo.bar.baz"])
+        .values(vec!["foo.bar.foo"]);
+
+    api.conn().insert(insert.into()).await?;
+
+    let select = Select::from_table(&table)
+        .so_that(col!("path").ltree_does_not_match(LtreeQuery::array(vec!["foo.*.baz|bar", "foo.b*.*"])));
+    let rows = api.conn().select(select).await?;
+
+    assert_eq!(rows.len(), 1);
+
+    for (i, row) in rows.into_iter().enumerate() {
+        match i {
+            _ => assert_eq!(Value::text("foo.foo.foo"), row["path"]),
+        }
+    }
+
+    Ok(())
+}
+
+#[cfg(feature = "postgresql")]
+#[test_each_connector(tags("postgresql"))]
+async fn ltree_select_match_fulltext(api: &mut dyn TestApi) -> crate::Result<()> {
+    let table = api.create_table("path ltree").await?;
+
+    let insert = Insert::multi_into(&table, vec!["path"])
+        .values(vec!["foo.foo.foo"])
+        .values(vec!["foo.foo.baz"])
+        .values(vec!["foo.foo.bar"])
+        .values(vec!["foo.baz.baz"])
+        .values(vec!["foo.baz.bar"])
+        .values(vec!["foo.baz.foo"])
+        .values(vec!["foo.bar.bar"])
+        .values(vec!["foo.bar.baz"])
+        .values(vec!["foo.bar.foo"]);
+
+    api.conn().insert(insert.into()).await?;
+
+    let select = Select::from_table(&table).so_that(col!("path").ltree_match_fulltext(LtreeQuery::string("b* & !bar")));
+    let rows = api.conn().select(select).await?;
+
+    assert_eq!(rows.len(), 3);
+
+    for (i, row) in rows.into_iter().enumerate() {
+        match i {
+            0 => assert_eq!(Value::text("foo.foo.baz"), row["path"]),
+            1 => assert_eq!(Value::text("foo.baz.baz"), row["path"]),
+            _ => assert_eq!(Value::text("foo.baz.foo"), row["path"]),
+        }
+    }
+
+    Ok(())
+}
+
+#[cfg(feature = "postgresql")]
+#[test_each_connector(tags("postgresql"))]
+async fn ltree_select_not_match_fulltext(api: &mut dyn TestApi) -> crate::Result<()> {
+    let table = api.create_table("path ltree").await?;
+
+    let insert = Insert::multi_into(&table, vec!["path"])
+        .values(vec!["foo.foo.foo"])
+        .values(vec!["foo.foo.baz"])
+        .values(vec!["foo.foo.bar"])
+        .values(vec!["foo.baz.baz"])
+        .values(vec!["foo.baz.bar"])
+        .values(vec!["foo.baz.foo"])
+        .values(vec!["foo.bar.bar"])
+        .values(vec!["foo.bar.baz"])
+        .values(vec!["foo.bar.foo"]);
+
+    api.conn().insert(insert.into()).await?;
+
+    let select =
+        Select::from_table(&table).so_that(col!("path").ltree_does_not_match_fulltext(LtreeQuery::string("b* & !bar")));
+    let rows = api.conn().select(select).await?;
+
+    assert_eq!(rows.len(), 6);
+
+    for (i, row) in rows.into_iter().enumerate() {
+        match i {
+            0 => assert_eq!(Value::text("foo.foo.foo"), row["path"]),
+            1 => assert_eq!(Value::text("foo.foo.bar"), row["path"]),
+            2 => assert_eq!(Value::text("foo.baz.bar"), row["path"]),
+            3 => assert_eq!(Value::text("foo.bar.bar"), row["path"]),
+            4 => assert_eq!(Value::text("foo.bar.baz"), row["path"]),
+            _ => assert_eq!(Value::text("foo.bar.foo"), row["path"]),
+        }
+    }
+
+    Ok(())
+}
+
+#[cfg(feature = "postgresql")]
+#[test_each_connector(tags("postgresql"))]
+async fn ltree_select_match_fulltext_any(api: &mut dyn TestApi) -> crate::Result<()> {
+    let table = api.create_table("path ltree").await?;
+
+    let insert = Insert::multi_into(&table, vec!["path"])
+        .values(vec!["foo.foo.foo"])
+        .values(vec!["foo.foo.baz"])
+        .values(vec!["foo.foo.bar"])
+        .values(vec!["foo.baz.baz"])
+        .values(vec!["foo.baz.bar"])
+        .values(vec!["foo.baz.foo"])
+        .values(vec!["foo.bar.bar"])
+        .values(vec!["foo.bar.baz"])
+        .values(vec!["foo.bar.foo"]);
+
+    api.conn().insert(insert.into()).await?;
+
+    let condition = col!("path").ltree_match_fulltext(LtreeQuery::array(vec!["b* & !bar"]));
+    let select = Select::from_table(&table).so_that(condition);
+    let rows = api.conn().select(select).await;
+
+    assert!(rows.is_err());
+
+    Ok(())
+}
+
+#[cfg(feature = "postgresql")]
+#[test_each_connector(tags("postgresql"))]
+async fn ltree_select_does_not_match_fulltext_any(api: &mut dyn TestApi) -> crate::Result<()> {
+    let table = api.create_table("path ltree").await?;
+
+    let insert = Insert::multi_into(&table, vec!["path"])
+        .values(vec!["foo.foo.foo"])
+        .values(vec!["foo.foo.baz"])
+        .values(vec!["foo.foo.bar"])
+        .values(vec!["foo.baz.baz"])
+        .values(vec!["foo.baz.bar"])
+        .values(vec!["foo.baz.foo"])
+        .values(vec!["foo.bar.bar"])
+        .values(vec!["foo.bar.baz"])
+        .values(vec!["foo.bar.foo"]);
+
+    api.conn().insert(insert.into()).await?;
+
+    let condition = col!("path").ltree_does_not_match_fulltext(LtreeQuery::array(vec!["b* & !bar"]));
+    let select = Select::from_table(&table).so_that(condition);
+    let rows = api.conn().select(select).await;
+
+    assert!(rows.is_err());
+
+    Ok(())
+}

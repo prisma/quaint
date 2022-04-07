@@ -31,6 +31,8 @@ mod values;
 
 pub use column::{Column, DefaultValue, TypeDataLength, TypeFamily};
 pub use compare::{Comparable, Compare, JsonCompare, JsonType};
+#[cfg(feature = "postgresql")]
+pub use compare::{LtreeCompare, LtreeQuery};
 pub use conditions::ConditionTree;
 pub use conjunctive::Conjunctive;
 pub use cte::{CommonTableExpression, IntoCommonTableExpression};

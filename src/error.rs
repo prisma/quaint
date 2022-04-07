@@ -248,6 +248,9 @@ pub enum ErrorKind {
 
     #[error("Cannot find a FULLTEXT index to use for the search")]
     MissingFullTextSearchIndex,
+
+    #[error("{} is not currently supported.", _0)]
+    Unsupported(String),
 }
 
 impl ErrorKind {
