@@ -101,23 +101,23 @@ impl GetRow for PostgresRow {
                 PostgresType::INT2 => match row.try_get(i)? {
                     Some(val) => {
                         let val: i16 = val;
-                        Value::integer(val)
+                        Value::int32(val)
                     }
-                    None => Value::Integer(None),
+                    None => Value::Int32(None),
                 },
                 PostgresType::INT4 => match row.try_get(i)? {
                     Some(val) => {
                         let val: i32 = val;
-                        Value::integer(val)
+                        Value::int32(val)
                     }
-                    None => Value::Integer(None),
+                    None => Value::Int32(None),
                 },
                 PostgresType::INT8 => match row.try_get(i)? {
                     Some(val) => {
                         let val: i64 = val;
-                        Value::integer(val)
+                        Value::int64(val)
                     }
-                    None => Value::Integer(None),
+                    None => Value::Int64(None),
                 },
                 PostgresType::FLOAT4 => match row.try_get(i)? {
                     Some(val) => {
@@ -219,7 +219,7 @@ impl GetRow for PostgresRow {
                 PostgresType::INT2_ARRAY => match row.try_get(i)? {
                     Some(val) => {
                         let val: Vec<i16> = val;
-                        let ints = val.into_iter().map(Value::integer);
+                        let ints = val.into_iter().map(Value::int32);
                         Value::array(ints)
                     }
                     None => Value::Array(None),
@@ -227,7 +227,7 @@ impl GetRow for PostgresRow {
                 PostgresType::INT4_ARRAY => match row.try_get(i)? {
                     Some(val) => {
                         let val: Vec<i32> = val;
-                        let ints = val.into_iter().map(Value::integer);
+                        let ints = val.into_iter().map(Value::int32);
                         Value::array(ints)
                     }
                     None => Value::Array(None),
@@ -235,7 +235,7 @@ impl GetRow for PostgresRow {
                 PostgresType::INT8_ARRAY => match row.try_get(i)? {
                     Some(val) => {
                         let val: Vec<i64> = val;
-                        let ints = val.into_iter().map(Value::integer);
+                        let ints = val.into_iter().map(Value::int64);
                         Value::array(ints)
                     }
                     None => Value::Array(None),
@@ -311,7 +311,7 @@ impl GetRow for PostgresRow {
                 PostgresType::OID_ARRAY => match row.try_get(i)? {
                     Some(val) => {
                         let val: Vec<u32> = val;
-                        let nums = val.into_iter().map(|x| Value::integer(x as i64));
+                        let nums = val.into_iter().map(|x| Value::int64(x as i64));
                         Value::array(nums)
                     }
                     None => Value::Array(None),
@@ -373,9 +373,9 @@ impl GetRow for PostgresRow {
                 PostgresType::OID => match row.try_get(i)? {
                     Some(val) => {
                         let val: u32 = val;
-                        Value::integer(val)
+                        Value::int64(val)
                     }
-                    None => Value::Integer(None),
+                    None => Value::Int64(None),
                 },
                 PostgresType::CHAR => match row.try_get(i)? {
                     Some(val) => {
@@ -496,18 +496,31 @@ impl<'a> ToSql for Value<'a> {
         out: &mut BytesMut,
     ) -> Result<IsNull, Box<dyn StdError + 'static + Send + Sync>> {
         let res = match (self, ty) {
-            (Value::Integer(integer), &PostgresType::INT2) => integer.map(|integer| (integer as i16).to_sql(ty, out)),
-            (Value::Integer(integer), &PostgresType::INT4) => integer.map(|integer| (integer as i32).to_sql(ty, out)),
+            (Value::Int32(integer), &PostgresType::INT2) => integer.map(|integer| (integer as i16).to_sql(ty, out)),
+            (Value::Int32(integer), &PostgresType::INT4) => integer.map(|integer| (integer as i32).to_sql(ty, out)),
+            (Value::Int32(integer), &PostgresType::INT8) => integer.map(|integer| (integer as i64).to_sql(ty, out)),
+            (Value::Int64(integer), &PostgresType::INT2) => integer.map(|integer| (integer as i16).to_sql(ty, out)),
+            (Value::Int64(integer), &PostgresType::INT4) => integer.map(|integer| (integer as i32).to_sql(ty, out)),
+            (Value::Int64(integer), &PostgresType::INT8) => integer.map(|integer| (integer as i64).to_sql(ty, out)),
             #[cfg(feature = "bigdecimal")]
-            (Value::Integer(integer), &PostgresType::NUMERIC) => integer
+            (Value::Int32(integer), &PostgresType::NUMERIC) => integer
+                .map(|integer| BigDecimal::from_i32(integer).unwrap())
+                .map(DecimalWrapper)
+                .map(|dw| dw.to_sql(ty, out)),
+            #[cfg(feature = "bigdecimal")]
+            (Value::Int64(integer), &PostgresType::NUMERIC) => integer
                 .map(|integer| BigDecimal::from_i64(integer).unwrap())
                 .map(DecimalWrapper)
                 .map(|dw| dw.to_sql(ty, out)),
-            (Value::Integer(integer), &PostgresType::TEXT) => {
+            (Value::Int32(integer), &PostgresType::TEXT) => {
                 integer.map(|integer| format!("{}", integer).to_sql(ty, out))
             }
-            (Value::Integer(integer), &PostgresType::OID) => integer.map(|integer| (integer as u32).to_sql(ty, out)),
-            (Value::Integer(integer), _) => integer.map(|integer| (integer as i64).to_sql(ty, out)),
+            (Value::Int64(integer), &PostgresType::TEXT) => {
+                integer.map(|integer| format!("{}", integer).to_sql(ty, out))
+            }
+            (Value::Int64(integer), &PostgresType::OID) => integer.map(|integer| (integer as u32).to_sql(ty, out)),
+            (Value::Int32(integer), _) => integer.map(|integer| integer.to_sql(ty, out)),
+            (Value::Int64(integer), _) => integer.map(|integer| integer.to_sql(ty, out)),
             (Value::Float(float), &PostgresType::FLOAT8) => float.map(|float| (float as f64).to_sql(ty, out)),
             #[cfg(feature = "bigdecimal")]
             (Value::Float(float), &PostgresType::NUMERIC) => float
@@ -626,7 +639,7 @@ impl<'a> ToSql for Value<'a> {
                         .collect();
                     parsed_ip_addr.to_sql(ty, out)
                 })
-            }
+            },
             #[cfg(feature = "json")]
             (Value::Text(string), &PostgresType::JSON) | (Value::Text(string), &PostgresType::JSONB) => string
                 .as_ref()
@@ -645,7 +658,7 @@ impl<'a> ToSql for Value<'a> {
                         .iter()
                         .filter_map(|val| val.as_str().map(|s| string_to_bits(s)))
                         .collect::<crate::Result<Vec<_>>>()?;
-
+    
                     bitvecs.to_sql(ty, out)
                 })
             }
