@@ -133,6 +133,9 @@ pub mod single;
 mod tests;
 pub mod visitor;
 
+#[cfg(feature = "postgresql")]
+pub use postgres_types::Type as PostgresType;
+
 pub use ast::Value;
 
 pub type Result<T> = std::result::Result<T, error::Error>;

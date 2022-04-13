@@ -12,6 +12,9 @@ use std::{fmt, sync::Arc};
 #[cfg(feature = "sqlite")]
 use std::convert::TryFrom;
 
+#[cfg(feature = "postgresql")]
+use postgres_types::Type as PostgresType;
+
 /// The main entry point and an abstraction over a database connection.
 #[derive(Clone)]
 pub struct Quaint {
@@ -205,8 +208,28 @@ impl Queryable for Quaint {
         self.inner.query_raw(sql, params).await
     }
 
+    #[cfg(feature = "postgresql")]
+    async fn query_raw_typed(
+        &self,
+        sql: &str,
+        params: &[ast::Value<'_>],
+        param_types: &[PostgresType],
+    ) -> crate::Result<connector::ResultSet> {
+        self.inner.query_raw_typed(sql, params, param_types).await
+    }
+
     async fn execute_raw(&self, sql: &str, params: &[ast::Value<'_>]) -> crate::Result<u64> {
         self.inner.execute_raw(sql, params).await
+    }
+
+    #[cfg(feature = "postgresql")]
+    async fn execute_raw_typed(
+        &self,
+        sql: &str,
+        params: &[ast::Value<'_>],
+        param_types: &[PostgresType],
+    ) -> crate::Result<u64> {
+        self.inner.execute_raw_typed(sql, params, param_types).await
     }
 
     async fn raw_cmd(&self, cmd: &str) -> crate::Result<()> {

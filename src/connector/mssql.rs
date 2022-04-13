@@ -22,6 +22,9 @@ use tiberius::*;
 use tokio::net::TcpStream;
 use tokio_util::compat::{Compat, TokioAsyncWriteCompatExt};
 
+#[cfg(feature = "postgresql")]
+use postgres_types::Type as PostgresType;
+
 /// Wraps a connection url and exposes the parsing logic used by Quaint,
 /// including default values.
 #[derive(Debug, Clone)]
@@ -410,6 +413,17 @@ impl Queryable for Mssql {
         .await
     }
 
+    #[cfg(feature = "postgresql")]
+    #[tracing::instrument(skip(self, params, _param_types))]
+    async fn query_raw_typed(
+        &self,
+        sql: &str,
+        params: &[Value<'_>],
+        _param_types: &[PostgresType],
+    ) -> crate::Result<ResultSet> {
+        self.query_raw(sql, params).await
+    }
+
     #[tracing::instrument(skip(self, params))]
     async fn execute_raw(&self, sql: &str, params: &[Value<'_>]) -> crate::Result<u64> {
         metrics::query("mssql.execute_raw", sql, params, move || async move {
@@ -425,6 +439,17 @@ impl Queryable for Mssql {
             Ok(changes)
         })
         .await
+    }
+
+    #[cfg(feature = "postgresql")]
+    #[tracing::instrument(skip(self, params, _param_types))]
+    async fn execute_raw_typed(
+        &self,
+        sql: &str,
+        params: &[Value<'_>],
+        _param_types: &[PostgresType],
+    ) -> crate::Result<u64> {
+        self.execute_raw(sql, params).await
     }
 
     #[tracing::instrument(skip(self))]

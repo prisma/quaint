@@ -2,6 +2,9 @@ use super::*;
 use crate::ast::*;
 use async_trait::async_trait;
 
+#[cfg(feature = "postgresql")]
+use postgres_types::Type as PostgresType;
+
 /// A representation of an SQL database transaction. If not commited, a
 /// transaction will be rolled back by default when dropped.
 ///
@@ -53,8 +56,28 @@ impl<'a> Queryable for Transaction<'a> {
         self.inner.query_raw(sql, params).await
     }
 
+    #[cfg(feature = "postgresql")]
+    async fn query_raw_typed(
+        &self,
+        sql: &str,
+        params: &[Value<'_>],
+        param_types: &[PostgresType],
+    ) -> crate::Result<ResultSet> {
+        self.inner.query_raw_typed(sql, params, param_types).await
+    }
+
     async fn execute_raw(&self, sql: &str, params: &[Value<'_>]) -> crate::Result<u64> {
         self.inner.execute_raw(sql, params).await
+    }
+
+    #[cfg(feature = "postgresql")]
+    async fn execute_raw_typed(
+        &self,
+        sql: &str,
+        params: &[Value<'_>],
+        param_types: &[PostgresType],
+    ) -> crate::Result<u64> {
+        self.inner.execute_raw_typed(sql, params, param_types).await
     }
 
     async fn raw_cmd(&self, cmd: &str) -> crate::Result<()> {

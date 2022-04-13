@@ -1,6 +1,8 @@
 use super::{ResultSet, Transaction};
 use crate::ast::*;
 use async_trait::async_trait;
+#[cfg(feature = "postgresql")]
+use tokio_postgres::types::Type as PostgresType;
 
 pub trait GetRow {
     fn get_result_row(&self) -> crate::Result<Vec<Value<'static>>>;
@@ -23,12 +25,35 @@ pub trait Queryable: Send + Sync {
     /// Execute a query given as SQL, interpolating the given parameters.
     async fn query_raw(&self, sql: &str, params: &[Value<'_>]) -> crate::Result<ResultSet>;
 
+    #[cfg(feature = "postgresql")]
+    /// Execute a query given as SQL, interpolating the given parameters.
+    /// For Postgres, some type-hints can be sent to the database for each parameters.
+    /// For other connectors, the `param_types` parameter will be ignored.
+    async fn query_raw_typed(
+        &self,
+        sql: &str,
+        params: &[Value<'_>],
+        param_types: &[PostgresType],
+    ) -> crate::Result<ResultSet>;
+
     /// Execute the given query, returning the number of affected rows.
     async fn execute(&self, q: Query<'_>) -> crate::Result<u64>;
 
     /// Execute a query given as SQL, interpolating the given parameters and
     /// returning the number of affected rows.
     async fn execute_raw(&self, sql: &str, params: &[Value<'_>]) -> crate::Result<u64>;
+
+    #[cfg(feature = "postgresql")]
+    /// Execute a query given as SQL, interpolating the given parameters and
+    /// returning the number of affected rows.
+    /// For Postgres, some type-hints can be sent to the database for each parameters.
+    /// For other connectors, the `param_types` parameter will be ignored.
+    async fn execute_raw_typed(
+        &self,
+        sql: &str,
+        params: &[Value<'_>],
+        param_types: &[PostgresType],
+    ) -> crate::Result<u64>;
 
     /// Run a command in the database, for queries that can't be run using
     /// prepared statements.
