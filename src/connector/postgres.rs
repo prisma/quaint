@@ -13,6 +13,7 @@ use lru_cache::LruCache;
 use native_tls::{Certificate, Identity, TlsConnector};
 use percent_encoding::percent_decode;
 use postgres_native_tls::MakeTlsConnector;
+use postgres_types::Type as PostgresType;
 use std::{
     borrow::{Borrow, Cow},
     fmt::{Debug, Display},
@@ -553,7 +554,7 @@ impl PostgreSql {
     }
 
     #[tracing::instrument(skip(self))]
-    async fn fetch_cached(&self, sql: &str) -> crate::Result<Statement> {
+    async fn fetch_cached(&self, sql: &str, param_types: &[PostgresType]) -> crate::Result<Statement> {
         let mut cache = self.statement_cache.lock().await;
         let capacity = cache.capacity();
         let stored = cache.len();
@@ -577,7 +578,7 @@ impl PostgreSql {
                     stored = stored,
                 );
 
-                let stmt = self.perform_io(self.client.0.prepare(sql)).await?;
+                let stmt = self.perform_io(self.client.0.prepare_typed(sql, param_types)).await?;
                 cache.insert(sql.to_string(), stmt.clone());
                 Ok(stmt)
             }
@@ -619,18 +620,50 @@ impl TransactionCapable for PostgreSql {}
 impl Queryable for PostgreSql {
     async fn query(&self, q: Query<'_>) -> crate::Result<ResultSet> {
         let (sql, params) = visitor::Postgres::build(q)?;
+
         self.query_raw(sql.as_str(), &params[..]).await
     }
 
     async fn execute(&self, q: Query<'_>) -> crate::Result<u64> {
         let (sql, params) = visitor::Postgres::build(q)?;
+
         self.execute_raw(sql.as_str(), &params[..]).await
     }
 
     #[tracing::instrument(skip(self, params))]
     async fn query_raw(&self, sql: &str, params: &[Value<'_>]) -> crate::Result<ResultSet> {
         metrics::query("postgres.query_raw", sql, params, move || async move {
-            let stmt = self.fetch_cached(sql).await?;
+            let stmt = self.fetch_cached(sql, &[]).await?;
+
+            if stmt.params().len() != params.len() {
+                let kind = ErrorKind::IncorrectNumberOfParameters {
+                    expected: stmt.params().len(),
+                    actual: params.len(),
+                };
+
+                return Err(Error::builder(kind).build());
+            }
+
+            let rows = self
+                .perform_io(self.client.0.query(&stmt, conversion::conv_params(params).as_slice()))
+                .await?;
+
+            let mut result = ResultSet::new(stmt.to_column_names(), Vec::new());
+
+            for row in rows {
+                result.rows.push(row.get_result_row()?);
+            }
+
+            Ok(result)
+        })
+        .await
+    }
+
+    #[tracing::instrument(skip(self, params))]
+    async fn query_raw_typed(&self, sql: &str, params: &[Value<'_>]) -> crate::Result<ResultSet> {
+        metrics::query("postgres.query_raw", sql, params, move || async move {
+            let param_types = conversion::params_to_types(params);
+            let stmt = self.fetch_cached(sql, &param_types).await?;
 
             if stmt.params().len() != params.len() {
                 let kind = ErrorKind::IncorrectNumberOfParameters {
@@ -659,7 +692,31 @@ impl Queryable for PostgreSql {
     #[tracing::instrument(skip(self, params))]
     async fn execute_raw(&self, sql: &str, params: &[Value<'_>]) -> crate::Result<u64> {
         metrics::query("postgres.execute_raw", sql, params, move || async move {
-            let stmt = self.fetch_cached(sql).await?;
+            let stmt = self.fetch_cached(sql, &[]).await?;
+
+            if stmt.params().len() != params.len() {
+                let kind = ErrorKind::IncorrectNumberOfParameters {
+                    expected: stmt.params().len(),
+                    actual: params.len(),
+                };
+
+                return Err(Error::builder(kind).build());
+            }
+
+            let changes = self
+                .perform_io(self.client.0.execute(&stmt, conversion::conv_params(params).as_slice()))
+                .await?;
+
+            Ok(changes)
+        })
+        .await
+    }
+
+    #[tracing::instrument(skip(self, params))]
+    async fn execute_raw_typed(&self, sql: &str, params: &[Value<'_>]) -> crate::Result<u64> {
+        metrics::query("postgres.execute_raw", sql, params, move || async move {
+            let param_types = conversion::params_to_types(params);
+            let stmt = self.fetch_cached(sql, &param_types).await?;
 
             if stmt.params().len() != params.len() {
                 let kind = ErrorKind::IncorrectNumberOfParameters {

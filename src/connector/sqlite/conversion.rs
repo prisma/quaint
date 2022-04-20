@@ -40,8 +40,8 @@ impl TypeIdentifier for Column<'_> {
         matches!(
             self.decl_type(),
             Some("TINYINT")
-            | Some("tinyint")
-            | Some("SMALLINT")
+                | Some("tinyint")
+                | Some("SMALLINT")
                 | Some("smallint")
                 | Some("MEDIUMINT")
                 | Some("mediumint")
@@ -60,21 +60,18 @@ impl TypeIdentifier for Column<'_> {
         matches!(
             self.decl_type(),
             Some("BIGINT")
-            | Some("bigint")
-            | Some("UNSIGNED BIG INT")
-            | Some("unsigned big int")
-            | Some("INT8")
-            | Some("int8")
+                | Some("bigint")
+                | Some("UNSIGNED BIG INT")
+                | Some("unsigned big int")
+                | Some("INT8")
+                | Some("int8")
         )
     }
 
     fn is_datetime(&self) -> bool {
         matches!(
             self.decl_type(),
-            Some("DATETIME")
-            | Some("datetime")
-            | Some("TIMESTAMP")
-            | Some("timestamp")
+            Some("DATETIME") | Some("datetime") | Some("TIMESTAMP") | Some("timestamp")
         )
     }
 
