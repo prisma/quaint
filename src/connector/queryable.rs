@@ -27,6 +27,8 @@ pub trait Queryable: Send + Sync {
     ///
     /// On Postgres, query parameters types will be inferred from the values
     /// instead of letting Postgres infer them based on their usage in the SQL query.
+    ///
+    /// NOTE: This method will eventually be removed & merged into Queryable::query_raw().
     async fn query_raw_typed(&self, sql: &str, params: &[Value<'_>]) -> crate::Result<ResultSet>;
 
     /// Execute the given query, returning the number of affected rows.
@@ -41,6 +43,8 @@ pub trait Queryable: Send + Sync {
     ///
     /// On Postgres, query parameters types will be inferred from the values
     /// instead of letting Postgres infer them based on their usage in the SQL query.
+    ///
+    /// NOTE: This method will eventually be removed & merged into Queryable::query_raw().
     async fn execute_raw_typed(&self, sql: &str, params: &[Value<'_>]) -> crate::Result<u64>;
 
     /// Run a command in the database, for queries that can't be run using

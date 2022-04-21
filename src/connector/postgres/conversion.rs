@@ -54,7 +54,7 @@ pub fn params_to_types(params: &[Value<'_>]) -> Vec<PostgresType> {
                 #[cfg(feature = "bigdecimal")]
                 Value::Numeric(_) => PostgresType::NUMERIC,
                 #[cfg(feature = "json")]
-                Value::Json(_) => PostgresType::JSON,
+                Value::Json(_) => PostgresType::JSONB,
                 Value::Xml(_) => PostgresType::XML,
                 #[cfg(feature = "uuid")]
                 Value::Uuid(_) => PostgresType::UUID,
@@ -96,7 +96,7 @@ pub fn params_to_types(params: &[Value<'_>]) -> Vec<PostgresType> {
                         #[cfg(feature = "bigdecimal")]
                         Value::Numeric(_) => PostgresType::NUMERIC_ARRAY,
                         #[cfg(feature = "json")]
-                        Value::Json(_) => PostgresType::JSON_ARRAY,
+                        Value::Json(_) => PostgresType::JSONB_ARRAY,
                         Value::Xml(_) => PostgresType::XML_ARRAY,
                         #[cfg(feature = "uuid")]
                         Value::Uuid(_) => PostgresType::UUID_ARRAY,
@@ -112,7 +112,7 @@ pub fn params_to_types(params: &[Value<'_>]) -> Vec<PostgresType> {
                 }
             }
         })
-        .collect::<Vec<_>>()
+        .collect()
 }
 
 struct XmlString(pub String);

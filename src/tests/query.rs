@@ -3176,3 +3176,39 @@ async fn query_raw_typed_date(api: &mut dyn TestApi) -> crate::Result<()> {
 
     Ok(())
 }
+
+#[cfg(feature = "json")]
+#[test_each_connector(tags("postgresql"))]
+async fn query_raw_typed_json(api: &mut dyn TestApi) -> crate::Result<()> {
+    use serde_json::json;
+
+    let res = api
+        .conn()
+        .query_raw_typed(
+            r#"SELECT
+                    $1                               as json,
+                    $2::text                         as jsontotext,
+                    $3->'b'                          as json_operator,
+                    json_extract_path($4::json, 'b') as json_extract,
+                    jsonb_extract_path($5, 'b')      as jsonb_extract
+                   ;
+                "#,
+            &[
+                Value::json(json!({ "a":1, "b":2})), // $1
+                Value::json(json!({ "a":1, "b":2})), // $2
+                Value::json(json!({ "a":1, "b":2})), // $3
+                Value::json(json!({ "a":1, "b":2})), // $4
+                Value::json(json!({ "a":1, "b":2})), // $5
+            ],
+        )
+        .await?
+        .into_single()?;
+
+    assert_eq!(Value::json(json!({ "a":1, "b":2})), res["json"]);
+    assert_eq!(Value::text("{\"a\": 1, \"b\": 2}"), res["jsontotext"]);
+    assert_eq!(Value::json(json!(2)), res["json_operator"]);
+    assert_eq!(Value::json(json!(2)), res["json_extract"]);
+    assert_eq!(Value::json(json!(2)), res["jsonb_extract"]);
+
+    Ok(())
+}
