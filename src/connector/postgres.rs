@@ -664,7 +664,7 @@ impl Queryable for PostgreSql {
     #[tracing::instrument(skip(self, params))]
     async fn query_raw_typed(&self, sql: &str, params: &[Value<'_>]) -> crate::Result<ResultSet> {
         metrics::query("postgres.query_raw", sql, params, move || async move {
-            let stmt = self.fetch_cached(sql, &params).await?;
+            let stmt = self.fetch_cached(sql, params).await?;
 
             if stmt.params().len() != params.len() {
                 let kind = ErrorKind::IncorrectNumberOfParameters {
@@ -716,7 +716,7 @@ impl Queryable for PostgreSql {
     #[tracing::instrument(skip(self, params))]
     async fn execute_raw_typed(&self, sql: &str, params: &[Value<'_>]) -> crate::Result<u64> {
         metrics::query("postgres.execute_raw", sql, params, move || async move {
-            let stmt = self.fetch_cached(sql, &params).await?;
+            let stmt = self.fetch_cached(sql, params).await?;
 
             if stmt.params().len() != params.len() {
                 let kind = ErrorKind::IncorrectNumberOfParameters {
