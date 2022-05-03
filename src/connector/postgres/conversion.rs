@@ -466,7 +466,7 @@ impl GetRow for PostgresRow {
                                         column_type: x.to_string(),
                                     };
 
-                                    return Err(Error::builder(kind).build().into());
+                                    return Err(Error::builder(kind).build());
                                 } else {
                                     Err(err)
                                 }
@@ -486,7 +486,7 @@ impl GetRow for PostgresRow {
                                     column_type: x.to_string(),
                                 };
 
-                                return Err(Error::builder(kind).build().into());
+                                return Err(Error::builder(kind).build());
                             } else {
                                 Err(err)
                             }
