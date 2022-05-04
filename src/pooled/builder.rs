@@ -42,7 +42,7 @@ impl Builder {
             health_check_interval: None,
             test_on_check_out: false,
             pool_timeout: None,
-            pool_library: PoolLibrary::Deadpool,
+            pool_library: PoolLibrary::Mobc,
         })
     }
 

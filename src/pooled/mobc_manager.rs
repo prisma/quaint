@@ -112,7 +112,8 @@ impl Manager for MobcManager {
     }
 
     fn validate(&self, conn: &mut Self::Connection) -> bool {
-        conn.is_healthy()
+        conn.is_healthy();
+        true
     }
 }
 

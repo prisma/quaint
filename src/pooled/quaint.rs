@@ -40,11 +40,6 @@ pub(crate) trait PoolManager: Send + Sync {
     async fn state(&self) -> PoolState;
 }
 
-pub enum PoolLibrary {
-    Mobc,
-    Deadpool,
-}
-
 impl Quaint {
     /// Creates a new builder for a Quaint connection pool with the given
     /// connection string. See the [module level documentation] for details.
@@ -177,14 +172,14 @@ impl Quaint {
     /// Reserve a connection from the pool.
     #[tracing::instrument(name = "fetch_new_connection_from_pool", skip(self))]
     pub async fn check_out(&self) -> crate::Result<PooledConnection> {
-        // let res = match self.pool_timeout {
-        //     Some(duration) => crate::connector::metrics::check_out(self.inner.acquire_with_timeout(duration)).await,
-        //     None => crate::connector::metrics::check_out(self.inner.acquire()).await,
-        // };
         let res = match self.pool_timeout {
-            Some(duration) => self.inner.acquire_with_timeout(duration).await,
-            None => self.inner.acquire().await,
+            Some(duration) => crate::connector::metrics::check_out(self.inner.acquire_with_timeout(duration)).await,
+            None => crate::connector::metrics::check_out(self.inner.acquire()).await,
         };
+        // let res = match self.pool_timeout {
+        //     Some(duration) => self.inner.acquire_with_timeout(duration).await,
+        //     None => self.inner.acquire().await,
+        // };
 
         let inner = match res {
             Ok(conn) => conn,
