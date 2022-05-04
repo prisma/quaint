@@ -354,6 +354,9 @@
 <span id="349">349</span>
 <span id="350">350</span>
 <span id="351">351</span>
+<span id="352">352</span>
+<span id="353">353</span>
+<span id="354">354</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Error module</span>
 <span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">borrow::Cow</span>, <span class="ident">fmt</span>, <span class="ident">io</span>, <span class="ident">num</span>};
 <span class="kw">use</span> <span class="ident">thiserror::Error</span>;
@@ -604,6 +607,9 @@
 
     <span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;Cannot find a FULLTEXT index to use for the search&quot;</span>)]</span>
     <span class="ident">MissingFullTextSearchIndex</span>,
+
+    <span class="attribute">#[<span class="ident">error</span>(<span class="string">&quot;Column type &#39;{}&#39; could not be deserialized from the database.&quot;</span>, <span class="ident">column_type</span>)]</span>
+    <span class="ident">UnsupportedColumnType</span> { <span class="ident">column_type</span>: <span class="ident">String</span> },
 }
 
 <span class="kw">impl</span> <span class="ident">ErrorKind</span> {
