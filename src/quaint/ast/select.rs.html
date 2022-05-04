@@ -1234,7 +1234,7 @@
     <span class="doccomment">/// let (sql, params) = Sqlite::build(query)?;</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// assert_eq!(&quot;SELECT `users`.* FROM `users` LIMIT ?&quot;, sql);</span>
-    <span class="doccomment">/// assert_eq!(vec![Value::from(10)], params);</span>
+    <span class="doccomment">/// assert_eq!(vec![Value::from(10_i64)], params);</span>
     <span class="doccomment">/// # Ok(())</span>
     <span class="doccomment">/// # }</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">limit</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">limit</span>: <span class="ident">usize</span>) -&gt; <span class="self">Self</span> {
@@ -1251,7 +1251,7 @@
     <span class="doccomment">/// let (sql, params) = Sqlite::build(query)?;</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// assert_eq!(&quot;SELECT `users`.* FROM `users` LIMIT ? OFFSET ?&quot;, sql);</span>
-    <span class="doccomment">/// assert_eq!(vec![Value::from(-1), Value::from(10)], params);</span>
+    <span class="doccomment">/// assert_eq!(vec![Value::from(-1), Value::from(10_i64)], params);</span>
     <span class="doccomment">/// # Ok(())</span>
     <span class="doccomment">/// # }</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">offset</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">offset</span>: <span class="ident">usize</span>) -&gt; <span class="self">Self</span> {

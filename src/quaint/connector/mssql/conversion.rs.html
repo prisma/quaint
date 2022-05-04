@@ -109,6 +109,7 @@
 <span id="104">104</span>
 <span id="105">105</span>
 <span id="106">106</span>
+<span id="107">107</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::ast::Value</span>;
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;bigdecimal&quot;</span>))]</span>
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::error</span>::<span class="kw-2">*</span>;
@@ -122,7 +123,8 @@
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">IntoSql</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Value</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="kw">fn</span> <span class="ident">into_sql</span>(<span class="self">self</span>) -&gt; <span class="ident">ColumnData</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">Value::Integer</span>(<span class="ident">val</span>) =&gt; <span class="ident">val</span>.<span class="ident">into_sql</span>(),
+            <span class="ident">Value::Int32</span>(<span class="ident">val</span>) =&gt; <span class="ident">val</span>.<span class="ident">into_sql</span>(),
+            <span class="ident">Value::Int64</span>(<span class="ident">val</span>) =&gt; <span class="ident">val</span>.<span class="ident">into_sql</span>(),
             <span class="ident">Value::Float</span>(<span class="ident">val</span>) =&gt; <span class="ident">val</span>.<span class="ident">into_sql</span>(),
             <span class="ident">Value::Double</span>(<span class="ident">val</span>) =&gt; <span class="ident">val</span>.<span class="ident">into_sql</span>(),
             <span class="ident">Value::Text</span>(<span class="ident">val</span>) =&gt; <span class="ident">val</span>.<span class="ident">as_deref</span>().<span class="ident">into_sql</span>(),
@@ -153,10 +155,10 @@
 
     <span class="kw">fn</span> <span class="ident">try_from</span>(<span class="ident">cd</span>: <span class="ident">ColumnData</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span><span class="op">&gt;</span>) -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">cd</span> {
-            <span class="ident">ColumnData::U8</span>(<span class="ident">num</span>) =&gt; <span class="ident">Value::Integer</span>(<span class="ident">num</span>.<span class="ident">map</span>(<span class="ident">i64::from</span>)),
-            <span class="ident">ColumnData::I16</span>(<span class="ident">num</span>) =&gt; <span class="ident">Value::Integer</span>(<span class="ident">num</span>.<span class="ident">map</span>(<span class="ident">i64::from</span>)),
-            <span class="ident">ColumnData::I32</span>(<span class="ident">num</span>) =&gt; <span class="ident">Value::Integer</span>(<span class="ident">num</span>.<span class="ident">map</span>(<span class="ident">i64::from</span>)),
-            <span class="ident">ColumnData::I64</span>(<span class="ident">num</span>) =&gt; <span class="ident">Value::Integer</span>(<span class="ident">num</span>.<span class="ident">map</span>(<span class="ident">i64::from</span>)),
+            <span class="ident">ColumnData::U8</span>(<span class="ident">num</span>) =&gt; <span class="ident">Value::Int32</span>(<span class="ident">num</span>.<span class="ident">map</span>(<span class="ident">i32::from</span>)),
+            <span class="ident">ColumnData::I16</span>(<span class="ident">num</span>) =&gt; <span class="ident">Value::Int32</span>(<span class="ident">num</span>.<span class="ident">map</span>(<span class="ident">i32::from</span>)),
+            <span class="ident">ColumnData::I32</span>(<span class="ident">num</span>) =&gt; <span class="ident">Value::Int32</span>(<span class="ident">num</span>.<span class="ident">map</span>(<span class="ident">i32::from</span>)),
+            <span class="ident">ColumnData::I64</span>(<span class="ident">num</span>) =&gt; <span class="ident">Value::Int64</span>(<span class="ident">num</span>.<span class="ident">map</span>(<span class="ident">i64::from</span>)),
             <span class="ident">ColumnData::F32</span>(<span class="ident">num</span>) =&gt; <span class="ident">Value::Float</span>(<span class="ident">num</span>),
             <span class="ident">ColumnData::F64</span>(<span class="ident">num</span>) =&gt; <span class="ident">Value::Double</span>(<span class="ident">num</span>),
             <span class="ident">ColumnData::Bit</span>(<span class="ident">b</span>) =&gt; <span class="ident">Value::Boolean</span>(<span class="ident">b</span>),

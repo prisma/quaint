@@ -830,9 +830,6 @@
 <span id="825">825</span>
 <span id="826">826</span>
 <span id="827">827</span>
-<span id="828">828</span>
-<span id="829">829</span>
-<span id="830">830</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">ast</span>::<span class="kw-2">*</span>,
     <span class="ident">error</span>::{<span class="ident">Error</span>, <span class="ident">ErrorKind</span>},
@@ -947,7 +944,8 @@
 
     <span class="kw">fn</span> <span class="ident">visit_raw_value</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">value</span>: <span class="ident">Value</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) -&gt; <span class="ident">visitor::Result</span> {
         <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">value</span> {
-            <span class="ident">Value::Integer</span>(<span class="ident">i</span>) =&gt; <span class="ident">i</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">i</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">write</span>(<span class="ident">i</span>)),
+            <span class="ident">Value::Int32</span>(<span class="ident">i</span>) =&gt; <span class="ident">i</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">i</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">write</span>(<span class="ident">i</span>)),
+            <span class="ident">Value::Int64</span>(<span class="ident">i</span>) =&gt; <span class="ident">i</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">i</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">write</span>(<span class="ident">i</span>)),
             <span class="ident">Value::Float</span>(<span class="ident">d</span>) =&gt; <span class="ident">d</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">f</span><span class="op">|</span> <span class="kw">match</span> <span class="ident">f</span> {
                 <span class="ident">f</span> <span class="kw">if</span> <span class="ident">f</span>.<span class="ident">is_nan</span>() =&gt; <span class="self">self</span>.<span class="ident">write</span>(<span class="string">&quot;&#39;NaN&#39;&quot;</span>),
                 <span class="ident">f</span> <span class="kw">if</span> <span class="ident">f</span> <span class="op">==</span> <span class="ident">f32::INFINITY</span> =&gt; <span class="self">self</span>.<span class="ident">write</span>(<span class="string">&quot;&#39;Infinity&#39;&quot;</span>),
@@ -1091,7 +1089,8 @@
                 <span class="self">self</span>.<span class="ident">write</span>(<span class="string">&quot; OFFSET &quot;</span>)<span class="question-mark">?</span>;
                 <span class="self">self</span>.<span class="ident">visit_parameterized</span>(<span class="ident">offset</span>)
             }
-            (<span class="prelude-val">None</span>, <span class="prelude-val">Some</span>(<span class="ident">Value::Integer</span>(<span class="prelude-val">Some</span>(<span class="ident">offset</span>)))) <span class="kw">if</span> <span class="ident">offset</span> <span class="op">&lt;</span> <span class="number">1</span> =&gt; <span class="prelude-val">Ok</span>(()),
+            (<span class="prelude-val">None</span>, <span class="prelude-val">Some</span>(<span class="ident">Value::Int32</span>(<span class="prelude-val">Some</span>(<span class="ident">offset</span>)))) <span class="kw">if</span> <span class="ident">offset</span> <span class="op">&lt;</span> <span class="number">1</span> =&gt; <span class="prelude-val">Ok</span>(()),
+            (<span class="prelude-val">None</span>, <span class="prelude-val">Some</span>(<span class="ident">Value::Int64</span>(<span class="prelude-val">Some</span>(<span class="ident">offset</span>)))) <span class="kw">if</span> <span class="ident">offset</span> <span class="op">&lt;</span> <span class="number">1</span> =&gt; <span class="prelude-val">Ok</span>(()),
             (<span class="prelude-val">None</span>, <span class="prelude-val">Some</span>(<span class="ident">offset</span>)) =&gt; {
                 <span class="self">self</span>.<span class="ident">write</span>(<span class="string">&quot; LIMIT &quot;</span>)<span class="question-mark">?</span>;
                 <span class="self">self</span>.<span class="ident">visit_parameterized</span>(<span class="ident">Value::from</span>(<span class="number">9_223_372_036_854_775_807i64</span>))<span class="question-mark">?</span>;
@@ -1398,7 +1397,7 @@
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_limit_and_offset_when_both_are_set</span>() {
-        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="ident">expected_values</span>(<span class="string">&quot;SELECT `users`.* FROM `users` LIMIT ? OFFSET ?&quot;</span>, <span class="macro">vec!</span>[<span class="number">10</span>, <span class="number">2</span>]);
+        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="ident">expected_values</span>(<span class="string">&quot;SELECT `users`.* FROM `users` LIMIT ? OFFSET ?&quot;</span>, <span class="macro">vec!</span>[<span class="number">10_i64</span>, <span class="number">2_i64</span>]);
         <span class="kw">let</span> <span class="ident">query</span> <span class="op">=</span> <span class="ident">Select::from_table</span>(<span class="string">&quot;users&quot;</span>).<span class="ident">limit</span>(<span class="number">10</span>).<span class="ident">offset</span>(<span class="number">2</span>);
         <span class="kw">let</span> (<span class="ident">sql</span>, <span class="ident">params</span>) <span class="op">=</span> <span class="ident">Mysql::build</span>(<span class="ident">query</span>).<span class="ident">unwrap</span>();
 
@@ -1422,7 +1421,7 @@
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_limit_and_offset_when_only_limit_is_set</span>() {
-        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="ident">expected_values</span>(<span class="string">&quot;SELECT `users`.* FROM `users` LIMIT ?&quot;</span>, <span class="macro">vec!</span>[<span class="number">10</span>]);
+        <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="ident">expected_values</span>(<span class="string">&quot;SELECT `users`.* FROM `users` LIMIT ?&quot;</span>, <span class="macro">vec!</span>[<span class="number">10_i64</span>]);
         <span class="kw">let</span> <span class="ident">query</span> <span class="op">=</span> <span class="ident">Select::from_table</span>(<span class="string">&quot;users&quot;</span>).<span class="ident">limit</span>(<span class="number">10</span>);
         <span class="kw">let</span> (<span class="ident">sql</span>, <span class="ident">params</span>) <span class="op">=</span> <span class="ident">Mysql::build</span>(<span class="ident">query</span>).<span class="ident">unwrap</span>();
 
@@ -1442,12 +1441,7 @@
 
         <span class="macro">assert_eq!</span>(<span class="ident">expected_sql</span>, <span class="ident">sql</span>);
         <span class="macro">assert_eq!</span>(
-            <span class="macro">vec!</span>[
-                <span class="ident">Value::integer</span>(<span class="number">1</span>),
-                <span class="ident">Value::integer</span>(<span class="number">2</span>),
-                <span class="ident">Value::integer</span>(<span class="number">3</span>),
-                <span class="ident">Value::integer</span>(<span class="number">4</span>),
-            ],
+            <span class="macro">vec!</span>[<span class="ident">Value::int32</span>(<span class="number">1</span>), <span class="ident">Value::int32</span>(<span class="number">2</span>), <span class="ident">Value::int32</span>(<span class="number">3</span>), <span class="ident">Value::int32</span>(<span class="number">4</span>),],
             <span class="ident">params</span>
         );
     }
