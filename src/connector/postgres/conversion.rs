@@ -722,7 +722,17 @@ impl<'a> ToSql for Value<'a> {
                 }),
                 (Value::Boolean(boo), _) => boo.map(|boo| boo.to_sql(ty, out)),
                 (Value::Char(c), _) => c.map(|c| (c as i8).to_sql(ty, out)),
-                (Value::Array(vec), _) => vec.as_ref().map(|vec| vec.to_sql(ty, out)),
+                (Value::Array(vec), typ) if matches!(typ.kind(), Kind::Array(_)) => {
+                    vec.as_ref().map(|vec| vec.to_sql(ty, out))
+                }
+                (Value::Array(vec), typ) => {
+                    let kind = ErrorKind::conversion(format!(
+                        "Couldn't serialize value `{:?}` into a `{}`. Value is a list but `{}` is not.",
+                        vec, typ, typ
+                    ));
+
+                    return Err(Error::builder(kind).build().into());
+                }
                 #[cfg(feature = "json")]
                 (Value::Json(value), _) => value.as_ref().map(|value| value.to_sql(ty, out)),
                 (Value::Xml(value), _) => value.as_ref().map(|value| value.to_sql(ty, out)),
