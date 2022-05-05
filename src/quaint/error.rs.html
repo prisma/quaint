@@ -357,6 +357,22 @@
 <span id="352">352</span>
 <span id="353">353</span>
 <span id="354">354</span>
+<span id="355">355</span>
+<span id="356">356</span>
+<span id="357">357</span>
+<span id="358">358</span>
+<span id="359">359</span>
+<span id="360">360</span>
+<span id="361">361</span>
+<span id="362">362</span>
+<span id="363">363</span>
+<span id="364">364</span>
+<span id="365">365</span>
+<span id="366">366</span>
+<span id="367">367</span>
+<span id="368">368</span>
+<span id="369">369</span>
+<span id="370">370</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Error module</span>
 <span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">borrow::Cow</span>, <span class="ident">fmt</span>, <span class="ident">io</span>, <span class="ident">num</span>};
 <span class="kw">use</span> <span class="ident">thiserror::Error</span>;
@@ -709,6 +725,22 @@
 <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">std::string::FromUtf8Error</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Error</span> {
     <span class="kw">fn</span> <span class="ident">from</span>(<span class="kw">_</span>: <span class="ident">std::string::FromUtf8Error</span>) -&gt; <span class="ident">Error</span> {
         <span class="ident">Error::builder</span>(<span class="ident">ErrorKind::conversion</span>(<span class="string">&quot;Couldn&#39;t convert data to UTF-8&quot;</span>)).<span class="ident">build</span>()
+    }
+}
+
+<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">std::net::AddrParseError</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Error</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">e</span>: <span class="ident">std::net::AddrParseError</span>) -&gt; <span class="self">Self</span> {
+        <span class="ident">Error::builder</span>(<span class="ident">ErrorKind::conversion</span>(<span class="macro">format!</span>(
+            <span class="string">&quot;Couldn&#39;t convert data to std::net::IpAddr: {}&quot;</span>,
+            <span class="ident">e</span>
+        )))
+        .<span class="ident">build</span>()
+    }
+}
+
+<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">uuid::Error</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Error</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">e</span>: <span class="ident">uuid::Error</span>) -&gt; <span class="self">Self</span> {
+        <span class="ident">Error::builder</span>(<span class="ident">ErrorKind::UUIDError</span>(<span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">e</span>))).<span class="ident">build</span>()
     }
 }
 </code></pre></div>
