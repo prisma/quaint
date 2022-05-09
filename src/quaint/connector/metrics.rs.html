@@ -63,6 +63,8 @@
 <span id="58">58</span>
 <span id="59">59</span>
 <span id="60">60</span>
+<span id="61">61</span>
+<span id="62">62</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::ast</span>::{<span class="ident">Params</span>, <span class="ident">Value</span>};
 <span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">future::Future</span>, <span class="ident">time::Instant</span>};
 
@@ -94,6 +96,8 @@
     );
 
     <span class="macro">histogram!</span>(<span class="macro">format!</span>(<span class="string">&quot;{}.query.time&quot;</span>, <span class="ident">tag</span>), <span class="ident">start</span>.<span class="ident">elapsed</span>());
+    <span class="macro">histogram!</span>(<span class="string">&quot;query_total_elapsed_time&quot;</span>, <span class="ident">start</span>.<span class="ident">elapsed</span>());
+    <span class="macro">increment_counter!</span>(<span class="string">&quot;query_total_queries&quot;</span>);
 
     <span class="ident">res</span>
 }
