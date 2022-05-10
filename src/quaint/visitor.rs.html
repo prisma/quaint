@@ -1101,6 +1101,10 @@
 <span id="1096">1096</span>
 <span id="1097">1097</span>
 <span id="1098">1098</span>
+<span id="1099">1099</span>
+<span id="1100">1100</span>
+<span id="1101">1101</span>
+<span id="1102">1102</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Visitors for reading an abstract SQL syntax tree, generating the query and</span>
 <span class="doccomment">//! gathering parameters in the right order.</span>
 <span class="doccomment">//!</span>
@@ -2138,6 +2142,10 @@
                 <span class="self">self</span>.<span class="ident">write</span>(<span class="string">&quot;uuid_to_bin(uuid())&quot;</span>)<span class="question-mark">?</span>;
             }
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mysql&quot;</span>)]</span>
+            <span class="ident">FunctionType::UuidToBinSwapped</span> =&gt; {
+                <span class="self">self</span>.<span class="ident">write</span>(<span class="string">&quot;uuid_to_bin(uuid(), 1)&quot;</span>)<span class="question-mark">?</span>;
+            }
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mysql&quot;</span>)]</span>
             <span class="ident">FunctionType::Uuid</span> =&gt; <span class="self">self</span>.<span class="ident">write</span>(<span class="string">&quot;uuid()&quot;</span>)<span class="question-mark">?</span>,
         };
 
@@ -2200,5 +2208,5 @@
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="quaint" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0-nightly (cb1219871 2022-05-08)" ></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="quaint" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0-nightly (88860d547 2022-05-09)" ></div>
 </body></html>
