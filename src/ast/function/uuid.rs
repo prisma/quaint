@@ -30,7 +30,7 @@ pub fn uuid_to_bin() -> Expression<'static> {
 /// # fn main() -> Result<(), quaint::error::Error> {
 /// let query = Select::default().value(uuid_to_bin_swapped());
 /// let (sql, _) = Mysql::build(query)?;
-/// 
+///
 /// assert_eq!("SELECT uuid_to_bin(uuid(), 1)", sql);
 /// # Ok(())
 /// # }
@@ -38,7 +38,7 @@ pub fn uuid_to_bin() -> Expression<'static> {
 pub fn uuid_to_bin_swapped() -> Expression<'static> {
     let func = Function {
         typ_: FunctionType::UuidToBinSwapped,
-        alias: None
+        alias: None,
     };
 
     func.into()
