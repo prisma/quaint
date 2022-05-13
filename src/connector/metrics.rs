@@ -75,10 +75,10 @@ where
 fn trace_query<'a>(query: &'a str, params: &'a [Value<'_>], result: &str, start: Instant) {
     tracing::debug!(
         query = %query,
+        params = %Params(params),
+        result,
         item_type = "query",
         is_query = true,
-        params = %Params(params),
         duration_ms = start.elapsed().as_millis() as u64,
-        result,
     );
 }
