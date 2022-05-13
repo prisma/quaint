@@ -362,7 +362,6 @@
 <span id="357">357</span>
 <span id="358">358</span>
 <span id="359">359</span>
-<span id="360">360</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">ast::Value</span>,
     <span class="ident">connector</span>::{<span class="ident">queryable::TakeRow</span>, <span class="ident">TypeIdentifier</span>},
@@ -376,8 +375,7 @@
 };
 <span class="kw">use</span> <span class="ident">std::convert::TryFrom</span>;
 
-<span class="attribute">#[<span class="ident">tracing::instrument</span>(<span class="ident">skip</span>(<span class="ident">params</span>))]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">conv_params</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="ident">params</span>: <span class="kw-2">&amp;</span>[<span class="ident">Value</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>]) -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">my::Params</span><span class="op">&gt;</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">conv_params</span>(<span class="ident">params</span>: <span class="kw-2">&amp;</span>[<span class="ident">Value</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>]) -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">my::Params</span><span class="op">&gt;</span> {
     <span class="kw">if</span> <span class="ident">params</span>.<span class="ident">is_empty</span>() {
         <span class="comment">// If we don&#39;t use explicit &#39;Empty&#39;,</span>
         <span class="comment">// mysql crashes with &#39;internal error: entered unreachable code&#39;</span>
@@ -724,5 +722,5 @@
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="quaint" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0-nightly (88860d547 2022-05-09)" ></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="quaint" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0-nightly (a5ad0d29a 2022-05-12)" ></div>
 </body></html>
