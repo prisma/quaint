@@ -189,10 +189,6 @@ impl Queryable for Sqlite {
         .await
     }
 
-    async fn query_raw_typed(&self, sql: &str, params: &[Value<'_>]) -> crate::Result<ResultSet> {
-        self.query_raw(sql, params).await
-    }
-
     async fn execute_raw(&self, sql: &str, params: &[Value<'_>]) -> crate::Result<u64> {
         metrics::query("sqlite.query_raw", sql, params, move || async move {
             let client = self.client.lock().await;
@@ -202,10 +198,6 @@ impl Queryable for Sqlite {
             Ok(res)
         })
         .await
-    }
-
-    async fn execute_raw_typed(&self, sql: &str, params: &[Value<'_>]) -> crate::Result<u64> {
-        self.execute_raw(sql, params).await
     }
 
     async fn raw_cmd(&self, cmd: &str) -> crate::Result<()> {

@@ -3099,7 +3099,7 @@ async fn generate_native_uuid(api: &mut dyn TestApi) -> crate::Result<()> {
 async fn query_raw_typed_numeric(api: &mut dyn TestApi) -> crate::Result<()> {
     let res = api
         .conn()
-        .query_raw_typed(
+        .query_raw(
             r#"SELECT
                     $1::float4     AS i4tof4,
                     $2::float4     AS i8tof4,
@@ -3166,7 +3166,7 @@ async fn query_raw_typed_date(api: &mut dyn TestApi) -> crate::Result<()> {
 
     let res = api
         .conn()
-        .query_raw_typed(
+        .query_raw(
             r#"SELECT
                     ($1::timestamp - $2::interval)  AS texttointerval,
                     $3 = DATE_PART('year', $4::date) AS is_year_2023;
@@ -3197,7 +3197,7 @@ async fn query_raw_typed_json(api: &mut dyn TestApi) -> crate::Result<()> {
 
     let res = api
         .conn()
-        .query_raw_typed(
+        .query_raw(
             r#"SELECT
                     $1                               as json,
                     $2::text                         as jsontotext,
