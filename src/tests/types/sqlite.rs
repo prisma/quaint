@@ -6,18 +6,17 @@ use crate::{ast::*, connector::Queryable};
 #[cfg(feature = "bigdecimal")]
 use std::str::FromStr;
 
-// TODO: This should return Int32
-// Blocked by: https://github.com/prisma/prisma/issues/12784, which we'll fix for Prisma4
 test_type!(integer(
     sqlite,
     "INTEGER",
+    Value::Int32(None),
+    Value::int32(i8::MIN),
+    Value::int32(i8::MAX),
+    Value::int32(i16::MIN),
+    Value::int32(i16::MAX),
+    Value::int32(i32::MIN),
+    Value::int32(i32::MAX),
     Value::Int64(None),
-    Value::int64(i8::MIN),
-    Value::int64(i8::MAX),
-    Value::int64(i16::MIN),
-    Value::int64(i16::MAX),
-    Value::int64(i32::MIN),
-    Value::int64(i32::MAX),
     Value::int64(i64::MIN),
     Value::int64(i64::MAX)
 ));

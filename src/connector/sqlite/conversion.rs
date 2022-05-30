@@ -1,3 +1,5 @@
+use std::convert::TryFrom;
+
 use crate::{
     ast::Value,
     connector::{
@@ -103,6 +105,8 @@ impl TypeIdentifier for Column<'_> {
         }
     }
 
+    // WITH (id) AS pepe (SELECT 1) SELECT id (None) FROM pepe
+
     fn is_bytes(&self) -> bool {
         matches!(self.decl_type(), Some("BLOB") | Some("blob"))
     }
@@ -169,7 +173,20 @@ impl<'a> GetRow for SqliteRow<'a> {
                         let dt = chrono::Utc.timestamp_millis(i);
                         Value::datetime(dt)
                     }
-                    _ => Value::int64(i),
+                    c if c.is_int32() => {
+                        let converted = i32::try_from(i);
+
+                        if converted.is_err() {
+                            let msg = format!("Value {} does not fit in an INT column, maybe it is a BIGINT", i);
+                            let kind = ErrorKind::conversion(msg);
+
+                            return Err(Error::builder(kind).build());
+                        } else {
+                            Value::int32(converted.unwrap())
+                        }
+                    }
+                    // NOTE: When SQLite does not know what type the return is (for example at explicit values and RETURNING statements) we will 'assume' int64
+                    _ => Value::int64(i)
                 },
                 #[cfg(feature = "bigdecimal")]
                 ValueRef::Real(f) if column.is_real() => {
