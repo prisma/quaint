@@ -105,8 +105,6 @@ impl TypeIdentifier for Column<'_> {
         }
     }
 
-    // WITH (id) AS pepe (SELECT 1) SELECT id (None) FROM pepe
-
     fn is_bytes(&self) -> bool {
         matches!(self.decl_type(), Some("BLOB") | Some("blob"))
     }
@@ -180,7 +178,7 @@ impl<'a> GetRow for SqliteRow<'a> {
                         if let Ok(converted) = i32::try_from(i) {
                             Value::int32(converted)
                         } else {
-                            let msg = format!("Value {} does not fit in an INT column, maybe it is a BIGINT", i);
+                            let msg = format!("Value {} does not fit in an INT column, try migrating the '{}' column type to BIGINT", i, c.name());
                             let kind = ErrorKind::conversion(msg);
 
                             return Err(Error::builder(kind).build());
