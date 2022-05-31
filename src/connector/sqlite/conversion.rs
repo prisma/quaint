@@ -177,15 +177,13 @@ impl<'a> GetRow for SqliteRow<'a> {
                         Value::datetime(dt)
                     }
                     c if c.is_int32() => {
-                        let converted = i32::try_from(i);
-
-                        if converted.is_err() {
+                        if let Ok(converted) = i32::try_from(i) {
+                            Value::int32(converted)
+                        } else {
                             let msg = format!("Value {} does not fit in an INT column, maybe it is a BIGINT", i);
                             let kind = ErrorKind::conversion(msg);
 
                             return Err(Error::builder(kind).build());
-                        } else {
-                            Value::int32(converted.unwrap())
                         }
                     }
                     // NOTE: When SQLite does not know what type the return is (for example at explicit values and RETURNING statements) we will 'assume' int64
