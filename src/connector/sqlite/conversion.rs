@@ -156,37 +156,39 @@ impl<'a> GetRow for SqliteRow<'a> {
                         None => Value::Int32(None),
                     },
                 },
-                ValueRef::Integer(i) => match column {
-                    c if c.is_bool() => {
-                        if i == 0 {
-                            Value::boolean(false)
-                        } else {
-                            Value::boolean(true)
+                ValueRef::Integer(i) => {
+                    match column {
+                        c if c.is_bool() => {
+                            if i == 0 {
+                                Value::boolean(false)
+                            } else {
+                                Value::boolean(true)
+                            }
                         }
-                    }
-                    #[cfg(feature = "chrono")]
-                    c if c.is_date() => {
-                        let dt = chrono::NaiveDateTime::from_timestamp(i / 1000, 0);
-                        Value::date(dt.date())
-                    }
-                    #[cfg(feature = "chrono")]
-                    c if c.is_datetime() => {
-                        let dt = chrono::Utc.timestamp_millis(i);
-                        Value::datetime(dt)
-                    }
-                    c if c.is_int32() => {
-                        if let Ok(converted) = i32::try_from(i) {
-                            Value::int32(converted)
-                        } else {
-                            let msg = format!("Value {} does not fit in an INT column, try migrating the '{}' column type to BIGINT", i, c.name());
-                            let kind = ErrorKind::conversion(msg);
+                        #[cfg(feature = "chrono")]
+                        c if c.is_date() => {
+                            let dt = chrono::NaiveDateTime::from_timestamp(i / 1000, 0);
+                            Value::date(dt.date())
+                        }
+                        #[cfg(feature = "chrono")]
+                        c if c.is_datetime() => {
+                            let dt = chrono::Utc.timestamp_millis(i);
+                            Value::datetime(dt)
+                        }
+                        c if c.is_int32() => {
+                            if let Ok(converted) = i32::try_from(i) {
+                                Value::int32(converted)
+                            } else {
+                                let msg = format!("Value {} does not fit in an INT column, try migrating the '{}' column type to BIGINT", i, c.name());
+                                let kind = ErrorKind::conversion(msg);
 
-                            return Err(Error::builder(kind).build());
+                                return Err(Error::builder(kind).build());
+                            }
                         }
+                        // NOTE: When SQLite does not know what type the return is (for example at explicit values and RETURNING statements) we will 'assume' int64
+                        _ => Value::int64(i),
                     }
-                    // NOTE: When SQLite does not know what type the return is (for example at explicit values and RETURNING statements) we will 'assume' int64
-                    _ => Value::int64(i),
-                },
+                }
                 #[cfg(feature = "bigdecimal")]
                 ValueRef::Real(f) if column.is_real() => {
                     use bigdecimal::{BigDecimal, FromPrimitive};
