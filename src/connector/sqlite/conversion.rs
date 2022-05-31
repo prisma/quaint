@@ -189,7 +189,7 @@ impl<'a> GetRow for SqliteRow<'a> {
                         }
                     }
                     // NOTE: When SQLite does not know what type the return is (for example at explicit values and RETURNING statements) we will 'assume' int64
-                    _ => Value::int64(i)
+                    _ => Value::int64(i),
                 },
                 #[cfg(feature = "bigdecimal")]
                 ValueRef::Real(f) if column.is_real() => {
