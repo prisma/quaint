@@ -591,7 +591,7 @@
         <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">conn</span>.<span class="ident">select</span>(<span class="ident">select</span>.<span class="ident">clone</span>()).<span class="kw">await</span>.<span class="ident">unwrap</span>();
         <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">result</span>.<span class="ident">into_single</span>().<span class="ident">unwrap</span>();
 
-        <span class="macro">assert_eq!</span>(<span class="ident">result</span>.<span class="ident">get</span>(<span class="string">&quot;id&quot;</span>).<span class="ident">unwrap</span>(), <span class="kw-2">&amp;</span><span class="ident">Value::integer</span>(<span class="number">1</span>));
+        <span class="macro">assert_eq!</span>(<span class="ident">result</span>.<span class="ident">get</span>(<span class="string">&quot;id&quot;</span>).<span class="ident">unwrap</span>(), <span class="kw-2">&amp;</span><span class="ident">Value::int32</span>(<span class="number">1</span>));
         <span class="macro">assert_eq!</span>(<span class="ident">result</span>.<span class="ident">get</span>(<span class="string">&quot;txt&quot;</span>).<span class="ident">unwrap</span>(), <span class="kw-2">&amp;</span><span class="ident">Value::text</span>(<span class="string">&quot;henlo&quot;</span>));
 
         <span class="comment">// Check that we do get a separate, new database.</span>
@@ -602,5 +602,5 @@
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="quaint" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0-nightly (ee160f2f5 2022-05-23)" ></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="quaint" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0-nightly (c35035cef 2022-05-30)" ></div>
 </body></html>
