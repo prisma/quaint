@@ -133,7 +133,9 @@ impl<'a> GetRow for SqliteRow<'a> {
         for (i, column) in self.columns().iter().enumerate() {
             let pv = match self.get_ref_unwrap(i) {
                 ValueRef::Null => match column {
-                    c if c.is_int32() | c.is_int64() | c.is_null() => Value::Int64(None),
+                    // NOTE: A value without decl_type would be Int32(None)
+                    c if c.is_int32() | c.is_null() => Value::Int32(None),
+                    c if c.is_int64() => Value::Int64(None),
                     c if c.is_text() => Value::Text(None),
                     c if c.is_bytes() => Value::Bytes(None),
                     c if c.is_float() => Value::Float(None),
@@ -152,7 +154,8 @@ impl<'a> GetRow for SqliteRow<'a> {
 
                             return Err(Error::builder(kind).build());
                         }
-                        None => Value::Int64(None),
+                        // When we don't know what to do, the default value would be Int32(None)
+                        None => Value::Int32(None),
                     },
                 },
                 ValueRef::Integer(i) => match column {

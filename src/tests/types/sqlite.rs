@@ -16,9 +16,14 @@ test_type!(integer(
     Value::int32(i16::MAX),
     Value::int32(i32::MIN),
     Value::int32(i32::MAX),
+));
+
+test_type!(big_int(
+    sqlite,
+    "BIGINT",
     Value::Int64(None),
     Value::int64(i64::MIN),
-    Value::int64(i64::MAX)
+    Value::int64(i64::MAX),
 ));
 
 #[cfg(feature = "bigdecimal")]
