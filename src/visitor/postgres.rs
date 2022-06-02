@@ -1,8 +1,8 @@
-use std::borrow::Cow;
 use crate::{
     ast::*,
     visitor::{self, Visitor},
 };
+use std::borrow::Cow;
 use std::fmt::{self, Write};
 
 /// A visitor to generate queries for the PostgreSQL database.
@@ -917,9 +917,7 @@ mod tests {
             vec!["%foo%"],
         );
 
-        let query =
-            Select::from_table("test")
-                .so_that(Column::from("jsonField").like("foo"));
+        let query = Select::from_table("test").so_that(Column::from("jsonField").like("foo"));
         let (sql, params) = Postgres::build(query).unwrap();
 
         assert_eq!(expected.0, sql);
@@ -933,9 +931,7 @@ mod tests {
             vec!["%foo%"],
         );
 
-        let query =
-            Select::from_table("test")
-                .so_that(Column::from("jsonField").not_like("foo"));
+        let query = Select::from_table("test").so_that(Column::from("jsonField").not_like("foo"));
         let (sql, params) = Postgres::build(query).unwrap();
 
         assert_eq!(expected.0, sql);
@@ -949,9 +945,7 @@ mod tests {
             vec!["foo%"],
         );
 
-        let query =
-            Select::from_table("test")
-                .so_that(Column::from("jsonField").begins_with("foo"));
+        let query = Select::from_table("test").so_that(Column::from("jsonField").begins_with("foo"));
         let (sql, params) = Postgres::build(query).unwrap();
 
         assert_eq!(expected.0, sql);
@@ -965,9 +959,7 @@ mod tests {
             vec!["foo%"],
         );
 
-        let query =
-            Select::from_table("test")
-                .so_that(Column::from("jsonField").not_begins_with("foo"));
+        let query = Select::from_table("test").so_that(Column::from("jsonField").not_begins_with("foo"));
         let (sql, params) = Postgres::build(query).unwrap();
 
         assert_eq!(expected.0, sql);
@@ -981,9 +973,7 @@ mod tests {
             vec!["%foo"],
         );
 
-        let query =
-            Select::from_table("test")
-                .so_that(Column::from("jsonField").ends_into("foo"));
+        let query = Select::from_table("test").so_that(Column::from("jsonField").ends_into("foo"));
         let (sql, params) = Postgres::build(query).unwrap();
 
         assert_eq!(expected.0, sql);
@@ -997,9 +987,7 @@ mod tests {
             vec!["%foo"],
         );
 
-        let query =
-            Select::from_table("test")
-                .so_that(Column::from("jsonField").not_ends_into("foo"));
+        let query = Select::from_table("test").so_that(Column::from("jsonField").not_ends_into("foo"));
         let (sql, params) = Postgres::build(query).unwrap();
 
         assert_eq!(expected.0, sql);
