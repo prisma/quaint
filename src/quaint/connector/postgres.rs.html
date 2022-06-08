@@ -1206,7 +1206,7 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">connect_timeout</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Duration::from_secs</span>(<span class="number">5</span>));
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pool_timeout</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Duration::from_secs</span>(<span class="number">10</span>));
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pg_bouncer</span> <span class="op">=</span> <span class="bool-val">false</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">statement_cache_size</span> <span class="op">=</span> <span class="number">500</span>;
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">statement_cache_size</span> <span class="op">=</span> <span class="number">100</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">max_connection_lifetime</span> <span class="op">=</span> <span class="prelude-val">None</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">max_idle_connection_lifetime</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Duration::from_secs</span>(<span class="number">300</span>));
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">options</span> <span class="op">=</span> <span class="prelude-val">None</span>;
@@ -1717,7 +1717,7 @@
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">should_have_default_cache_size</span>() {
         <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="ident">PostgresUrl::new</span>(<span class="ident">Url::parse</span>(<span class="string">&quot;postgresql:///localhost:5432/foo&quot;</span>).<span class="ident">unwrap</span>()).<span class="ident">unwrap</span>();
-        <span class="macro">assert_eq!</span>(<span class="number">500</span>, <span class="ident">url</span>.<span class="ident">cache</span>().<span class="ident">capacity</span>());
+        <span class="macro">assert_eq!</span>(<span class="number">100</span>, <span class="ident">url</span>.<span class="ident">cache</span>().<span class="ident">capacity</span>());
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
