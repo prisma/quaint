@@ -433,7 +433,7 @@
         <span class="comment">// Non-URL database strings are interpreted as SQLite file paths.</span>
         <span class="kw">match</span> <span class="ident">url_str</span> {
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sqlite&quot;</span>)]</span>
-            <span class="ident">s</span> <span class="kw">if</span> <span class="ident">s</span>.<span class="ident">starts_with</span>(<span class="string">&quot;file&quot;</span>) <span class="op">|</span><span class="op">|</span> <span class="ident">s</span>.<span class="ident">starts_with</span>(<span class="string">&quot;sqlite&quot;</span>) =&gt; {
+            <span class="ident">s</span> <span class="kw">if</span> <span class="ident">s</span>.<span class="ident">starts_with</span>(<span class="string">&quot;file&quot;</span>) =&gt; {
                 <span class="kw">if</span> <span class="ident">url_result</span>.<span class="ident">is_err</span>() {
                     <span class="kw">let</span> <span class="ident">params</span> <span class="op">=</span> <span class="ident">SqliteParams::try_from</span>(<span class="ident">s</span>)<span class="question-mark">?</span>;
 
@@ -648,7 +648,7 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_scheme</span>(<span class="ident">url_scheme</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="ident">url_scheme</span> {
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sqlite&quot;</span>)]</span>
-            <span class="string">&quot;sqlite&quot;</span> <span class="op">|</span> <span class="string">&quot;file&quot;</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">SqlFamily::Sqlite</span>),
+            <span class="string">&quot;file&quot;</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">SqlFamily::Sqlite</span>),
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;postgresql&quot;</span>)]</span>
             <span class="string">&quot;postgres&quot;</span> <span class="op">|</span> <span class="string">&quot;postgresql&quot;</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">SqlFamily::Postgres</span>),
             <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mysql&quot;</span>)]</span>
@@ -752,5 +752,5 @@
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="quaint" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0-nightly (50b00252a 2022-06-06)" ></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="quaint" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0-nightly (5435ed691 2022-06-07)" ></div>
 </body></html>
