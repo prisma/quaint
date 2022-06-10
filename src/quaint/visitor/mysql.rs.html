@@ -831,6 +831,7 @@
 <span id="824">824</span>
 <span id="825">825</span>
 <span id="826">826</span>
+<span id="827">827</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">ast</span>::<span class="kw-2">*</span>,
     <span class="ident">error</span>::{<span class="ident">Error</span>, <span class="ident">ErrorKind</span>},
@@ -871,7 +872,8 @@
                 <span class="ident">serde_json::Value::String</span>(<span class="ident">str</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="ident">Value::text</span>(<span class="ident">str</span>)),
                 <span class="ident">serde_json::Value::Number</span>(<span class="ident">number</span>) =&gt; {
                     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">int</span>) <span class="op">=</span> <span class="ident">number</span>.<span class="ident">as_i64</span>() {
-                        <span class="prelude-val">Ok</span>(<span class="ident">Value::integer</span>(<span class="ident">int</span>))
+                        <span class="comment">// NOTE: JS numbers are 64bit numbers</span>
+                        <span class="prelude-val">Ok</span>(<span class="ident">Value::int64</span>(<span class="ident">int</span>))
                     } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">float</span>) <span class="op">=</span> <span class="ident">number</span>.<span class="ident">as_f64</span>() {
                         <span class="prelude-val">Ok</span>(<span class="ident">Value::double</span>(<span class="ident">float</span>))
                     } <span class="kw">else</span> {
@@ -1658,5 +1660,5 @@
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="quaint" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0-nightly (7466d5492 2022-06-08)" ></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="quaint" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0-nightly (420c970cb 2022-06-09)" ></div>
 </body></html>

@@ -1760,6 +1760,8 @@
 <span id="1753">1753</span>
 <span id="1754">1754</span>
 <span id="1755">1755</span>
+<span id="1756">1756</span>
+<span id="1757">1757</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">super</span>::Visitor</span>;
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;json&quot;</span>, <span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;postgresql&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mysql&quot;</span>)))]</span>
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::prelude</span>::{<span class="ident">JsonExtract</span>, <span class="ident">JsonType</span>};
@@ -2870,7 +2872,8 @@
         <span class="kw">let</span> (<span class="ident">sql</span>, <span class="ident">params</span>) <span class="op">=</span> <span class="ident">Mssql::build</span>(<span class="ident">query</span>).<span class="ident">unwrap</span>();
 
         <span class="macro">assert_eq!</span>(<span class="ident">expected_sql</span>, <span class="ident">sql</span>);
-        <span class="macro">assert_eq!</span>(<span class="macro">vec!</span>[<span class="ident">Value::integer</span>(<span class="number">10</span>)], <span class="ident">params</span>);
+        <span class="comment">// NOTE: Offsets are unsigned, so they only fit in i64, not i32</span>
+        <span class="macro">assert_eq!</span>(<span class="macro">vec!</span>[<span class="ident">Value::int64</span>(<span class="number">10</span>)], <span class="ident">params</span>);
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
@@ -2884,7 +2887,8 @@
         <span class="kw">let</span> (<span class="ident">sql</span>, <span class="ident">params</span>) <span class="op">=</span> <span class="ident">Mssql::build</span>(<span class="ident">query</span>).<span class="ident">unwrap</span>();
 
         <span class="macro">assert_eq!</span>(<span class="ident">expected_sql</span>, <span class="ident">sql</span>);
-        <span class="macro">assert_eq!</span>(<span class="macro">vec!</span>[<span class="ident">Value::integer</span>(<span class="number">10</span>), <span class="ident">Value::integer</span>(<span class="number">9</span>)], <span class="ident">params</span>);
+        <span class="comment">// NOTE: offset and limits cannot be negative, they are u32, so they fit in i64</span>
+        <span class="macro">assert_eq!</span>(<span class="macro">vec!</span>[<span class="ident">Value::int64</span>(<span class="number">10</span>), <span class="ident">Value::int64</span>(<span class="number">9</span>)], <span class="ident">params</span>);
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
@@ -2894,7 +2898,7 @@
         <span class="kw">let</span> (<span class="ident">sql</span>, <span class="ident">params</span>) <span class="op">=</span> <span class="ident">Mssql::build</span>(<span class="ident">query</span>).<span class="ident">unwrap</span>();
 
         <span class="macro">assert_eq!</span>(<span class="ident">expected_sql</span>, <span class="ident">sql</span>);
-        <span class="macro">assert_eq!</span>(<span class="macro">vec!</span>[<span class="ident">Value::integer</span>(<span class="number">10</span>), <span class="ident">Value::integer</span>(<span class="number">9</span>)], <span class="ident">params</span>);
+        <span class="macro">assert_eq!</span>(<span class="macro">vec!</span>[<span class="ident">Value::int64</span>(<span class="number">10</span>), <span class="ident">Value::int64</span>(<span class="number">9</span>)], <span class="ident">params</span>);
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
@@ -3516,5 +3520,5 @@
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="quaint" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0-nightly (7466d5492 2022-06-08)" ></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="quaint" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0-nightly (420c970cb 2022-06-09)" ></div>
 </body></html>
