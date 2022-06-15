@@ -1,7 +1,6 @@
-use crate::error::{Error, ErrorKind};
 use bigdecimal::{
     num_bigint::{BigInt, Sign},
-    BigDecimal, ToPrimitive, Zero,
+    BigDecimal, Zero,
 };
 use byteorder::{BigEndian, ReadBytesExt};
 use bytes::{BufMut, BytesMut};
