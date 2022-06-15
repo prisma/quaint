@@ -102,12 +102,13 @@ test_type!(decimal(
     Value::numeric(bigdecimal::BigDecimal::from_str("3.14").unwrap())
 ));
 
+// Highest mantissa on MySQL
 #[cfg(feature = "bigdecimal")]
-test_type!(decimal_58_6(
+test_type!(decimal_65_6(
     mysql,
-    "decimal(58, 6)",
+    "decimal(65, 6)",
     Value::numeric(BigDecimal::from_str(
-        "934310062234567898765456789098765456789034343600000.345678"
+        "93431006223456789876545678909876545678903434334567834369999.345678"
     )?),
 ));
 
