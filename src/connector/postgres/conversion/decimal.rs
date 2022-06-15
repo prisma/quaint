@@ -96,8 +96,10 @@ fn to_postgres(decimal: &BigDecimal) -> crate::Result<PostgresDecimal<Vec<i16>>>
 
     let offset = weight_10.rem_euclid(4) as usize;
 
+    // Array to store max mantissa of Decimal in Postgres decimal format.
     let mut digits = Vec::with_capacity(digits_len);
 
+    // Convert to base 10000
     if let Some(first) = base_10.get(..offset) {
         if !first.is_empty() {
             digits.push(base_10_to_10000(first));
@@ -106,6 +108,7 @@ fn to_postgres(decimal: &BigDecimal) -> crate::Result<PostgresDecimal<Vec<i16>>>
         digits.push(base_10_to_10000(&base_10) * 10i16.pow((offset - base_10.len()) as u32));
     }
 
+    // Convert to base 10000
     if let Some(rest) = base_10.get(offset..) {
         digits.extend(
             rest.chunks(4)
@@ -117,13 +120,15 @@ fn to_postgres(decimal: &BigDecimal) -> crate::Result<PostgresDecimal<Vec<i16>>>
         digits.pop();
     }
 
+    let neg = match sign {
+        Sign::Plus | Sign::NoSign => false,
+        Sign::Minus => true,
+    };
+
     Ok(PostgresDecimal {
-        neg: match sign {
-            Sign::Plus | Sign::NoSign => false,
-            Sign::Minus => true,
-        },
-        scale,
+        neg,
         weight,
+        scale,
         digits,
     })
 }
