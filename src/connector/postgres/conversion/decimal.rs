@@ -61,6 +61,15 @@ fn from_postgres<D: ExactSizeIterator<Item = u16>>(dec: PostgresDecimal<D>) -> R
 }
 
 fn to_postgres(decimal: &BigDecimal) -> crate::Result<PostgresDecimal<Vec<i16>>> {
+    if decimal.is_zero() {
+        return Ok(PostgresDecimal {
+            neg: false,
+            weight: 0,
+            scale: 0,
+            digits: vec![],
+        });
+    }
+
     let base_10_to_10000 = |chunk: &[u8]| chunk.iter().fold(0i16, |a, &d| a * 10 + d as i16);
 
     // NOTE: this unfortunately copies the BigInt internally
