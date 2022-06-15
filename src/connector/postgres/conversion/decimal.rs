@@ -81,7 +81,7 @@ fn to_postgres(decimal: &BigDecimal) -> crate::Result<PostgresDecimal<Vec<i16>>>
     let (sign, uint) = integer.into_parts();
     let mut mantissa = uint.to_u128().ok_or_else(|| {
         Error::builder(ErrorKind::conversion(
-            "PostgresDecimal contained an out-of-range mantissa",
+            "Decimal value contains an out-of-range mantissa.",
         ))
         .build()
     })?;
