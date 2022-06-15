@@ -21,7 +21,6 @@ impl<'a> Visitor<'a> for Sqlite<'a> {
     const C_BACKTICK_CLOSE: &'static str = "`";
     const C_WILDCARD: &'static str = "%";
 
-    #[tracing::instrument(name = "render_sql", skip(query))]
     fn build<Q>(query: Q) -> crate::Result<(String, Vec<Value<'a>>)>
     where
         Q: Into<Query<'a>>,
@@ -43,7 +42,8 @@ impl<'a> Visitor<'a> for Sqlite<'a> {
 
     fn visit_raw_value(&mut self, value: Value<'a>) -> visitor::Result {
         let res = match value {
-            Value::Integer(i) => i.map(|i| self.write(i)),
+            Value::Int32(i) => i.map(|i| self.write(i)),
+            Value::Int64(i) => i.map(|i| self.write(i)),
             Value::Text(t) => t.map(|t| self.write(format!("'{}'", t))),
             Value::Enum(e) => e.map(|e| self.write(e)),
             Value::Bytes(b) => b.map(|b| self.write(format!("x'{}'", hex::encode(b)))),
@@ -361,12 +361,7 @@ mod tests {
 
         assert_eq!(expected_sql, sql);
         assert_eq!(
-            vec![
-                Value::integer(1),
-                Value::integer(2),
-                Value::integer(3),
-                Value::integer(4),
-            ],
+            vec![Value::int32(1), Value::int32(2), Value::int32(3), Value::int32(4),],
             params
         );
     }
@@ -383,12 +378,7 @@ mod tests {
 
         assert_eq!(expected_sql, sql);
         assert_eq!(
-            vec![
-                Value::integer(1),
-                Value::integer(2),
-                Value::integer(3),
-                Value::integer(4),
-            ],
+            vec![Value::int32(1), Value::int32(2), Value::int32(3), Value::int32(4),],
             params
         );
     }
@@ -416,7 +406,7 @@ mod tests {
         let expected_sql = "SELECT `test`.* FROM `test` WHERE `id1` IN (?,?)";
 
         assert_eq!(expected_sql, sql);
-        assert_eq!(vec![Value::integer(1), Value::integer(2),], params)
+        assert_eq!(vec![Value::int32(1), Value::int32(2),], params)
     }
 
     #[test]
@@ -526,7 +516,7 @@ mod tests {
     fn test_select_and() {
         let expected_sql = "SELECT `naukio`.* FROM `naukio` WHERE (`word` = ? AND `age` < ? AND `paw` = ?)";
 
-        let expected_params = vec![Value::text("meow"), Value::integer(10), Value::text("warm")];
+        let expected_params = vec![Value::text("meow"), Value::int32(10), Value::text("warm")];
 
         let conditions = "word".equals("meow").and("age".less_than(10)).and("paw".equals("warm"));
 
@@ -542,7 +532,7 @@ mod tests {
     fn test_select_and_different_execution_order() {
         let expected_sql = "SELECT `naukio`.* FROM `naukio` WHERE (`word` = ? AND (`age` < ? AND `paw` = ?))";
 
-        let expected_params = vec![Value::text("meow"), Value::integer(10), Value::text("warm")];
+        let expected_params = vec![Value::text("meow"), Value::int32(10), Value::text("warm")];
 
         let conditions = "word".equals("meow").and("age".less_than(10).and("paw".equals("warm")));
 
@@ -558,7 +548,7 @@ mod tests {
     fn test_select_or() {
         let expected_sql = "SELECT `naukio`.* FROM `naukio` WHERE ((`word` = ? OR `age` < ?) AND `paw` = ?)";
 
-        let expected_params = vec![Value::text("meow"), Value::integer(10), Value::text("warm")];
+        let expected_params = vec![Value::text("meow"), Value::int32(10), Value::text("warm")];
 
         let conditions = "word".equals("meow").or("age".less_than(10)).and("paw".equals("warm"));
 
@@ -574,7 +564,7 @@ mod tests {
     fn test_select_negation() {
         let expected_sql = "SELECT `naukio`.* FROM `naukio` WHERE (NOT ((`word` = ? OR `age` < ?) AND `paw` = ?))";
 
-        let expected_params = vec![Value::text("meow"), Value::integer(10), Value::text("warm")];
+        let expected_params = vec![Value::text("meow"), Value::int32(10), Value::text("warm")];
 
         let conditions = "word"
             .equals("meow")
@@ -594,7 +584,7 @@ mod tests {
     fn test_with_raw_condition_tree() {
         let expected_sql = "SELECT `naukio`.* FROM `naukio` WHERE (NOT ((`word` = ? OR `age` < ?) AND `paw` = ?))";
 
-        let expected_params = vec![Value::text("meow"), Value::integer(10), Value::text("warm")];
+        let expected_params = vec![Value::text("meow"), Value::int32(10), Value::text("warm")];
 
         let conditions = ConditionTree::not("word".equals("meow").or("age".less_than(10)).and("paw".equals("warm")));
         let query = Select::from_table("naukio").so_that(conditions);

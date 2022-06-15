@@ -77,6 +77,7 @@ pub(crate) struct MssqlQueryParams {
     database: String,
     schema: String,
     trust_server_certificate: bool,
+    trust_server_certificate_ca: Option<String>,
     connection_limit: Option<usize>,
     socket_timeout: Option<Duration>,
     connect_timeout: Option<Duration>,
@@ -203,6 +204,11 @@ impl MssqlUrl {
         self.query_params.trust_server_certificate()
     }
 
+    /// Path to a custom server certificate file.
+    pub fn trust_server_certificate_ca(&self) -> Option<&str> {
+        self.query_params.trust_server_certificate_ca()
+    }
+
     /// Database port.
     pub fn port(&self) -> u16 {
         self.query_params.port()
@@ -247,6 +253,10 @@ impl MssqlQueryParams {
 
     fn trust_server_certificate(&self) -> bool {
         self.trust_server_certificate
+    }
+
+    fn trust_server_certificate_ca(&self) -> Option<&str> {
+        self.trust_server_certificate_ca.as_deref()
     }
 
     fn database(&self) -> &str {
@@ -294,7 +304,6 @@ pub struct Mssql {
 
 impl Mssql {
     /// Creates a new connection to SQL Server.
-    #[tracing::instrument(name = "new_connection", skip(url))]
     pub async fn new(url: MssqlUrl) -> crate::Result<Self> {
         let config = Config::from_jdbc_string(&url.connection_string)?;
         let tcp = TcpStream::connect_named(&config).await?;
@@ -358,14 +367,17 @@ impl Queryable for Mssql {
         self.execute_raw(&sql, &params[..]).await
     }
 
-    #[tracing::instrument(skip(self, params))]
     async fn query_raw(&self, sql: &str, params: &[Value<'_>]) -> crate::Result<ResultSet> {
         metrics::query("mssql.query_raw", sql, params, move || async move {
             let mut client = self.client.lock().await;
-            let params = conversion::conv_params(params)?;
 
-            let query = client.query(sql, params.as_slice());
-            let mut results = self.perform_io(query).await?.into_results().await?;
+            let mut query = tiberius::Query::new(sql);
+
+            for param in params {
+                query.bind(param);
+            }
+
+            let mut results = self.perform_io(query.query(&mut client)).await?.into_results().await?;
 
             match results.pop() {
                 Some(rows) => {
@@ -396,21 +408,30 @@ impl Queryable for Mssql {
         .await
     }
 
-    #[tracing::instrument(skip(self, params))]
+    async fn query_raw_typed(&self, sql: &str, params: &[Value<'_>]) -> crate::Result<ResultSet> {
+        self.query_raw(sql, params).await
+    }
+
     async fn execute_raw(&self, sql: &str, params: &[Value<'_>]) -> crate::Result<u64> {
         metrics::query("mssql.execute_raw", sql, params, move || async move {
-            let mut client = self.client.lock().await;
-            let params = conversion::conv_params(params)?;
+            let mut query = tiberius::Query::new(sql);
 
-            let query = client.execute(sql, params.as_slice());
-            let changes = self.perform_io(query).await?.total();
+            for param in params {
+                query.bind(param);
+            }
+
+            let mut client = self.client.lock().await;
+            let changes = self.perform_io(query.execute(&mut client)).await?.total();
 
             Ok(changes)
         })
         .await
     }
 
-    #[tracing::instrument(skip(self))]
+    async fn execute_raw_typed(&self, sql: &str, params: &[Value<'_>]) -> crate::Result<u64> {
+        self.execute_raw(sql, params).await
+    }
+
     async fn raw_cmd(&self, cmd: &str) -> crate::Result<()> {
         metrics::query("mssql.raw_cmd", cmd, &[], move || async move {
             let mut client = self.client.lock().await;
@@ -420,7 +441,6 @@ impl Queryable for Mssql {
         .await
     }
 
-    #[tracing::instrument(skip(self))]
     async fn version(&self) -> crate::Result<Option<String>> {
         let query = r#"SELECT @@VERSION AS version"#;
         let rows = self.query_raw(query, &[]).await?;
@@ -534,6 +554,10 @@ impl MssqlUrl {
             .transpose()?
             .unwrap_or(false);
 
+        let trust_server_certificate_ca: Option<String> = props
+            .remove("trustservercertificateca")
+            .or_else(|| props.remove("trust_server_certificate_ca"));
+
         let mut max_connection_lifetime = props
             .remove("max_connection_lifetime")
             .map(|param| param.parse().map(Duration::from_secs))
@@ -564,6 +588,7 @@ impl MssqlUrl {
             database,
             schema,
             trust_server_certificate,
+            trust_server_certificate_ca,
             connection_limit,
             socket_timeout,
             connect_timeout,

@@ -282,7 +282,7 @@ impl PostgresUrl {
         let mut connect_timeout = Some(Duration::from_secs(5));
         let mut pool_timeout = Some(Duration::from_secs(10));
         let mut pg_bouncer = false;
-        let mut statement_cache_size = 500;
+        let mut statement_cache_size = 100;
         let mut max_connection_lifetime = None;
         let mut max_idle_connection_lifetime = Some(Duration::from_secs(300));
         let mut options = None;
@@ -490,7 +490,6 @@ pub(crate) struct PostgresUrlQueryParams {
 
 impl PostgreSql {
     /// Create a new connection to the database.
-    #[tracing::instrument(skip(url))]
     pub async fn new(url: PostgresUrl) -> crate::Result<Self> {
         let config = url.to_config();
 
@@ -552,8 +551,7 @@ impl PostgreSql {
         &self.client.0
     }
 
-    #[tracing::instrument(skip(self))]
-    async fn fetch_cached(&self, sql: &str) -> crate::Result<Statement> {
+    async fn fetch_cached(&self, sql: &str, params: &[Value<'_>]) -> crate::Result<Statement> {
         let mut cache = self.statement_cache.lock().await;
         let capacity = cache.capacity();
         let stored = cache.len();
@@ -577,8 +575,11 @@ impl PostgreSql {
                     stored = stored,
                 );
 
-                let stmt = self.perform_io(self.client.0.prepare(sql)).await?;
+                let param_types = conversion::params_to_types(params);
+                let stmt = self.perform_io(self.client.0.prepare_typed(sql, &param_types)).await?;
+
                 cache.insert(sql.to_string(), stmt.clone());
+
                 Ok(stmt)
             }
         }
@@ -619,18 +620,19 @@ impl TransactionCapable for PostgreSql {}
 impl Queryable for PostgreSql {
     async fn query(&self, q: Query<'_>) -> crate::Result<ResultSet> {
         let (sql, params) = visitor::Postgres::build(q)?;
+
         self.query_raw(sql.as_str(), &params[..]).await
     }
 
     async fn execute(&self, q: Query<'_>) -> crate::Result<u64> {
         let (sql, params) = visitor::Postgres::build(q)?;
+
         self.execute_raw(sql.as_str(), &params[..]).await
     }
 
-    #[tracing::instrument(skip(self, params))]
     async fn query_raw(&self, sql: &str, params: &[Value<'_>]) -> crate::Result<ResultSet> {
         metrics::query("postgres.query_raw", sql, params, move || async move {
-            let stmt = self.fetch_cached(sql).await?;
+            let stmt = self.fetch_cached(sql, &[]).await?;
 
             if stmt.params().len() != params.len() {
                 let kind = ErrorKind::IncorrectNumberOfParameters {
@@ -656,10 +658,37 @@ impl Queryable for PostgreSql {
         .await
     }
 
-    #[tracing::instrument(skip(self, params))]
+    async fn query_raw_typed(&self, sql: &str, params: &[Value<'_>]) -> crate::Result<ResultSet> {
+        metrics::query("postgres.query_raw", sql, params, move || async move {
+            let stmt = self.fetch_cached(sql, params).await?;
+
+            if stmt.params().len() != params.len() {
+                let kind = ErrorKind::IncorrectNumberOfParameters {
+                    expected: stmt.params().len(),
+                    actual: params.len(),
+                };
+
+                return Err(Error::builder(kind).build());
+            }
+
+            let rows = self
+                .perform_io(self.client.0.query(&stmt, conversion::conv_params(params).as_slice()))
+                .await?;
+
+            let mut result = ResultSet::new(stmt.to_column_names(), Vec::new());
+
+            for row in rows {
+                result.rows.push(row.get_result_row()?);
+            }
+
+            Ok(result)
+        })
+        .await
+    }
+
     async fn execute_raw(&self, sql: &str, params: &[Value<'_>]) -> crate::Result<u64> {
         metrics::query("postgres.execute_raw", sql, params, move || async move {
-            let stmt = self.fetch_cached(sql).await?;
+            let stmt = self.fetch_cached(sql, &[]).await?;
 
             if stmt.params().len() != params.len() {
                 let kind = ErrorKind::IncorrectNumberOfParameters {
@@ -679,7 +708,28 @@ impl Queryable for PostgreSql {
         .await
     }
 
-    #[tracing::instrument(skip(self))]
+    async fn execute_raw_typed(&self, sql: &str, params: &[Value<'_>]) -> crate::Result<u64> {
+        metrics::query("postgres.execute_raw", sql, params, move || async move {
+            let stmt = self.fetch_cached(sql, params).await?;
+
+            if stmt.params().len() != params.len() {
+                let kind = ErrorKind::IncorrectNumberOfParameters {
+                    expected: stmt.params().len(),
+                    actual: params.len(),
+                };
+
+                return Err(Error::builder(kind).build());
+            }
+
+            let changes = self
+                .perform_io(self.client.0.execute(&stmt, conversion::conv_params(params).as_slice()))
+                .await?;
+
+            Ok(changes)
+        })
+        .await
+    }
+
     async fn raw_cmd(&self, cmd: &str) -> crate::Result<()> {
         metrics::query("postgres.raw_cmd", cmd, &[], move || async move {
             self.perform_io(self.client.0.simple_query(cmd)).await?;
@@ -688,7 +738,6 @@ impl Queryable for PostgreSql {
         .await
     }
 
-    #[tracing::instrument(skip(self))]
     async fn version(&self) -> crate::Result<Option<String>> {
         let query = r#"SELECT version()"#;
         let rows = self.query_raw(query, &[]).await?;
@@ -700,7 +749,6 @@ impl Queryable for PostgreSql {
         Ok(version_string)
     }
 
-    #[tracing::instrument(skip(self, tx))]
     async fn server_reset_query(&self, tx: &Transaction<'_>) -> crate::Result<()> {
         if self.pg_bouncer {
             tx.raw_cmd("DEALLOCATE ALL").await
@@ -745,7 +793,7 @@ mod tests {
     #[test]
     fn should_have_default_cache_size() {
         let url = PostgresUrl::new(Url::parse("postgresql:///localhost:5432/foo").unwrap()).unwrap();
-        assert_eq!(500, url.cache().capacity());
+        assert_eq!(100, url.cache().capacity());
     }
 
     #[test]

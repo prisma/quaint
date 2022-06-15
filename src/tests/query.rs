@@ -8,6 +8,7 @@ use crate::{
     prelude::*,
 };
 use test_macros::test_each_connector;
+use test_setup::Tags;
 
 #[test_each_connector]
 async fn single_value(api: &mut dyn TestApi) -> crate::Result<()> {
@@ -31,7 +32,7 @@ async fn aliased_value(api: &mut dyn TestApi) -> crate::Result<()> {
 
 #[test_each_connector]
 async fn aliased_null(api: &mut dyn TestApi) -> crate::Result<()> {
-    let query = Select::default().value(val!(Value::Integer(None)).alias("test"));
+    let query = Select::default().value(val!(Value::Int64(None)).alias("test"));
 
     let res = api.conn().select(query).await?;
     let row = res.get(0).unwrap();
@@ -52,8 +53,8 @@ async fn select_star_from(api: &mut dyn TestApi) -> crate::Result<()> {
     let select = Select::from_table(&table);
     let row = api.conn().select(select).await?.into_single()?;
 
-    assert_eq!(Value::integer(4), row["id"]);
-    assert_eq!(Value::integer(3), row["value"]);
+    assert_eq!(Value::int32(4), row["id"]);
+    assert_eq!(Value::int32(3), row["value"]);
 
     Ok(())
 }
@@ -71,7 +72,7 @@ async fn transactions(api: &mut dyn TestApi) -> crate::Result<()> {
     let select = Select::from_table(&table).column("value");
     let res = api.conn().select(select).await?.into_single()?;
 
-    assert_eq!(Value::integer(10), res[0]);
+    assert_eq!(Value::int32(10), res[0]);
 
     tx.rollback().await?;
 
@@ -100,12 +101,12 @@ async fn in_values_singular(api: &mut dyn TestApi) -> crate::Result<()> {
     assert_eq!(2, res.len());
 
     let row1 = res.get(0).unwrap();
-    assert_eq!(Some(1), row1["id"].as_i64());
-    assert_eq!(Some(2), row1["id2"].as_i64());
+    assert_eq!(Some(1), row1["id"].as_i32());
+    assert_eq!(Some(2), row1["id2"].as_i32());
 
     let row2 = res.get(1).unwrap();
-    assert_eq!(Some(3), row2["id"].as_i64());
-    assert_eq!(Some(4), row2["id2"].as_i64());
+    assert_eq!(Some(3), row2["id"].as_i32());
+    assert_eq!(Some(4), row2["id2"].as_i32());
 
     Ok(())
 }
@@ -127,8 +128,8 @@ async fn not_in_values_singular(api: &mut dyn TestApi) -> crate::Result<()> {
     assert_eq!(1, res.len());
 
     let row1 = res.get(0).unwrap();
-    assert_eq!(Some(5), row1["id"].as_i64());
-    assert_eq!(Some(6), row1["id2"].as_i64());
+    assert_eq!(Some(5), row1["id"].as_i32());
+    assert_eq!(Some(6), row1["id2"].as_i32());
 
     Ok(())
 }
@@ -151,12 +152,12 @@ async fn in_values_tuple(api: &mut dyn TestApi) -> crate::Result<()> {
     assert_eq!(2, res.len());
 
     let row1 = res.get(0).unwrap();
-    assert_eq!(Some(1), row1["id"].as_i64());
-    assert_eq!(Some(2), row1["id2"].as_i64());
+    assert_eq!(Some(1), row1["id"].as_i32());
+    assert_eq!(Some(2), row1["id2"].as_i32());
 
     let row2 = res.get(1).unwrap();
-    assert_eq!(Some(3), row2["id"].as_i64());
-    assert_eq!(Some(4), row2["id2"].as_i64());
+    assert_eq!(Some(3), row2["id"].as_i32());
+    assert_eq!(Some(4), row2["id2"].as_i32());
 
     Ok(())
 }
@@ -179,8 +180,8 @@ async fn not_in_values_tuple(api: &mut dyn TestApi) -> crate::Result<()> {
     assert_eq!(1, res.len());
 
     let row = res.get(0).unwrap();
-    assert_eq!(Some(5), row["id"].as_i64());
-    assert_eq!(Some(6), row["id2"].as_i64());
+    assert_eq!(Some(5), row["id"].as_i32());
+    assert_eq!(Some(6), row["id2"].as_i32());
 
     Ok(())
 }
@@ -202,16 +203,16 @@ async fn order_by_ascend(api: &mut dyn TestApi) -> crate::Result<()> {
     assert_eq!(3, res.len());
 
     let row = res.get(0).unwrap();
-    assert_eq!(Some(1), row["id"].as_i64());
-    assert_eq!(Some(2), row["id2"].as_i64());
+    assert_eq!(Some(1), row["id"].as_i32());
+    assert_eq!(Some(2), row["id2"].as_i32());
 
     let row = res.get(1).unwrap();
-    assert_eq!(Some(3), row["id"].as_i64());
-    assert_eq!(Some(4), row["id2"].as_i64());
+    assert_eq!(Some(3), row["id"].as_i32());
+    assert_eq!(Some(4), row["id2"].as_i32());
 
     let row = res.get(2).unwrap();
-    assert_eq!(Some(5), row["id"].as_i64());
-    assert_eq!(Some(6), row["id2"].as_i64());
+    assert_eq!(Some(5), row["id"].as_i32());
+    assert_eq!(Some(6), row["id2"].as_i32());
 
     Ok(())
 }
@@ -231,18 +232,17 @@ async fn order_by_descend(api: &mut dyn TestApi) -> crate::Result<()> {
 
     let res = api.conn().select(query).await?;
     assert_eq!(3, res.len());
-
     let row = res.get(0).unwrap();
-    assert_eq!(Some(5), row["id"].as_i64());
-    assert_eq!(Some(6), row["id2"].as_i64());
+    assert_eq!(Some(5), row["id"].as_i32());
+    assert_eq!(Some(6), row["id2"].as_i32());
 
     let row = res.get(1).unwrap();
-    assert_eq!(Some(3), row["id"].as_i64());
-    assert_eq!(Some(4), row["id2"].as_i64());
+    assert_eq!(Some(3), row["id"].as_i32());
+    assert_eq!(Some(4), row["id2"].as_i32());
 
     let row = res.get(2).unwrap();
-    assert_eq!(Some(1), row["id"].as_i64());
-    assert_eq!(Some(2), row["id2"].as_i64());
+    assert_eq!(Some(1), row["id"].as_i32());
+    assert_eq!(Some(2), row["id2"].as_i32());
 
     Ok(())
 }
@@ -602,7 +602,7 @@ async fn single_default_value_insert(api: &mut dyn TestApi) -> crate::Result<()>
     assert_eq!(1, res.len());
 
     let row = res.get(0).unwrap();
-    assert_eq!(Some(1), row["id"].as_i64());
+    assert_eq!(Some(1), row["id"].as_i32());
     assert_eq!(Some("Musti"), row["name"].as_str());
 
     Ok(())
@@ -634,7 +634,12 @@ async fn returning_insert(api: &mut dyn TestApi) -> crate::Result<()> {
     assert_eq!(1, res.len());
 
     let row = res.get(0).unwrap();
-    assert_eq!(Some(1), row["id"].as_i64());
+    // NOTE: RETURNING statements are 'special', it does not have the decl for the returned type, INT falls into the NONE case, so is int64
+    if api.connector_tag().intersects(Tags::SQLITE) {
+        assert_eq!(Some(1), row["id"].as_i64());
+    } else {
+        assert_eq!(Some(1), row["id"].as_i32());
+    }
     assert_eq!(Some("Naukio"), row["name"].as_str());
 
     Ok(())
@@ -660,7 +665,7 @@ async fn returning_decimal_insert_with_type_defs(api: &mut dyn TestApi) -> crate
     assert_eq!(1, res.len());
 
     let row = res.get(0).unwrap();
-    assert_eq!(Some(2), row["id"].as_i64());
+    assert_eq!(Some(2), row["id"].as_i32());
     assert_eq!(Some(&dec), row["val"].as_numeric());
 
     Ok(())
@@ -682,7 +687,7 @@ async fn returning_constant_nvarchar_insert_with_type_defs(api: &mut dyn TestApi
     assert_eq!(1, res.len());
 
     let row = res.get(0).unwrap();
-    assert_eq!(Some(2), row["id"].as_i64());
+    assert_eq!(Some(2), row["id"].as_i32());
     assert_eq!(Some("meowmeow"), row["val"].as_str());
 
     Ok(())
@@ -704,7 +709,7 @@ async fn returning_max_nvarchar_insert_with_type_defs(api: &mut dyn TestApi) -> 
     assert_eq!(1, res.len());
 
     let row = res.get(0).unwrap();
-    assert_eq!(Some(2), row["id"].as_i64());
+    assert_eq!(Some(2), row["id"].as_i32());
     assert_eq!(Some("meowmeow"), row["val"].as_str());
 
     Ok(())
@@ -726,7 +731,7 @@ async fn returning_constant_varchar_insert_with_type_defs(api: &mut dyn TestApi)
     assert_eq!(1, res.len());
 
     let row = res.get(0).unwrap();
-    assert_eq!(Some(2), row["id"].as_i64());
+    assert_eq!(Some(2), row["id"].as_i32());
     assert_eq!(Some("meowmeow"), row["val"].as_str());
 
     Ok(())
@@ -748,7 +753,7 @@ async fn returning_max_varchar_insert_with_type_defs(api: &mut dyn TestApi) -> c
     assert_eq!(1, res.len());
 
     let row = res.get(0).unwrap();
-    assert_eq!(Some(2), row["id"].as_i64());
+    assert_eq!(Some(2), row["id"].as_i32());
     assert_eq!(Some("meowmeow"), row["val"].as_str());
 
     Ok(())
@@ -766,8 +771,8 @@ async fn multiple_resultset_should_return_the_last_one(api: &mut dyn TestApi) ->
 
     let row = res.into_single()?;
 
-    assert_eq!(Some(&Value::Integer(Some(1))), row.get("foo"));
-    assert_eq!(Some(&Value::Integer(Some(2))), row.get("bar"));
+    assert_eq!(Some(&Value::int32(1)), row.get("foo"));
+    assert_eq!(Some(&Value::int32(2)), row.get("bar"));
 
     Ok(())
 }
@@ -802,11 +807,11 @@ async fn single_insert_conflict_do_nothing_single_unique(api: &mut dyn TestApi) 
     assert_eq!(2, res.len());
 
     let row = res.get(0).unwrap();
-    assert_eq!(Some(1), row["id"].as_i64());
+    assert_eq!(Some(1), row["id"].as_i32());
     assert_eq!(Some("Musti"), row["name"].as_str());
 
     let row = res.get(1).unwrap();
-    assert_eq!(Some(2), row["id"].as_i64());
+    assert_eq!(Some(2), row["id"].as_i32());
     assert_eq!(Some("Belka"), row["name"].as_str());
 
     Ok(())
@@ -841,7 +846,8 @@ async fn single_insert_conflict_do_nothing_single_unique_with_default(api: &mut 
     assert_eq!(1, res.len());
 
     let row = res.get(0).unwrap();
-    assert_eq!(Some(10), row["id"].as_i64());
+    assert_eq!(Some(10), row["id"].as_i32());
+
     assert_eq!(Some("Musti"), row["name"].as_str());
 
     Ok(())
@@ -873,7 +879,7 @@ async fn single_insert_conflict_do_nothing_single_unique_with_autogen_default(
     assert_eq!(1, res.len());
 
     let row = res.get(0).unwrap();
-    assert_eq!(Some(1), row["id"].as_i64());
+    assert_eq!(Some(1), row["id"].as_i32());
     assert_eq!(Some("Naukio"), row["name"].as_str());
 
     Ok(())
@@ -951,11 +957,11 @@ async fn single_insert_conflict_do_nothing_two_uniques(api: &mut dyn TestApi) ->
     assert_eq!(2, res.len());
 
     let row = res.get(0).unwrap();
-    assert_eq!(Some(1), row["id"].as_i64());
+    assert_eq!(Some(1), row["id"].as_i32());
     assert_eq!(Some("Musti"), row["name"].as_str());
 
     let row = res.get(1).unwrap();
-    assert_eq!(Some(2), row["id"].as_i64());
+    assert_eq!(Some(2), row["id"].as_i32());
     assert_eq!(Some("Belka"), row["name"].as_str());
 
     Ok(())
@@ -998,14 +1004,14 @@ async fn single_insert_conflict_do_nothing_two_uniques_with_default(api: &mut dy
     assert_eq!(1, res.len());
 
     let row = res.get(0).unwrap();
-    assert_eq!(Some(1), row["id"].as_i64());
+    assert_eq!(Some(1), row["id"].as_i32());
     assert_eq!(Some("Musti"), row["name"].as_str());
 
     Ok(())
 }
 
 #[test_each_connector]
-async fn single_insert_conflict_do_nothing_compoud_unique(api: &mut dyn TestApi) -> crate::Result<()> {
+async fn single_insert_conflict_do_nothing_compound_unique(api: &mut dyn TestApi) -> crate::Result<()> {
     let table_name = api.create_table("id int, name varchar(255)").await?;
     api.create_index(&table_name, "id asc, name asc").await?;
 
@@ -1035,18 +1041,18 @@ async fn single_insert_conflict_do_nothing_compoud_unique(api: &mut dyn TestApi)
     assert_eq!(2, res.len());
 
     let row = res.get(0).unwrap();
-    assert_eq!(Some(1), row["id"].as_i64());
+    assert_eq!(Some(1), row["id"].as_i32());
     assert_eq!(Some("Musti"), row["name"].as_str());
 
     let row = res.get(1).unwrap();
-    assert_eq!(Some(1), row["id"].as_i64());
+    assert_eq!(Some(1), row["id"].as_i32());
     assert_eq!(Some("Naukio"), row["name"].as_str());
 
     Ok(())
 }
 
 #[test_each_connector]
-async fn single_insert_conflict_do_nothing_compoud_unique_with_default(api: &mut dyn TestApi) -> crate::Result<()> {
+async fn single_insert_conflict_do_nothing_compound_unique_with_default(api: &mut dyn TestApi) -> crate::Result<()> {
     let table_name = api.create_table("id int, name varchar(255) default 'Musti'").await?;
     api.create_index(&table_name, "id asc, name asc").await?;
 
@@ -1073,7 +1079,8 @@ async fn single_insert_conflict_do_nothing_compoud_unique_with_default(api: &mut
     assert_eq!(1, res.len());
 
     let row = res.get(0).unwrap();
-    assert_eq!(Some(1), row["id"].as_i64());
+    assert_eq!(Some(1), row["id"].as_i32());
+
     assert_eq!(Some("Musti"), row["name"].as_str());
 
     Ok(())
@@ -1107,18 +1114,18 @@ async fn single_insert_conflict_do_nothing_unique_with_autogen(api: &mut dyn Tes
     assert_eq!(2, res.len());
 
     let row = res.get(0).unwrap();
-    assert_eq!(Some(1), row["id"].as_i64());
+    assert_eq!(Some(1), row["id"].as_i32());
     assert_eq!(Some("Musti"), row["name"].as_str());
 
     let row = res.get(1).unwrap();
-    assert_eq!(Some(2), row["id"].as_i64());
+    assert_eq!(Some(2), row["id"].as_i32());
     assert_eq!(Some("Naukio"), row["name"].as_str());
 
     Ok(())
 }
 
 #[test_each_connector]
-async fn single_insert_conflict_do_nothing_compoud_unique_with_autogen_default(
+async fn single_insert_conflict_do_nothing_compound_unique_with_autogen_default(
     api: &mut dyn TestApi,
 ) -> crate::Result<()> {
     let table_name = api
@@ -1150,11 +1157,11 @@ async fn single_insert_conflict_do_nothing_compoud_unique_with_autogen_default(
     assert_eq!(2, res.len());
 
     let row = res.get(0).unwrap();
-    assert_eq!(Some(1), row["id"].as_i64());
+    assert_eq!(Some(1), row["id"].as_i32());
     assert_eq!(Some("Musti"), row["name"].as_str());
 
     let row = res.get(1).unwrap();
-    assert_eq!(Some(2), row["id"].as_i64());
+    assert_eq!(Some(2), row["id"].as_i32());
     assert_eq!(Some("Musti"), row["name"].as_str());
 
     Ok(())
@@ -1177,7 +1184,7 @@ async fn updates(api: &mut dyn TestApi) -> crate::Result<()> {
     assert_eq!(1, res.len());
 
     let row = res.get(0).unwrap();
-    assert_eq!(Some(1), row["id"].as_i64());
+    assert_eq!(Some(1), row["id"].as_i32());
     assert_eq!(Some("Naukio"), row["name"].as_str());
 
     Ok(())
@@ -1338,7 +1345,7 @@ async fn json_filtering_works(api: &mut dyn TestApi) -> crate::Result<()> {
         assert_eq!(result.len(), 1);
 
         let row = result.into_single()?;
-        assert_eq!(Some(2), row["id"].as_i64());
+        assert_eq!(Some(2), row["id"].as_i32());
     }
 
     // Not equals
@@ -1351,7 +1358,7 @@ async fn json_filtering_works(api: &mut dyn TestApi) -> crate::Result<()> {
         assert_eq!(result.len(), 1);
 
         let row = result.into_single()?;
-        assert_eq!(Some(2), row["id"].as_i64());
+        assert_eq!(Some(2), row["id"].as_i32());
     }
 
     Ok(())
@@ -1378,7 +1385,7 @@ async fn xml_filtering_works(api: &mut dyn TestApi) -> crate::Result<()> {
         assert_eq!(result.len(), 1);
 
         let row = result.into_single()?;
-        assert_eq!(Some(2), row["id"].as_i64());
+        assert_eq!(Some(2), row["id"].as_i32());
     }
 
     // Not equals
@@ -1389,7 +1396,7 @@ async fn xml_filtering_works(api: &mut dyn TestApi) -> crate::Result<()> {
         assert_eq!(result.len(), 1);
 
         let row = result.into_single()?;
-        assert_eq!(Some(1), row["id"].as_i64());
+        assert_eq!(Some(1), row["id"].as_i32());
     }
 
     Ok(())
@@ -1425,7 +1432,7 @@ async fn op_test_add_one_level(api: &mut dyn TestApi) -> crate::Result<()> {
     let q = Select::from_table(&table).value(col!("a") + col!("b"));
     let row = api.conn().select(q).await?.into_single()?;
 
-    assert_eq!(Some(3), row[0].as_i64());
+    assert_eq!(Some(3), row[0].as_integer());
 
     Ok(())
 }
@@ -1440,7 +1447,7 @@ async fn op_test_add_two_levels(api: &mut dyn TestApi) -> crate::Result<()> {
     let q = Select::from_table(&table).value(col!("a") + val!(col!("b") + col!("c")));
     let row = api.conn().select(q).await?.into_single()?;
 
-    assert_eq!(Some(7), row[0].as_i64());
+    assert_eq!(Some(7), row[0].as_integer());
 
     Ok(())
 }
@@ -1455,7 +1462,7 @@ async fn op_test_sub_one_level(api: &mut dyn TestApi) -> crate::Result<()> {
     let q = Select::from_table(&table).value(col!("a") - col!("b"));
     let row = api.conn().select(q).await?.into_single()?;
 
-    assert_eq!(Some(1), row[0].as_i64());
+    assert_eq!(Some(1), row[0].as_integer());
 
     Ok(())
 }
@@ -1470,7 +1477,7 @@ async fn op_test_sub_three_items(api: &mut dyn TestApi) -> crate::Result<()> {
     let q = Select::from_table(&table).value(col!("a") - col!("b") - col!("c"));
     let row = api.conn().select(q).await?.into_single()?;
 
-    assert_eq!(Some(0), row[0].as_i64());
+    assert_eq!(Some(0), row[0].as_integer());
 
     Ok(())
 }
@@ -1485,7 +1492,7 @@ async fn op_test_sub_two_levels(api: &mut dyn TestApi) -> crate::Result<()> {
     let q = Select::from_table(&table).value(col!("a") - val!(col!("b") + col!("c")));
     let row = api.conn().select(q).await?.into_single()?;
 
-    assert_eq!(Some(-2), row[0].as_i64());
+    assert_eq!(Some(-2), row[0].as_integer());
 
     Ok(())
 }
@@ -1500,7 +1507,7 @@ async fn op_test_mul_one_level(api: &mut dyn TestApi) -> crate::Result<()> {
     let q = Select::from_table(&table).value(col!("a") * col!("a"));
     let row = api.conn().select(q).await?.into_single()?;
 
-    assert_eq!(Some(36), row[0].as_i64());
+    assert_eq!(Some(36), row[0].as_integer());
 
     Ok(())
 }
@@ -1515,7 +1522,7 @@ async fn op_test_mul_two_levels(api: &mut dyn TestApi) -> crate::Result<()> {
     let q = Select::from_table(&table).value(col!("a") * (col!("a") - col!("b")));
     let row = api.conn().select(q).await?.into_single()?;
 
-    assert_eq!(Some(30), row[0].as_i64());
+    assert_eq!(Some(30), row[0].as_integer());
 
     Ok(())
 }
@@ -1530,7 +1537,7 @@ async fn op_multiple_operations(api: &mut dyn TestApi) -> crate::Result<()> {
     let q = Select::from_table(&table).value(col!("a") - col!("b") * col!("b"));
     let row = api.conn().select(q).await?.into_single()?;
 
-    assert_eq!(Some(0), row[0].as_i64());
+    assert_eq!(Some(0), row[0].as_integer());
 
     Ok(())
 }
@@ -1640,10 +1647,13 @@ async fn single_common_table_expression(api: &mut dyn TestApi) -> crate::Result<
     let res = api.conn().select(select).await?;
     let row = res.get(0).unwrap();
 
-    if api.system() == "postgres" {
+    if api.connector_tag().intersects(Tags::POSTGRES) {
         assert_eq!(Some(&Value::text("1")), row.at(0));
+    } else if api.connector_tag().intersects(Tags::SQLITE) {
+        // NOTE: with explicit values, SQLite does not pass the specific declaration type, so is assumed int64
+        assert_eq!(Some(&Value::int64(1)), row.at(0));
     } else {
-        assert_eq!(Some(&Value::integer(1)), row.at(0));
+        assert_eq!(Some(&Value::int32(1)), row.at(0));
     }
 
     Ok(())
@@ -1671,12 +1681,16 @@ async fn multiple_common_table_expressions(api: &mut dyn TestApi) -> crate::Resu
     let res = api.conn().select(select).await?;
     let row = res.get(0).unwrap();
 
-    if api.system() == "postgres" {
+    if api.connector_tag().intersects(Tags::POSTGRES) {
         assert_eq!(Some(&Value::text("1")), row.at(0));
         assert_eq!(Some(&Value::text("2")), row.at(1));
+    } else if api.connector_tag().intersects(Tags::SQLITE) {
+        // NOTE: with explicit values, SQLite does not pass the specific declaration type, so is assumed int64
+        assert_eq!(Some(&Value::int64(1)), row.at(0));
+        assert_eq!(Some(&Value::int64(2)), row.at(1));
     } else {
-        assert_eq!(Some(&Value::integer(1)), row.at(0));
-        assert_eq!(Some(&Value::integer(2)), row.at(1));
+        assert_eq!(Some(&Value::int32(1)), row.at(0));
+        assert_eq!(Some(&Value::int32(2)), row.at(1));
     }
 
     Ok(())
@@ -1827,8 +1841,8 @@ async fn join_with_compound_columns(api: &mut dyn TestApi) -> crate::Result<()> 
 
     let row = res.get(0).unwrap();
 
-    assert_eq!(Some(&Value::integer(1)), row.at(0));
-    assert_eq!(Some(&Value::integer(2)), row.at(1));
+    assert_eq!(Some(&Value::int32(1)), row.at(0));
+    assert_eq!(Some(&Value::int32(2)), row.at(1));
 
     Ok(())
 }
@@ -1869,8 +1883,8 @@ async fn join_with_non_matching_compound_columns(api: &mut dyn TestApi) -> crate
 
     let row = res.get(0).unwrap();
 
-    assert_eq!(Some(&Value::integer(2)), row.at(0));
-    assert_eq!(Some(&Value::integer(3)), row.at(1));
+    assert_eq!(Some(&Value::int32(2)), row.at(0));
+    assert_eq!(Some(&Value::int32(3)), row.at(1));
 
     Ok(())
 }
@@ -1888,8 +1902,8 @@ async fn insert_default_keyword(api: &mut dyn TestApi) -> crate::Result<()> {
     let select = Select::from_table(&table);
     let row = api.conn().select(select).await?.into_single()?;
 
-    assert_eq!(Value::integer(4), row["id"]);
-    assert_eq!(Value::integer(1), row["value"]);
+    assert_eq!(Value::int32(4), row["id"]);
+    assert_eq!(Value::int32(1), row["value"]);
 
     Ok(())
 }
@@ -2101,8 +2115,6 @@ async fn json_extract_array_path_fun_on_json(api: &mut dyn TestApi) -> crate::Re
 
 #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
 async fn json_array_contains(api: &mut dyn TestApi, json_type: &str) -> crate::Result<()> {
-    use test_setup::Tags;
-
     let table = api
         .create_table(&format!("{}, obj {}", api.autogen_id("id"), json_type))
         .await?;
@@ -2868,6 +2880,176 @@ async fn delete_comment(api: &mut dyn TestApi) -> crate::Result<()> {
     let delete =
         Delete::from_table(&table).comment("trace_id='5bd66ef5095369c7b0d1f8f4bd33716a', parent_id='c532cb4098ac3dd2'");
     api.conn().delete(delete.into()).await?;
+
+    Ok(())
+}
+
+#[cfg(feature = "mysql")]
+#[test_each_connector(tags("mysql8"))]
+async fn generate_binary_uuid(api: &mut dyn TestApi) -> crate::Result<()> {
+    let select = Select::default().value(uuid_to_bin());
+    let res = api.conn().select(select).await?.into_single()?;
+    let val = res.into_single()?;
+
+    // If it is a byte type and has a value, it's a generated UUID.
+    assert!(matches!(val, Value::Bytes(x) if matches!(x, Some(_))));
+
+    Ok(())
+}
+
+#[cfg(feature = "mysql")]
+#[test_each_connector(tags("mysql8"))]
+async fn generate_swapped_binary_uuid(api: &mut dyn TestApi) -> crate::Result<()> {
+    let select = Select::default().value(uuid_to_bin_swapped());
+    let res = api.conn().select(select).await?.into_single()?;
+    let val = res.into_single()?;
+
+    // If it is a byte type and has a value, it's a generated UUID.
+    assert!(matches!(val, Value::Bytes(x) if matches!(x, Some(_))));
+
+    Ok(())
+}
+
+#[cfg(feature = "mysql")]
+#[test_each_connector(tags("mysql"))]
+async fn generate_native_uuid(api: &mut dyn TestApi) -> crate::Result<()> {
+    let select = Select::default().value(native_uuid());
+    let res = api.conn().select(select).await?.into_single()?;
+    let val = res.into_single()?;
+
+    // If it is a text type and has a value, it's a generated string UUID.
+    assert!(matches!(val, Value::Text(x) if matches!(x, Some(_))));
+
+    Ok(())
+}
+
+#[test_each_connector(tags("postgresql"))]
+async fn query_raw_typed_numeric(api: &mut dyn TestApi) -> crate::Result<()> {
+    let res = api
+        .conn()
+        .query_raw_typed(
+            r#"SELECT
+                    $1::float4     AS i4tof4,
+                    $2::float4     AS i8tof4,
+
+                    $3::float8     AS i4tof8,
+                    $4::float8     AS i8tof8,
+
+                    $5::int4       AS f4toi4,
+                    $6::int4       AS f8toi4,
+
+                    $7::int8       AS f4toi8,
+                    $8::int8       AS f8toi8,
+
+                    $9::int4       AS texttoi4,
+                    $10::int8      AS texttoi8,
+
+                    $11::float4    AS texttof4,
+                    $12::float8    AS texttof8
+                "#,
+            &[
+                Value::int32(42),     // $1
+                Value::int64(42),     // $2
+                Value::int32(42),     // $3
+                Value::int64(42),     // $4
+                Value::float(42.51),  // $5
+                Value::double(42.51), // $6
+                Value::float(42.51),  // $7
+                Value::double(42.51), // $8
+                Value::text("42"),    // $9
+                Value::text("42"),    // $10
+                Value::text("42.51"), // $11
+                Value::text("42.51"), // $12
+            ],
+        )
+        .await?
+        .into_single()?;
+
+    assert_eq!(Value::float(42.0), res["i4tof4"]);
+    assert_eq!(Value::float(42.0), res["i8tof4"]);
+
+    assert_eq!(Value::double(42.0), res["i4tof8"]);
+    assert_eq!(Value::double(42.0), res["i8tof8"]);
+
+    assert_eq!(Value::int32(43), res["f4toi4"]);
+    assert_eq!(Value::int32(43), res["f8toi4"]);
+
+    assert_eq!(Value::int64(43), res["f4toi8"]);
+    assert_eq!(Value::int64(43), res["f8toi8"]);
+
+    assert_eq!(Value::int32(42), res["texttoi4"]);
+    assert_eq!(Value::int64(42), res["texttoi8"]);
+
+    assert_eq!(Value::float(42.51), res["texttof4"]);
+    assert_eq!(Value::double(42.51), res["texttof8"]);
+
+    Ok(())
+}
+
+#[cfg(feature = "chrono")]
+#[test_each_connector(tags("postgresql"))]
+async fn query_raw_typed_date(api: &mut dyn TestApi) -> crate::Result<()> {
+    use chrono::DateTime;
+    use std::str::FromStr;
+
+    let res = api
+        .conn()
+        .query_raw_typed(
+            r#"SELECT
+                    ($1::timestamp - $2::interval)  AS texttointerval,
+                    $3 = DATE_PART('year', $4::date) AS is_year_2023;
+                "#,
+            &[
+                Value::text("2022-01-01 00:00:00"), // $1
+                Value::text("1 year"),              // $2
+                Value::int32(2022),                 // $3
+                Value::text("2022-01-01"),          // $4
+            ],
+        )
+        .await?
+        .into_single()?;
+
+    assert_eq!(
+        Value::from(DateTime::from_str("2021-01-01T00:00:00Z").unwrap()),
+        res["texttointerval"]
+    );
+    assert_eq!(Value::boolean(true), res["is_year_2023"]);
+
+    Ok(())
+}
+
+#[cfg(feature = "json")]
+#[test_each_connector(tags("postgresql"))]
+async fn query_raw_typed_json(api: &mut dyn TestApi) -> crate::Result<()> {
+    use serde_json::json;
+
+    let res = api
+        .conn()
+        .query_raw_typed(
+            r#"SELECT
+                    $1                               as json,
+                    $2::text                         as jsontotext,
+                    $3->'b'                          as json_operator,
+                    json_extract_path($4::json, 'b') as json_extract,
+                    jsonb_extract_path($5, 'b')      as jsonb_extract
+                   ;
+                "#,
+            &[
+                Value::json(json!({ "a":1, "b":2})), // $1
+                Value::json(json!({ "a":1, "b":2})), // $2
+                Value::json(json!({ "a":1, "b":2})), // $3
+                Value::json(json!({ "a":1, "b":2})), // $4
+                Value::json(json!({ "a":1, "b":2})), // $5
+            ],
+        )
+        .await?
+        .into_single()?;
+
+    assert_eq!(Value::json(json!({ "a":1, "b":2})), res["json"]);
+    assert_eq!(Value::text("{\"a\": 1, \"b\": 2}"), res["jsontotext"]);
+    assert_eq!(Value::json(json!(2)), res["json_operator"]);
+    assert_eq!(Value::json(json!(2)), res["json_extract"]);
+    assert_eq!(Value::json(json!(2)), res["jsonb_extract"]);
 
     Ok(())
 }

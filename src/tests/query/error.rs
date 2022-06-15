@@ -129,7 +129,7 @@ async fn null_constraint_violation(api: &mut dyn TestApi) -> crate::Result<()> {
     let insert = Insert::single_into(&table).value("id1", 50).value("id2", 55);
     api.conn().insert(insert.into()).await?;
 
-    let update = Update::table(&table).set("id2", Value::Integer(None));
+    let update = Update::table(&table).set("id2", Value::Int64(None));
     let res = api.conn().update(update).await;
 
     assert!(res.is_err());
@@ -334,7 +334,7 @@ async fn should_execute_multi_statement_queries_with_raw_cmd(api: &mut dyn TestA
 
     let results: Vec<i64> = results
         .into_iter()
-        .map(|row| row.get("id").unwrap().as_i64().unwrap())
+        .map(|row| row.get("id").unwrap().as_integer().unwrap())
         .collect();
 
     assert_eq!(results, &[51]);
@@ -346,7 +346,7 @@ async fn should_execute_multi_statement_queries_with_raw_cmd(api: &mut dyn TestA
 
     let results: Vec<i64> = results
         .into_iter()
-        .map(|row| row.get("id").unwrap().as_i64().unwrap())
+        .map(|row| row.get("id").unwrap().as_integer().unwrap())
         .collect();
 
     assert_eq!(results, &[52]);
@@ -387,6 +387,57 @@ async fn out_of_range_decimal_mantissa(api: &mut dyn TestApi) -> crate::Result<(
     let err_message = result.unwrap_err().to_string();
 
     assert!(err_message.contains("Decimal value contains an out-of-range mantissa."));
+
+    Ok(())
+}
+
+#[test_each_connector(tags("postgresql"))]
+async fn unsupported_column_type(api: &mut dyn TestApi) -> crate::Result<()> {
+    let table = api.create_table("point point, points point[]").await?;
+    api.conn()
+        .query_raw(
+            &format!(
+                r#"INSERT INTO {} ("point", "points") VALUES (Point(1,2), '{{"(1, 2)", "(2, 3)"}}')"#,
+                &table
+            ),
+            &[],
+        )
+        .await?;
+
+    // Scalar
+    let result = api
+        .conn()
+        .query(Select::from_table(&table).column("point").into())
+        .await;
+    let err = result.unwrap_err();
+    assert!(matches!(
+        err.kind(),
+        ErrorKind::UnsupportedColumnType { column_type } if column_type.as_str() == "point"
+    ));
+
+    // Scalar list
+    let result = api
+        .conn()
+        .query(Select::from_table(&table).column("points").into())
+        .await;
+    let err = result.unwrap_err();
+    assert!(matches!(
+        err.kind(),
+        ErrorKind::UnsupportedColumnType { column_type } if column_type.as_str() == "_point"
+    ));
+
+    Ok(())
+}
+
+#[test_each_connector(tags("postgresql"))]
+async fn array_into_scalar_should_fail(api: &mut dyn TestApi) -> crate::Result<()> {
+    let table = api.create_table("string text").await?;
+    let insert = Insert::single_into(&table).value("string", Value::array(vec!["abc", "def"]));
+    let result = api.conn().insert(insert.into()).await;
+
+    let err = result.unwrap_err();
+
+    assert!(err.to_string().contains("Couldn't serialize value `Some([Text(Some(\"abc\")), Text(Some(\"def\"))])` into a `text`. Value is a list but `text` is not."));
 
     Ok(())
 }

@@ -141,13 +141,11 @@ impl TryFrom<&str> for Sqlite {
 }
 
 impl Sqlite {
-    #[tracing::instrument(name = "new_connection", skip(file_path))]
     pub fn new(file_path: &str) -> crate::Result<Sqlite> {
         Self::try_from(file_path)
     }
 
     /// Open a new SQLite database in memory.
-    #[tracing::instrument(name = "new_connection")]
     pub fn new_in_memory() -> crate::Result<Sqlite> {
         let client = rusqlite::Connection::open_in_memory()?;
 
@@ -171,7 +169,6 @@ impl Queryable for Sqlite {
         self.execute_raw(&sql, &params).await
     }
 
-    #[tracing::instrument(skip(self, params))]
     async fn query_raw(&self, sql: &str, params: &[Value<'_>]) -> crate::Result<ResultSet> {
         metrics::query("sqlite.query_raw", sql, params, move || async move {
             let client = self.client.lock().await;
@@ -192,7 +189,10 @@ impl Queryable for Sqlite {
         .await
     }
 
-    #[tracing::instrument(skip(self, params))]
+    async fn query_raw_typed(&self, sql: &str, params: &[Value<'_>]) -> crate::Result<ResultSet> {
+        self.query_raw(sql, params).await
+    }
+
     async fn execute_raw(&self, sql: &str, params: &[Value<'_>]) -> crate::Result<u64> {
         metrics::query("sqlite.query_raw", sql, params, move || async move {
             let client = self.client.lock().await;
@@ -204,7 +204,10 @@ impl Queryable for Sqlite {
         .await
     }
 
-    #[tracing::instrument(skip(self))]
+    async fn execute_raw_typed(&self, sql: &str, params: &[Value<'_>]) -> crate::Result<u64> {
+        self.execute_raw(sql, params).await
+    }
+
     async fn raw_cmd(&self, cmd: &str) -> crate::Result<()> {
         metrics::query("sqlite.raw_cmd", cmd, &[], move || async move {
             let client = self.client.lock().await;
@@ -214,7 +217,6 @@ impl Queryable for Sqlite {
         .await
     }
 
-    #[tracing::instrument(skip(self))]
     async fn version(&self) -> crate::Result<Option<String>> {
         Ok(Some(rusqlite::version().into()))
     }
@@ -284,7 +286,7 @@ mod tests {
         let result = conn.select(select.clone()).await.unwrap();
         let result = result.into_single().unwrap();
 
-        assert_eq!(result.get("id").unwrap(), &Value::integer(1));
+        assert_eq!(result.get("id").unwrap(), &Value::int32(1));
         assert_eq!(result.get("txt").unwrap(), &Value::text("henlo"));
 
         // Check that we do get a separate, new database.

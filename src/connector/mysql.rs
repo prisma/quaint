@@ -161,7 +161,7 @@ impl MysqlUrl {
         let mut max_connection_lifetime = None;
         let mut max_idle_connection_lifetime = Some(Duration::from_secs(300));
         let mut prefer_socket = None;
-        let mut statement_cache_size = 1000;
+        let mut statement_cache_size = 100;
 
         for (k, v) in url.query_pairs() {
             match k.as_ref() {
@@ -334,7 +334,6 @@ pub(crate) struct MysqlUrlQueryParams {
 
 impl Mysql {
     /// Create a new MySQL connection using `OptsBuilder` from the `mysql` crate.
-    #[tracing::instrument(name = "new_connection", skip(url))]
     pub async fn new(url: MysqlUrl) -> crate::Result<Self> {
         let conn = super::timeout::connect(url.connect_timeout(), my::Conn::new(url.to_opts_builder())).await?;
 
@@ -400,7 +399,6 @@ impl Mysql {
         }
     }
 
-    #[tracing::instrument(skip(self))]
     async fn fetch_cached(&self, sql: &str) -> crate::Result<my::Statement> {
         let mut cache = self.statement_cache.lock().await;
         let capacity = cache.capacity();
@@ -455,7 +453,6 @@ impl Queryable for Mysql {
         self.execute_raw(&sql, &params).await
     }
 
-    #[tracing::instrument(skip(self, params))]
     async fn query_raw(&self, sql: &str, params: &[Value<'_>]) -> crate::Result<ResultSet> {
         metrics::query("mysql.query_raw", sql, params, move || async move {
             self.prepared(sql, |stmt| async move {
@@ -481,7 +478,10 @@ impl Queryable for Mysql {
         .await
     }
 
-    #[tracing::instrument(skip(self, params))]
+    async fn query_raw_typed(&self, sql: &str, params: &[Value<'_>]) -> crate::Result<ResultSet> {
+        self.query_raw(sql, params).await
+    }
+
     async fn execute_raw(&self, sql: &str, params: &[Value<'_>]) -> crate::Result<u64> {
         metrics::query("mysql.execute_raw", sql, params, move || async move {
             self.prepared(sql, |stmt| async move {
@@ -495,7 +495,10 @@ impl Queryable for Mysql {
         .await
     }
 
-    #[tracing::instrument(skip(self))]
+    async fn execute_raw_typed(&self, sql: &str, params: &[Value<'_>]) -> crate::Result<u64> {
+        self.execute_raw(sql, params).await
+    }
+
     async fn raw_cmd(&self, cmd: &str) -> crate::Result<()> {
         metrics::query("mysql.raw_cmd", cmd, &[], move || async move {
             self.perform_io(|| async move {
@@ -518,7 +521,6 @@ impl Queryable for Mysql {
         .await
     }
 
-    #[tracing::instrument(skip(self))]
     async fn version(&self) -> crate::Result<Option<String>> {
         let query = r#"SELECT @@GLOBAL.version version"#;
         let rows = super::timeout::socket(self.socket_timeout, self.query_raw(query, &[])).await?;
@@ -563,6 +565,19 @@ mod tests {
         assert_eq!(true, url.query_params.use_ssl);
         assert_eq!(false, url.query_params.ssl_opts.skip_domain_validation());
         assert_eq!(false, url.query_params.ssl_opts.accept_invalid_certs());
+    }
+
+    #[test]
+    fn should_allow_changing_of_cache_size() {
+        let url = MysqlUrl::new(Url::parse("mysql:///root:root@localhost:3307/foo?statement_cache_size=420").unwrap())
+            .unwrap();
+        assert_eq!(420, url.cache().capacity());
+    }
+
+    #[test]
+    fn should_have_default_cache_size() {
+        let url = MysqlUrl::new(Url::parse("mysql:///root:root@localhost:3307/foo").unwrap()).unwrap();
+        assert_eq!(100, url.cache().capacity());
     }
 
     #[tokio::test]

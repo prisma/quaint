@@ -9,7 +9,7 @@
 //!
 //! Connector type can be one of the following:
 //!
-//! - `sqlite`/`file` opens an SQLite connection.
+//! - `file` opens an SQLite connection.
 //! - `mysql` opens a MySQL connection.
 //! - `postgres`/`postgresql` opens a PostgreSQL connection.
 //!
@@ -101,6 +101,9 @@
 //! - `database` sets the database to connect to.
 //! - `trustServerCertificate` if set to `true`, accepts any kind of certificate
 //!   from the server.
+//! - `trustServerCertificateCA` sets the path to a custom certificate file.
+//!   Needs to be in pem, crt or der format. Cannot be used together with
+//!   `trustServerCertificate` parameter.
 //! - `socketTimeout` defined in seconds. If set, a query will return a
 //!   `Timeout` error if it fails to resolve before given time.
 //! - `connectTimeout` defined in seconds (default: 5). Connecting to a
@@ -330,11 +333,10 @@ impl Quaint {
     /// connection string. See the [module level documentation] for details.
     ///
     /// [module level documentation]: index.html
-    #[tracing::instrument]
     pub fn builder(url_str: &str) -> crate::Result<Builder> {
         match url_str {
             #[cfg(feature = "sqlite")]
-            s if s.starts_with("file") || s.starts_with("sqlite") => {
+            s if s.starts_with("file") => {
                 let params = crate::connector::SqliteParams::try_from(s)?;
 
                 let manager = QuaintManager::Sqlite {
@@ -455,7 +457,6 @@ impl Quaint {
     }
 
     /// Reserve a connection from the pool.
-    #[tracing::instrument(name = "fetch_new_connection_from_pool", skip(self))]
     pub async fn check_out(&self) -> crate::Result<PooledConnection> {
         let res = match self.pool_timeout {
             Some(duration) => crate::connector::metrics::check_out(self.inner.get_timeout(duration)).await,
@@ -464,6 +465,7 @@ impl Quaint {
 
         let inner = match res {
             Ok(conn) => conn,
+            Err(mobc::Error::PoolClosed) => return Err(Error::builder(ErrorKind::PoolClosed {}).build()),
             Err(mobc::Error::Timeout) => {
                 let state = self.inner.state().await;
                 // We can use unwrap here because a pool timeout has to be set to use a connection pool
