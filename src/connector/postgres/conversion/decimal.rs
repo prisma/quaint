@@ -125,6 +125,7 @@ fn to_postgres(decimal: &BigDecimal) -> crate::Result<PostgresDecimal<Vec<i16>>>
         );
     }
 
+    // Remove non-significant zeroes.
     while let Some(&0) = digits.last() {
         digits.pop();
     }
