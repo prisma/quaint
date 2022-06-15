@@ -166,6 +166,14 @@ test_type!(decimal_35_1(
     )
 ));
 
+test_type!(decimal_58_6(
+    postgresql,
+    "decimal(58, 6)",
+    Value::numeric(BigDecimal::from_str(
+        "934310062234567898765456789098765456789034343600000.345678"
+    )?),
+));
+
 test_type!(decimal_array(
     postgresql,
     "decimal(10,2)[]",

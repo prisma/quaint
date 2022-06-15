@@ -1,6 +1,10 @@
 use crate::tests::test_api::*;
+
 #[cfg(feature = "bigdecimal")]
 use std::str::FromStr;
+
+#[cfg(feature = "bigdecimal")]
+use crate::bigdecimal::BigDecimal;
 
 test_type!(tinyint(
     mysql,
@@ -96,6 +100,15 @@ test_type!(decimal(
     "decimal(10,2)",
     Value::Numeric(None),
     Value::numeric(bigdecimal::BigDecimal::from_str("3.14").unwrap())
+));
+
+#[cfg(feature = "bigdecimal")]
+test_type!(decimal_58_6(
+    mysql,
+    "decimal(58, 6)",
+    Value::numeric(BigDecimal::from_str(
+        "934310062234567898765456789098765456789034343600000.345678"
+    )?),
 ));
 
 #[cfg(feature = "bigdecimal")]

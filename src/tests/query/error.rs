@@ -369,28 +369,6 @@ async fn uuid_length_error(api: &mut dyn TestApi) -> crate::Result<()> {
     Ok(())
 }
 
-#[cfg(feature = "bigdecimal")]
-#[test_each_connector(tags("postgresql"))]
-async fn out_of_range_decimal_mantissa(api: &mut dyn TestApi) -> crate::Result<()> {
-    use bigdecimal::BigDecimal;
-    use std::str::FromStr;
-
-    let table = api.create_table("value numeric(12,2)").await?;
-    let insert = Insert::single_into(&table).value(
-        "value",
-        Value::numeric(BigDecimal::from_str("934310062234567898765456789098765456789034343600000.345678").unwrap()),
-    );
-
-    let result = api.conn().insert(insert.into()).await;
-    assert!(result.is_err());
-
-    let err_message = result.unwrap_err().to_string();
-
-    assert!(err_message.contains("Decimal value contains an out-of-range mantissa."));
-
-    Ok(())
-}
-
 #[test_each_connector(tags("postgresql"))]
 async fn unsupported_column_type(api: &mut dyn TestApi) -> crate::Result<()> {
     let table = api.create_table("point point, points point[]").await?;
