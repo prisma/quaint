@@ -308,6 +308,12 @@
 <span id="301">301</span>
 <span id="302">302</span>
 <span id="303">303</span>
+<span id="304">304</span>
+<span id="305">305</span>
+<span id="306">306</span>
+<span id="307">307</span>
+<span id="308">308</span>
+<span id="309">309</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::convert::TryFrom</span>;
 
 <span class="kw">use</span> <span class="kw">crate</span>::{
@@ -332,7 +338,6 @@
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">decl_type</span>() {
             <span class="prelude-val">Some</span>(<span class="ident">n</span>) <span class="kw">if</span> <span class="ident">n</span>.<span class="ident">starts_with</span>(<span class="string">&quot;DECIMAL&quot;</span>) =&gt; <span class="bool-val">true</span>,
             <span class="prelude-val">Some</span>(<span class="ident">n</span>) <span class="kw">if</span> <span class="ident">n</span>.<span class="ident">starts_with</span>(<span class="string">&quot;decimal&quot;</span>) =&gt; <span class="bool-val">true</span>,
-            <span class="prelude-val">Some</span>(<span class="string">&quot;NUMERIC&quot;</span>) <span class="op">|</span> <span class="prelude-val">Some</span>(<span class="string">&quot;numeric&quot;</span>) <span class="op">|</span> <span class="prelude-val">Some</span>(<span class="string">&quot;REAL&quot;</span>) <span class="op">|</span> <span class="prelude-val">Some</span>(<span class="string">&quot;real&quot;</span>) =&gt; <span class="bool-val">true</span>,
             <span class="kw">_</span> =&gt; <span class="bool-val">false</span>,
         }
     }
@@ -344,7 +349,14 @@
     <span class="kw">fn</span> <span class="ident">is_double</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
         <span class="macro">matches!</span>(
             <span class="self">self</span>.<span class="ident">decl_type</span>(),
-            <span class="prelude-val">Some</span>(<span class="string">&quot;DOUBLE&quot;</span>) <span class="op">|</span> <span class="prelude-val">Some</span>(<span class="string">&quot;double&quot;</span>) <span class="op">|</span> <span class="prelude-val">Some</span>(<span class="string">&quot;DOUBLE PRECISION&quot;</span>) <span class="op">|</span> <span class="prelude-val">Some</span>(<span class="string">&quot;double precision&quot;</span>)
+            <span class="prelude-val">Some</span>(<span class="string">&quot;DOUBLE&quot;</span>)
+                <span class="op">|</span> <span class="prelude-val">Some</span>(<span class="string">&quot;double&quot;</span>)
+                <span class="op">|</span> <span class="prelude-val">Some</span>(<span class="string">&quot;DOUBLE PRECISION&quot;</span>)
+                <span class="op">|</span> <span class="prelude-val">Some</span>(<span class="string">&quot;double precision&quot;</span>)
+                <span class="op">|</span> <span class="prelude-val">Some</span>(<span class="string">&quot;numeric&quot;</span>)
+                <span class="op">|</span> <span class="prelude-val">Some</span>(<span class="string">&quot;NUMERIC&quot;</span>)
+                <span class="op">|</span> <span class="prelude-val">Some</span>(<span class="string">&quot;real&quot;</span>)
+                <span class="op">|</span> <span class="prelude-val">Some</span>(<span class="string">&quot;REAL&quot;</span>)
         )
     }
 
@@ -612,5 +624,5 @@
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="quaint" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0-nightly (cacc75c82 2022-06-16)" ></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="quaint" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.63.0-nightly (5750a6aa2 2022-06-20)" ></div>
 </body></html>
