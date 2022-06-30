@@ -17,7 +17,6 @@ where
     let start = Instant::now();
     let res = f().instrument(span).await;
 
-
     let result = match res {
         Ok(_) => "success",
         Err(_) => "error",
