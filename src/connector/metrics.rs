@@ -1,3 +1,5 @@
+use tracing::{info_span, Instrument};
+
 use crate::ast::{Params, Value};
 use std::{future::Future, time::Instant};
 
@@ -11,8 +13,10 @@ where
     F: FnOnce() -> U + 'a,
     U: Future<Output = crate::Result<T>>,
 {
+    let span = info_span!("quaint:query", query = %query, user_facing = true);
     let start = Instant::now();
-    let res = f().await;
+    let res = f().instrument(span).await;
+
 
     let result = match res {
         Ok(_) => "success",
