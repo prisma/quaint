@@ -285,6 +285,79 @@ impl<'a> Visitor<'a> for Sqlite<'a> {
     fn visit_json_extract_first_array_item(&mut self, _extract: JsonExtractFirstArrayElem<'a>) -> visitor::Result {
         unimplemented!("JSON filtering is not yet supported on SQLite")
     }
+
+    fn visit_ordering(&mut self, ordering: Ordering<'a>) -> visitor::Result {
+        let len = ordering.0.len();
+
+        fn render_ordering<'a>(visitor: &mut Sqlite<'a>, direction: &str, value: Expression<'a>) -> visitor::Result {
+            visitor.visit_expression(value)?;
+            visitor.write(format!(" {}", direction))?;
+
+            Ok(())
+        }
+
+        // ORDER BY CASE WHEN <value> IS NULL THEN 0 ELSE 1 END, <value> <direction>
+        fn render_ordering_nulls_first<'a>(
+            visitor: &mut Sqlite<'a>,
+            direction: &str,
+            value: Expression<'a>,
+        ) -> visitor::Result {
+            visitor.surround_with("CASE WHEN ", " END", |s| {
+                s.visit_expression(value.clone())?;
+                s.write(" IS NULL THEN 0 ELSE 1")
+            })?;
+            visitor.write(", ")?;
+            render_ordering(visitor, direction, value)?;
+
+            Ok(())
+        }
+
+        // ORDER BY CASE WHEN <value> IS NULL THEN 1 ELSE 0 END, <value> <direction>
+        fn render_ordering_nulls_last<'a>(
+            visitor: &mut Sqlite<'a>,
+            direction: &str,
+            value: Expression<'a>,
+        ) -> visitor::Result {
+            visitor.surround_with("CASE WHEN ", " END", |s| {
+                s.visit_expression(value.clone())?;
+                s.write(" IS NULL THEN 1 ELSE 0")
+            })?;
+            visitor.write(", ")?;
+            render_ordering(visitor, direction, value)?;
+
+            Ok(())
+        }
+
+        for (i, (value, ordering)) in ordering.0.into_iter().enumerate() {
+            match ordering {
+                Some(Order::Asc) => {
+                    render_ordering(self, "ASC", value)?;
+                }
+                Some(Order::Desc) => {
+                    render_ordering(self, "DESC", value)?;
+                }
+                Some(Order::AscNullsFirst) => {
+                    render_ordering_nulls_first(self, "ASC", value)?;
+                }
+                Some(Order::AscNullsLast) => {
+                    render_ordering_nulls_last(self, "ASC", value)?;
+                }
+                Some(Order::DescNullsFirst) => {
+                    render_ordering_nulls_first(self, "DESC", value)?;
+                }
+                Some(Order::DescNullsLast) => {
+                    render_ordering_nulls_last(self, "DESC", value)?;
+                }
+                _ => (),
+            };
+
+            if i < (len - 1) {
+                self.write(", ")?;
+            }
+        }
+
+        Ok(())
+    }
 }
 
 #[cfg(test)]

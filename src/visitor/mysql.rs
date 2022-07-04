@@ -509,6 +509,57 @@ impl<'a> Visitor<'a> for Mysql<'a> {
 
         Ok(())
     }
+
+    fn visit_ordering(&mut self, ordering: Ordering<'a>) -> visitor::Result {
+        let len = ordering.0.len();
+
+        fn render_ordering<'a>(visitor: &mut Mysql<'a>, direction: &str, value: Expression<'a>) -> visitor::Result {
+            visitor.visit_expression(value)?;
+            visitor.write(format!(" {}", direction))?;
+
+            Ok(())
+        }
+
+        // ORDER BY <value> IS NOT NULL, <value> <direction> = NULLS FIRST
+        // ORDER BY <value> IS NULL, <value> <direction> = NULLS LAST
+        for (i, (value, ordering)) in ordering.0.into_iter().enumerate() {
+            match ordering {
+                Some(Order::Asc) => {
+                    render_ordering(self, "ASC", value)?;
+                }
+                Some(Order::Desc) => {
+                    render_ordering(self, "DESC", value)?;
+                }
+                Some(Order::AscNullsFirst) => {
+                    render_ordering(self, "IS NOT NULL", value.clone())?;
+                    self.write(", ")?;
+                    render_ordering(self, "ASC", value)?;
+                }
+                Some(Order::AscNullsLast) => {
+                    render_ordering(self, "IS NULL", value.clone())?;
+                    self.write(", ")?;
+                    render_ordering(self, "ASC", value)?;
+                }
+                Some(Order::DescNullsFirst) => {
+                    render_ordering(self, "IS NOT NULL", value.clone())?;
+                    self.write(", ")?;
+                    render_ordering(self, "DESC", value)?;
+                }
+                Some(Order::DescNullsLast) => {
+                    render_ordering(self, "IS NULL", value.clone())?;
+                    self.write(", ")?;
+                    render_ordering(self, "DESC", value)?;
+                }
+                _ => (),
+            };
+
+            if i < (len - 1) {
+                self.write(", ")?;
+            }
+        }
+
+        Ok(())
+    }
 }
 
 #[cfg(test)]

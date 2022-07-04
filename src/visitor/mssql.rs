@@ -549,21 +549,72 @@ impl<'a> Visitor<'a> for Mssql<'a> {
     fn visit_ordering(&mut self, ordering: Ordering<'a>) -> visitor::Result {
         let len = ordering.0.len();
 
-        for (i, (value, ordering)) in ordering.0.into_iter().enumerate() {
-            let direction = ordering.map(|dir| match dir {
-                Order::Asc => " ASC",
-                Order::Desc => " DESC",
-            });
+        fn render_ordering<'a>(visitor: &mut Mssql<'a>, direction: &str, value: Expression<'a>) -> visitor::Result {
+            visitor.visit_expression(value)?;
+            visitor.write(format!(" {}", direction))?;
 
-            self.visit_expression(value)?;
-            self.write(direction.unwrap_or(""))?;
+            Ok(())
+        }
+
+        // ORDER BY CASE WHEN <value> IS NULL THEN 0 ELSE 1 END, <value> <direction>
+        fn render_ordering_nulls_first<'a>(
+            visitor: &mut Mssql<'a>,
+            direction: &str,
+            value: Expression<'a>,
+        ) -> visitor::Result {
+            visitor.surround_with("CASE WHEN ", " END", |s| {
+                s.visit_expression(value.clone())?;
+                s.write(" IS NULL THEN 0 ELSE 1")
+            })?;
+            visitor.write(", ")?;
+            render_ordering(visitor, direction, value)?;
+
+            Ok(())
+        }
+
+        // ORDER BY CASE WHEN <value> IS NULL THEN 1 ELSE 0 END, <value> <direction>
+        fn render_ordering_nulls_last<'a>(
+            visitor: &mut Mssql<'a>,
+            direction: &str,
+            value: Expression<'a>,
+        ) -> visitor::Result {
+            visitor.surround_with("CASE WHEN ", " END", |s| {
+                s.visit_expression(value.clone())?;
+                s.write(" IS NULL THEN 1 ELSE 0")
+            })?;
+            visitor.write(", ")?;
+            render_ordering(visitor, direction, value)?;
+
+            Ok(())
+        }
+
+        for (i, (value, ordering)) in ordering.0.into_iter().enumerate() {
+            match ordering {
+                Some(Order::Asc) => {
+                    render_ordering(self, "ASC", value)?;
+                }
+                Some(Order::Desc) => {
+                    render_ordering(self, "DESC", value)?;
+                }
+                Some(Order::AscNullsFirst) => {
+                    render_ordering_nulls_first(self, "ASC", value)?;
+                }
+                Some(Order::AscNullsLast) => {
+                    render_ordering_nulls_last(self, "ASC", value)?;
+                }
+                Some(Order::DescNullsFirst) => {
+                    render_ordering_nulls_first(self, "DESC", value)?;
+                }
+                Some(Order::DescNullsLast) => {
+                    render_ordering_nulls_last(self, "DESC", value)?;
+                }
+                _ => (),
+            };
 
             if i < (len - 1) {
                 self.write(", ")?;
             }
         }
-
-        self.order_by_set = true;
 
         Ok(())
     }
