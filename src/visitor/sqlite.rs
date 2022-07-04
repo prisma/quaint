@@ -348,7 +348,9 @@ impl<'a> Visitor<'a> for Sqlite<'a> {
                 Some(Order::DescNullsLast) => {
                     render_ordering_nulls_last(self, "DESC", value)?;
                 }
-                _ => (),
+                None => {
+                    self.visit_expression(value)?;
+                }
             };
 
             if i < (len - 1) {

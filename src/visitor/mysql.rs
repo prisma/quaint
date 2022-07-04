@@ -550,7 +550,9 @@ impl<'a> Visitor<'a> for Mysql<'a> {
                     self.write(", ")?;
                     render_ordering(self, "DESC", value)?;
                 }
-                _ => (),
+                None => {
+                    self.visit_expression(value)?;
+                }
             };
 
             if i < (len - 1) {

@@ -608,7 +608,9 @@ impl<'a> Visitor<'a> for Mssql<'a> {
                 Some(Order::DescNullsLast) => {
                     render_ordering_nulls_last(self, "DESC", value)?;
                 }
-                _ => (),
+                None => {
+                    self.visit_expression(value)?;
+                }
             };
 
             if i < (len - 1) {
@@ -1183,6 +1185,9 @@ mod tests {
         let expected_sql = "SELECT [foo] FROM [bar] ORDER BY 1 OFFSET @P1 ROWS FETCH NEXT @P2 ROWS ONLY";
         let query = Select::from_table("bar").column("foo").limit(9).offset(10);
         let (sql, params) = Mssql::build(query).unwrap();
+
+        dbg!(&sql);
+        dbg!(&params);
 
         assert_eq!(expected_sql, sql);
         assert_eq!(vec![Value::int64(10), Value::int64(9)], params);
