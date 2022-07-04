@@ -58,18 +58,22 @@ where
         self.order(Some(Order::Desc))
     }
 
+    /// Change the order to `ASC NULLS FIRST`
     fn ascend_nulls_first(self) -> OrderDefinition<'a> {
         self.order(Some(Order::AscNullsFirst))
     }
 
+    /// Change the order to `ASC NULLS LAST`
     fn ascend_nulls_last(self) -> OrderDefinition<'a> {
         self.order(Some(Order::AscNullsLast))
     }
 
+    /// Change the order to `DESC NULLS FIRST`
     fn descend_nulls_first(self) -> OrderDefinition<'a> {
         self.order(Some(Order::DescNullsFirst))
     }
 
+    /// Change the order to `ASC NULLS LAST`
     fn descend_nulls_last(self) -> OrderDefinition<'a> {
         self.order(Some(Order::DescNullsLast))
     }
