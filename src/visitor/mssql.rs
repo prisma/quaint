@@ -618,6 +618,8 @@ impl<'a> Visitor<'a> for Mssql<'a> {
             }
         }
 
+        self.order_by_set = true;
+
         Ok(())
     }
 
