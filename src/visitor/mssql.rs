@@ -1188,9 +1188,6 @@ mod tests {
         let query = Select::from_table("bar").column("foo").limit(9).offset(10);
         let (sql, params) = Mssql::build(query).unwrap();
 
-        dbg!(&sql);
-        dbg!(&params);
-
         assert_eq!(expected_sql, sql);
         assert_eq!(vec![Value::int64(10), Value::int64(9)], params);
     }
