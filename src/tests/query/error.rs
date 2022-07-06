@@ -420,18 +420,27 @@ async fn array_into_scalar_should_fail(api: &mut dyn TestApi) -> crate::Result<(
     Ok(())
 }
 
-// #[test_each_connector(tags("mssql"))]
-// async fn database_already_exists(api: &mut dyn TestApi) -> crate::Result<()> {
-//     let query = "CREATE DATABASE master";
+// SQLite errors on anything other than serializable.
+#[test_each_connector(tags("sqlite"))]
+async fn sqlite_isolation_error(api: &mut dyn TestApi) -> crate::Result<()> {
+    let res = api
+        .conn()
+        .start_transaction(Some(IsolationLevel::ReadUncommitted))
+        .await;
 
-//     let err = api.conn().raw_cmd(query).await.unwrap_err();
+    let err = res.err().expect("SQLite must fail on isolation != SERIALIZABLE");
+    assert_eq!(err.to_string(), "Invalid isolation level: READ UNCOMMITTED");
 
-//     match err.kind() {
-//         ErrorKind::DatabaseAlreadyExists { db_name } => {
-//             assert_eq!(&Name::available("master"), db_name);
-//         }
-//         e => panic!("Expected error DatabaseAlreadyExists, got {:?}", e),
-//     }
+    Ok(())
+}
 
-//     Ok(())
-// }
+// Postgres and MySQL error on Snapshot.
+#[test_each_connector(tags("postgresql", "mysql"))]
+async fn snapshot_isolation_error(api: &mut dyn TestApi) -> crate::Result<()> {
+    let res = api.conn().start_transaction(Some(IsolationLevel::Snapshot)).await;
+
+    let err = res.err().expect("Postgres/MySQL must fail on isolation SNAPSHOT");
+    assert_eq!(err.to_string(), "Invalid isolation level: SNAPSHOT");
+
+    Ok(())
+}

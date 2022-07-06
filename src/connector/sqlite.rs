@@ -238,6 +238,10 @@ impl Queryable for Sqlite {
 
         Ok(())
     }
+
+    fn requires_isolation_first(&self) -> bool {
+        false
+    }
 }
 
 #[cfg(test)]

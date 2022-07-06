@@ -19,11 +19,7 @@ pub struct PooledConnection {
 }
 
 #[async_trait]
-impl TransactionCapable for PooledConnection {
-    async fn start_transaction(&self, isolation: Option<IsolationLevel>) -> crate::Result<Transaction<'_>> {
-        Transaction::new(self, self.begin_statement(), isolation).await
-    }
-}
+impl TransactionCapable for PooledConnection {}
 
 #[async_trait]
 impl Queryable for PooledConnection {
@@ -73,6 +69,10 @@ impl Queryable for PooledConnection {
 
     async fn set_tx_isolation_level(&self, isolation_level: IsolationLevel) -> crate::Result<()> {
         self.inner.set_tx_isolation_level(isolation_level).await
+    }
+
+    fn requires_isolation_first(&self) -> bool {
+        self.inner.requires_isolation_first()
     }
 }
 

@@ -94,6 +94,9 @@ pub trait Queryable: Send + Sync {
     /// Sets the transaction isolation level to given value.
     /// Implementers have to make sure that the passed isolation level is valid for the underlying database.
     async fn set_tx_isolation_level(&self, isolation_level: IsolationLevel) -> crate::Result<()>;
+
+    /// Signals if the isolation level SET needs to happen before or after the tx BEGIN.
+    fn requires_isolation_first(&self) -> bool;
 }
 
 /// A thing that can start a new transaction.
@@ -104,6 +107,6 @@ where
 {
     /// Starts a new transaction
     async fn start_transaction(&self, isolation: Option<IsolationLevel>) -> crate::Result<Transaction<'_>> {
-        Transaction::new(self, self.begin_statement(), isolation).await
+        Transaction::new(self, self.begin_statement(), isolation, self.requires_isolation_first()).await
     }
 }

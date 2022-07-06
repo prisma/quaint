@@ -23,18 +23,27 @@ impl<'a> Transaction<'a> {
         inner: &'a dyn Queryable,
         begin_stmt: &str,
         isolation_level: Option<IsolationLevel>,
+        isolation_first: bool,
     ) -> crate::Result<Transaction<'a>> {
         let this = Self { inner };
 
+        if isolation_first {
+            if let Some(isolation) = isolation_level {
+                inner.set_tx_isolation_level(isolation).await?;
+            }
+        }
+
         inner.raw_cmd(begin_stmt).await?;
 
-        if let Some(isolation) = isolation_level {
-            inner.set_tx_isolation_level(isolation).await?;
+        if !isolation_first {
+            if let Some(isolation) = isolation_level {
+                inner.set_tx_isolation_level(isolation).await?;
+            }
         }
 
         inner.server_reset_query(&this).await?;
-
         increment_gauge!("query_active_transactions", 1.0);
+
         Ok(this)
     }
 
@@ -95,6 +104,10 @@ impl<'a> Queryable for Transaction<'a> {
 
     async fn set_tx_isolation_level(&self, isolation_level: IsolationLevel) -> crate::Result<()> {
         self.inner.set_tx_isolation_level(isolation_level).await
+    }
+
+    fn requires_isolation_first(&self) -> bool {
+        self.inner.requires_isolation_first()
     }
 }
 

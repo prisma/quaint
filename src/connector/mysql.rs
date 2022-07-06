@@ -547,6 +547,10 @@ impl Queryable for Mysql {
 
         Ok(())
     }
+
+    fn requires_isolation_first(&self) -> bool {
+        true
+    }
 }
 
 #[cfg(test)]

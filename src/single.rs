@@ -236,4 +236,8 @@ impl Queryable for Quaint {
     async fn set_tx_isolation_level(&self, isolation_level: IsolationLevel) -> crate::Result<()> {
         self.inner.set_tx_isolation_level(isolation_level).await
     }
+
+    fn requires_isolation_first(&self) -> bool {
+        self.inner.requires_isolation_first()
+    }
 }

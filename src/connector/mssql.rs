@@ -93,13 +93,17 @@ static SQL_SERVER_DEFAULT_ISOLATION: IsolationLevel = IsolationLevel::ReadCommit
 #[async_trait]
 impl TransactionCapable for Mssql {
     async fn start_transaction(&self, isolation: Option<IsolationLevel>) -> crate::Result<Transaction<'_>> {
-        // Isolation levels in SQL Server are set on the connection and live until they're unchanged
+        // Isolation levels in SQL Server are set on the connection and live until they're changed.
+        // Always explicitly setting the isolation level each time a tx is started (either to the given value
+        // or by using the default/connection string value) prevents transaction started on connection from
+        // the pool to have unexpected isolation levels set.
         Transaction::new(
             self,
             "BEGIN TRAN",
             isolation
                 .or_else(|| self.url.query_params.transaction_isolation_level)
                 .or_else(|| Some(SQL_SERVER_DEFAULT_ISOLATION)),
+            self.requires_isolation_first(),
         )
         .await
     }
@@ -430,6 +434,10 @@ impl Queryable for Mssql {
 
     fn begin_statement(&self) -> &'static str {
         "BEGIN TRAN"
+    }
+
+    fn requires_isolation_first(&self) -> bool {
+        true
     }
 }
 

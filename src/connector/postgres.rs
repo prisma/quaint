@@ -773,6 +773,10 @@ impl Queryable for PostgreSql {
 
         Ok(())
     }
+
+    fn requires_isolation_first(&self) -> bool {
+        false
+    }
 }
 
 #[cfg(test)]
