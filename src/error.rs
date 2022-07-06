@@ -1,11 +1,10 @@
 //! Error module
+use crate::connector::IsolationLevel;
 use std::{borrow::Cow, fmt, io, num};
 use thiserror::Error;
 
 #[cfg(feature = "pooled")]
 use std::time::Duration;
-
-use crate::connector::IsolationLevel;
 
 #[derive(Debug, PartialEq, Eq)]
 pub enum DatabaseConstraint {

@@ -95,7 +95,7 @@ impl TransactionCapable for Mssql {
     async fn start_transaction(&self, isolation: Option<IsolationLevel>) -> crate::Result<Transaction<'_>> {
         // Isolation levels in SQL Server are set on the connection and live until they're changed.
         // Always explicitly setting the isolation level each time a tx is started (either to the given value
-        // or by using the default/connection string value) prevents transaction started on connection from
+        // or by using the default/connection string value) prevents transactions started on connections from
         // the pool to have unexpected isolation levels set.
         Transaction::new(
             self,

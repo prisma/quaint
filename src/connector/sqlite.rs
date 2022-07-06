@@ -3,6 +3,7 @@ mod error;
 
 pub use rusqlite::{params_from_iter, version as sqlite_version};
 
+use super::IsolationLevel;
 use crate::{
     ast::{Query, Value},
     connector::{metrics, queryable::*, ResultSet},
@@ -12,8 +13,6 @@ use crate::{
 use async_trait::async_trait;
 use std::{convert::TryFrom, path::Path, time::Duration};
 use tokio::sync::Mutex;
-
-use super::IsolationLevel;
 
 pub(crate) const DEFAULT_SQLITE_SCHEMA_NAME: &str = "main";
 
