@@ -419,3 +419,19 @@ async fn array_into_scalar_should_fail(api: &mut dyn TestApi) -> crate::Result<(
 
     Ok(())
 }
+
+// #[test_each_connector(tags("mssql"))]
+// async fn database_already_exists(api: &mut dyn TestApi) -> crate::Result<()> {
+//     let query = "CREATE DATABASE master";
+
+//     let err = api.conn().raw_cmd(query).await.unwrap_err();
+
+//     match err.kind() {
+//         ErrorKind::DatabaseAlreadyExists { db_name } => {
+//             assert_eq!(&Name::available("master"), db_name);
+//         }
+//         e => panic!("Expected error DatabaseAlreadyExists, got {:?}", e),
+//     }
+
+//     Ok(())
+// }

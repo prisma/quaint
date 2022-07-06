@@ -5,6 +5,8 @@ use thiserror::Error;
 #[cfg(feature = "pooled")]
 use std::time::Duration;
 
+use crate::connector::IsolationLevel;
+
 #[derive(Debug, PartialEq, Eq)]
 pub enum DatabaseConstraint {
     Fields(Vec<String>),
@@ -243,6 +245,9 @@ pub enum ErrorKind {
     #[error("Transaction was already closed: {}", _0)]
     TransactionAlreadyClosed(String),
 
+    #[error("Invalid isolation level: {}", _0)]
+    InvalidIsolationLevel(String),
+
     #[error("Error creating UUID, {}", _0)]
     UUIDError(String),
 
@@ -275,6 +280,10 @@ impl ErrorKind {
             in_use,
             timeout: timeout.as_secs(),
         }
+    }
+
+    pub(crate) fn invalid_isolation_level(isolation_level: &IsolationLevel) -> Self {
+        Self::InvalidIsolationLevel(isolation_level.to_string())
     }
 }
 

@@ -13,6 +13,8 @@ use async_trait::async_trait;
 use std::{convert::TryFrom, path::Path, time::Duration};
 use tokio::sync::Mutex;
 
+use super::IsolationLevel;
+
 pub(crate) const DEFAULT_SQLITE_SCHEMA_NAME: &str = "main";
 
 /// A connector interface for the SQLite database
@@ -164,11 +166,6 @@ impl Queryable for Sqlite {
         self.query_raw(&sql, &params).await
     }
 
-    async fn execute(&self, q: Query<'_>) -> crate::Result<u64> {
-        let (sql, params) = visitor::Sqlite::build(q)?;
-        self.execute_raw(&sql, &params).await
-    }
-
     async fn query_raw(&self, sql: &str, params: &[Value<'_>]) -> crate::Result<ResultSet> {
         metrics::query("sqlite.query_raw", sql, params, move || async move {
             let client = self.client.lock().await;
@@ -191,6 +188,11 @@ impl Queryable for Sqlite {
 
     async fn query_raw_typed(&self, sql: &str, params: &[Value<'_>]) -> crate::Result<ResultSet> {
         self.query_raw(sql, params).await
+    }
+
+    async fn execute(&self, q: Query<'_>) -> crate::Result<u64> {
+        let (sql, params) = visitor::Sqlite::build(q)?;
+        self.execute_raw(&sql, &params).await
     }
 
     async fn execute_raw(&self, sql: &str, params: &[Value<'_>]) -> crate::Result<u64> {
@@ -223,6 +225,18 @@ impl Queryable for Sqlite {
 
     fn is_healthy(&self) -> bool {
         true
+    }
+
+    async fn set_tx_isolation_level(&self, isolation_level: IsolationLevel) -> crate::Result<()> {
+        // SQLite is always "serializable", other modes involve pragmas
+        // and shared cache mode, which is out of scope for now and should be implemented
+        // as part of a separate effort.
+        if !matches!(isolation_level, IsolationLevel::Serializable) {
+            let kind = ErrorKind::invalid_isolation_level(&isolation_level);
+            return Err(Error::builder(kind).build());
+        }
+
+        Ok(())
     }
 }
 
