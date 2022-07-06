@@ -97,15 +97,11 @@ impl TransactionCapable for Mssql {
         // Always explicitly setting the isolation level each time a tx is started (either to the given value
         // or by using the default/connection string value) prevents transactions started on connections from
         // the pool to have unexpected isolation levels set.
-        Transaction::new(
-            self,
-            "BEGIN TRAN",
-            isolation
-                .or_else(|| self.url.query_params.transaction_isolation_level)
-                .or_else(|| Some(SQL_SERVER_DEFAULT_ISOLATION)),
-            self.requires_isolation_first(),
-        )
-        .await
+        let isolation = isolation
+            .or(self.url.query_params.transaction_isolation_level)
+            .or(Some(SQL_SERVER_DEFAULT_ISOLATION));
+
+        Transaction::new(self, "BEGIN TRAN", isolation, self.requires_isolation_first()).await
     }
 }
 
