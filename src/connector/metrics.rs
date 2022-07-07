@@ -13,7 +13,7 @@ where
     F: FnOnce() -> U + 'a,
     U: Future<Output = crate::Result<T>>,
 {
-    let span = info_span!("quaint:query", query = %query, user_facing = true);
+    let span = info_span!("quaint:query", "db.statement" = %query, user_facing = true);
     let start = Instant::now();
     let res = f().instrument(span).await;
 
