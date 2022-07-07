@@ -1,7 +1,7 @@
 mod conversion;
 mod error;
 
-use super::IsolationLevel;
+use super::{IsolationLevel, TransactionOptions};
 use crate::{
     ast::{Query, Value},
     connector::{metrics, queryable::*, ResultSet, Transaction},
@@ -101,7 +101,9 @@ impl TransactionCapable for Mssql {
             .or(self.url.query_params.transaction_isolation_level)
             .or(Some(SQL_SERVER_DEFAULT_ISOLATION));
 
-        Transaction::new(self, "BEGIN TRAN", isolation, self.requires_isolation_first()).await
+        let opts = TransactionOptions::new(isolation, self.requires_isolation_first());
+
+        Transaction::new(self, "BEGIN TRAN", opts).await
     }
 }
 

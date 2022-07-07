@@ -1,4 +1,4 @@
-use super::{IsolationLevel, ResultSet, Transaction};
+use super::{IsolationLevel, ResultSet, Transaction, TransactionOptions};
 use crate::ast::*;
 use async_trait::async_trait;
 
@@ -107,6 +107,7 @@ where
 {
     /// Starts a new transaction
     async fn start_transaction(&self, isolation: Option<IsolationLevel>) -> crate::Result<Transaction<'_>> {
-        Transaction::new(self, self.begin_statement(), isolation, self.requires_isolation_first()).await
+        let opts = TransactionOptions::new(isolation, self.requires_isolation_first());
+        Transaction::new(self, self.begin_statement(), opts).await
     }
 }

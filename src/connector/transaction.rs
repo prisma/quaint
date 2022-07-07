@@ -9,6 +9,14 @@ use std::{fmt, str::FromStr};
 
 extern crate metrics as metrics;
 
+pub(crate) struct TransactionOptions {
+    /// The isolation level to use.
+    pub(crate) isolation_level: Option<IsolationLevel>,
+
+    /// Whether or not to put the isolation level `SET` before or after the `BEGIN`.
+    pub(crate) isolation_first: bool,
+}
+
 /// A representation of an SQL database transaction. If not commited, a
 /// transaction will be rolled back by default when dropped.
 ///
@@ -22,21 +30,20 @@ impl<'a> Transaction<'a> {
     pub(crate) async fn new(
         inner: &'a dyn Queryable,
         begin_stmt: &str,
-        isolation_level: Option<IsolationLevel>,
-        isolation_first: bool,
+        tx_opts: TransactionOptions,
     ) -> crate::Result<Transaction<'a>> {
         let this = Self { inner };
 
-        if isolation_first {
-            if let Some(isolation) = isolation_level {
+        if tx_opts.isolation_first {
+            if let Some(isolation) = tx_opts.isolation_level {
                 inner.set_tx_isolation_level(isolation).await?;
             }
         }
 
         inner.raw_cmd(begin_stmt).await?;
 
-        if !isolation_first {
-            if let Some(isolation) = isolation_level {
+        if !tx_opts.isolation_first {
+            if let Some(isolation) = tx_opts.isolation_level {
                 inner.set_tx_isolation_level(isolation).await?;
             }
         }
@@ -160,6 +167,14 @@ impl FromStr for IsolationLevel {
                 let kind = ErrorKind::conversion(format!("Invalid isolation level `{}`", s));
                 Err(Error::builder(kind).build())
             }
+        }
+    }
+}
+impl TransactionOptions {
+    pub(crate) fn new(isolation_level: Option<IsolationLevel>, isolation_first: bool) -> Self {
+        Self {
+            isolation_level,
+            isolation_first,
         }
     }
 }
