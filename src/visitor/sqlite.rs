@@ -16,6 +16,39 @@ pub struct Sqlite<'a> {
     parameters: Vec<Value<'a>>,
 }
 
+impl<'a> Sqlite<'a> {
+    fn visit_order_by(&mut self, direction: &str, value: Expression<'a>) -> visitor::Result {
+        self.visit_expression(value)?;
+        self.write(format!(" {}", direction))?;
+
+        Ok(())
+    }
+
+    // ORDER BY CASE WHEN <value> IS NULL THEN 0 ELSE 1 END, <value> <direction>
+    fn visit_order_by_nulls_first(&mut self, direction: &str, value: Expression<'a>) -> visitor::Result {
+        self.surround_with("CASE WHEN ", " END", |s| {
+            s.visit_expression(value.clone())?;
+            s.write(" IS NULL THEN 0 ELSE 1")
+        })?;
+        self.write(", ")?;
+        self.visit_order_by(direction, value)?;
+
+        Ok(())
+    }
+
+    // ORDER BY CASE WHEN <value> IS NULL THEN 1 ELSE 0 END, <value> <direction>
+    fn visit_order_by_nulls_last(&mut self, direction: &str, value: Expression<'a>) -> visitor::Result {
+        self.surround_with("CASE WHEN ", " END", |s| {
+            s.visit_expression(value.clone())?;
+            s.write(" IS NULL THEN 1 ELSE 0")
+        })?;
+        self.write(", ")?;
+        self.visit_order_by(direction, value)?;
+
+        Ok(())
+    }
+}
+
 impl<'a> Visitor<'a> for Sqlite<'a> {
     const C_BACKTICK_OPEN: &'static str = "`";
     const C_BACKTICK_CLOSE: &'static str = "`";
@@ -289,64 +322,25 @@ impl<'a> Visitor<'a> for Sqlite<'a> {
     fn visit_ordering(&mut self, ordering: Ordering<'a>) -> visitor::Result {
         let len = ordering.0.len();
 
-        fn render_ordering<'a>(visitor: &mut Sqlite<'a>, direction: &str, value: Expression<'a>) -> visitor::Result {
-            visitor.visit_expression(value)?;
-            visitor.write(format!(" {}", direction))?;
-
-            Ok(())
-        }
-
-        // ORDER BY CASE WHEN <value> IS NULL THEN 0 ELSE 1 END, <value> <direction>
-        fn render_ordering_nulls_first<'a>(
-            visitor: &mut Sqlite<'a>,
-            direction: &str,
-            value: Expression<'a>,
-        ) -> visitor::Result {
-            visitor.surround_with("CASE WHEN ", " END", |s| {
-                s.visit_expression(value.clone())?;
-                s.write(" IS NULL THEN 0 ELSE 1")
-            })?;
-            visitor.write(", ")?;
-            render_ordering(visitor, direction, value)?;
-
-            Ok(())
-        }
-
-        // ORDER BY CASE WHEN <value> IS NULL THEN 1 ELSE 0 END, <value> <direction>
-        fn render_ordering_nulls_last<'a>(
-            visitor: &mut Sqlite<'a>,
-            direction: &str,
-            value: Expression<'a>,
-        ) -> visitor::Result {
-            visitor.surround_with("CASE WHEN ", " END", |s| {
-                s.visit_expression(value.clone())?;
-                s.write(" IS NULL THEN 1 ELSE 0")
-            })?;
-            visitor.write(", ")?;
-            render_ordering(visitor, direction, value)?;
-
-            Ok(())
-        }
-
         for (i, (value, ordering)) in ordering.0.into_iter().enumerate() {
             match ordering {
                 Some(Order::Asc) => {
-                    render_ordering(self, "ASC", value)?;
+                    self.visit_order_by("ASC", value)?;
                 }
                 Some(Order::Desc) => {
-                    render_ordering(self, "DESC", value)?;
+                    self.visit_order_by("DESC", value)?;
                 }
                 Some(Order::AscNullsFirst) => {
-                    render_ordering_nulls_first(self, "ASC", value)?;
+                    self.visit_order_by_nulls_first("ASC", value)?;
                 }
                 Some(Order::AscNullsLast) => {
-                    render_ordering_nulls_last(self, "ASC", value)?;
+                    self.visit_order_by_nulls_last("ASC", value)?;
                 }
                 Some(Order::DescNullsFirst) => {
-                    render_ordering_nulls_first(self, "DESC", value)?;
+                    self.visit_order_by_nulls_first("DESC", value)?;
                 }
                 Some(Order::DescNullsLast) => {
-                    render_ordering_nulls_last(self, "DESC", value)?;
+                    self.visit_order_by_nulls_last("DESC", value)?;
                 }
                 None => {
                     self.visit_expression(value)?;
