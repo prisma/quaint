@@ -1100,24 +1100,6 @@
 <span id="1094">1094</span>
 <span id="1095">1095</span>
 <span id="1096">1096</span>
-<span id="1097">1097</span>
-<span id="1098">1098</span>
-<span id="1099">1099</span>
-<span id="1100">1100</span>
-<span id="1101">1101</span>
-<span id="1102">1102</span>
-<span id="1103">1103</span>
-<span id="1104">1104</span>
-<span id="1105">1105</span>
-<span id="1106">1106</span>
-<span id="1107">1107</span>
-<span id="1108">1108</span>
-<span id="1109">1109</span>
-<span id="1110">1110</span>
-<span id="1111">1111</span>
-<span id="1112">1112</span>
-<span id="1113">1113</span>
-<span id="1114">1114</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Visitors for reading an abstract SQL syntax tree, generating the query and</span>
 <span class="doccomment">//! gathering parameters in the right order.</span>
 <span class="doccomment">//!</span>
@@ -1209,6 +1191,9 @@
 
     <span class="doccomment">/// The `LIMIT` and `OFFSET` statement in the query</span>
     <span class="kw">fn</span> <span class="ident">visit_limit_and_offset</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">limit</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Value</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>, <span class="ident">offset</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Value</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Result</span>;
+
+    <span class="doccomment">/// A visit in the `ORDER BY` section of the query</span>
+    <span class="kw">fn</span> <span class="ident">visit_ordering</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ordering</span>: <span class="ident">Ordering</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Result</span>;
 
     <span class="doccomment">/// A walk through an `INSERT` statement</span>
     <span class="kw">fn</span> <span class="ident">visit_insert</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">insert</span>: <span class="ident">Insert</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Result</span>;
@@ -2047,27 +2032,6 @@
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="doccomment">/// A visit in the `ORDER BY` section of the query</span>
-    <span class="kw">fn</span> <span class="ident">visit_ordering</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ordering</span>: <span class="ident">Ordering</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Result</span> {
-        <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">ordering</span>.<span class="number">0</span>.<span class="ident">len</span>();
-
-        <span class="kw">for</span> (<span class="ident">i</span>, (<span class="ident">value</span>, <span class="ident">ordering</span>)) <span class="kw">in</span> <span class="ident">ordering</span>.<span class="number">0</span>.<span class="ident">into_iter</span>().<span class="ident">enumerate</span>() {
-            <span class="kw">let</span> <span class="ident">direction</span> <span class="op">=</span> <span class="ident">ordering</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">dir</span><span class="op">|</span> <span class="kw">match</span> <span class="ident">dir</span> {
-                <span class="ident">Order::Asc</span> =&gt; <span class="string">&quot; ASC&quot;</span>,
-                <span class="ident">Order::Desc</span> =&gt; <span class="string">&quot; DESC&quot;</span>,
-            });
-
-            <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="ident">value</span>)<span class="question-mark">?</span>;
-            <span class="self">self</span>.<span class="ident">write</span>(<span class="ident">direction</span>.<span class="ident">unwrap_or</span>(<span class="string">&quot;&quot;</span>))<span class="question-mark">?</span>;
-
-            <span class="kw">if</span> <span class="ident">i</span> <span class="op">&lt;</span> (<span class="ident">len</span> <span class="op">-</span> <span class="number">1</span>) {
-                <span class="self">self</span>.<span class="ident">write</span>(<span class="string">&quot;, &quot;</span>)<span class="question-mark">?</span>;
-            }
-        }
-
-        <span class="prelude-val">Ok</span>(())
-    }
-
     <span class="doccomment">/// A visit in the `GROUP BY` section of the query</span>
     <span class="kw">fn</span> <span class="ident">visit_grouping</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">grouping</span>: <span class="ident">Grouping</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Result</span> {
         <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">grouping</span>.<span class="number">0</span>.<span class="ident">len</span>();
@@ -2233,5 +2197,5 @@
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="quaint" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0-nightly (1517f5de0 2022-07-07)" ></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="quaint" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0-nightly (38b72154d 2022-07-11)" ></div>
 </body></html>

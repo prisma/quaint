@@ -1024,6 +1024,30 @@
 <span id="1018">1018</span>
 <span id="1019">1019</span>
 <span id="1020">1020</span>
+<span id="1021">1021</span>
+<span id="1022">1022</span>
+<span id="1023">1023</span>
+<span id="1024">1024</span>
+<span id="1025">1025</span>
+<span id="1026">1026</span>
+<span id="1027">1027</span>
+<span id="1028">1028</span>
+<span id="1029">1029</span>
+<span id="1030">1030</span>
+<span id="1031">1031</span>
+<span id="1032">1032</span>
+<span id="1033">1033</span>
+<span id="1034">1034</span>
+<span id="1035">1035</span>
+<span id="1036">1036</span>
+<span id="1037">1037</span>
+<span id="1038">1038</span>
+<span id="1039">1039</span>
+<span id="1040">1040</span>
+<span id="1041">1041</span>
+<span id="1042">1042</span>
+<span id="1043">1043</span>
+<span id="1044">1044</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">ast</span>::<span class="kw-2">*</span>,
     <span class="ident">visitor</span>::{<span class="self">self</span>, <span class="ident">Visitor</span>},
@@ -1539,6 +1563,30 @@
         <span class="self">self</span>.<span class="ident">write</span>(<span class="string">&quot; NOT LIKE &quot;</span>)<span class="question-mark">?</span>;
         <span class="self">self</span>.<span class="ident">parameter_substitution</span>()
     }
+
+    <span class="kw">fn</span> <span class="ident">visit_ordering</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ordering</span>: <span class="ident">Ordering</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) -&gt; <span class="ident">visitor::Result</span> {
+        <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">ordering</span>.<span class="number">0</span>.<span class="ident">len</span>();
+
+        <span class="kw">for</span> (<span class="ident">i</span>, (<span class="ident">value</span>, <span class="ident">ordering</span>)) <span class="kw">in</span> <span class="ident">ordering</span>.<span class="number">0</span>.<span class="ident">into_iter</span>().<span class="ident">enumerate</span>() {
+            <span class="kw">let</span> <span class="ident">direction</span> <span class="op">=</span> <span class="ident">ordering</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">dir</span><span class="op">|</span> <span class="kw">match</span> <span class="ident">dir</span> {
+                <span class="ident">Order::Asc</span> =&gt; <span class="string">&quot; ASC&quot;</span>,
+                <span class="ident">Order::Desc</span> =&gt; <span class="string">&quot; DESC&quot;</span>,
+                <span class="ident">Order::AscNullsFirst</span> =&gt; <span class="string">&quot;ASC NULLS FIRST&quot;</span>,
+                <span class="ident">Order::AscNullsLast</span> =&gt; <span class="string">&quot;ASC NULLS LAST&quot;</span>,
+                <span class="ident">Order::DescNullsFirst</span> =&gt; <span class="string">&quot;DESC NULLS FIRST&quot;</span>,
+                <span class="ident">Order::DescNullsLast</span> =&gt; <span class="string">&quot;DESC NULLS LAST&quot;</span>,
+            });
+
+            <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="ident">value</span>)<span class="question-mark">?</span>;
+            <span class="self">self</span>.<span class="ident">write</span>(<span class="ident">direction</span>.<span class="ident">unwrap_or</span>(<span class="string">&quot;&quot;</span>))<span class="question-mark">?</span>;
+
+            <span class="kw">if</span> <span class="ident">i</span> <span class="op">&lt;</span> (<span class="ident">len</span> <span class="op">-</span> <span class="number">1</span>) {
+                <span class="self">self</span>.<span class="ident">write</span>(<span class="string">&quot;, &quot;</span>)<span class="question-mark">?</span>;
+            }
+        }
+
+        <span class="prelude-val">Ok</span>(())
+    }
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
@@ -2045,5 +2093,5 @@
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="quaint" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0-nightly (1517f5de0 2022-07-07)" ></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="quaint" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0-nightly (38b72154d 2022-07-11)" ></div>
 </body></html>
