@@ -109,15 +109,7 @@
 <span id="103">103</span>
 <span id="104">104</span>
 <span id="105">105</span>
-<span id="106">106</span>
-<span id="107">107</span>
-<span id="108">108</span>
-<span id="109">109</span>
-<span id="110">110</span>
-<span id="111">111</span>
-<span id="112">112</span>
-<span id="113">113</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">super</span>::{<span class="ident">IsolationLevel</span>, <span class="ident">ResultSet</span>, <span class="ident">Transaction</span>, <span class="ident">TransactionOptions</span>};
+</pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">super</span>::{<span class="ident">ResultSet</span>, <span class="ident">Transaction</span>};
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::ast</span>::<span class="kw-2">*</span>;
 <span class="kw">use</span> <span class="ident">async_trait::async_trait</span>;
 
@@ -209,13 +201,6 @@
     <span class="kw">fn</span> <span class="ident">begin_statement</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span> {
         <span class="string">&quot;BEGIN&quot;</span>
     }
-
-    <span class="doccomment">/// Sets the transaction isolation level to given value.</span>
-    <span class="doccomment">/// Implementers have to make sure that the passed isolation level is valid for the underlying database.</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">set_tx_isolation_level</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">isolation_level</span>: <span class="ident">IsolationLevel</span>) -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span>;
-
-    <span class="doccomment">/// Signals if the isolation level SET needs to happen before or after the tx BEGIN.</span>
-    <span class="kw">fn</span> <span class="ident">requires_isolation_first</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span>;
 }
 
 <span class="doccomment">/// A thing that can start a new transaction.</span>
@@ -225,9 +210,8 @@
     <span class="self">Self</span>: <span class="ident">Sized</span>,
 {
     <span class="doccomment">/// Starts a new transaction</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">start_transaction</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">isolation</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">IsolationLevel</span><span class="op">&gt;</span>) -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">Transaction</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">opts</span> <span class="op">=</span> <span class="ident">TransactionOptions::new</span>(<span class="ident">isolation</span>, <span class="self">self</span>.<span class="ident">requires_isolation_first</span>());
-        <span class="ident">Transaction::new</span>(<span class="self">self</span>, <span class="self">self</span>.<span class="ident">begin_statement</span>(), <span class="ident">opts</span>).<span class="kw">await</span>
+    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">start_transaction</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">Transaction</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+        <span class="ident">Transaction::new</span>(<span class="self">self</span>, <span class="self">self</span>.<span class="ident">begin_statement</span>()).<span class="kw">await</span>
     }
 }
 </code></pre></div>
