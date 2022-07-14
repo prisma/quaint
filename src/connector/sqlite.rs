@@ -20,7 +20,6 @@ pub(crate) const DEFAULT_SQLITE_SCHEMA_NAME: &str = "main";
 #[cfg(feature = "expose-drivers")]
 pub use rusqlite;
 
-
 /// A connector interface for the SQLite database
 #[cfg_attr(feature = "docs", doc(cfg(feature = "sqlite")))]
 pub struct Sqlite {
