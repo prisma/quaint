@@ -605,6 +605,10 @@
 <span id="599">599</span>
 <span id="600">600</span>
 <span id="601">601</span>
+<span id="602">602</span>
+<span id="603">603</span>
+<span id="604">604</span>
+<span id="605">605</span>
 </pre><pre class="rust"><code><span class="kw">mod</span> <span class="ident">conversion</span>;
 <span class="kw">mod</span> <span class="ident">error</span>;
 
@@ -629,6 +633,10 @@
 <span class="kw">use</span> <span class="ident">tiberius</span>::<span class="kw-2">*</span>;
 <span class="kw">use</span> <span class="ident">tokio::net::TcpStream</span>;
 <span class="kw">use</span> <span class="ident">tokio_util::compat</span>::{<span class="ident">Compat</span>, <span class="ident">TokioAsyncWriteCompatExt</span>};
+
+<span class="doccomment">/// The underlying SQL Server driver. Only available with the `expose-drivers` Cargo feature.</span>
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;expose-drivers&quot;</span>)]</span>
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">tiberius</span>;
 
 <span class="doccomment">/// Wraps a connection url and exposes the parsing logic used by Quaint,</span>
 <span class="doccomment">/// including default values.</span>
@@ -1207,5 +1215,5 @@
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="quaint" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0-nightly (38b72154d 2022-07-11)" ></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="quaint" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0-nightly (263edd43c 2022-07-17)" ></div>
 </body></html>
