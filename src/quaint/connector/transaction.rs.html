@@ -343,12 +343,12 @@
     <span class="kw">type</span> <span class="prelude-val">Err</span> <span class="op">=</span> <span class="ident">Error</span>;
 
     <span class="kw">fn</span> <span class="ident">from_str</span>(<span class="ident">s</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="ident">s</span> {
-            <span class="string">&quot;READ UNCOMMITTED&quot;</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident"><span class="self">Self</span>::ReadUncommitted</span>),
-            <span class="string">&quot;READ COMMITTED&quot;</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident"><span class="self">Self</span>::ReadCommitted</span>),
-            <span class="string">&quot;REPEATABLE READ&quot;</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident"><span class="self">Self</span>::RepeatableRead</span>),
-            <span class="string">&quot;SNAPSHOT&quot;</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident"><span class="self">Self</span>::Snapshot</span>),
-            <span class="string">&quot;SERIALIZABLE&quot;</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident"><span class="self">Self</span>::Serializable</span>),
+        <span class="kw">match</span> <span class="ident">s</span>.<span class="ident">to_lowercase</span>().<span class="ident">as_str</span>() {
+            <span class="string">&quot;read uncommitted&quot;</span> <span class="op">|</span> <span class="string">&quot;readuncommitted&quot;</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident"><span class="self">Self</span>::ReadUncommitted</span>),
+            <span class="string">&quot;read committed&quot;</span> <span class="op">|</span> <span class="string">&quot;readcommitted&quot;</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident"><span class="self">Self</span>::ReadCommitted</span>),
+            <span class="string">&quot;repeatable read&quot;</span> <span class="op">|</span> <span class="string">&quot;repeatableread&quot;</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident"><span class="self">Self</span>::RepeatableRead</span>),
+            <span class="string">&quot;snapshot&quot;</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident"><span class="self">Self</span>::Snapshot</span>),
+            <span class="string">&quot;serializable&quot;</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident"><span class="self">Self</span>::Serializable</span>),
             <span class="kw">_</span> =&gt; {
                 <span class="kw">let</span> <span class="ident">kind</span> <span class="op">=</span> <span class="ident">ErrorKind::conversion</span>(<span class="macro">format!</span>(<span class="string">&quot;Invalid isolation level `{}`&quot;</span>, <span class="ident">s</span>));
                 <span class="prelude-val">Err</span>(<span class="ident">Error::builder</span>(<span class="ident">kind</span>).<span class="ident">build</span>())
@@ -365,5 +365,5 @@
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="quaint" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0-nightly (263edd43c 2022-07-17)" ></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="quaint" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0-nightly (f8588549c 2022-07-18)" ></div>
 </body></html>
