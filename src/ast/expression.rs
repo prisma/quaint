@@ -371,44 +371,16 @@ impl<'a> Comparable<'a> for Expression<'a> {
 
     fn like<T>(self, pattern: T) -> Compare<'a>
     where
-        T: Into<Cow<'a, str>>,
+        T: Into<Expression<'a>>,
     {
-        Compare::Like(Box::new(self), pattern.into())
+        Compare::Like(Box::new(self), Box::new(pattern.into()))
     }
 
     fn not_like<T>(self, pattern: T) -> Compare<'a>
     where
-        T: Into<Cow<'a, str>>,
+        T: Into<Expression<'a>>,
     {
-        Compare::NotLike(Box::new(self), pattern.into())
-    }
-
-    fn begins_with<T>(self, pattern: T) -> Compare<'a>
-    where
-        T: Into<Cow<'a, str>>,
-    {
-        Compare::BeginsWith(Box::new(self), pattern.into())
-    }
-
-    fn not_begins_with<T>(self, pattern: T) -> Compare<'a>
-    where
-        T: Into<Cow<'a, str>>,
-    {
-        Compare::NotBeginsWith(Box::new(self), pattern.into())
-    }
-
-    fn ends_into<T>(self, pattern: T) -> Compare<'a>
-    where
-        T: Into<Cow<'a, str>>,
-    {
-        Compare::EndsInto(Box::new(self), pattern.into())
-    }
-
-    fn not_ends_into<T>(self, pattern: T) -> Compare<'a>
-    where
-        T: Into<Cow<'a, str>>,
-    {
-        Compare::NotEndsInto(Box::new(self), pattern.into())
+        Compare::NotLike(Box::new(self), Box::new(pattern.into()))
     }
 
     #[allow(clippy::wrong_self_convention)]
@@ -504,9 +476,17 @@ impl<'a> Comparable<'a> for Expression<'a> {
     #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
     fn json_type_equals<T>(self, json_type: T) -> Compare<'a>
     where
-        T: Into<JsonType>,
+        T: Into<JsonType<'a>>,
     {
         Compare::JsonCompare(JsonCompare::TypeEquals(Box::new(self), json_type.into()))
+    }
+
+    #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
+    fn json_type_not_equals<T>(self, json_type: T) -> Compare<'a>
+    where
+        T: Into<JsonType<'a>>,
+    {
+        Compare::JsonCompare(JsonCompare::TypeNotEquals(Box::new(self), json_type.into()))
     }
 
     #[cfg(feature = "postgresql")]

@@ -3276,3 +3276,107 @@ async fn order_by_nulls_first_last(api: &mut dyn TestApi) -> crate::Result<()> {
 
     Ok(())
 }
+
+#[test_each_connector]
+async fn concat_expressions(api: &mut dyn TestApi) -> crate::Result<()> {
+    let table = api.create_table("firstname string, lastname string").await?;
+
+    let insert = Insert::single_into(&table)
+        .value("firstname", "John")
+        .value("lastname", "Doe");
+
+    api.conn().insert(insert.into()).await?;
+
+    let concat: Expression<'_> =
+        concat::<'_, Expression<'_>>(vec![col!("firstname").into(), " ".into(), col!("lastname").into()]).into();
+    let query = Select::from_table(table).value(concat.alias("concat"));
+
+    let res = api.conn().select(query).await?.into_single()?;
+
+    assert_eq!(res["concat"], Value::from("John Doe"));
+
+    Ok(())
+}
+
+#[cfg(feature = "postgresql")]
+#[test_each_connector(tags("postgresql"))]
+async fn all_in_expression(api: &mut dyn TestApi) -> crate::Result<()> {
+    let table = api.create_table("id int").await?;
+
+    let insert = Insert::single_into(&table).value("id", 1);
+    api.conn().insert(insert.into()).await?;
+
+    // SELECT 1 = ALL(SELECT "Test".id FROM "Test");
+    let val: Expression<'_> = Value::from(1).into();
+    let expr: Expression<'_> = all_operator(Select::from_table(&table).value(col!("id"))).into();
+    let expr: Expression<'_> = val.equals(expr).into();
+    let query = Select::from_table(&table).value(expr.alias("all"));
+
+    let res = api.conn().select(query.clone()).await?.into_single()?;
+    assert_eq!(res["all"], Value::from(true));
+
+    let insert = Insert::single_into(&table).value("id", 2);
+    api.conn().insert(insert.into()).await?;
+
+    let res = api.conn().select(query.clone()).await?.into_single()?;
+    assert_eq!(res["all"], Value::from(false));
+
+    Ok(())
+}
+
+#[cfg(feature = "postgresql")]
+#[test_each_connector(tags("postgresql"))]
+async fn any_in_expression(api: &mut dyn TestApi) -> crate::Result<()> {
+    let table = api.create_table("id int").await?;
+
+    let insert = Insert::single_into(&table).value("id", 1);
+    api.conn().insert(insert.into()).await?;
+
+    // SELECT 1 = ANY(SELECT "Test".id FROM "Test");
+    let val: Expression<'_> = Value::from(1).into();
+    let expr: Expression<'_> = any_operator(Select::from_table(&table).value(col!("id"))).into();
+    let expr: Expression<'_> = val.equals(expr).into();
+    let query = Select::from_table(&table).value(expr.alias("any"));
+
+    let res = api.conn().select(query.clone()).await?.into_single()?;
+    assert_eq!(res["any"], Value::from(true));
+
+    let insert = Insert::single_into(&table).value("id", 2);
+    api.conn().insert(insert.into()).await?;
+
+    let res = api.conn().select(query.clone()).await?.into_single()?;
+    assert_eq!(res["any"], Value::from(true));
+
+    Ok(())
+}
+
+#[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
+#[test_each_connector(tags("postgresql", "mysql"))]
+async fn json_unquote_fun(api: &mut dyn TestApi) -> crate::Result<()> {
+    let json_type = if api.connector_tag().intersects(Tags::POSTGRES) {
+        "jsonb"
+    } else {
+        "json"
+    };
+    let table = api.create_table(&format!("json {}", json_type)).await?;
+
+    let insert = Insert::multi_into(&table, vec!["json"])
+        .values(vec![serde_json::json!("a")])
+        .values(vec![serde_json::json!(1)])
+        .values(vec![serde_json::json!({ "a": "b" })])
+        .values(vec![serde_json::json!(["a", 1])]);
+
+    api.conn().insert(insert.into()).await?;
+
+    let expr: Expression<'_> = json_unquote(col!("json")).into();
+    let query = Select::from_table(&table).value(expr.alias("unquote"));
+
+    let res = api.conn().select(query.clone()).await?;
+
+    assert_eq!(res.get(0).unwrap()["unquote"], Value::text("a"));
+    assert_eq!(res.get(1).unwrap()["unquote"], Value::text("1"));
+    assert_eq!(res.get(2).unwrap()["unquote"], Value::text("{\"a\": \"b\"}"));
+    assert_eq!(res.get(3).unwrap()["unquote"], Value::text("[\"a\", 1]"));
+
+    Ok(())
+}

@@ -1,6 +1,6 @@
 use super::Visitor;
 #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
-use crate::prelude::{JsonExtract, JsonType};
+use crate::prelude::{JsonExtract, JsonType, JsonUnquote};
 use crate::{
     ast::{
         Column, Comparable, Expression, ExpressionKind, Insert, IntoRaw, Join, JoinData, Joinable, Merge, OnConflict,
@@ -648,8 +648,13 @@ impl<'a> Visitor<'a> for Mssql<'a> {
     }
 
     #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
-    fn visit_json_type_equals(&mut self, _left: Expression<'a>, _json_type: JsonType) -> visitor::Result {
+    fn visit_json_type_equals(&mut self, _left: Expression<'a>, _json_type: JsonType, _not: bool) -> visitor::Result {
         unimplemented!("JSON_TYPE is not yet supported on MSSQL")
+    }
+
+    #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
+    fn visit_json_unquote(&mut self, _json_unquote: JsonUnquote<'a>) -> visitor::Result {
+        unimplemented!("JSON filtering is not yet supported on MSSQL")
     }
 
     #[cfg(feature = "postgresql")]
@@ -887,7 +892,7 @@ mod tests {
     fn test_select_where_begins_with() {
         let expected = expected_values("SELECT [naukio].* FROM [naukio] WHERE [word] LIKE @P1", vec!["meow%"]);
 
-        let query = Select::from_table("naukio").so_that("word".begins_with("meow"));
+        let query = Select::from_table("naukio").so_that("word".like("%meow"));
         let (sql, params) = Mssql::build(query).unwrap();
 
         assert_eq!(expected.0, sql);
@@ -901,7 +906,7 @@ mod tests {
             vec!["meow%"],
         );
 
-        let query = Select::from_table("naukio").so_that("word".not_begins_with("meow"));
+        let query = Select::from_table("naukio").so_that("word".not_like("%meow"));
         let (sql, params) = Mssql::build(query).unwrap();
 
         assert_eq!(expected.0, sql);
@@ -912,7 +917,7 @@ mod tests {
     fn test_select_where_ends_into() {
         let expected = expected_values("SELECT [naukio].* FROM [naukio] WHERE [word] LIKE @P1", vec!["%meow"]);
 
-        let query = Select::from_table("naukio").so_that("word".ends_into("meow"));
+        let query = Select::from_table("naukio").so_that("word".like("meow%"));
         let (sql, params) = Mssql::build(query).unwrap();
 
         assert_eq!(expected.0, sql);
@@ -926,7 +931,7 @@ mod tests {
             vec!["%meow"],
         );
 
-        let query = Select::from_table("naukio").so_that("word".not_ends_into("meow"));
+        let query = Select::from_table("naukio").so_that("word".not_like("meow%"));
         let (sql, params) = Mssql::build(query).unwrap();
 
         assert_eq!(expected.0, sql);

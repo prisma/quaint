@@ -22,17 +22,9 @@ pub enum Compare<'a> {
     /// `left NOT IN (..)`
     NotIn(Box<Expression<'a>>, Box<Expression<'a>>),
     /// `left LIKE %..%`
-    Like(Box<Expression<'a>>, Cow<'a, str>),
+    Like(Box<Expression<'a>>, Box<Expression<'a>>),
     /// `left NOT LIKE %..%`
-    NotLike(Box<Expression<'a>>, Cow<'a, str>),
-    /// `left LIKE ..%`
-    BeginsWith(Box<Expression<'a>>, Cow<'a, str>),
-    /// `left NOT LIKE ..%`
-    NotBeginsWith(Box<Expression<'a>>, Cow<'a, str>),
-    /// `left LIKE %..`
-    EndsInto(Box<Expression<'a>>, Cow<'a, str>),
-    /// `left NOT LIKE %..`
-    NotEndsInto(Box<Expression<'a>>, Cow<'a, str>),
+    NotLike(Box<Expression<'a>>, Box<Expression<'a>>),
     /// `value IS NULL`
     Null(Box<Expression<'a>>),
     /// `value IS NOT NULL`
@@ -59,17 +51,25 @@ pub enum Compare<'a> {
 pub enum JsonCompare<'a> {
     ArrayContains(Box<Expression<'a>>, Box<Expression<'a>>),
     ArrayNotContains(Box<Expression<'a>>, Box<Expression<'a>>),
-    TypeEquals(Box<Expression<'a>>, JsonType),
+    TypeEquals(Box<Expression<'a>>, JsonType<'a>),
+    TypeNotEquals(Box<Expression<'a>>, JsonType<'a>),
 }
 
 #[derive(Debug, Clone, PartialEq)]
-pub enum JsonType {
+pub enum JsonType<'a> {
     Array,
     Object,
     String,
     Number,
     Boolean,
     Null,
+    ColumnRef(Box<Column<'a>>),
+}
+
+impl<'a> From<Column<'a>> for JsonType<'a> {
+    fn from(col: Column<'a>) -> Self {
+        JsonType::ColumnRef(Box::new(col))
+    }
 }
 
 impl<'a> Compare<'a> {
@@ -438,7 +438,7 @@ pub trait Comparable<'a> {
     /// ```
     fn like<T>(self, pattern: T) -> Compare<'a>
     where
-        T: Into<Cow<'a, str>>;
+        T: Into<Expression<'a>>;
 
     /// Tests if the left side does not include the right side string.
     ///
@@ -461,99 +461,9 @@ pub trait Comparable<'a> {
     /// ```
     fn not_like<T>(self, pattern: T) -> Compare<'a>
     where
-        T: Into<Cow<'a, str>>;
+        T: Into<Expression<'a>>;
 
-    /// Tests if the left side starts with the right side string.
-    ///
-    /// ```rust
-    /// # use quaint::{ast::*, visitor::{Visitor, Sqlite}};
-    /// # fn main() -> Result<(), quaint::error::Error> {
-    /// let query = Select::from_table("users").so_that("foo".begins_with("bar"));
-    /// let (sql, params) = Sqlite::build(query)?;
-    ///
-    /// assert_eq!("SELECT `users`.* FROM `users` WHERE `foo` LIKE ?", sql);
-    ///
-    /// assert_eq!(
-    ///     vec![
-    ///         Value::from("bar%"),
-    ///     ],
-    ///     params
-    /// );
-    /// # Ok(())
-    /// # }
     /// ```
-    fn begins_with<T>(self, pattern: T) -> Compare<'a>
-    where
-        T: Into<Cow<'a, str>>;
-
-    /// Tests if the left side doesn't start with the right side string.
-    ///
-    /// ```rust
-    /// # use quaint::{ast::*, visitor::{Visitor, Sqlite}};
-    /// # fn main() -> Result<(), quaint::error::Error> {
-    /// let query = Select::from_table("users").so_that("foo".not_begins_with("bar"));
-    /// let (sql, params) = Sqlite::build(query)?;
-    ///
-    /// assert_eq!("SELECT `users`.* FROM `users` WHERE `foo` NOT LIKE ?", sql);
-    ///
-    /// assert_eq!(
-    ///     vec![
-    ///         Value::from("bar%"),
-    ///     ],
-    ///     params
-    /// );
-    /// # Ok(())
-    /// # }
-    /// ```
-    fn not_begins_with<T>(self, pattern: T) -> Compare<'a>
-    where
-        T: Into<Cow<'a, str>>;
-
-    /// Tests if the left side ends into the right side string.
-    ///
-    /// ```rust
-    /// # use quaint::{ast::*, visitor::{Visitor, Sqlite}};
-    /// # fn main() -> Result<(), quaint::error::Error> {
-    /// let query = Select::from_table("users").so_that("foo".ends_into("bar"));
-    /// let (sql, params) = Sqlite::build(query)?;
-    ///
-    /// assert_eq!("SELECT `users`.* FROM `users` WHERE `foo` LIKE ?", sql);
-    ///
-    /// assert_eq!(
-    ///     vec![
-    ///         Value::from("%bar"),
-    ///     ],
-    ///     params
-    /// );
-    /// # Ok(())
-    /// # }
-    /// ```
-    fn ends_into<T>(self, pattern: T) -> Compare<'a>
-    where
-        T: Into<Cow<'a, str>>;
-
-    /// Tests if the left side does not end into the right side string.
-    ///
-    /// ```rust
-    /// # use quaint::{ast::*, visitor::{Visitor, Sqlite}};
-    /// # fn main() -> Result<(), quaint::error::Error> {
-    /// let query = Select::from_table("users").so_that("foo".not_ends_into("bar"));
-    /// let (sql, params) = Sqlite::build(query)?;
-    ///
-    /// assert_eq!("SELECT `users`.* FROM `users` WHERE `foo` NOT LIKE ?", sql);
-    ///
-    /// assert_eq!(
-    ///     vec![
-    ///         Value::from("%bar"),
-    ///     ],
-    ///     params
-    /// );
-    /// # Ok(())
-    /// # }
-    /// ```
-    fn not_ends_into<T>(self, pattern: T) -> Compare<'a>
-    where
-        T: Into<Cow<'a, str>>;
 
     /// Tests if the left side is `NULL`.
     ///
@@ -802,7 +712,26 @@ pub trait Comparable<'a> {
     #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
     fn json_type_equals<T>(self, json_type: T) -> Compare<'a>
     where
-        T: Into<JsonType>;
+        T: Into<JsonType<'a>>;
+
+    /// Tests if the JSON value is not of a certain type.
+    ///
+    /// ```rust
+    /// # use quaint::{ast::*, visitor::{Visitor, Mysql}};
+    /// # fn main() -> Result<(), quaint::error::Error> {
+    /// let query = Select::from_table("users").so_that("json".json_type_not_equals(JsonType::Array));
+    /// let (sql, params) = Mysql::build(query)?;
+    ///
+    /// assert_eq!("SELECT `users`.* FROM `users` WHERE (JSON_TYPE(`json`) != ?)", sql);
+    ///
+    /// assert_eq!(vec![Value::from("ARRAY")], params);
+    /// # Ok(())
+    /// # }
+    /// ```
+    #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
+    fn json_type_not_equals<T>(self, json_type: T) -> Compare<'a>
+    where
+        T: Into<JsonType<'a>>;
 
     /// Tests if a full-text search matches a certain query. Use it in combination with the `text_search()` function
     ///
@@ -954,7 +883,7 @@ where
 
     fn like<T>(self, pattern: T) -> Compare<'a>
     where
-        T: Into<Cow<'a, str>>,
+        T: Into<Expression<'a>>,
     {
         let col: Column<'a> = self.into();
         let val: Expression<'a> = col.into();
@@ -963,47 +892,11 @@ where
 
     fn not_like<T>(self, pattern: T) -> Compare<'a>
     where
-        T: Into<Cow<'a, str>>,
+        T: Into<Expression<'a>>,
     {
         let col: Column<'a> = self.into();
         let val: Expression<'a> = col.into();
         val.not_like(pattern)
-    }
-
-    fn begins_with<T>(self, pattern: T) -> Compare<'a>
-    where
-        T: Into<Cow<'a, str>>,
-    {
-        let col: Column<'a> = self.into();
-        let val: Expression<'a> = col.into();
-        val.begins_with(pattern)
-    }
-
-    fn not_begins_with<T>(self, pattern: T) -> Compare<'a>
-    where
-        T: Into<Cow<'a, str>>,
-    {
-        let col: Column<'a> = self.into();
-        let val: Expression<'a> = col.into();
-        val.not_begins_with(pattern)
-    }
-
-    fn ends_into<T>(self, pattern: T) -> Compare<'a>
-    where
-        T: Into<Cow<'a, str>>,
-    {
-        let col: Column<'a> = self.into();
-        let val: Expression<'a> = col.into();
-        val.ends_into(pattern)
-    }
-
-    fn not_ends_into<T>(self, pattern: T) -> Compare<'a>
-    where
-        T: Into<Cow<'a, str>>,
-    {
-        let col: Column<'a> = self.into();
-        let val: Expression<'a> = col.into();
-        val.not_ends_into(pattern)
     }
 
     #[allow(clippy::wrong_self_convention)]
@@ -1121,12 +1014,23 @@ where
     #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
     fn json_type_equals<T>(self, json_type: T) -> Compare<'a>
     where
-        T: Into<JsonType>,
+        T: Into<JsonType<'a>>,
     {
         let col: Column<'a> = self.into();
         let val: Expression<'a> = col.into();
 
         val.json_type_equals(json_type)
+    }
+
+    #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
+    fn json_type_not_equals<T>(self, json_type: T) -> Compare<'a>
+    where
+        T: Into<JsonType<'a>>,
+    {
+        let col: Column<'a> = self.into();
+        let val: Expression<'a> = col.into();
+
+        val.json_type_not_equals(json_type)
     }
 
     #[cfg(feature = "postgresql")]

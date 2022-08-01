@@ -1,11 +1,18 @@
 mod aggregate_to_string;
+#[cfg(feature = "postgresql")]
+mod all_operator;
+#[cfg(feature = "postgresql")]
+mod any_operator;
 mod average;
 mod coalesce;
+mod concat;
 mod count;
 #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
 mod json_extract;
 #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
 mod json_extract_array;
+#[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
+mod json_unquote;
 mod lower;
 mod maximum;
 mod minimum;
@@ -21,13 +28,20 @@ mod upper;
 mod uuid;
 
 pub use aggregate_to_string::*;
+#[cfg(feature = "postgresql")]
+pub use all_operator::*;
+#[cfg(feature = "postgresql")]
+pub use any_operator::*;
 pub use average::*;
 pub use coalesce::*;
+pub use concat::*;
 pub use count::*;
 #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
 pub use json_extract::*;
 #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
 pub(crate) use json_extract_array::*;
+#[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
+pub use json_unquote::*;
 pub use lower::*;
 pub use maximum::*;
 pub use minimum::*;
@@ -73,6 +87,8 @@ pub(crate) enum FunctionType<'a> {
     JsonExtractLastArrayElem(JsonExtractLastArrayElem<'a>),
     #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
     JsonExtractFirstArrayElem(JsonExtractFirstArrayElem<'a>),
+    #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
+    JsonUnquote(JsonUnquote<'a>),
     #[cfg(any(feature = "postgresql", feature = "mysql"))]
     TextSearch(TextSearch<'a>),
     #[cfg(any(feature = "postgresql", feature = "mysql"))]
@@ -83,6 +99,11 @@ pub(crate) enum FunctionType<'a> {
     UuidToBinSwapped,
     #[cfg(feature = "mysql")]
     Uuid,
+    #[cfg(feature = "postgresql")]
+    AnyOperator(AnyOperator<'a>),
+    #[cfg(feature = "postgresql")]
+    AllOperator(AllOperator<'a>),
+    Concat(Concat<'a>),
 }
 
 impl<'a> Aliasable<'a> for Function<'a> {
@@ -109,11 +130,20 @@ function!(JsonExtractLastArrayElem);
 #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
 function!(JsonExtractFirstArrayElem);
 
+#[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
+function!(JsonUnquote);
+
 #[cfg(any(feature = "postgresql", feature = "mysql"))]
 function!(TextSearch);
 
 #[cfg(any(feature = "postgresql", feature = "mysql"))]
 function!(TextSearchRelevance);
+
+#[cfg(feature = "postgresql")]
+function!(AnyOperator);
+
+#[cfg(feature = "postgresql")]
+function!(AllOperator);
 
 function!(
     RowNumber,
@@ -125,5 +155,6 @@ function!(
     Upper,
     Minimum,
     Maximum,
-    Coalesce
+    Coalesce,
+    Concat
 );
