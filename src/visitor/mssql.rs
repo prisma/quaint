@@ -867,7 +867,7 @@ mod tests {
     fn test_select_where_like() {
         let expected = expected_values("SELECT [naukio].* FROM [naukio] WHERE [word] LIKE @P1", vec!["%meow%"]);
 
-        let query = Select::from_table("naukio").so_that("word".like("meow"));
+        let query = Select::from_table("naukio").so_that("word".like("%meow%"));
         let (sql, params) = Mssql::build(query).unwrap();
 
         assert_eq!(expected.0, sql);
@@ -881,7 +881,7 @@ mod tests {
             vec!["%meow%"],
         );
 
-        let query = Select::from_table("naukio").so_that("word".not_like("meow"));
+        let query = Select::from_table("naukio").so_that("word".not_like("%meow%"));
         let (sql, params) = Mssql::build(query).unwrap();
 
         assert_eq!(expected.0, sql);

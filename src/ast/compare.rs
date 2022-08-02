@@ -422,7 +422,7 @@ pub trait Comparable<'a> {
     /// ```rust
     /// # use quaint::{ast::*, visitor::{Visitor, Sqlite}};
     /// # fn main() -> Result<(), quaint::error::Error> {
-    /// let query = Select::from_table("users").so_that("foo".like("bar"));
+    /// let query = Select::from_table("users").so_that("foo".like("%bar%"));
     /// let (sql, params) = Sqlite::build(query)?;
     ///
     /// assert_eq!("SELECT `users`.* FROM `users` WHERE `foo` LIKE ?", sql);
@@ -445,7 +445,7 @@ pub trait Comparable<'a> {
     /// ```rust
     /// # use quaint::{ast::*, visitor::{Visitor, Sqlite}};
     /// # fn main() -> Result<(), quaint::error::Error> {
-    /// let query = Select::from_table("users").so_that("foo".not_like("bar"));
+    /// let query = Select::from_table("users").so_that("foo".not_like("%bar%"));
     /// let (sql, params) = Sqlite::build(query)?;
     ///
     /// assert_eq!("SELECT `users`.* FROM `users` WHERE `foo` NOT LIKE ?", sql);

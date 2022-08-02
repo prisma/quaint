@@ -13,7 +13,7 @@ pub struct AnyOperator<'a> {
 /// # use quaint::{ast::*, visitor::{Visitor, Postgres}};
 /// # fn main() -> Result<(), quaint::error::Error> {
 /// let query = Select::from_table("users").so_that(col!("name").equals(array_any(col!("list"))));
-/// let (sql, _) = Sqlite::build(query)?;
+/// let (sql, _) = Postgres::build(query)?;
 /// assert_eq!(r#"SELECT * FROM "users" WHERE "name" = ANY("list")"#, sql);
 /// # Ok(())
 /// # }

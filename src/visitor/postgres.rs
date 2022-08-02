@@ -916,7 +916,7 @@ mod tests {
             vec!["%foo%"],
         );
 
-        let query = Select::from_table("test").so_that(Column::from("jsonField").like("foo"));
+        let query = Select::from_table("test").so_that(Column::from("jsonField").like("%foo%"));
         let (sql, params) = Postgres::build(query).unwrap();
 
         assert_eq!(expected.0, sql);
@@ -930,7 +930,7 @@ mod tests {
             vec!["%foo%"],
         );
 
-        let query = Select::from_table("test").so_that(Column::from("jsonField").not_like("foo"));
+        let query = Select::from_table("test").so_that(Column::from("jsonField").not_like("%foo%"));
         let (sql, params) = Postgres::build(query).unwrap();
 
         assert_eq!(expected.0, sql);
@@ -941,7 +941,7 @@ mod tests {
     fn test_begins_with_cast_to_string() {
         let expected = expected_values(
             r#"SELECT "test".* FROM "test" WHERE "jsonField"::text LIKE $1"#,
-            vec!["foo%"],
+            vec!["%foo"],
         );
 
         let query = Select::from_table("test").so_that(Column::from("jsonField").like("%foo"));
@@ -955,7 +955,7 @@ mod tests {
     fn test_not_begins_with_cast_to_string() {
         let expected = expected_values(
             r#"SELECT "test".* FROM "test" WHERE "jsonField"::text NOT LIKE $1"#,
-            vec!["foo%"],
+            vec!["%foo"],
         );
 
         let query = Select::from_table("test").so_that(Column::from("jsonField").not_like("%foo"));
@@ -969,7 +969,7 @@ mod tests {
     fn test_ends_with_cast_to_string() {
         let expected = expected_values(
             r#"SELECT "test".* FROM "test" WHERE "jsonField"::text LIKE $1"#,
-            vec!["%foo"],
+            vec!["foo%"],
         );
 
         let query = Select::from_table("test").so_that(Column::from("jsonField").like("foo%"));
@@ -983,7 +983,7 @@ mod tests {
     fn test_not_ends_with_cast_to_string() {
         let expected = expected_values(
             r#"SELECT "test".* FROM "test" WHERE "jsonField"::text NOT LIKE $1"#,
-            vec!["%foo"],
+            vec!["foo%"],
         );
 
         let query = Select::from_table("test").so_that(Column::from("jsonField").not_like("foo%"));

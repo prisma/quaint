@@ -332,7 +332,8 @@ async fn where_like(api: &mut dyn TestApi) -> crate::Result<()> {
 
     api.conn().insert(insert.into()).await?;
 
-    let query = Select::from_table(table).so_that("name".like("auk"));
+    let query = Select::from_table(table).so_that("name".like("%auk%"));
+    dbg!(&query);
     let res = api.conn().select(query).await?;
 
     assert_eq!(1, res.len());
@@ -353,7 +354,7 @@ async fn where_not_like(api: &mut dyn TestApi) -> crate::Result<()> {
 
     api.conn().insert(insert.into()).await?;
 
-    let query = Select::from_table(table).so_that("name".not_like("auk"));
+    let query = Select::from_table(table).so_that("name".not_like("%auk%"));
     let res = api.conn().select(query).await?;
 
     assert_eq!(1, res.len());
@@ -3279,7 +3280,9 @@ async fn order_by_nulls_first_last(api: &mut dyn TestApi) -> crate::Result<()> {
 
 #[test_each_connector]
 async fn concat_expressions(api: &mut dyn TestApi) -> crate::Result<()> {
-    let table = api.create_table("firstname string, lastname string").await?;
+    let table = api
+        .create_table("firstname varchar(255), lastname varchar(255)")
+        .await?;
 
     let insert = Insert::single_into(&table)
         .value("firstname", "John")
@@ -3292,7 +3295,6 @@ async fn concat_expressions(api: &mut dyn TestApi) -> crate::Result<()> {
     let query = Select::from_table(table).value(concat.alias("concat"));
 
     let res = api.conn().select(query).await?.into_single()?;
-
     assert_eq!(res["concat"], Value::from("John Doe"));
 
     Ok(())
@@ -3375,7 +3377,7 @@ async fn json_unquote_fun(api: &mut dyn TestApi) -> crate::Result<()> {
 
     assert_eq!(res.get(0).unwrap()["unquote"], Value::text("a"));
     assert_eq!(res.get(1).unwrap()["unquote"], Value::text("1"));
-    assert_eq!(res.get(2).unwrap()["unquote"], Value::text("{\"a\": \"b\"}"));
+    assert_eq!(res.get(2).unwrap()["unquote"], Value::text("{\"a\":\"b\"}"));
     assert_eq!(res.get(3).unwrap()["unquote"], Value::text("[\"a\", 1]"));
 
     Ok(())
