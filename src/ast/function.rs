@@ -66,6 +66,22 @@ pub struct Function<'a> {
     pub(crate) alias: Option<Cow<'a, str>>,
 }
 
+impl<'a> Function<'a> {
+    pub fn returns_json(&self) -> bool {
+        match self.typ_ {
+            #[cfg(all(feature = "json", feature = "postgresql"))]
+            FunctionType::RowToJson(_) => true,
+            #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
+            FunctionType::JsonExtract(_) => true,
+            #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
+            FunctionType::JsonExtractLastArrayElem(_) => true,
+            #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
+            FunctionType::JsonExtractFirstArrayElem(_) => true,
+            _ => false,
+        }
+    }
+}
+
 /// A database function type
 #[derive(Debug, Clone, PartialEq)]
 pub(crate) enum FunctionType<'a> {
@@ -81,6 +97,7 @@ pub(crate) enum FunctionType<'a> {
     Minimum(Minimum<'a>),
     Maximum(Maximum<'a>),
     Coalesce(Coalesce<'a>),
+    Concat(Concat<'a>),
     #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
     JsonExtract(JsonExtract<'a>),
     #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
@@ -103,7 +120,6 @@ pub(crate) enum FunctionType<'a> {
     AnyOperator(AnyOperator<'a>),
     #[cfg(feature = "postgresql")]
     AllOperator(AllOperator<'a>),
-    Concat(Concat<'a>),
 }
 
 impl<'a> Aliasable<'a> for Function<'a> {

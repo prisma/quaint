@@ -3355,17 +3355,16 @@ async fn any_in_expression(api: &mut dyn TestApi) -> crate::Result<()> {
 #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
 #[test_each_connector(tags("postgresql", "mysql"))]
 async fn json_unquote_fun(api: &mut dyn TestApi) -> crate::Result<()> {
-    let json_type = if api.connector_tag().intersects(Tags::POSTGRES) {
-        "jsonb"
-    } else {
-        "json"
+    let json_type = match api.system() {
+        "postgres" => "jsonb",
+        _ => "json",
     };
     let table = api.create_table(&format!("json {}", json_type)).await?;
 
     let insert = Insert::multi_into(&table, vec!["json"])
         .values(vec![serde_json::json!("a")])
         .values(vec![serde_json::json!(1)])
-        .values(vec![serde_json::json!({ "a": "b" })])
+        .values(vec![serde_json::json!({"a":"b"})])
         .values(vec![serde_json::json!(["a", 1])]);
 
     api.conn().insert(insert.into()).await?;
@@ -3377,8 +3376,76 @@ async fn json_unquote_fun(api: &mut dyn TestApi) -> crate::Result<()> {
 
     assert_eq!(res.get(0).unwrap()["unquote"], Value::text("a"));
     assert_eq!(res.get(1).unwrap()["unquote"], Value::text("1"));
-    assert_eq!(res.get(2).unwrap()["unquote"], Value::text("{\"a\":\"b\"}"));
-    assert_eq!(res.get(3).unwrap()["unquote"], Value::text("[\"a\", 1]"));
+    if api.connector_tag().intersects(Tags::MYSQL_MARIADB) {
+        assert_eq!(res.get(2).unwrap()["unquote"], Value::text("{\"a\":\"b\"}"));
+    } else {
+        assert_eq!(res.get(2).unwrap()["unquote"], Value::text("{\"a\": \"b\"}"));
+    }
+    if api.connector_tag().intersects(Tags::MYSQL_MARIADB) {
+        assert_eq!(res.get(3).unwrap()["unquote"], Value::text("[\"a\",1]"));
+    } else {
+        assert_eq!(res.get(3).unwrap()["unquote"], Value::text("[\"a\", 1]"));
+    }
+
+    Ok(())
+}
+
+#[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
+#[test_each_connector(tags("postgresql", "mysql"))]
+async fn json_col_equal_json_col(api: &mut dyn TestApi) -> crate::Result<()> {
+    let json_type = match api.system() {
+        "postgres" => "jsonb",
+        _ => "json",
+    };
+    let table = api
+        .create_table(&format!(
+            "{}, json_1 {}, json_2 {}",
+            api.autogen_id("id"),
+            json_type,
+            json_type
+        ))
+        .await?;
+
+    let insert = Insert::multi_into(&table, vec!["id", "json_1", "json_2"])
+        .values(vec![
+            Value::from(1),
+            serde_json::json!({"a":"b"}).into(),
+            serde_json::json!({"a":"b"}).into(),
+        ])
+        .values(vec![
+            Value::from(2),
+            serde_json::json!({"a":{"b":"c"}}).into(),
+            serde_json::json!("c").into(),
+        ]);
+
+    api.conn().insert(insert.into()).await?;
+
+    let query = Select::from_table(&table)
+        .column("id")
+        .so_that(col!("json_1").equals(col!("json_2")));
+    let mut res = api.conn().select(query.clone()).await?.into_iter();
+
+    assert_eq!(res.next().unwrap()["id"], Value::int32(1));
+    assert_eq!(res.next(), None);
+
+    let path = match api.system() {
+        #[cfg(feature = "postgresql")]
+        "postgres" => JsonPath::array(["a", "b"]),
+        #[cfg(feature = "mysql")]
+        "mysql" => JsonPath::string("$.a.b"),
+        _ => unreachable!(),
+    };
+
+    // Ensures that using JSON_EXTRACT(`json_col`) = `json_col` works to prevents regressions on MySQL flavoured connectors.
+    let expr: Expression<'_> = json_extract(col!("json_1"), path, false).into();
+    let query = Select::from_table(&table)
+        .column("id")
+        .so_that(expr.equals(col!("json_2")));
+
+    let mut res = api.conn().select(query.clone()).await?.into_iter();
+
+    assert_eq!(res.next().unwrap()["id"], Value::int32(2));
+    assert_eq!(res.next(), None);
 
     Ok(())
 }

@@ -43,7 +43,21 @@ impl<'a> Expression<'a> {
         }
     }
 
+    #[cfg(feature = "json")]
+    pub(crate) fn is_json_expr(&self) -> bool {
+        match &self.kind {
+            #[cfg(feature = "json")]
+            ExpressionKind::Parameterized(Value::Json(_)) => true,
+            #[cfg(feature = "json")]
+            ExpressionKind::Value(expr) => expr.is_json_value(),
+            #[cfg(feature = "json")]
+            ExpressionKind::Function(fun) => fun.returns_json(),
+            _ => false,
+        }
+    }
+
     #[allow(dead_code)]
+    #[cfg(feature = "json")]
     pub(crate) fn is_json_value(&self) -> bool {
         match &self.kind {
             #[cfg(feature = "json")]
@@ -67,13 +81,9 @@ impl<'a> Expression<'a> {
     }
 
     #[allow(dead_code)]
-    pub(crate) fn is_json_extract_fun(&self) -> bool {
+    pub(crate) fn is_fun_retuning_json(&self) -> bool {
         match &self.kind {
-            ExpressionKind::Function(f) => match &f.typ_ {
-                #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
-                FunctionType::JsonExtract(_) => true,
-                _ => false,
-            },
+            ExpressionKind::Function(f) => f.returns_json(),
             _ => false,
         }
     }
