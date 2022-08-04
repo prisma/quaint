@@ -890,7 +890,7 @@ mod tests {
 
     #[test]
     fn test_select_where_begins_with() {
-        let expected = expected_values("SELECT [naukio].* FROM [naukio] WHERE [word] LIKE @P1", vec!["meow%"]);
+        let expected = expected_values("SELECT [naukio].* FROM [naukio] WHERE [word] LIKE @P1", vec!["%meow"]);
 
         let query = Select::from_table("naukio").so_that("word".like("%meow"));
         let (sql, params) = Mssql::build(query).unwrap();
@@ -903,7 +903,7 @@ mod tests {
     fn test_select_where_not_begins_with() {
         let expected = expected_values(
             "SELECT [naukio].* FROM [naukio] WHERE [word] NOT LIKE @P1",
-            vec!["meow%"],
+            vec!["%meow"],
         );
 
         let query = Select::from_table("naukio").so_that("word".not_like("%meow"));
@@ -915,7 +915,7 @@ mod tests {
 
     #[test]
     fn test_select_where_ends_into() {
-        let expected = expected_values("SELECT [naukio].* FROM [naukio] WHERE [word] LIKE @P1", vec!["%meow"]);
+        let expected = expected_values("SELECT [naukio].* FROM [naukio] WHERE [word] LIKE @P1", vec!["meow%"]);
 
         let query = Select::from_table("naukio").so_that("word".like("meow%"));
         let (sql, params) = Mssql::build(query).unwrap();
@@ -928,7 +928,7 @@ mod tests {
     fn test_select_where_not_ends_into() {
         let expected = expected_values(
             "SELECT [naukio].* FROM [naukio] WHERE [word] NOT LIKE @P1",
-            vec!["%meow"],
+            vec!["meow%"],
         );
 
         let query = Select::from_table("naukio").so_that("word".not_like("meow%"));
