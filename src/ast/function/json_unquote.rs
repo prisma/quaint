@@ -2,7 +2,6 @@ use super::Function;
 use crate::ast::Expression;
 
 #[derive(Debug, Clone, PartialEq)]
-#[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
 pub struct JsonUnquote<'a> {
     pub(crate) expr: Box<Expression<'a>>,
 }
@@ -18,7 +17,6 @@ pub struct JsonUnquote<'a> {
 /// # Ok(())
 /// # }
 /// ```
-#[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
 pub fn json_unquote<'a, E>(expr: E) -> Function<'a>
 where
     E: Into<Expression<'a>>,
