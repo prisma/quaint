@@ -10,11 +10,11 @@ pub struct AnyOperator<'a> {
 /// Wraps an expression into the ALL operator.
 ///
 /// ```rust
-/// # use quaint::{ast::*, visitor::{Visitor, Postgres}};
+/// # use quaint::{ast::*, col, visitor::{Visitor, Postgres}};
 /// # fn main() -> Result<(), quaint::error::Error> {
-/// let query = Select::from_table("users").so_that(col!("name").equals(array_any(col!("list"))));
+/// let query = Select::from_table("users").so_that(col!("name").equals(any_operator(col!("list"))));
 /// let (sql, _) = Postgres::build(query)?;
-/// assert_eq!(r#"SELECT * FROM "users" WHERE "name" = ANY("list")"#, sql);
+/// assert_eq!(r#"SELECT "users".* FROM "users" WHERE "name" = ANY("list")"#, sql);
 /// # Ok(())
 /// # }
 /// ```

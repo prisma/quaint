@@ -463,8 +463,6 @@ pub trait Comparable<'a> {
     where
         T: Into<Expression<'a>>;
 
-    /// ```
-
     /// Tests if the left side is `NULL`.
     ///
     /// ```rust

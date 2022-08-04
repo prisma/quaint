@@ -63,8 +63,8 @@ impl<'a> JsonPath<'a> {
 /// let extract: Expression = json_extract(Column::from(("users", "json")), JsonPath::string("$.a.b"), false).into();
 /// let query = Select::from_table("users").so_that(extract.equals("c"));
 /// let (sql, params) = Mysql::build(query)?;
-/// assert_eq!(r#"SELECT `users`.* FROM `users` WHERE JSON_EXTRACT(`users`.`json`, ?) = ?"#, sql);
-/// assert_eq!(vec![Value::text("$.a.b"), Value::text("c")], params);
+/// assert_eq!(r#"SELECT `users`.* FROM `users` WHERE (JSON_CONTAINS(JSON_EXTRACT(`users`.`json`, ?), ?) AND JSON_CONTAINS(?, JSON_EXTRACT(`users`.`json`, ?)))"#, sql);
+/// assert_eq!(vec![Value::text("$.a.b"), Value::text("c"), Value::text("c"), Value::text("$.a.b")], params);
 /// # Ok(())
 /// # }
 /// ```

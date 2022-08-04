@@ -333,7 +333,6 @@ async fn where_like(api: &mut dyn TestApi) -> crate::Result<()> {
     api.conn().insert(insert.into()).await?;
 
     let query = Select::from_table(table).so_that("name".like("%auk%"));
-    dbg!(&query);
     let res = api.conn().select(query).await?;
 
     assert_eq!(1, res.len());
