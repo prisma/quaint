@@ -132,7 +132,7 @@ impl<'a> fmt::Display for Value<'a> {
                 }
                 write!(f, "]")
             }),
-            Value::Xml(val) => val.as_ref().map(|v| write!(f, "\"{}\"", v)),
+            Value::Xml(val) => val.as_ref().map(|v| write!(f, "{}", v)),
             #[cfg(feature = "bigdecimal")]
             Value::Numeric(val) => val.as_ref().map(|v| write!(f, "{}", v)),
             #[cfg(feature = "json")]
@@ -914,6 +914,8 @@ impl<'a> IntoIterator for Values<'a> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use bigdecimal_::num_traits::real::Real;
+    use chrono::Date;
     #[cfg(feature = "chrono")]
     use std::str::FromStr;
 
@@ -966,5 +968,41 @@ mod tests {
         let pv = Value::array(vec![1]);
         let rslt: Option<Vec<f64>> = pv.into_vec();
         assert!(rslt.is_none());
+    }
+
+    #[test]
+    #[cfg(feature = "chrono")]
+    fn display_format_for_datetime() {
+        let dt: DateTime<Utc> = DateTime::from_str("2019-07-27T05:30:30Z").expect("failed while parsing date");
+        let pv = Value::datetime(dt);
+
+        assert_eq!(format!("{}", pv), "\"2019-07-27 05:30:30 UTC\"");
+    }
+
+    #[test]
+    #[cfg(feature = "chrono")]
+    fn display_format_for_date() {
+        let date = NaiveDate::from_ymd(2022, 8, 11);
+        let pv = Value::date(date);
+
+        assert_eq!(format!("{}", pv), "\"2022-08-11\"");
+    }
+
+    #[test]
+    #[cfg(feature = "chrono")]
+    fn display_format_for_time() {
+        let time = NaiveTime::from_hms(16, 17, 00);
+        let pv = Value::time(time);
+
+        assert_eq!(format!("{}", pv), "\"16:17:00\"");
+    }
+
+    #[test]
+    #[cfg(feature = "uuid")]
+    fn display_format_for_uuid() {
+        let id = Uuid::from_str("67e5504410b1426f9247bb680e5fe0c8").unwrap();
+        let pv = Value::uuid(id);
+
+        assert_eq!(format!("{}", pv), "\"67e55044-10b1-426f-9247-bb680e5fe0c8\"");
     }
 }
