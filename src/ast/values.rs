@@ -914,8 +914,6 @@ impl<'a> IntoIterator for Values<'a> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use bigdecimal_::num_traits::real::Real;
-    use chrono::Date;
     #[cfg(feature = "chrono")]
     use std::str::FromStr;
 
