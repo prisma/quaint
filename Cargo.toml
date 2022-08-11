@@ -48,6 +48,11 @@ vendored-openssl = [
   "mysql_async/vendored-openssl"
 ]
 
+bundled-sqlite = [
+  "rusqlite/bundled",
+  "libsqlite3-sys/bundled"
+]
+
 postgresql = [
   "native-tls",
   "tokio-postgres",
@@ -117,13 +122,12 @@ branch = "vendored-openssl"
 
 [dependencies.rusqlite]
 version = "0.25"
-features = ["chrono", "bundled", "column_decltype"]
+features = ["chrono", "column_decltype"]
 optional = true
 
 [dependencies.libsqlite3-sys]
 version = "0.22"
 default-features = false
-features = ["bundled"]
 optional = true
 
 [target.'cfg(not(any(target_os = "macos", target_os = "ios")))'.dependencies.tiberius]
