@@ -132,19 +132,19 @@ impl<'a> fmt::Display for Value<'a> {
                 }
                 write!(f, "]")
             }),
-            Value::Xml(val) => val.as_ref().map(|v| write!(f, "{}", v)),
+            Value::Xml(val) => val.as_ref().map(|v| write!(f, "\"{}\"", v)),
             #[cfg(feature = "bigdecimal")]
             Value::Numeric(val) => val.as_ref().map(|v| write!(f, "{}", v)),
             #[cfg(feature = "json")]
             Value::Json(val) => val.as_ref().map(|v| write!(f, "{}", v)),
             #[cfg(feature = "uuid")]
-            Value::Uuid(val) => val.map(|v| write!(f, "{}", v)),
+            Value::Uuid(val) => val.map(|v| write!(f, "\"{}\"", v)),
             #[cfg(feature = "chrono")]
-            Value::DateTime(val) => val.map(|v| write!(f, "{}", v)),
+            Value::DateTime(val) => val.map(|v| write!(f, "\"{}\"", v)),
             #[cfg(feature = "chrono")]
-            Value::Date(val) => val.map(|v| write!(f, "{}", v)),
+            Value::Date(val) => val.map(|v| write!(f, "\"{}\"", v)),
             #[cfg(feature = "chrono")]
-            Value::Time(val) => val.map(|v| write!(f, "{}", v)),
+            Value::Time(val) => val.map(|v| write!(f, "\"{}\"", v)),
         };
 
         match res {
