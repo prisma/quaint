@@ -1,8 +1,4 @@
 mod aggregate_to_string;
-#[cfg(feature = "postgresql")]
-mod all_operator;
-#[cfg(feature = "postgresql")]
-mod any_operator;
 mod average;
 mod coalesce;
 mod concat;
@@ -28,10 +24,6 @@ mod upper;
 mod uuid;
 
 pub use aggregate_to_string::*;
-#[cfg(feature = "postgresql")]
-pub use all_operator::*;
-#[cfg(feature = "postgresql")]
-pub use any_operator::*;
 pub use average::*;
 pub use coalesce::*;
 pub use concat::*;
@@ -116,10 +108,6 @@ pub(crate) enum FunctionType<'a> {
     UuidToBinSwapped,
     #[cfg(feature = "mysql")]
     Uuid,
-    #[cfg(feature = "postgresql")]
-    AnyOperator(AnyOperator<'a>),
-    #[cfg(feature = "postgresql")]
-    AllOperator(AllOperator<'a>),
 }
 
 impl<'a> Aliasable<'a> for Function<'a> {
@@ -154,12 +142,6 @@ function!(TextSearch);
 
 #[cfg(any(feature = "postgresql", feature = "mysql"))]
 function!(TextSearchRelevance);
-
-#[cfg(feature = "postgresql")]
-function!(AnyOperator);
-
-#[cfg(feature = "postgresql")]
-function!(AllOperator);
 
 function!(
     RowNumber,

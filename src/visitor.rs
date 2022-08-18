@@ -863,6 +863,16 @@ pub trait Visitor<'a> {
             Compare::Matches(left, right) => self.visit_matches(*left, right, false),
             #[cfg(feature = "postgresql")]
             Compare::NotMatches(left, right) => self.visit_matches(*left, right, true),
+            #[cfg(feature = "postgresql")]
+            Compare::Any(left) => {
+                self.write("ANY")?;
+                self.surround_with("(", ")", |s| s.visit_expression(*left))
+            }
+            #[cfg(feature = "postgresql")]
+            Compare::All(left) => {
+                self.write("ALL")?;
+                self.surround_with("(", ")", |s| s.visit_expression(*left))
+            }
         }
     }
 
@@ -990,16 +1000,6 @@ pub trait Visitor<'a> {
             }
             #[cfg(feature = "mysql")]
             FunctionType::Uuid => self.write("uuid()")?,
-            #[cfg(feature = "postgresql")]
-            FunctionType::AnyOperator(any) => {
-                self.write("ANY")?;
-                self.surround_with("(", ")", |s| s.visit_expression(any.expr))?;
-            }
-            #[cfg(feature = "postgresql")]
-            FunctionType::AllOperator(all) => {
-                self.write("ALL")?;
-                self.surround_with("(", ")", |s| s.visit_expression(all.expr))?;
-            }
             FunctionType::Concat(concat) => {
                 self.visit_concat(concat)?;
             }

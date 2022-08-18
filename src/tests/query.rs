@@ -3309,8 +3309,8 @@ async fn all_in_expression(api: &mut dyn TestApi) -> crate::Result<()> {
 
     // SELECT 1 = ALL(SELECT "Test".id FROM "Test");
     let val: Expression<'_> = Value::from(1).into();
-    let expr: Expression<'_> = all_operator(Select::from_table(&table).value(col!("id"))).into();
-    let expr: Expression<'_> = val.equals(expr).into();
+    let expr: Expression<'_> = Select::from_table(&table).value(col!("id")).into();
+    let expr: Expression<'_> = val.equals(expr.all()).into();
     let query = Select::from_table(&table).value(expr.alias("all"));
 
     let res = api.conn().select(query.clone()).await?.into_single()?;
@@ -3335,8 +3335,8 @@ async fn any_in_expression(api: &mut dyn TestApi) -> crate::Result<()> {
 
     // SELECT 1 = ANY(SELECT "Test".id FROM "Test");
     let val: Expression<'_> = Value::from(1).into();
-    let expr: Expression<'_> = any_operator(Select::from_table(&table).value(col!("id"))).into();
-    let expr: Expression<'_> = val.equals(expr).into();
+    let expr: Expression<'_> = Select::from_table(&table).value(col!("id")).into();
+    let expr: Expression<'_> = val.equals(expr.any()).into();
     let query = Select::from_table(&table).value(expr.alias("any"));
 
     let res = api.conn().select(query.clone()).await?.into_single()?;

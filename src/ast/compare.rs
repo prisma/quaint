@@ -45,6 +45,12 @@ pub enum Compare<'a> {
     /// (NOT `left` @@ to_tsquery(`value`))
     #[cfg(feature = "postgresql")]
     NotMatches(Box<Expression<'a>>, Cow<'a, str>),
+    /// ANY (`left`)
+    #[cfg(feature = "postgresql")]
+    Any(Box<Expression<'a>>),
+    /// ALL (`left`)
+    #[cfg(feature = "postgresql")]
+    All(Box<Expression<'a>>),
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -779,6 +785,34 @@ pub trait Comparable<'a> {
     where
         T: Into<Cow<'a, str>>;
 
+    /// Matches at least one elem of a list of values.
+    ///
+    /// ```rust
+    /// # use quaint::{ast::*, col, visitor::{Visitor, Postgres}};
+    /// # fn main() -> Result<(), quaint::error::Error> {
+    /// let query = Select::from_table("users").so_that(col!("name").equals(col!("list").any()));
+    /// let (sql, _) = Postgres::build(query)?;
+    /// assert_eq!(r#"SELECT "users".* FROM "users" WHERE "name" = ANY("list")"#, sql);
+    /// # Ok(())
+    /// # }
+    /// ```
+    #[cfg(feature = "postgresql")]
+    fn any(self) -> Compare<'a>;
+
+    /// Matches all elem of a list of values.
+    ///
+    /// ```rust
+    /// # use quaint::{ast::*, col, visitor::{Visitor, Postgres}};
+    /// # fn main() -> Result<(), quaint::error::Error> {
+    /// let query = Select::from_table("users").so_that(col!("name").equals(col!("list").all()));
+    /// let (sql, _) = Postgres::build(query)?;
+    /// assert_eq!(r#"SELECT "users".* FROM "users" WHERE "name" = ALL("list")"#, sql);
+    /// # Ok(())
+    /// # }
+    /// ```
+    #[cfg(feature = "postgresql")]
+    fn all(self) -> Compare<'a>;
+
     /// Compares two expressions with a custom operator.
     ///
     /// ```rust
@@ -1051,5 +1085,21 @@ where
         let val: Expression<'a> = col.into();
 
         val.not_matches(query)
+    }
+
+    #[cfg(feature = "postgresql")]
+    fn any(self) -> Compare<'a> {
+        let col: Column<'a> = self.into();
+        let val: Expression<'a> = col.into();
+
+        val.any()
+    }
+
+    #[cfg(feature = "postgresql")]
+    fn all(self) -> Compare<'a> {
+        let col: Column<'a> = self.into();
+        let val: Expression<'a> = col.into();
+
+        val.all()
     }
 }

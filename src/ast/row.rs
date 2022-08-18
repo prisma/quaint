@@ -382,4 +382,18 @@ impl<'a> Comparable<'a> for Row<'a> {
 
         value.not_matches(query)
     }
+
+    #[cfg(feature = "postgresql")]
+    fn any(self) -> Compare<'a> {
+        let value: Expression<'a> = self.into();
+
+        value.any()
+    }
+
+    #[cfg(feature = "postgresql")]
+    fn all(self) -> Compare<'a> {
+        let value: Expression<'a> = self.into();
+
+        value.all()
+    }
 }

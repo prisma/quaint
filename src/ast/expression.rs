@@ -514,4 +514,14 @@ impl<'a> Comparable<'a> for Expression<'a> {
     {
         Compare::NotMatches(Box::new(self), query.into())
     }
+
+    #[cfg(feature = "postgresql")]
+    fn any(self) -> Compare<'a> {
+        Compare::Any(Box::new(self))
+    }
+
+    #[cfg(feature = "postgresql")]
+    fn all(self) -> Compare<'a> {
+        Compare::All(Box::new(self))
+    }
 }
