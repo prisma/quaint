@@ -52,59 +52,59 @@
 <span id="52">52</span>
 <span id="53">53</span>
 <span id="54">54</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">super</span>::Function</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::ast::Table</span>;
+</pre><pre class="rust"><code><span class="kw">use </span><span class="kw">super</span>::Function;
+<span class="kw">use </span><span class="kw">crate</span>::ast::Table;
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">PartialEq</span>)]</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;docs&quot;</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;postgresql&quot;</span>)))]</span>
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;json&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;postgresql&quot;</span>))]</span>
-<span class="doccomment">/// A representation of the `ROW_TO_JSON` function in the database.</span>
-<span class="doccomment">/// Only for `Postgresql`</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">RowToJson</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">expr</span>: <span class="ident">Table</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">pretty_print</span>: <span class="ident">bool</span>,
+<span class="attribute">#[derive(Debug, Clone, PartialEq)]
+#[cfg_attr(feature = <span class="string">&quot;docs&quot;</span>, doc(cfg(feature = <span class="string">&quot;postgresql&quot;</span>)))]
+#[cfg(all(feature = <span class="string">&quot;json&quot;</span>, feature = <span class="string">&quot;postgresql&quot;</span>))]
+</span><span class="doccomment">/// A representation of the `ROW_TO_JSON` function in the database.
+/// Only for `Postgresql`
+</span><span class="kw">pub struct </span>RowToJson&lt;<span class="lifetime">&#39;a</span>&gt; {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) expr: Table&lt;<span class="lifetime">&#39;a</span>&gt;,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) pretty_print: bool,
 }
 
-<span class="doccomment">/// Return the given table in `JSON` format.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Only available for `Postgresql`</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ```no_run</span>
-<span class="doccomment">/// # use quaint::{ast::*, prelude::Queryable, visitor::{Visitor, Postgres}, single::Quaint, val};</span>
-<span class="doccomment">/// # #[tokio::main]</span>
-<span class="doccomment">/// # async fn main() -&gt; Result&lt;(), quaint::error::Error&gt; {</span>
-<span class="doccomment">/// # let conn = Quaint::new_in_memory()?;</span>
-<span class="doccomment">/// let cte = Select::default()</span>
-<span class="doccomment">///     .value(val!(&quot;hello_world&quot;).alias(&quot;toto&quot;))</span>
-<span class="doccomment">///     .into_cte(&quot;one&quot;);</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// let select = Select::from_table(&quot;one&quot;)</span>
-<span class="doccomment">///     .value(row_to_json(&quot;one&quot;, false))</span>
-<span class="doccomment">///     .with(cte);</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// let result = conn.select(select).await?;</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// assert_eq!(</span>
-<span class="doccomment">///     Value::Json(Some(serde_json::json!({</span>
-<span class="doccomment">///         &quot;toto&quot;: &quot;hello_world&quot;</span>
-<span class="doccomment">///     }))),</span>
-<span class="doccomment">///     result.into_single().unwrap()[0]</span>
-<span class="doccomment">/// );</span>
-<span class="doccomment">/// # Ok(())</span>
-<span class="doccomment">/// # }</span>
-<span class="doccomment">/// ```</span>
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;docs&quot;</span>, <span class="ident">doc</span>(<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;postgresql&quot;</span>)))]</span>
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">all</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;json&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;postgresql&quot;</span>))]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">row_to_json</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">expr</span>: <span class="ident">T</span>, <span class="ident">pretty_print</span>: <span class="ident">bool</span>) -&gt; <span class="ident">Function</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Table</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+<span class="doccomment">/// Return the given table in `JSON` format.
+///
+/// Only available for `Postgresql`
+///
+/// ```no_run
+/// # use quaint::{ast::*, prelude::Queryable, visitor::{Visitor, Postgres}, single::Quaint, val};
+/// # #[tokio::main]
+/// # async fn main() -&gt; Result&lt;(), quaint::error::Error&gt; {
+/// # let conn = Quaint::new_in_memory()?;
+/// let cte = Select::default()
+///     .value(val!(&quot;hello_world&quot;).alias(&quot;toto&quot;))
+///     .into_cte(&quot;one&quot;);
+///
+/// let select = Select::from_table(&quot;one&quot;)
+///     .value(row_to_json(&quot;one&quot;, false))
+///     .with(cte);
+///
+/// let result = conn.select(select).await?;
+///
+/// assert_eq!(
+///     Value::Json(Some(serde_json::json!({
+///         &quot;toto&quot;: &quot;hello_world&quot;
+///     }))),
+///     result.into_single().unwrap()[0]
+/// );
+/// # Ok(())
+/// # }
+/// ```
+</span><span class="attribute">#[cfg_attr(feature = <span class="string">&quot;docs&quot;</span>, doc(cfg(feature = <span class="string">&quot;postgresql&quot;</span>)))]
+#[cfg(all(feature = <span class="string">&quot;json&quot;</span>, feature = <span class="string">&quot;postgresql&quot;</span>))]
+</span><span class="kw">pub fn </span>row_to_json&lt;<span class="lifetime">&#39;a</span>, T&gt;(expr: T, pretty_print: bool) -&gt; Function&lt;<span class="lifetime">&#39;a</span>&gt;
+<span class="kw">where
+    </span>T: Into&lt;Table&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
 {
-    <span class="kw">let</span> <span class="ident">fun</span> <span class="op">=</span> <span class="ident">RowToJson</span> {
-        <span class="ident">expr</span>: <span class="ident">expr</span>.<span class="ident">into</span>(),
-        <span class="ident">pretty_print</span>,
+    <span class="kw">let </span>fun = RowToJson {
+        expr: expr.into(),
+        pretty_print,
     };
 
-    <span class="ident">fun</span>.<span class="ident">into</span>()
+    fun.into()
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="quaint" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0-nightly (29e4a9ee0 2022-08-10)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="quaint" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0-nightly (060e47f74 2022-08-23)" ></div></body></html>

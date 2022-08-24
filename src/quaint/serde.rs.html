@@ -328,335 +328,335 @@
 <span id="328">328</span>
 <span id="329">329</span>
 <span id="330">330</span>
-</pre><pre class="rust"><code><span class="doccomment">//! Convert results from the database into any type implementing `serde::Deserialize`.</span>
+</pre><pre class="rust"><code><span class="doccomment">//! Convert results from the database into any type implementing `serde::Deserialize`.
 
-<span class="kw">use</span> <span class="ident">std::borrow::Cow</span>;
+</span><span class="kw">use </span>std::borrow::Cow;
 
-<span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">ast::Value</span>,
-    <span class="ident">connector</span>::{<span class="ident">ResultRow</span>, <span class="ident">ResultSet</span>},
-    <span class="ident">error</span>::{<span class="ident">Error</span>, <span class="ident">ErrorKind</span>},
+<span class="kw">use crate</span>::{
+    ast::Value,
+    connector::{ResultRow, ResultSet},
+    error::{Error, ErrorKind},
 };
-<span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">de::Error</span> <span class="kw">as</span> <span class="ident">SerdeError</span>, <span class="ident">de</span>::<span class="kw-2">*</span>};
+<span class="kw">use </span>serde::{de::Error <span class="kw">as </span>SerdeError, de::<span class="kw-2">*</span>};
 
-<span class="kw">impl</span> <span class="ident">ResultSet</span> {
-    <span class="doccomment">/// Takes the first row and deserializes it.</span>
-    <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::wrong_self_convention</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_first</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">DeserializeOwned</span><span class="op">&gt;</span>(<span class="self">self</span>) -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-        <span class="ident">from_row</span>(<span class="self">self</span>.<span class="ident">into_single</span>()<span class="question-mark">?</span>)
+<span class="kw">impl </span>ResultSet {
+    <span class="doccomment">/// Takes the first row and deserializes it.
+    </span><span class="attribute">#[allow(clippy::wrong_self_convention)]
+    </span><span class="kw">pub fn </span>from_first&lt;T: DeserializeOwned&gt;(<span class="self">self</span>) -&gt; <span class="kw">crate</span>::Result&lt;T&gt; {
+        from_row(<span class="self">self</span>.into_single()<span class="question-mark">?</span>)
     }
 }
 
-<span class="doccomment">/// Deserialize each row of a [`ResultSet`](../connector/struct.ResultSet.html).</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// For an example, see the docs for [`from_row`](fn.from_row.html).</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_rows</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">DeserializeOwned</span><span class="op">&gt;</span>(<span class="ident">result_set</span>: <span class="ident">ResultSet</span>) -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">deserialized_rows</span> <span class="op">=</span> <span class="ident">Vec::with_capacity</span>(<span class="ident">result_set</span>.<span class="ident">len</span>());
+<span class="doccomment">/// Deserialize each row of a [`ResultSet`](../connector/struct.ResultSet.html).
+///
+/// For an example, see the docs for [`from_row`](fn.from_row.html).
+</span><span class="kw">pub fn </span>from_rows&lt;T: DeserializeOwned&gt;(result_set: ResultSet) -&gt; <span class="kw">crate</span>::Result&lt;Vec&lt;T&gt;&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>deserialized_rows = Vec::with_capacity(result_set.len());
 
-    <span class="kw">for</span> <span class="ident">row</span> <span class="kw">in</span> <span class="ident">result_set</span> {
-        <span class="ident">deserialized_rows</span>.<span class="ident">push</span>(<span class="ident">from_row</span>(<span class="ident">row</span>)<span class="question-mark">?</span>)
+    <span class="kw">for </span>row <span class="kw">in </span>result_set {
+        deserialized_rows.push(from_row(row)<span class="question-mark">?</span>)
     }
 
-    <span class="prelude-val">Ok</span>(<span class="ident">deserialized_rows</span>)
+    <span class="prelude-val">Ok</span>(deserialized_rows)
 }
 
-<span class="doccomment">/// Deserialize a row into any type implementing `Deserialize`.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ```</span>
-<span class="doccomment">/// # use serde::Deserialize;</span>
-<span class="doccomment">/// # use quaint::ast::Value;</span>
-<span class="doccomment">/// #</span>
-<span class="doccomment">/// # #[derive(Deserialize, Debug, PartialEq)]</span>
-<span class="doccomment">/// # struct User {</span>
-<span class="doccomment">/// #     id: u64,</span>
-<span class="doccomment">/// #     name: String,</span>
-<span class="doccomment">/// # }</span>
-<span class="doccomment">/// #</span>
-<span class="doccomment">/// # fn main() -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {</span>
-<span class="doccomment">/// #</span>
-<span class="doccomment">/// #   let row = quaint::serde::make_row(vec![</span>
-<span class="doccomment">/// #       (&quot;id&quot;, Value::from(12)),</span>
-<span class="doccomment">/// #       (&quot;name&quot;, &quot;Georgina&quot;.into()),</span>
-<span class="doccomment">/// #   ]);</span>
-<span class="doccomment">/// #</span>
-<span class="doccomment">/// #</span>
-<span class="doccomment">/// let user: User = quaint::serde::from_row(row)?;</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// assert_eq!(user, User { name: &quot;Georgina&quot;.to_string(), id: 12 });</span>
-<span class="doccomment">/// # Ok(())</span>
-<span class="doccomment">/// # }</span>
-<span class="doccomment">/// ```</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_row</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">DeserializeOwned</span><span class="op">&gt;</span>(<span class="ident">row</span>: <span class="ident">ResultRow</span>) -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">deserializer</span> <span class="op">=</span> <span class="ident">RowDeserializer</span>(<span class="ident">row</span>);
+<span class="doccomment">/// Deserialize a row into any type implementing `Deserialize`.
+///
+/// ```
+/// # use serde::Deserialize;
+/// # use quaint::ast::Value;
+/// #
+/// # #[derive(Deserialize, Debug, PartialEq)]
+/// # struct User {
+/// #     id: u64,
+/// #     name: String,
+/// # }
+/// #
+/// # fn main() -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {
+/// #
+/// #   let row = quaint::serde::make_row(vec![
+/// #       (&quot;id&quot;, Value::from(12)),
+/// #       (&quot;name&quot;, &quot;Georgina&quot;.into()),
+/// #   ]);
+/// #
+/// #
+/// let user: User = quaint::serde::from_row(row)?;
+///
+/// assert_eq!(user, User { name: &quot;Georgina&quot;.to_string(), id: 12 });
+/// # Ok(())
+/// # }
+/// ```
+</span><span class="kw">pub fn </span>from_row&lt;T: DeserializeOwned&gt;(row: ResultRow) -&gt; <span class="kw">crate</span>::Result&lt;T&gt; {
+    <span class="kw">let </span>deserializer = RowDeserializer(row);
 
-    <span class="ident">T::deserialize</span>(<span class="ident">deserializer</span>).<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> <span class="ident">Error::builder</span>(<span class="ident">ErrorKind::FromRowError</span>(<span class="ident">e</span>)).<span class="ident">build</span>())
+    T::deserialize(deserializer).map_err(|e| Error::builder(ErrorKind::FromRowError(e)).build())
 }
 
-<span class="kw">type</span> <span class="ident">DeserializeError</span> <span class="op">=</span> <span class="ident">serde::de::value::Error</span>;
+<span class="kw">type </span>DeserializeError = serde::de::value::Error;
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
-<span class="kw">struct</span> <span class="ident">RowDeserializer</span>(<span class="ident">ResultRow</span>);
+<span class="attribute">#[derive(Debug)]
+</span><span class="kw">struct </span>RowDeserializer(ResultRow);
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span> <span class="ident">Deserializer</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">RowDeserializer</span> {
-    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">DeserializeError</span>;
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;de</span>&gt; Deserializer&lt;<span class="lifetime">&#39;de</span>&gt; <span class="kw">for </span>RowDeserializer {
+    <span class="kw">type </span>Error = DeserializeError;
 
-    <span class="kw">fn</span> <span class="ident">deserialize_any</span><span class="op">&lt;</span><span class="ident">V</span>: <span class="ident">Visitor</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">visitor</span>: <span class="ident">V</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">V::Value</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">ResultRow</span> { <span class="ident">columns</span>, <span class="kw-2">mut</span> <span class="ident">values</span> } <span class="op">=</span> <span class="self">self</span>.<span class="number">0</span>;
+    <span class="kw">fn </span>deserialize_any&lt;V: Visitor&lt;<span class="lifetime">&#39;de</span>&gt;&gt;(<span class="self">self</span>, visitor: V) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value, <span class="self">Self</span>::Error&gt; {
+        <span class="kw">let </span>ResultRow { columns, <span class="kw-2">mut </span>values } = <span class="self">self</span>.<span class="number">0</span>;
 
-        <span class="kw">let</span> <span class="ident">kvs</span> <span class="op">=</span> <span class="ident">columns</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>().<span class="ident">map</span>(<span class="kw">move</span> <span class="op">|</span>(<span class="ident">v</span>, <span class="ident">k</span>)<span class="op">|</span> {
-            <span class="comment">// The unwrap is safe if `columns` is correct.</span>
-            <span class="kw">let</span> <span class="ident">value</span> <span class="op">=</span> <span class="ident">values</span>.<span class="ident">get_mut</span>(<span class="ident">v</span>).<span class="ident">unwrap</span>();
-            <span class="kw">let</span> <span class="ident">taken_value</span> <span class="op">=</span> <span class="ident">std::mem::replace</span>(<span class="ident">value</span>, <span class="ident">Value::Int64</span>(<span class="prelude-val">None</span>));
-            (<span class="ident">k</span>.<span class="ident">as_str</span>(), <span class="ident">taken_value</span>)
+        <span class="kw">let </span>kvs = columns.iter().enumerate().map(<span class="kw">move </span>|(v, k)| {
+            <span class="comment">// The unwrap is safe if `columns` is correct.
+            </span><span class="kw">let </span>value = values.get_mut(v).unwrap();
+            <span class="kw">let </span>taken_value = std::mem::replace(value, Value::Int64(<span class="prelude-val">None</span>));
+            (k.as_str(), taken_value)
         });
 
-        <span class="kw">let</span> <span class="ident">deserializer</span> <span class="op">=</span> <span class="ident">serde::de::value::MapDeserializer::new</span>(<span class="ident">kvs</span>);
+        <span class="kw">let </span>deserializer = serde::de::value::MapDeserializer::new(kvs);
 
-        <span class="ident">visitor</span>.<span class="ident">visit_map</span>(<span class="ident">deserializer</span>)
+        visitor.visit_map(deserializer)
     }
 
-    <span class="macro">serde::forward_to_deserialize_any!</span> {
-        <span class="ident">bool</span> <span class="ident">i8</span> <span class="ident">i16</span> <span class="ident">i32</span> <span class="ident">i64</span> <span class="ident">u8</span> <span class="ident">u16</span> <span class="ident">u32</span> <span class="ident">u64</span> <span class="ident">f32</span> <span class="ident">f64</span> <span class="ident">char</span> <span class="ident">str</span> <span class="ident">string</span> <span class="ident">bytes</span> <span class="ident">byte_buf</span>
-        <span class="ident">option</span> <span class="ident">unit</span> <span class="ident">unit_struct</span> <span class="ident">newtype_struct</span> <span class="ident">seq</span> <span class="ident">tuple</span> <span class="ident">tuple_struct</span> <span class="ident">map</span>
-        <span class="kw">struct</span> <span class="kw">enum</span> <span class="ident">identifier</span> <span class="ident">ignored_any</span>
-    }
-}
-
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span> <span class="ident">IntoDeserializer</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span>, <span class="ident">DeserializeError</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Value</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span> {
-    <span class="kw">type</span> <span class="ident">Deserializer</span> <span class="op">=</span> <span class="ident">ValueDeserializer</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span>;
-
-    <span class="kw">fn</span> <span class="ident">into_deserializer</span>(<span class="self">self</span>) -&gt; <span class="ident"><span class="self">Self</span>::Deserializer</span> {
-        <span class="ident">ValueDeserializer</span>(<span class="self">self</span>)
+    <span class="macro">serde::forward_to_deserialize_any! </span>{
+        bool i8 i16 i32 i64 u8 u16 u32 u64 f32 f64 char str string bytes byte_buf
+        option unit unit_struct newtype_struct seq tuple tuple_struct map
+        <span class="kw">struct enum </span>identifier ignored_any
     }
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ValueDeserializer</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="ident">Value</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>);
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;de</span>&gt; IntoDeserializer&lt;<span class="lifetime">&#39;de</span>, DeserializeError&gt; <span class="kw">for </span>Value&lt;<span class="lifetime">&#39;de</span>&gt; {
+    <span class="kw">type </span>Deserializer = ValueDeserializer&lt;<span class="lifetime">&#39;de</span>&gt;;
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span> <span class="ident">Deserializer</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ValueDeserializer</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span> {
-    <span class="kw">type</span> <span class="ident">Error</span> <span class="op">=</span> <span class="ident">DeserializeError</span>;
+    <span class="kw">fn </span>into_deserializer(<span class="self">self</span>) -&gt; <span class="self">Self</span>::Deserializer {
+        ValueDeserializer(<span class="self">self</span>)
+    }
+}
 
-    <span class="kw">fn</span> <span class="ident">deserialize_any</span><span class="op">&lt;</span><span class="ident">V</span>: <span class="ident">Visitor</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">visitor</span>: <span class="ident">V</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">V::Value</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="self">self</span>.<span class="number">0</span> {
-            <span class="ident">Value::Text</span>(<span class="prelude-val">Some</span>(<span class="ident">s</span>)) =&gt; <span class="ident">visitor</span>.<span class="ident">visit_string</span>(<span class="ident">s</span>.<span class="ident">into_owned</span>()),
-            <span class="ident">Value::Text</span>(<span class="prelude-val">None</span>) =&gt; <span class="ident">visitor</span>.<span class="ident">visit_none</span>(),
-            <span class="ident">Value::Bytes</span>(<span class="prelude-val">Some</span>(<span class="ident">bytes</span>)) =&gt; <span class="ident">visitor</span>.<span class="ident">visit_bytes</span>(<span class="ident">bytes</span>.<span class="ident">as_ref</span>()),
-            <span class="ident">Value::Bytes</span>(<span class="prelude-val">None</span>) =&gt; <span class="ident">visitor</span>.<span class="ident">visit_none</span>(),
-            <span class="ident">Value::Enum</span>(<span class="prelude-val">Some</span>(<span class="ident">s</span>)) =&gt; <span class="ident">visitor</span>.<span class="ident">visit_string</span>(<span class="ident">s</span>.<span class="ident">into_owned</span>()),
-            <span class="ident">Value::Enum</span>(<span class="prelude-val">None</span>) =&gt; <span class="ident">visitor</span>.<span class="ident">visit_none</span>(),
-            <span class="ident">Value::Int32</span>(<span class="prelude-val">Some</span>(<span class="ident">i</span>)) =&gt; <span class="ident">visitor</span>.<span class="ident">visit_i32</span>(<span class="ident">i</span>),
-            <span class="ident">Value::Int32</span>(<span class="prelude-val">None</span>) =&gt; <span class="ident">visitor</span>.<span class="ident">visit_none</span>(),
-            <span class="ident">Value::Int64</span>(<span class="prelude-val">Some</span>(<span class="ident">i</span>)) =&gt; <span class="ident">visitor</span>.<span class="ident">visit_i64</span>(<span class="ident">i</span>),
-            <span class="ident">Value::Int64</span>(<span class="prelude-val">None</span>) =&gt; <span class="ident">visitor</span>.<span class="ident">visit_none</span>(),
-            <span class="ident">Value::Boolean</span>(<span class="prelude-val">Some</span>(<span class="ident">b</span>)) =&gt; <span class="ident">visitor</span>.<span class="ident">visit_bool</span>(<span class="ident">b</span>),
-            <span class="ident">Value::Boolean</span>(<span class="prelude-val">None</span>) =&gt; <span class="ident">visitor</span>.<span class="ident">visit_none</span>(),
-            <span class="ident">Value::Char</span>(<span class="prelude-val">Some</span>(<span class="ident">c</span>)) =&gt; <span class="ident">visitor</span>.<span class="ident">visit_char</span>(<span class="ident">c</span>),
-            <span class="ident">Value::Char</span>(<span class="prelude-val">None</span>) =&gt; <span class="ident">visitor</span>.<span class="ident">visit_none</span>(),
-            <span class="ident">Value::Float</span>(<span class="prelude-val">Some</span>(<span class="ident">num</span>)) =&gt; <span class="ident">visitor</span>.<span class="ident">visit_f64</span>(<span class="ident">num</span> <span class="kw">as</span> <span class="ident">f64</span>),
-            <span class="ident">Value::Float</span>(<span class="prelude-val">None</span>) =&gt; <span class="ident">visitor</span>.<span class="ident">visit_none</span>(),
-            <span class="ident">Value::Double</span>(<span class="prelude-val">Some</span>(<span class="ident">num</span>)) =&gt; <span class="ident">visitor</span>.<span class="ident">visit_f64</span>(<span class="ident">num</span>),
-            <span class="ident">Value::Double</span>(<span class="prelude-val">None</span>) =&gt; <span class="ident">visitor</span>.<span class="ident">visit_none</span>(),
+<span class="attribute">#[derive(Debug)]
+</span><span class="kw">pub struct </span>ValueDeserializer&lt;<span class="lifetime">&#39;a</span>&gt;(Value&lt;<span class="lifetime">&#39;a</span>&gt;);
 
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;bigdecimal&quot;</span>)]</span>
-            <span class="ident">Value::Numeric</span>(<span class="prelude-val">Some</span>(<span class="ident">num</span>)) =&gt; {
-                <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::bigdecimal::ToPrimitive</span>;
-                <span class="ident">visitor</span>.<span class="ident">visit_f64</span>(<span class="ident">num</span>.<span class="ident">to_f64</span>().<span class="ident">unwrap</span>())
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;de</span>&gt; Deserializer&lt;<span class="lifetime">&#39;de</span>&gt; <span class="kw">for </span>ValueDeserializer&lt;<span class="lifetime">&#39;de</span>&gt; {
+    <span class="kw">type </span>Error = DeserializeError;
+
+    <span class="kw">fn </span>deserialize_any&lt;V: Visitor&lt;<span class="lifetime">&#39;de</span>&gt;&gt;(<span class="self">self</span>, visitor: V) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value, <span class="self">Self</span>::Error&gt; {
+        <span class="kw">match </span><span class="self">self</span>.<span class="number">0 </span>{
+            Value::Text(<span class="prelude-val">Some</span>(s)) =&gt; visitor.visit_string(s.into_owned()),
+            Value::Text(<span class="prelude-val">None</span>) =&gt; visitor.visit_none(),
+            Value::Bytes(<span class="prelude-val">Some</span>(bytes)) =&gt; visitor.visit_bytes(bytes.as_ref()),
+            Value::Bytes(<span class="prelude-val">None</span>) =&gt; visitor.visit_none(),
+            Value::Enum(<span class="prelude-val">Some</span>(s)) =&gt; visitor.visit_string(s.into_owned()),
+            Value::Enum(<span class="prelude-val">None</span>) =&gt; visitor.visit_none(),
+            Value::Int32(<span class="prelude-val">Some</span>(i)) =&gt; visitor.visit_i32(i),
+            Value::Int32(<span class="prelude-val">None</span>) =&gt; visitor.visit_none(),
+            Value::Int64(<span class="prelude-val">Some</span>(i)) =&gt; visitor.visit_i64(i),
+            Value::Int64(<span class="prelude-val">None</span>) =&gt; visitor.visit_none(),
+            Value::Boolean(<span class="prelude-val">Some</span>(b)) =&gt; visitor.visit_bool(b),
+            Value::Boolean(<span class="prelude-val">None</span>) =&gt; visitor.visit_none(),
+            Value::Char(<span class="prelude-val">Some</span>(c)) =&gt; visitor.visit_char(c),
+            Value::Char(<span class="prelude-val">None</span>) =&gt; visitor.visit_none(),
+            Value::Float(<span class="prelude-val">Some</span>(num)) =&gt; visitor.visit_f64(num <span class="kw">as </span>f64),
+            Value::Float(<span class="prelude-val">None</span>) =&gt; visitor.visit_none(),
+            Value::Double(<span class="prelude-val">Some</span>(num)) =&gt; visitor.visit_f64(num),
+            Value::Double(<span class="prelude-val">None</span>) =&gt; visitor.visit_none(),
+
+            <span class="attribute">#[cfg(feature = <span class="string">&quot;bigdecimal&quot;</span>)]
+            </span>Value::Numeric(<span class="prelude-val">Some</span>(num)) =&gt; {
+                <span class="kw">use </span><span class="kw">crate</span>::bigdecimal::ToPrimitive;
+                visitor.visit_f64(num.to_f64().unwrap())
             }
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;bigdecimal&quot;</span>)]</span>
-            <span class="ident">Value::Numeric</span>(<span class="prelude-val">None</span>) =&gt; <span class="ident">visitor</span>.<span class="ident">visit_none</span>(),
+            <span class="attribute">#[cfg(feature = <span class="string">&quot;bigdecimal&quot;</span>)]
+            </span>Value::Numeric(<span class="prelude-val">None</span>) =&gt; visitor.visit_none(),
 
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;uuid&quot;</span>)]</span>
-            <span class="ident">Value::Uuid</span>(<span class="prelude-val">Some</span>(<span class="ident">uuid</span>)) =&gt; <span class="ident">visitor</span>.<span class="ident">visit_string</span>(<span class="ident">uuid</span>.<span class="ident">to_string</span>()),
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;uuid&quot;</span>)]</span>
-            <span class="ident">Value::Uuid</span>(<span class="prelude-val">None</span>) =&gt; <span class="ident">visitor</span>.<span class="ident">visit_none</span>(),
+            <span class="attribute">#[cfg(feature = <span class="string">&quot;uuid&quot;</span>)]
+            </span>Value::Uuid(<span class="prelude-val">Some</span>(uuid)) =&gt; visitor.visit_string(uuid.to_string()),
+            <span class="attribute">#[cfg(feature = <span class="string">&quot;uuid&quot;</span>)]
+            </span>Value::Uuid(<span class="prelude-val">None</span>) =&gt; visitor.visit_none(),
 
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;json&quot;</span>)]</span>
-            <span class="ident">Value::Json</span>(<span class="prelude-val">Some</span>(<span class="ident">value</span>)) =&gt; {
-                <span class="kw">let</span> <span class="ident">de</span> <span class="op">=</span> <span class="ident">value</span>.<span class="ident">into_deserializer</span>();
+            <span class="attribute">#[cfg(feature = <span class="string">&quot;json&quot;</span>)]
+            </span>Value::Json(<span class="prelude-val">Some</span>(value)) =&gt; {
+                <span class="kw">let </span>de = value.into_deserializer();
 
-                <span class="ident">de</span>.<span class="ident">deserialize_any</span>(<span class="ident">visitor</span>)
-                    .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> <span class="ident">serde::de::value::Error::custom</span>(<span class="macro">format!</span>(<span class="string">&quot;Error deserializing JSON value: {}&quot;</span>, <span class="ident">err</span>)))
+                de.deserialize_any(visitor)
+                    .map_err(|err| serde::de::value::Error::custom(<span class="macro">format!</span>(<span class="string">&quot;Error deserializing JSON value: {}&quot;</span>, err)))
             }
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;json&quot;</span>)]</span>
-            <span class="ident">Value::Json</span>(<span class="prelude-val">None</span>) =&gt; <span class="ident">visitor</span>.<span class="ident">visit_none</span>(),
+            <span class="attribute">#[cfg(feature = <span class="string">&quot;json&quot;</span>)]
+            </span>Value::Json(<span class="prelude-val">None</span>) =&gt; visitor.visit_none(),
 
-            <span class="ident">Value::Xml</span>(<span class="prelude-val">Some</span>(<span class="ident">s</span>)) =&gt; <span class="ident">visitor</span>.<span class="ident">visit_string</span>(<span class="ident">s</span>.<span class="ident">into_owned</span>()),
-            <span class="ident">Value::Xml</span>(<span class="prelude-val">None</span>) =&gt; <span class="ident">visitor</span>.<span class="ident">visit_none</span>(),
+            Value::Xml(<span class="prelude-val">Some</span>(s)) =&gt; visitor.visit_string(s.into_owned()),
+            Value::Xml(<span class="prelude-val">None</span>) =&gt; visitor.visit_none(),
 
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;chrono&quot;</span>)]</span>
-            <span class="ident">Value::DateTime</span>(<span class="prelude-val">Some</span>(<span class="ident">dt</span>)) =&gt; <span class="ident">visitor</span>.<span class="ident">visit_string</span>(<span class="ident">dt</span>.<span class="ident">to_rfc3339</span>()),
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;chrono&quot;</span>)]</span>
-            <span class="ident">Value::DateTime</span>(<span class="prelude-val">None</span>) =&gt; <span class="ident">visitor</span>.<span class="ident">visit_none</span>(),
+            <span class="attribute">#[cfg(feature = <span class="string">&quot;chrono&quot;</span>)]
+            </span>Value::DateTime(<span class="prelude-val">Some</span>(dt)) =&gt; visitor.visit_string(dt.to_rfc3339()),
+            <span class="attribute">#[cfg(feature = <span class="string">&quot;chrono&quot;</span>)]
+            </span>Value::DateTime(<span class="prelude-val">None</span>) =&gt; visitor.visit_none(),
 
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;chrono&quot;</span>)]</span>
-            <span class="ident">Value::Date</span>(<span class="prelude-val">Some</span>(<span class="ident">d</span>)) =&gt; <span class="ident">visitor</span>.<span class="ident">visit_string</span>(<span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">d</span>)),
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;chrono&quot;</span>)]</span>
-            <span class="ident">Value::Date</span>(<span class="prelude-val">None</span>) =&gt; <span class="ident">visitor</span>.<span class="ident">visit_none</span>(),
+            <span class="attribute">#[cfg(feature = <span class="string">&quot;chrono&quot;</span>)]
+            </span>Value::Date(<span class="prelude-val">Some</span>(d)) =&gt; visitor.visit_string(<span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, d)),
+            <span class="attribute">#[cfg(feature = <span class="string">&quot;chrono&quot;</span>)]
+            </span>Value::Date(<span class="prelude-val">None</span>) =&gt; visitor.visit_none(),
 
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;chrono&quot;</span>)]</span>
-            <span class="ident">Value::Time</span>(<span class="prelude-val">Some</span>(<span class="ident">t</span>)) =&gt; <span class="ident">visitor</span>.<span class="ident">visit_string</span>(<span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">t</span>)),
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;chrono&quot;</span>)]</span>
-            <span class="ident">Value::Time</span>(<span class="prelude-val">None</span>) =&gt; <span class="ident">visitor</span>.<span class="ident">visit_none</span>(),
+            <span class="attribute">#[cfg(feature = <span class="string">&quot;chrono&quot;</span>)]
+            </span>Value::Time(<span class="prelude-val">Some</span>(t)) =&gt; visitor.visit_string(<span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, t)),
+            <span class="attribute">#[cfg(feature = <span class="string">&quot;chrono&quot;</span>)]
+            </span>Value::Time(<span class="prelude-val">None</span>) =&gt; visitor.visit_none(),
 
-            <span class="ident">Value::Array</span>(<span class="prelude-val">Some</span>(<span class="ident">values</span>)) =&gt; {
-                <span class="kw">let</span> <span class="ident">deserializer</span> <span class="op">=</span> <span class="ident">serde::de::value::SeqDeserializer::new</span>(<span class="ident">values</span>.<span class="ident">into_iter</span>());
-                <span class="ident">visitor</span>.<span class="ident">visit_seq</span>(<span class="ident">deserializer</span>)
+            Value::Array(<span class="prelude-val">Some</span>(values)) =&gt; {
+                <span class="kw">let </span>deserializer = serde::de::value::SeqDeserializer::new(values.into_iter());
+                visitor.visit_seq(deserializer)
             }
-            <span class="ident">Value::Array</span>(<span class="prelude-val">None</span>) =&gt; <span class="ident">visitor</span>.<span class="ident">visit_none</span>(),
+            Value::Array(<span class="prelude-val">None</span>) =&gt; visitor.visit_none(),
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">deserialize_option</span><span class="op">&lt;</span><span class="ident">V</span>: <span class="ident">Visitor</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">visitor</span>: <span class="ident">V</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">V::Value</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="number">0</span>.<span class="ident">is_null</span>() {
-            <span class="ident">visitor</span>.<span class="ident">visit_none</span>()
-        } <span class="kw">else</span> {
-            <span class="ident">visitor</span>.<span class="ident">visit_some</span>(<span class="self">self</span>)
+    <span class="kw">fn </span>deserialize_option&lt;V: Visitor&lt;<span class="lifetime">&#39;de</span>&gt;&gt;(<span class="self">self</span>, visitor: V) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value, <span class="self">Self</span>::Error&gt; {
+        <span class="kw">if </span><span class="self">self</span>.<span class="number">0</span>.is_null() {
+            visitor.visit_none()
+        } <span class="kw">else </span>{
+            visitor.visit_some(<span class="self">self</span>)
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">deserialize_bytes</span><span class="op">&lt;</span><span class="ident">V</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">visitor</span>: <span class="ident">V</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">V::Value</span>, <span class="ident"><span class="self">Self</span>::Error</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">V</span>: <span class="ident">Visitor</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span>,
+    <span class="kw">fn </span>deserialize_bytes&lt;V&gt;(<span class="self">self</span>, visitor: V) -&gt; <span class="prelude-ty">Result</span>&lt;V::Value, <span class="self">Self</span>::Error&gt;
+    <span class="kw">where
+        </span>V: Visitor&lt;<span class="lifetime">&#39;de</span>&gt;,
     {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Value::Bytes</span>(<span class="prelude-val">Some</span>(<span class="ident">bytes</span>)) <span class="op">=</span> <span class="self">self</span>.<span class="number">0</span> {
-            <span class="kw">match</span> <span class="ident">bytes</span> {
-                <span class="ident">Cow::Borrowed</span>(<span class="ident">bytes</span>) =&gt; <span class="ident">visitor</span>.<span class="ident">visit_borrowed_bytes</span>(<span class="ident">bytes</span>),
-                <span class="ident">Cow::Owned</span>(<span class="ident">bytes</span>) =&gt; <span class="ident">visitor</span>.<span class="ident">visit_byte_buf</span>(<span class="ident">bytes</span>),
+        <span class="kw">if let </span>Value::Bytes(<span class="prelude-val">Some</span>(bytes)) = <span class="self">self</span>.<span class="number">0 </span>{
+            <span class="kw">match </span>bytes {
+                Cow::Borrowed(bytes) =&gt; visitor.visit_borrowed_bytes(bytes),
+                Cow::Owned(bytes) =&gt; visitor.visit_byte_buf(bytes),
             }
-        } <span class="kw">else</span> {
-            <span class="prelude-val">Err</span>(<span class="ident">DeserializeError::invalid_type</span>(
-                <span class="ident">Unexpected::Other</span>(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;{:?}&quot;</span>, <span class="self">self</span>.<span class="number">0</span>)),
-                <span class="kw-2">&amp;</span><span class="ident">visitor</span>,
+        } <span class="kw">else </span>{
+            <span class="prelude-val">Err</span>(DeserializeError::invalid_type(
+                Unexpected::Other(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;{:?}&quot;</span>, <span class="self">self</span>.<span class="number">0</span>)),
+                <span class="kw-2">&amp;</span>visitor,
             ))
         }
     }
 
-    <span class="macro">serde::forward_to_deserialize_any!</span> {
-        <span class="ident">bool</span> <span class="ident">i8</span> <span class="ident">i16</span> <span class="ident">i32</span> <span class="ident">i64</span> <span class="ident">u8</span> <span class="ident">u16</span> <span class="ident">u32</span> <span class="ident">u64</span> <span class="ident">f32</span> <span class="ident">f64</span> <span class="ident">char</span> <span class="ident">str</span> <span class="ident">byte_buf</span>
-        <span class="ident">string</span> <span class="ident">unit</span> <span class="ident">unit_struct</span> <span class="ident">newtype_struct</span> <span class="ident">seq</span> <span class="ident">tuple</span> <span class="ident">tuple_struct</span> <span class="ident">map</span>
-        <span class="kw">struct</span> <span class="kw">enum</span> <span class="ident">identifier</span> <span class="ident">ignored_any</span>
+    <span class="macro">serde::forward_to_deserialize_any! </span>{
+        bool i8 i16 i32 i64 u8 u16 u32 u64 f32 f64 char str byte_buf
+        string unit unit_struct newtype_struct seq tuple tuple_struct map
+        <span class="kw">struct enum </span>identifier ignored_any
     }
 }
 
-<span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">make_row</span>(<span class="ident">cols</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>, <span class="ident">Value</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span><span class="op">&gt;</span>)<span class="op">&gt;</span>) -&gt; <span class="ident">ResultRow</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">columns</span> <span class="op">=</span> <span class="ident">Vec::with_capacity</span>(<span class="ident">cols</span>.<span class="ident">len</span>());
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">values</span> <span class="op">=</span> <span class="ident">Vec::with_capacity</span>(<span class="ident">cols</span>.<span class="ident">len</span>());
+<span class="attribute">#[doc(hidden)]
+</span><span class="kw">pub fn </span>make_row(cols: Vec&lt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str, Value&lt;<span class="lifetime">&#39;static</span>&gt;)&gt;) -&gt; ResultRow {
+    <span class="kw">let </span><span class="kw-2">mut </span>columns = Vec::with_capacity(cols.len());
+    <span class="kw">let </span><span class="kw-2">mut </span>values = Vec::with_capacity(cols.len());
 
-    <span class="kw">for</span> (<span class="ident">name</span>, <span class="ident">value</span>) <span class="kw">in</span> <span class="ident">cols</span>.<span class="ident">into_iter</span>() {
-        <span class="ident">columns</span>.<span class="ident">push</span>(<span class="ident">name</span>.<span class="ident">to_owned</span>());
-        <span class="ident">values</span>.<span class="ident">push</span>(<span class="ident">value</span>);
+    <span class="kw">for </span>(name, value) <span class="kw">in </span>cols.into_iter() {
+        columns.push(name.to_owned());
+        values.push(value);
     }
 
-    <span class="ident">ResultRow</span> {
-        <span class="ident">values</span>,
-        <span class="ident">columns</span>: <span class="ident">std::sync::Arc::new</span>(<span class="ident">columns</span>),
+    ResultRow {
+        values,
+        columns: std::sync::Arc::new(columns),
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
-    <span class="kw">use</span> <span class="ident">chrono</span>::{<span class="ident">DateTime</span>, <span class="ident">Utc</span>};
-    <span class="kw">use</span> <span class="ident">serde::Deserialize</span>;
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">mod </span>tests {
+    <span class="kw">use super</span>::<span class="kw-2">*</span>;
+    <span class="kw">use </span>chrono::{DateTime, Utc};
+    <span class="kw">use </span>serde::Deserialize;
 
-    <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Deserialize</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>)]</span>
-    <span class="kw">struct</span> <span class="ident">User</span> {
-        <span class="ident">id</span>: <span class="ident">u64</span>,
-        <span class="ident">name</span>: <span class="ident">String</span>,
-        <span class="ident">bio</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
+    <span class="attribute">#[derive(Deserialize, Debug, PartialEq)]
+    </span><span class="kw">struct </span>User {
+        id: u64,
+        name: String,
+        bio: <span class="prelude-ty">Option</span>&lt;String&gt;,
     }
 
-    <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Debug</span>)]</span>
-    <span class="kw">struct</span> <span class="ident">Cat</span> {
-        <span class="ident">age</span>: <span class="ident">f32</span>,
-        <span class="ident">birthday</span>: <span class="ident">DateTime</span><span class="op">&lt;</span><span class="ident">Utc</span><span class="op">&gt;</span>,
-        <span class="ident">human</span>: <span class="ident">User</span>,
+    <span class="attribute">#[derive(Deserialize, PartialEq, Debug)]
+    </span><span class="kw">struct </span>Cat {
+        age: f32,
+        birthday: DateTime&lt;Utc&gt;,
+        human: User,
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">deserialize_user</span>() {
-        <span class="kw">let</span> <span class="ident">row</span> <span class="op">=</span> <span class="ident">make_row</span>(<span class="macro">vec!</span>[(<span class="string">&quot;id&quot;</span>, <span class="ident">Value::integer</span>(<span class="number">12</span>)), (<span class="string">&quot;name&quot;</span>, <span class="string">&quot;Georgina&quot;</span>.<span class="ident">into</span>())]);
-        <span class="kw">let</span> <span class="ident">user</span>: <span class="ident">User</span> <span class="op">=</span> <span class="ident">from_row</span>(<span class="ident">row</span>).<span class="ident">unwrap</span>();
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>deserialize_user() {
+        <span class="kw">let </span>row = make_row(<span class="macro">vec!</span>[(<span class="string">&quot;id&quot;</span>, Value::integer(<span class="number">12</span>)), (<span class="string">&quot;name&quot;</span>, <span class="string">&quot;Georgina&quot;</span>.into())]);
+        <span class="kw">let </span>user: User = from_row(row).unwrap();
 
         <span class="macro">assert_eq!</span>(
-            <span class="ident">user</span>,
-            <span class="ident">User</span> {
-                <span class="ident">id</span>: <span class="number">12</span>,
-                <span class="ident">name</span>: <span class="string">&quot;Georgina&quot;</span>.<span class="ident">to_owned</span>(),
-                <span class="ident">bio</span>: <span class="prelude-val">None</span>,
+            user,
+            User {
+                id: <span class="number">12</span>,
+                name: <span class="string">&quot;Georgina&quot;</span>.to_owned(),
+                bio: <span class="prelude-val">None</span>,
             }
         )
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">from_rows_works</span>() {
-        <span class="kw">let</span> <span class="ident">first_row</span> <span class="op">=</span> <span class="ident">make_row</span>(<span class="macro">vec!</span>[
-            (<span class="string">&quot;id&quot;</span>, <span class="ident">Value::integer</span>(<span class="number">12</span>)),
-            (<span class="string">&quot;name&quot;</span>, <span class="string">&quot;Georgina&quot;</span>.<span class="ident">into</span>()),
-            (<span class="string">&quot;bio&quot;</span>, <span class="ident">Value::Text</span>(<span class="prelude-val">None</span>)),
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>from_rows_works() {
+        <span class="kw">let </span>first_row = make_row(<span class="macro">vec!</span>[
+            (<span class="string">&quot;id&quot;</span>, Value::integer(<span class="number">12</span>)),
+            (<span class="string">&quot;name&quot;</span>, <span class="string">&quot;Georgina&quot;</span>.into()),
+            (<span class="string">&quot;bio&quot;</span>, Value::Text(<span class="prelude-val">None</span>)),
         ]);
-        <span class="kw">let</span> <span class="ident">second_row</span> <span class="op">=</span> <span class="ident">make_row</span>(<span class="macro">vec!</span>[
-            (<span class="string">&quot;id&quot;</span>, <span class="number">33</span>.<span class="ident">into</span>()),
-            (<span class="string">&quot;name&quot;</span>, <span class="string">&quot;Philbert&quot;</span>.<span class="ident">into</span>()),
+        <span class="kw">let </span>second_row = make_row(<span class="macro">vec!</span>[
+            (<span class="string">&quot;id&quot;</span>, <span class="number">33</span>.into()),
+            (<span class="string">&quot;name&quot;</span>, <span class="string">&quot;Philbert&quot;</span>.into()),
             (
                 <span class="string">&quot;bio&quot;</span>,
-                <span class="string">&quot;Invented sliced bread on a meditation retreat in the Himalayas.&quot;</span>.<span class="ident">into</span>(),
+                <span class="string">&quot;Invented sliced bread on a meditation retreat in the Himalayas.&quot;</span>.into(),
             ),
         ]);
 
-        <span class="kw">let</span> <span class="ident">result_set</span> <span class="op">=</span> <span class="ident">ResultSet</span> {
-            <span class="ident">columns</span>: <span class="ident">std::sync::Arc::clone</span>(<span class="kw-2">&amp;</span><span class="ident">first_row</span>.<span class="ident">columns</span>),
-            <span class="ident">rows</span>: <span class="macro">vec!</span>[<span class="ident">first_row</span>.<span class="ident">values</span>, <span class="ident">second_row</span>.<span class="ident">values</span>],
-            <span class="ident">last_insert_id</span>: <span class="prelude-val">None</span>,
+        <span class="kw">let </span>result_set = ResultSet {
+            columns: std::sync::Arc::clone(<span class="kw-2">&amp;</span>first_row.columns),
+            rows: <span class="macro">vec!</span>[first_row.values, second_row.values],
+            last_insert_id: <span class="prelude-val">None</span>,
         };
 
-        <span class="kw">let</span> <span class="ident">users</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">User</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">from_rows</span>(<span class="ident">result_set</span>).<span class="ident">unwrap</span>();
+        <span class="kw">let </span>users: Vec&lt;User&gt; = from_rows(result_set).unwrap();
 
         <span class="macro">assert_eq!</span>(
-            <span class="ident">users</span>,
+            users,
             <span class="kw-2">&amp;</span>[
-                <span class="ident">User</span> {
-                    <span class="ident">id</span>: <span class="number">12</span>,
-                    <span class="ident">name</span>: <span class="string">&quot;Georgina&quot;</span>.<span class="ident">to_owned</span>(),
-                    <span class="ident">bio</span>: <span class="prelude-val">None</span>,
+                User {
+                    id: <span class="number">12</span>,
+                    name: <span class="string">&quot;Georgina&quot;</span>.to_owned(),
+                    bio: <span class="prelude-val">None</span>,
                 },
-                <span class="ident">User</span> {
-                    <span class="ident">id</span>: <span class="number">33</span>,
-                    <span class="ident">name</span>: <span class="string">&quot;Philbert&quot;</span>.<span class="ident">to_owned</span>(),
-                    <span class="ident">bio</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;Invented sliced bread on a meditation retreat in the Himalayas.&quot;</span>.<span class="ident">into</span>()),
+                User {
+                    id: <span class="number">33</span>,
+                    name: <span class="string">&quot;Philbert&quot;</span>.to_owned(),
+                    bio: <span class="prelude-val">Some</span>(<span class="string">&quot;Invented sliced bread on a meditation retreat in the Himalayas.&quot;</span>.into()),
                 }
             ]
         );
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">deserialize_cat</span>() {
-        <span class="kw">let</span> <span class="ident">row</span> <span class="op">=</span> <span class="ident">make_row</span>(<span class="macro">vec!</span>[
-            (<span class="string">&quot;age&quot;</span>, <span class="ident">Value::numeric</span>(<span class="string">&quot;18.800001&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>())),
-            (<span class="string">&quot;birthday&quot;</span>, <span class="ident">Value::datetime</span>(<span class="string">&quot;2019-08-01T20:00:00Z&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>())),
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>deserialize_cat() {
+        <span class="kw">let </span>row = make_row(<span class="macro">vec!</span>[
+            (<span class="string">&quot;age&quot;</span>, Value::numeric(<span class="string">&quot;18.800001&quot;</span>.parse().unwrap())),
+            (<span class="string">&quot;birthday&quot;</span>, Value::datetime(<span class="string">&quot;2019-08-01T20:00:00Z&quot;</span>.parse().unwrap())),
             (
                 <span class="string">&quot;human&quot;</span>,
-                <span class="ident">Value::json</span>(<span class="macro">serde_json::json!</span>({
+                Value::json(<span class="macro">serde_json::json!</span>({
                     <span class="string">&quot;id&quot;</span>: <span class="number">19</span>,
-                    <span class="string">&quot;name&quot;</span>: <span class="string">&quot;Georgina&quot;</span>
-                })),
+                    <span class="string">&quot;name&quot;</span>: <span class="string">&quot;Georgina&quot;
+                </span>})),
             ),
         ]);
-        <span class="kw">let</span> <span class="ident">cat</span>: <span class="ident">Cat</span> <span class="op">=</span> <span class="ident">from_row</span>(<span class="ident">row</span>).<span class="ident">unwrap</span>();
+        <span class="kw">let </span>cat: Cat = from_row(row).unwrap();
 
-        <span class="kw">let</span> <span class="ident">expected_cat</span> <span class="op">=</span> <span class="ident">Cat</span> {
-            <span class="ident">age</span>: <span class="number">18.800001</span>,
-            <span class="ident">birthday</span>: <span class="string">&quot;2019-08-01T20:00:00Z&quot;</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>(),
-            <span class="ident">human</span>: <span class="ident">User</span> {
-                <span class="ident">name</span>: <span class="string">&quot;Georgina&quot;</span>.<span class="ident">into</span>(),
-                <span class="ident">id</span>: <span class="number">19</span>,
-                <span class="ident">bio</span>: <span class="prelude-val">None</span>,
+        <span class="kw">let </span>expected_cat = Cat {
+            age: <span class="number">18.800001</span>,
+            birthday: <span class="string">&quot;2019-08-01T20:00:00Z&quot;</span>.parse().unwrap(),
+            human: User {
+                name: <span class="string">&quot;Georgina&quot;</span>.into(),
+                id: <span class="number">19</span>,
+                bio: <span class="prelude-val">None</span>,
             },
         };
 
-        <span class="macro">assert_eq!</span>(<span class="ident">cat</span>, <span class="ident">expected_cat</span>);
+        <span class="macro">assert_eq!</span>(cat, expected_cat);
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="quaint" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0-nightly (29e4a9ee0 2022-08-10)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="quaint" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0-nightly (060e47f74 2022-08-23)" ></div></body></html>

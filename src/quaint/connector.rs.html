@@ -42,49 +42,49 @@
 <span id="42">42</span>
 <span id="43">43</span>
 <span id="44">44</span>
-</pre><pre class="rust"><code><span class="doccomment">//! A set of abstractions for database connections.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! Provides traits for database querying and executing, and for spawning</span>
-<span class="doccomment">//! transactions.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! Connectors for [MySQL](struct.Mysql.html),</span>
-<span class="doccomment">//! [PostgreSQL](struct.PostgreSql.html), [SQLite](struct.Sqlite.html) and [SQL</span>
-<span class="doccomment">//! Server](struct.Mssql.html) connect to the corresponding databases and</span>
-<span class="doccomment">//! implement the [Queryable](trait.Queryable.html) trait for generalized</span>
-<span class="doccomment">//! querying interface.</span>
+</pre><pre class="rust"><code><span class="doccomment">//! A set of abstractions for database connections.
+//!
+//! Provides traits for database querying and executing, and for spawning
+//! transactions.
+//!
+//! Connectors for [MySQL](struct.Mysql.html),
+//! [PostgreSQL](struct.PostgreSql.html), [SQLite](struct.Sqlite.html) and [SQL
+//! Server](struct.Mssql.html) connect to the corresponding databases and
+//! implement the [Queryable](trait.Queryable.html) trait for generalized
+//! querying interface.
 
-<span class="kw">mod</span> <span class="ident">connection_info</span>;
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">mod</span> <span class="ident">metrics</span>;
-<span class="kw">mod</span> <span class="ident">queryable</span>;
-<span class="kw">mod</span> <span class="ident">result_set</span>;
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mssql&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;postgresql&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mysql&quot;</span>))]</span>
-<span class="kw">mod</span> <span class="ident">timeout</span>;
-<span class="kw">mod</span> <span class="ident">transaction</span>;
-<span class="kw">mod</span> <span class="ident">type_identifier</span>;
+</span><span class="kw">mod </span>connection_info;
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">mod </span>metrics;
+<span class="kw">mod </span>queryable;
+<span class="kw">mod </span>result_set;
+<span class="attribute">#[cfg(any(feature = <span class="string">&quot;mssql&quot;</span>, feature = <span class="string">&quot;postgresql&quot;</span>, feature = <span class="string">&quot;mysql&quot;</span>))]
+</span><span class="kw">mod </span>timeout;
+<span class="kw">mod </span>transaction;
+<span class="kw">mod </span>type_identifier;
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mssql&quot;</span>)]</span>
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">mod</span> <span class="ident">mssql</span>;
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mysql&quot;</span>)]</span>
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">mod</span> <span class="ident">mysql</span>;
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;postgresql&quot;</span>)]</span>
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">mod</span> <span class="ident">postgres</span>;
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sqlite&quot;</span>)]</span>
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">mod</span> <span class="ident">sqlite</span>;
+<span class="attribute">#[cfg(feature = <span class="string">&quot;mssql&quot;</span>)]
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">mod </span>mssql;
+<span class="attribute">#[cfg(feature = <span class="string">&quot;mysql&quot;</span>)]
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">mod </span>mysql;
+<span class="attribute">#[cfg(feature = <span class="string">&quot;postgresql&quot;</span>)]
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">mod </span>postgres;
+<span class="attribute">#[cfg(feature = <span class="string">&quot;sqlite&quot;</span>)]
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">mod </span>sqlite;
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mysql&quot;</span>)]</span>
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::mysql</span>::<span class="kw-2">*</span>;
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;postgresql&quot;</span>)]</span>
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::postgres</span>::<span class="kw-2">*</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::result_set</span>::<span class="kw-2">*</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">connection_info</span>::<span class="kw-2">*</span>;
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mssql&quot;</span>)]</span>
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">mssql</span>::<span class="kw-2">*</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">queryable</span>::<span class="kw-2">*</span>;
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sqlite&quot;</span>)]</span>
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">sqlite</span>::<span class="kw-2">*</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">transaction</span>::<span class="kw-2">*</span>;
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;sqlite&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mysql&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;postgresql&quot;</span>))]</span>
-<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">unused_imports</span>)]</span>
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use</span> <span class="ident">type_identifier</span>::<span class="kw-2">*</span>;
+<span class="attribute">#[cfg(feature = <span class="string">&quot;mysql&quot;</span>)]
+</span><span class="kw">pub use </span><span class="self">self</span>::mysql::<span class="kw-2">*</span>;
+<span class="attribute">#[cfg(feature = <span class="string">&quot;postgresql&quot;</span>)]
+</span><span class="kw">pub use </span><span class="self">self</span>::postgres::<span class="kw-2">*</span>;
+<span class="kw">pub use </span><span class="self">self</span>::result_set::<span class="kw-2">*</span>;
+<span class="kw">pub use </span>connection_info::<span class="kw-2">*</span>;
+<span class="attribute">#[cfg(feature = <span class="string">&quot;mssql&quot;</span>)]
+</span><span class="kw">pub use </span>mssql::<span class="kw-2">*</span>;
+<span class="kw">pub use </span>queryable::<span class="kw-2">*</span>;
+<span class="attribute">#[cfg(feature = <span class="string">&quot;sqlite&quot;</span>)]
+</span><span class="kw">pub use </span>sqlite::<span class="kw-2">*</span>;
+<span class="kw">pub use </span>transaction::<span class="kw-2">*</span>;
+<span class="attribute">#[cfg(any(feature = <span class="string">&quot;sqlite&quot;</span>, feature = <span class="string">&quot;mysql&quot;</span>, feature = <span class="string">&quot;postgresql&quot;</span>))]
+#[allow(unused_imports)]
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use </span>type_identifier::<span class="kw-2">*</span>;
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="quaint" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0-nightly (29e4a9ee0 2022-08-10)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="quaint" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0-nightly (060e47f74 2022-08-23)" ></div></body></html>

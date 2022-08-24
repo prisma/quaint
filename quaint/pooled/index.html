@@ -115,23 +115,23 @@ must be used in every query to be effective.</li>
 </ul>
 <p>To create a new <code>Quaint</code> pool connecting to a PostgreSQL database:</p>
 
-<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use</span> <span class="ident">quaint</span>::{<span class="ident">prelude</span>::<span class="kw-2">*</span>, <span class="ident">pooled::Quaint</span>};
-<span class="kw">use</span> <span class="ident">std::time::Duration</span>;
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>quaint::{prelude::<span class="kw-2">*</span>, pooled::Quaint};
+<span class="kw">use </span>std::time::Duration;
 
-<span class="attribute">#[<span class="ident">tokio::main</span>]</span>
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">main</span>() -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">quaint::error::Error</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">builder</span> <span class="op">=</span> <span class="ident">Quaint::builder</span>(<span class="string">&quot;postgresql://postgres:password@localhost:5432/postgres&quot;</span>)<span class="question-mark">?</span>;
-    <span class="ident">builder</span>.<span class="ident">connection_limit</span>(<span class="number">5</span>);
-    <span class="ident">builder</span>.<span class="ident">max_idle_lifetime</span>(<span class="ident">Duration::from_secs</span>(<span class="number">300</span>));
-    <span class="ident">builder</span>.<span class="ident">test_on_check_out</span>(<span class="bool-val">true</span>);
+<span class="attribute">#[tokio::main]
+</span><span class="kw">async fn </span>main() -&gt; <span class="prelude-ty">Result</span>&lt;(), quaint::error::Error&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>builder = Quaint::builder(<span class="string">&quot;postgresql://postgres:password@localhost:5432/postgres&quot;</span>)<span class="question-mark">?</span>;
+    builder.connection_limit(<span class="number">5</span>);
+    builder.max_idle_lifetime(Duration::from_secs(<span class="number">300</span>));
+    builder.test_on_check_out(<span class="bool-val">true</span>);
 
-    <span class="kw">let</span> <span class="ident">pool</span> <span class="op">=</span> <span class="ident">builder</span>.<span class="ident">build</span>();
-    <span class="kw">let</span> <span class="ident">conn</span> <span class="op">=</span> <span class="ident">pool</span>.<span class="ident">check_out</span>().<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">conn</span>.<span class="ident">select</span>(<span class="ident">Select::default</span>().<span class="ident">value</span>(<span class="number">1</span>)).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>pool = builder.build();
+    <span class="kw">let </span>conn = pool.check_out().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>result = conn.select(Select::default().value(<span class="number">1</span>)).<span class="kw">await</span><span class="question-mark">?</span>;
 
     <span class="macro">assert_eq!</span>(
         <span class="prelude-val">Some</span>(<span class="number">1</span>),
-        <span class="ident">result</span>.<span class="ident">into_iter</span>().<span class="ident">nth</span>(<span class="number">0</span>).<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">row</span><span class="op">|</span> <span class="ident">row</span>[<span class="number">0</span>].<span class="ident">as_i64</span>()),
+        result.into_iter().nth(<span class="number">0</span>).and_then(|row| row[<span class="number">0</span>].as_i64()),
     );
 
     <span class="prelude-val">Ok</span>(())
@@ -141,4 +141,4 @@ must be used in every query to be effective.</li>
 <a href="connector/trait.Queryable.html">Queryable</a>.</p>
 </div></div><div class="item-row"><div class="item-left module-item"><a class="struct" href="struct.Quaint.html" title="quaint::pooled::Quaint struct">Quaint</a></div><div class="item-right docblock-short"><p>The main entry point and an abstraction over database connections and
 connection handling.</p>
-</div></div></div></section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="quaint" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0-nightly (29e4a9ee0 2022-08-10)" ></div></body></html>
+</div></div></div></section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="quaint" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0-nightly (060e47f74 2022-08-23)" ></div></body></html>

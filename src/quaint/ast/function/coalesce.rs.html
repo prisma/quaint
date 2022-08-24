@@ -34,41 +34,41 @@
 <span id="34">34</span>
 <span id="35">35</span>
 <span id="36">36</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">super</span>::Function</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::ast::Expression</span>;
+</pre><pre class="rust"><code><span class="kw">use </span><span class="kw">super</span>::Function;
+<span class="kw">use </span><span class="kw">crate</span>::ast::Expression;
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">PartialEq</span>)]</span>
-<span class="doccomment">/// Returns the first non-null expression</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Coalesce</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">exprs</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+<span class="attribute">#[derive(Debug, Clone, PartialEq)]
+</span><span class="doccomment">/// Returns the first non-null expression
+</span><span class="kw">pub struct </span>Coalesce&lt;<span class="lifetime">&#39;a</span>&gt; {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) exprs: Vec&lt;Expression&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
 }
 
-<span class="doccomment">/// Returns the first non-null argument</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ```rust</span>
-<span class="doccomment">/// # use quaint::{ast::*, visitor::{Visitor, Sqlite}};</span>
-<span class="doccomment">/// # fn main() -&gt; Result&lt;(), quaint::error::Error&gt; {</span>
-<span class="doccomment">/// let exprs: Vec&lt;Expression&gt; = vec![</span>
-<span class="doccomment">///   Column::from((&quot;users&quot;, &quot;company&quot;)).into(),</span>
-<span class="doccomment">///   Value::text(&quot;Individual&quot;).into(),</span>
-<span class="doccomment">/// ];</span>
-<span class="doccomment">/// let query = Select::from_table(&quot;users&quot;).value(coalesce(exprs));</span>
-<span class="doccomment">/// let (sql, params) = Sqlite::build(query)?;</span>
-<span class="doccomment">/// assert_eq!(&quot;SELECT COALESCE(`users`.`company`, ?) FROM `users`&quot;, sql);</span>
-<span class="doccomment">/// assert_eq!(vec![Value::text(&quot;Individual&quot;)], params);</span>
-<span class="doccomment">/// # Ok(())</span>
-<span class="doccomment">/// # }</span>
-<span class="doccomment">/// ```</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">coalesce</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span>, <span class="ident">V</span><span class="op">&gt;</span>(<span class="ident">exprs</span>: <span class="ident">V</span>) -&gt; <span class="ident">Function</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="ident">V</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+<span class="doccomment">/// Returns the first non-null argument
+///
+/// ```rust
+/// # use quaint::{ast::*, visitor::{Visitor, Sqlite}};
+/// # fn main() -&gt; Result&lt;(), quaint::error::Error&gt; {
+/// let exprs: Vec&lt;Expression&gt; = vec![
+///   Column::from((&quot;users&quot;, &quot;company&quot;)).into(),
+///   Value::text(&quot;Individual&quot;).into(),
+/// ];
+/// let query = Select::from_table(&quot;users&quot;).value(coalesce(exprs));
+/// let (sql, params) = Sqlite::build(query)?;
+/// assert_eq!(&quot;SELECT COALESCE(`users`.`company`, ?) FROM `users`&quot;, sql);
+/// assert_eq!(vec![Value::text(&quot;Individual&quot;)], params);
+/// # Ok(())
+/// # }
+/// ```
+</span><span class="kw">pub fn </span>coalesce&lt;<span class="lifetime">&#39;a</span>, T, V&gt;(exprs: V) -&gt; Function&lt;<span class="lifetime">&#39;a</span>&gt;
+<span class="kw">where
+    </span>T: Into&lt;Expression&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
+    V: Into&lt;Vec&lt;T&gt;&gt;,
 {
-    <span class="kw">let</span> <span class="ident">fun</span> <span class="op">=</span> <span class="ident">Coalesce</span> {
-        <span class="ident">exprs</span>: <span class="ident">exprs</span>.<span class="ident">into</span>().<span class="ident">into_iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> <span class="ident">e</span>.<span class="ident">into</span>()).<span class="ident">collect</span>(),
+    <span class="kw">let </span>fun = Coalesce {
+        exprs: exprs.into().into_iter().map(|e| e.into()).collect(),
     };
 
-    <span class="ident">fun</span>.<span class="ident">into</span>()
+    fun.into()
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="quaint" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0-nightly (29e4a9ee0 2022-08-10)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="quaint" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0-nightly (060e47f74 2022-08-23)" ></div></body></html>

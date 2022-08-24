@@ -65,72 +65,72 @@
 <span id="65">65</span>
 <span id="66">66</span>
 <span id="67">67</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">super</span>::{<span class="ident">Function</span>, <span class="ident">FunctionType</span>};
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::ast::Expression</span>;
+</pre><pre class="rust"><code><span class="kw">use super</span>::{Function, FunctionType};
+<span class="kw">use </span><span class="kw">crate</span>::ast::Expression;
 
-<span class="doccomment">/// Generates the function uuid_to_bin(uuid()) returning a binary uuid in MySQL</span>
-<span class="doccomment">/// ```rust</span>
-<span class="doccomment">/// # use quaint::{ast::*, visitor::{Visitor, Mysql}};</span>
-<span class="doccomment">/// # fn main() -&gt; Result&lt;(), quaint::error::Error&gt; {</span>
+<span class="doccomment">/// Generates the function uuid_to_bin(uuid()) returning a binary uuid in MySQL
+/// ```rust
+/// # use quaint::{ast::*, visitor::{Visitor, Mysql}};
+/// # fn main() -&gt; Result&lt;(), quaint::error::Error&gt; {
 
-<span class="doccomment">/// let query = Select::default().value(uuid_to_bin());</span>
-<span class="doccomment">/// let (sql, _) = Mysql::build(query)?;</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// assert_eq!(&quot;SELECT uuid_to_bin(uuid())&quot;, sql);</span>
-<span class="doccomment">/// # Ok(())</span>
-<span class="doccomment">/// # }</span>
-<span class="doccomment">/// ```</span>
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mysql&quot;</span>)]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">uuid_to_bin</span>() -&gt; <span class="ident">Expression</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">func</span> <span class="op">=</span> <span class="ident">Function</span> {
-        <span class="ident">typ_</span>: <span class="ident">FunctionType::UuidToBin</span>,
-        <span class="ident">alias</span>: <span class="prelude-val">None</span>,
+/// let query = Select::default().value(uuid_to_bin());
+/// let (sql, _) = Mysql::build(query)?;
+///
+/// assert_eq!(&quot;SELECT uuid_to_bin(uuid())&quot;, sql);
+/// # Ok(())
+/// # }
+/// ```
+</span><span class="attribute">#[cfg(feature = <span class="string">&quot;mysql&quot;</span>)]
+</span><span class="kw">pub fn </span>uuid_to_bin() -&gt; Expression&lt;<span class="lifetime">&#39;static</span>&gt; {
+    <span class="kw">let </span>func = Function {
+        typ_: FunctionType::UuidToBin,
+        alias: <span class="prelude-val">None</span>,
     };
 
-    <span class="ident">func</span>.<span class="ident">into</span>()
+    func.into()
 }
 
-<span class="doccomment">/// Generates an optimized swapped UUID in MySQL 8</span>
-<span class="doccomment">/// see https://dev.mysql.com/doc/refman/8.0/en/miscellaneous-functions.html#function_uuid-to-bin</span>
-<span class="doccomment">/// ```rust</span>
-<span class="doccomment">/// # use quaint::{ast::*, visitor::{Visitor, Mysql}};</span>
-<span class="doccomment">/// # fn main() -&gt; Result&lt;(), quaint::error::Error&gt; {</span>
-<span class="doccomment">/// let query = Select::default().value(uuid_to_bin_swapped());</span>
-<span class="doccomment">/// let (sql, _) = Mysql::build(query)?;</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// assert_eq!(&quot;SELECT uuid_to_bin(uuid(), 1)&quot;, sql);</span>
-<span class="doccomment">/// # Ok(())</span>
-<span class="doccomment">/// # }</span>
-<span class="doccomment">/// ```</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">uuid_to_bin_swapped</span>() -&gt; <span class="ident">Expression</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">func</span> <span class="op">=</span> <span class="ident">Function</span> {
-        <span class="ident">typ_</span>: <span class="ident">FunctionType::UuidToBinSwapped</span>,
-        <span class="ident">alias</span>: <span class="prelude-val">None</span>,
+<span class="doccomment">/// Generates an optimized swapped UUID in MySQL 8
+/// see https://dev.mysql.com/doc/refman/8.0/en/miscellaneous-functions.html#function_uuid-to-bin
+/// ```rust
+/// # use quaint::{ast::*, visitor::{Visitor, Mysql}};
+/// # fn main() -&gt; Result&lt;(), quaint::error::Error&gt; {
+/// let query = Select::default().value(uuid_to_bin_swapped());
+/// let (sql, _) = Mysql::build(query)?;
+///
+/// assert_eq!(&quot;SELECT uuid_to_bin(uuid(), 1)&quot;, sql);
+/// # Ok(())
+/// # }
+/// ```
+</span><span class="kw">pub fn </span>uuid_to_bin_swapped() -&gt; Expression&lt;<span class="lifetime">&#39;static</span>&gt; {
+    <span class="kw">let </span>func = Function {
+        typ_: FunctionType::UuidToBinSwapped,
+        alias: <span class="prelude-val">None</span>,
     };
 
-    <span class="ident">func</span>.<span class="ident">into</span>()
+    func.into()
 }
 
-<span class="doccomment">/// Generates the function uuid_to_bin(uuid()) returning a binary uuid in MySQL</span>
-<span class="doccomment">/// ```rust</span>
-<span class="doccomment">/// # use quaint::{ast::*, visitor::{Visitor, Mysql}};</span>
-<span class="doccomment">/// # fn main() -&gt; Result&lt;(), quaint::error::Error&gt; {</span>
+<span class="doccomment">/// Generates the function uuid_to_bin(uuid()) returning a binary uuid in MySQL
+/// ```rust
+/// # use quaint::{ast::*, visitor::{Visitor, Mysql}};
+/// # fn main() -&gt; Result&lt;(), quaint::error::Error&gt; {
 
-<span class="doccomment">/// let query = Select::default().value(native_uuid());</span>
-<span class="doccomment">/// let (sql, _) = Mysql::build(query)?;</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// assert_eq!(&quot;SELECT uuid()&quot;, sql);</span>
-<span class="doccomment">/// # Ok(())</span>
-<span class="doccomment">/// # }</span>
-<span class="doccomment">/// ```</span>
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mysql&quot;</span>))]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">native_uuid</span>() -&gt; <span class="ident">Expression</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">func</span> <span class="op">=</span> <span class="ident">Function</span> {
-        <span class="ident">typ_</span>: <span class="ident">FunctionType::Uuid</span>,
-        <span class="ident">alias</span>: <span class="prelude-val">None</span>,
+/// let query = Select::default().value(native_uuid());
+/// let (sql, _) = Mysql::build(query)?;
+///
+/// assert_eq!(&quot;SELECT uuid()&quot;, sql);
+/// # Ok(())
+/// # }
+/// ```
+</span><span class="attribute">#[cfg(any(feature = <span class="string">&quot;mysql&quot;</span>))]
+</span><span class="kw">pub fn </span>native_uuid() -&gt; Expression&lt;<span class="lifetime">&#39;static</span>&gt; {
+    <span class="kw">let </span>func = Function {
+        typ_: FunctionType::Uuid,
+        alias: <span class="prelude-val">None</span>,
     };
 
-    <span class="ident">func</span>.<span class="ident">into</span>()
+    func.into()
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="quaint" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0-nightly (29e4a9ee0 2022-08-10)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="quaint" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0-nightly (060e47f74 2022-08-23)" ></div></body></html>

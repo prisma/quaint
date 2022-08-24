@@ -4,11 +4,11 @@
 <span id="4">4</span>
 <span id="5">5</span>
 <span id="6">6</span>
-</pre><pre class="rust"><code><span class="doccomment">//! A &quot;prelude&quot; for users of the `quaint` crate.</span>
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::ast</span>::<span class="kw-2">*</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::connector</span>::{
-    <span class="ident">ConnectionInfo</span>, <span class="ident">Queryable</span>, <span class="ident">ResultRow</span>, <span class="ident">ResultSet</span>, <span class="ident">SqlFamily</span>, <span class="ident">Transaction</span>, <span class="ident">TransactionCapable</span>,
+</pre><pre class="rust"><code><span class="doccomment">//! A &quot;prelude&quot; for users of the `quaint` crate.
+</span><span class="kw">pub use </span><span class="kw">crate</span>::ast::<span class="kw-2">*</span>;
+<span class="kw">pub use </span><span class="kw">crate</span>::connector::{
+    ConnectionInfo, Queryable, ResultRow, ResultSet, SqlFamily, Transaction, TransactionCapable,
 };
-<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">col</span>, <span class="ident">val</span>, <span class="ident">values</span>};
+<span class="kw">pub use crate</span>::{col, val, values};
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="quaint" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0-nightly (29e4a9ee0 2022-08-10)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="quaint" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0-nightly (060e47f74 2022-08-23)" ></div></body></html>

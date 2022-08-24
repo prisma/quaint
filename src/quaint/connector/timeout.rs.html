@@ -37,44 +37,44 @@
 <span id="37">37</span>
 <span id="38">38</span>
 <span id="39">39</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::error</span>::{<span class="ident">Error</span>, <span class="ident">ErrorKind</span>};
-<span class="kw">use</span> <span class="ident">futures::Future</span>;
-<span class="kw">use</span> <span class="ident">std::time::Duration</span>;
+</pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::error::{Error, ErrorKind};
+<span class="kw">use </span>futures::Future;
+<span class="kw">use </span>std::time::Duration;
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">connect</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">F</span>, <span class="ident">E</span><span class="op">&gt;</span>(<span class="ident">duration</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span>, <span class="ident">f</span>: <span class="ident">F</span>) -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">F</span>: <span class="ident">Future</span><span class="op">&lt;</span><span class="ident">Output</span> <span class="op">=</span> <span class="ident">std::result::Result</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">E</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="ident">E</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Error</span><span class="op">&gt;</span>,
+<span class="kw">pub async fn </span>connect&lt;T, F, E&gt;(duration: <span class="prelude-ty">Option</span>&lt;Duration&gt;, f: F) -&gt; <span class="kw">crate</span>::Result&lt;T&gt;
+<span class="kw">where
+    </span>F: Future&lt;Output = std::result::Result&lt;T, E&gt;&gt;,
+    E: Into&lt;Error&gt;,
 {
-    <span class="ident">timeout</span>(<span class="ident">duration</span>, <span class="ident">f</span>, <span class="op">|</span><span class="op">|</span> <span class="ident">Error::builder</span>(<span class="ident">ErrorKind::ConnectTimeout</span>).<span class="ident">build</span>()).<span class="kw">await</span>
-}
+    timeout(duration, f, || Error::builder(ErrorKind::ConnectTimeout).build()).<span class="kw">await
+</span>}
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">socket</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">F</span>, <span class="ident">E</span><span class="op">&gt;</span>(<span class="ident">duration</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span>, <span class="ident">f</span>: <span class="ident">F</span>) -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">F</span>: <span class="ident">Future</span><span class="op">&lt;</span><span class="ident">Output</span> <span class="op">=</span> <span class="ident">std::result::Result</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">E</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="ident">E</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Error</span><span class="op">&gt;</span>,
+<span class="kw">pub async fn </span>socket&lt;T, F, E&gt;(duration: <span class="prelude-ty">Option</span>&lt;Duration&gt;, f: F) -&gt; <span class="kw">crate</span>::Result&lt;T&gt;
+<span class="kw">where
+    </span>F: Future&lt;Output = std::result::Result&lt;T, E&gt;&gt;,
+    E: Into&lt;Error&gt;,
 {
-    <span class="ident">timeout</span>(<span class="ident">duration</span>, <span class="ident">f</span>, <span class="op">|</span><span class="op">|</span> <span class="ident">Error::builder</span>(<span class="ident">ErrorKind::SocketTimeout</span>).<span class="ident">build</span>()).<span class="kw">await</span>
-}
+    timeout(duration, f, || Error::builder(ErrorKind::SocketTimeout).build()).<span class="kw">await
+</span>}
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mssql&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;postgresql&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;mysql&quot;</span>))]</span>
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">timeout</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">F</span>, <span class="ident">E</span>, <span class="ident">EF</span><span class="op">&gt;</span>(<span class="ident">duration</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span>, <span class="ident">f</span>: <span class="ident">F</span>, <span class="ident">e_f</span>: <span class="ident">EF</span>) -&gt; <span class="ident"><span class="kw">crate</span>::Result</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">F</span>: <span class="ident">Future</span><span class="op">&lt;</span><span class="ident">Output</span> <span class="op">=</span> <span class="ident">std::result::Result</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">E</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="ident">EF</span>: <span class="ident">FnOnce</span>() -&gt; <span class="ident">Error</span>,
-    <span class="ident">E</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Error</span><span class="op">&gt;</span>,
+<span class="attribute">#[cfg(any(feature = <span class="string">&quot;mssql&quot;</span>, feature = <span class="string">&quot;postgresql&quot;</span>, feature = <span class="string">&quot;mysql&quot;</span>))]
+</span><span class="kw">async fn </span>timeout&lt;T, F, E, EF&gt;(duration: <span class="prelude-ty">Option</span>&lt;Duration&gt;, f: F, e_f: EF) -&gt; <span class="kw">crate</span>::Result&lt;T&gt;
+<span class="kw">where
+    </span>F: Future&lt;Output = std::result::Result&lt;T, E&gt;&gt;,
+    EF: FnOnce() -&gt; Error,
+    E: Into&lt;Error&gt;,
 {
-    <span class="kw">match</span> <span class="ident">duration</span> {
-        <span class="prelude-val">Some</span>(<span class="ident">duration</span>) =&gt; <span class="kw">match</span> <span class="ident">tokio::time::timeout</span>(<span class="ident">duration</span>, <span class="ident">f</span>).<span class="kw">await</span> {
-            <span class="prelude-val">Ok</span>(<span class="prelude-val">Ok</span>(<span class="ident">result</span>)) =&gt; <span class="prelude-val">Ok</span>(<span class="ident">result</span>),
-            <span class="prelude-val">Ok</span>(<span class="prelude-val">Err</span>(<span class="ident">err</span>)) =&gt; <span class="prelude-val">Err</span>(<span class="ident">err</span>.<span class="ident">into</span>()),
-            <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">Err</span>(<span class="ident">e_f</span>()),
+    <span class="kw">match </span>duration {
+        <span class="prelude-val">Some</span>(duration) =&gt; <span class="kw">match </span>tokio::time::timeout(duration, f).<span class="kw">await </span>{
+            <span class="prelude-val">Ok</span>(<span class="prelude-val">Ok</span>(result)) =&gt; <span class="prelude-val">Ok</span>(result),
+            <span class="prelude-val">Ok</span>(<span class="prelude-val">Err</span>(err)) =&gt; <span class="prelude-val">Err</span>(err.into()),
+            <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">Err</span>(e_f()),
         },
-        <span class="prelude-val">None</span> =&gt; <span class="kw">match</span> <span class="ident">f</span>.<span class="kw">await</span> {
-            <span class="prelude-val">Ok</span>(<span class="ident">result</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="ident">result</span>),
-            <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; <span class="prelude-val">Err</span>(<span class="ident">err</span>.<span class="ident">into</span>()),
+        <span class="prelude-val">None </span>=&gt; <span class="kw">match </span>f.<span class="kw">await </span>{
+            <span class="prelude-val">Ok</span>(result) =&gt; <span class="prelude-val">Ok</span>(result),
+            <span class="prelude-val">Err</span>(err) =&gt; <span class="prelude-val">Err</span>(err.into()),
         },
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="quaint" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0-nightly (29e4a9ee0 2022-08-10)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="quaint" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0-nightly (060e47f74 2022-08-23)" ></div></body></html>
