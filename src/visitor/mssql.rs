@@ -675,6 +675,11 @@ impl<'a> Visitor<'a> for Mssql<'a> {
         unimplemented!("Full-text search is not yet supported on MSSQL")
     }
 
+    fn visit_for_update(&mut self) -> visitor::Result {
+        self.write(" FOR UPDATE ")?;
+        Ok(())
+    }
+
     #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
     fn visit_json_extract_last_array_item(
         &mut self,

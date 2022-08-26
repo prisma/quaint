@@ -418,6 +418,11 @@ impl<'a> Visitor<'a> for Postgres<'a> {
         Ok(())
     }
 
+    fn visit_for_update(&mut self) -> visitor::Result {
+        self.write(" FOR UPDATE ")?;
+        Ok(())
+    }
+
     fn visit_like(&mut self, left: Expression<'a>, right: Cow<str>) -> visitor::Result {
         let need_cast = matches!(&left.kind, ExpressionKind::Column(_));
         self.visit_expression(left)?;

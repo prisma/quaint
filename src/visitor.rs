@@ -129,6 +129,8 @@ pub trait Visitor<'a> {
     #[cfg(any(feature = "postgresql", feature = "mysql"))]
     fn visit_text_search_relevance(&mut self, text_search_relevance: TextSearchRelevance<'a>) -> Result;
 
+    fn visit_for_update(&mut self) -> Result;
+
     /// A visit to a value we parameterize
     fn visit_parameterized(&mut self, value: Value<'a>) -> Result {
         self.add_parameter(value);
@@ -261,6 +263,11 @@ pub trait Visitor<'a> {
                 self.write(" WHERE ")?;
                 self.visit_conditions(conditions)?;
             }
+
+            if select.for_update {
+                self.visit_for_update()?;
+            }
+
             if !select.grouping.is_empty() {
                 self.write(" GROUP BY ")?;
                 self.visit_grouping(select.grouping)?;

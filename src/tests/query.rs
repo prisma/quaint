@@ -165,6 +165,35 @@ async fn in_values_singular(api: &mut dyn TestApi) -> crate::Result<()> {
     Ok(())
 }
 
+#[test_each_connector(tags("sqlite"))]
+async fn in_values_singular_and_for_update(api: &mut dyn TestApi) -> crate::Result<()> {
+    let table = api.create_table("id int, id2 int").await?;
+
+    let insert = Insert::multi_into(&table, vec!["id", "id2"])
+        .values(vec![1, 2])
+        .values(vec![3, 4])
+        .values(vec![5, 6]);
+
+    api.conn().insert(insert.into()).await?;
+
+    let query = Select::from_table(table)
+        .so_that("id".in_selection(vec![1, 3]))
+        .for_update();
+
+    let res = api.conn().select(query).await?;
+    assert_eq!(2, res.len());
+
+    let row1 = res.get(0).unwrap();
+    assert_eq!(Some(1), row1["id"].as_i32());
+    assert_eq!(Some(2), row1["id2"].as_i32());
+
+    let row2 = res.get(1).unwrap();
+    assert_eq!(Some(3), row2["id"].as_i32());
+    assert_eq!(Some(4), row2["id2"].as_i32());
+
+    Ok(())
+}
+
 #[test_each_connector]
 async fn not_in_values_singular(api: &mut dyn TestApi) -> crate::Result<()> {
     let table = api.create_table("id int, id2 int").await?;

@@ -16,6 +16,7 @@ pub struct Select<'a> {
     pub(crate) joins: Vec<Join<'a>>,
     pub(crate) ctes: Vec<CommonTableExpression<'a>>,
     pub(crate) comment: Option<Cow<'a, str>>,
+    pub(crate) for_update: bool,
 }
 
 impl<'a> From<Select<'a>> for Expression<'a> {
@@ -237,6 +238,23 @@ impl<'a> Select<'a> {
     /// ```
     pub fn distinct(mut self) -> Self {
         self.distinct = true;
+        self
+    }
+
+    /// Adds `FOR UPDATE` to the select query.
+    ///
+    /// ```rust
+    /// # use quaint::{ast::*, visitor::{Visitor, Sqlite}};
+    /// # fn main() -> Result<(), quaint::error::Error> {
+    /// let query = Select::from_table("users").column("foo").column("bar").for_update();
+    /// let (sql, _) = Sqlite::build(query)?;
+    ///
+    /// assert_eq!("SELECT `foo`, `bar` FROM `users` FOR UPDATE ", sql);
+    /// # Ok(())
+    /// # }
+    /// ```
+    pub fn for_update(mut self) -> Self {
+        self.for_update = true;
         self
     }
 
