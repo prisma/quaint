@@ -23,9 +23,18 @@ impl<'a> Visitor<'a> for Postgres<'a> {
     where
         Q: Into<Query<'a>>,
     {
+        let params: Vec<Value<'a>> = Vec::with_capacity(128);
+
+        Self::build_with_params(query, params)
+    }
+
+    fn build_with_params<Q>(query: Q, existing_params: Vec<Value<'a>>) -> crate::Result<(String, Vec<Value<'a>>)>
+    where
+        Q: Into<Query<'a>>,
+    {
         let mut postgres = Postgres {
             query: String::with_capacity(4096),
-            parameters: Vec::with_capacity(128),
+            parameters: existing_params,
         };
 
         Postgres::visit_query(&mut postgres, query.into())?;

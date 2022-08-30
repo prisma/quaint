@@ -65,6 +65,13 @@ pub trait Visitor<'a> {
     where
         Q: Into<Query<'a>>;
 
+    /// Behave exactly like [build](Visitor::build) but takes a vector of `Value<'a>` as arguments.
+    /// The next arguments to be inserted into the query will be **appended**, allowing to
+    /// build more complex queries.
+    fn build_with_params<Q>(query: Q, existing_params: Vec<Value<'a>>) -> crate::Result<(String, Vec<Value<'a>>)>
+    where
+        Q: Into<Query<'a>>;
+
     /// Write to the query.
     fn write<D: fmt::Display>(&mut self, s: D) -> Result;
 
