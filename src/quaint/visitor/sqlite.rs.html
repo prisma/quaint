@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/visitor/sqlite.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>sqlite.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../quaint/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../quaint/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../quaint/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/visitor/sqlite.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>sqlite.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../quaint/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../quaint/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../quaint/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -938,6 +938,29 @@
 <span id="938">938</span>
 <span id="939">939</span>
 <span id="940">940</span>
+<span id="941">941</span>
+<span id="942">942</span>
+<span id="943">943</span>
+<span id="944">944</span>
+<span id="945">945</span>
+<span id="946">946</span>
+<span id="947">947</span>
+<span id="948">948</span>
+<span id="949">949</span>
+<span id="950">950</span>
+<span id="951">951</span>
+<span id="952">952</span>
+<span id="953">953</span>
+<span id="954">954</span>
+<span id="955">955</span>
+<span id="956">956</span>
+<span id="957">957</span>
+<span id="958">958</span>
+<span id="959">959</span>
+<span id="960">960</span>
+<span id="961">961</span>
+<span id="962">962</span>
+<span id="963">963</span>
 </pre><pre class="rust"><code><span class="kw">use crate</span>::{
     ast::<span class="kw-2">*</span>,
     error::{Error, ErrorKind},
@@ -1054,7 +1077,7 @@
             <span class="attribute">#[cfg(feature = <span class="string">&quot;bigdecimal&quot;</span>)]
             </span>Value::Numeric(r) =&gt; r.map(|r| <span class="self">self</span>.write(r)),
             <span class="attribute">#[cfg(feature = <span class="string">&quot;uuid&quot;</span>)]
-            </span>Value::Uuid(uuid) =&gt; uuid.map(|uuid| <span class="self">self</span>.write(<span class="macro">format!</span>(<span class="string">&quot;&#39;{}&#39;&quot;</span>, uuid.to_hyphenated().to_string()))),
+            </span>Value::Uuid(uuid) =&gt; uuid.map(|uuid| <span class="self">self</span>.write(<span class="macro">format!</span>(<span class="string">&quot;&#39;{}&#39;&quot;</span>, uuid.hyphenated()))),
             <span class="attribute">#[cfg(feature = <span class="string">&quot;chrono&quot;</span>)]
             </span>Value::DateTime(dt) =&gt; dt.map(|dt| <span class="self">self</span>.write(<span class="macro">format!</span>(<span class="string">&quot;&#39;{}&#39;&quot;</span>, dt.to_rfc3339(),))),
             <span class="attribute">#[cfg(feature = <span class="string">&quot;chrono&quot;</span>)]
@@ -1225,7 +1248,7 @@
     }
 
     <span class="attribute">#[cfg(all(feature = <span class="string">&quot;json&quot;</span>, any(feature = <span class="string">&quot;postgresql&quot;</span>, feature = <span class="string">&quot;mysql&quot;</span>)))]
-    </span><span class="kw">fn </span>visit_json_type_equals(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _left: Expression&lt;<span class="lifetime">&#39;a</span>&gt;, _json_type: JsonType) -&gt; visitor::Result {
+    </span><span class="kw">fn </span>visit_json_type_equals(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _left: Expression&lt;<span class="lifetime">&#39;a</span>&gt;, _json_type: JsonType, _not: bool) -&gt; visitor::Result {
         <span class="macro">unimplemented!</span>(<span class="string">&quot;JSON_TYPE is not yet supported on SQLite&quot;</span>)
     }
 
@@ -1256,6 +1279,11 @@
 
     <span class="attribute">#[cfg(all(feature = <span class="string">&quot;json&quot;</span>, any(feature = <span class="string">&quot;postgresql&quot;</span>, feature = <span class="string">&quot;mysql&quot;</span>)))]
     </span><span class="kw">fn </span>visit_json_extract_first_array_item(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _extract: JsonExtractFirstArrayElem&lt;<span class="lifetime">&#39;a</span>&gt;) -&gt; visitor::Result {
+        <span class="macro">unimplemented!</span>(<span class="string">&quot;JSON filtering is not yet supported on SQLite&quot;</span>)
+    }
+
+    <span class="attribute">#[cfg(all(feature = <span class="string">&quot;json&quot;</span>, any(feature = <span class="string">&quot;postgresql&quot;</span>, feature = <span class="string">&quot;mysql&quot;</span>)))]
+    </span><span class="kw">fn </span>visit_json_unquote(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _json_unquote: JsonUnquote&lt;<span class="lifetime">&#39;a</span>&gt;) -&gt; visitor::Result {
         <span class="macro">unimplemented!</span>(<span class="string">&quot;JSON filtering is not yet supported on SQLite&quot;</span>)
     }
 
@@ -1291,6 +1319,24 @@
                 <span class="self">self</span>.write(<span class="string">&quot;, &quot;</span>)<span class="question-mark">?</span>;
             }
         }
+
+        <span class="prelude-val">Ok</span>(())
+    }
+
+    <span class="kw">fn </span>visit_concat(<span class="kw-2">&amp;mut </span><span class="self">self</span>, concat: Concat&lt;<span class="lifetime">&#39;a</span>&gt;) -&gt; visitor::Result {
+        <span class="kw">let </span>len = concat.exprs.len();
+
+        <span class="self">self</span>.surround_with(<span class="string">&quot;(&quot;</span>, <span class="string">&quot;)&quot;</span>, |s| {
+            <span class="kw">for </span>(i, expr) <span class="kw">in </span>concat.exprs.into_iter().enumerate() {
+                s.visit_expression(expr)<span class="question-mark">?</span>;
+
+                <span class="kw">if </span>i &lt; (len - <span class="number">1</span>) {
+                    s.write(<span class="string">&quot; || &quot;</span>)<span class="question-mark">?</span>;
+                }
+            }
+
+            <span class="prelude-val">Ok</span>(())
+        })<span class="question-mark">?</span>;
 
         <span class="prelude-val">Ok</span>(())
     }
@@ -1456,7 +1502,7 @@
     </span><span class="kw">fn </span>test_select_where_like() {
         <span class="kw">let </span>expected = expected_values(<span class="string">&quot;SELECT `naukio`.* FROM `naukio` WHERE `word` LIKE ?&quot;</span>, <span class="macro">vec!</span>[<span class="string">&quot;%meow%&quot;</span>]);
 
-        <span class="kw">let </span>query = Select::from_table(<span class="string">&quot;naukio&quot;</span>).so_that(<span class="string">&quot;word&quot;</span>.like(<span class="string">&quot;meow&quot;</span>));
+        <span class="kw">let </span>query = Select::from_table(<span class="string">&quot;naukio&quot;</span>).so_that(<span class="string">&quot;word&quot;</span>.like(<span class="string">&quot;%meow%&quot;</span>));
         <span class="kw">let </span>(sql, params) = Sqlite::build(query).unwrap();
 
         <span class="macro">assert_eq!</span>(expected.<span class="number">0</span>, sql);
@@ -1470,7 +1516,7 @@
             <span class="macro">vec!</span>[<span class="string">&quot;%meow%&quot;</span>],
         );
 
-        <span class="kw">let </span>query = Select::from_table(<span class="string">&quot;naukio&quot;</span>).so_that(<span class="string">&quot;word&quot;</span>.not_like(<span class="string">&quot;meow&quot;</span>));
+        <span class="kw">let </span>query = Select::from_table(<span class="string">&quot;naukio&quot;</span>).so_that(<span class="string">&quot;word&quot;</span>.not_like(<span class="string">&quot;%meow%&quot;</span>));
         <span class="kw">let </span>(sql, params) = Sqlite::build(query).unwrap();
 
         <span class="macro">assert_eq!</span>(expected.<span class="number">0</span>, sql);
@@ -1479,9 +1525,9 @@
 
     <span class="attribute">#[test]
     </span><span class="kw">fn </span>test_select_where_begins_with() {
-        <span class="kw">let </span>expected = expected_values(<span class="string">&quot;SELECT `naukio`.* FROM `naukio` WHERE `word` LIKE ?&quot;</span>, <span class="macro">vec!</span>[<span class="string">&quot;meow%&quot;</span>]);
+        <span class="kw">let </span>expected = expected_values(<span class="string">&quot;SELECT `naukio`.* FROM `naukio` WHERE `word` LIKE ?&quot;</span>, <span class="macro">vec!</span>[<span class="string">&quot;%meow&quot;</span>]);
 
-        <span class="kw">let </span>query = Select::from_table(<span class="string">&quot;naukio&quot;</span>).so_that(<span class="string">&quot;word&quot;</span>.begins_with(<span class="string">&quot;meow&quot;</span>));
+        <span class="kw">let </span>query = Select::from_table(<span class="string">&quot;naukio&quot;</span>).so_that(<span class="string">&quot;word&quot;</span>.like(<span class="string">&quot;%meow&quot;</span>));
         <span class="kw">let </span>(sql, params) = Sqlite::build(query).unwrap();
 
         <span class="macro">assert_eq!</span>(expected.<span class="number">0</span>, sql);
@@ -1490,9 +1536,9 @@
 
     <span class="attribute">#[test]
     </span><span class="kw">fn </span>test_select_where_not_begins_with() {
-        <span class="kw">let </span>expected = expected_values(<span class="string">&quot;SELECT `naukio`.* FROM `naukio` WHERE `word` NOT LIKE ?&quot;</span>, <span class="macro">vec!</span>[<span class="string">&quot;meow%&quot;</span>]);
+        <span class="kw">let </span>expected = expected_values(<span class="string">&quot;SELECT `naukio`.* FROM `naukio` WHERE `word` NOT LIKE ?&quot;</span>, <span class="macro">vec!</span>[<span class="string">&quot;%meow&quot;</span>]);
 
-        <span class="kw">let </span>query = Select::from_table(<span class="string">&quot;naukio&quot;</span>).so_that(<span class="string">&quot;word&quot;</span>.not_begins_with(<span class="string">&quot;meow&quot;</span>));
+        <span class="kw">let </span>query = Select::from_table(<span class="string">&quot;naukio&quot;</span>).so_that(<span class="string">&quot;word&quot;</span>.not_like(<span class="string">&quot;%meow&quot;</span>));
         <span class="kw">let </span>(sql, params) = Sqlite::build(query).unwrap();
 
         <span class="macro">assert_eq!</span>(expected.<span class="number">0</span>, sql);
@@ -1501,9 +1547,9 @@
 
     <span class="attribute">#[test]
     </span><span class="kw">fn </span>test_select_where_ends_into() {
-        <span class="kw">let </span>expected = expected_values(<span class="string">&quot;SELECT `naukio`.* FROM `naukio` WHERE `word` LIKE ?&quot;</span>, <span class="macro">vec!</span>[<span class="string">&quot;%meow&quot;</span>]);
+        <span class="kw">let </span>expected = expected_values(<span class="string">&quot;SELECT `naukio`.* FROM `naukio` WHERE `word` LIKE ?&quot;</span>, <span class="macro">vec!</span>[<span class="string">&quot;meow%&quot;</span>]);
 
-        <span class="kw">let </span>query = Select::from_table(<span class="string">&quot;naukio&quot;</span>).so_that(<span class="string">&quot;word&quot;</span>.ends_into(<span class="string">&quot;meow&quot;</span>));
+        <span class="kw">let </span>query = Select::from_table(<span class="string">&quot;naukio&quot;</span>).so_that(<span class="string">&quot;word&quot;</span>.like(<span class="string">&quot;meow%&quot;</span>));
         <span class="kw">let </span>(sql, params) = Sqlite::build(query).unwrap();
 
         <span class="macro">assert_eq!</span>(expected.<span class="number">0</span>, sql);
@@ -1512,9 +1558,9 @@
 
     <span class="attribute">#[test]
     </span><span class="kw">fn </span>test_select_where_not_ends_into() {
-        <span class="kw">let </span>expected = expected_values(<span class="string">&quot;SELECT `naukio`.* FROM `naukio` WHERE `word` NOT LIKE ?&quot;</span>, <span class="macro">vec!</span>[<span class="string">&quot;%meow&quot;</span>]);
+        <span class="kw">let </span>expected = expected_values(<span class="string">&quot;SELECT `naukio`.* FROM `naukio` WHERE `word` NOT LIKE ?&quot;</span>, <span class="macro">vec!</span>[<span class="string">&quot;meow%&quot;</span>]);
 
-        <span class="kw">let </span>query = Select::from_table(<span class="string">&quot;naukio&quot;</span>).so_that(<span class="string">&quot;word&quot;</span>.not_ends_into(<span class="string">&quot;meow&quot;</span>));
+        <span class="kw">let </span>query = Select::from_table(<span class="string">&quot;naukio&quot;</span>).so_that(<span class="string">&quot;word&quot;</span>.not_like(<span class="string">&quot;meow%&quot;</span>));
         <span class="kw">let </span>(sql, params) = Sqlite::build(query).unwrap();
 
         <span class="macro">assert_eq!</span>(expected.<span class="number">0</span>, sql);
@@ -1836,7 +1882,7 @@
         <span class="kw">let </span>uuid = uuid::Uuid::new_v4();
         <span class="kw">let </span>(sql, params) = Sqlite::build(Select::default().value(uuid.raw())).unwrap();
 
-        <span class="macro">assert_eq!</span>(<span class="macro">format!</span>(<span class="string">&quot;SELECT &#39;{}&#39;&quot;</span>, uuid.to_hyphenated().to_string()), sql);
+        <span class="macro">assert_eq!</span>(<span class="macro">format!</span>(<span class="string">&quot;SELECT &#39;{}&#39;&quot;</span>, uuid.hyphenated()), sql);
 
         <span class="macro">assert!</span>(params.is_empty());
     }
@@ -1879,4 +1925,4 @@
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="quaint" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0-nightly (060e47f74 2022-08-23)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="quaint" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0-nightly (b44197abb 2022-09-05)" ></div></body></html>

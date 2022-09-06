@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/visitor/postgres.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>postgres.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../quaint/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../quaint/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../quaint/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/visitor/postgres.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>postgres.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../quaint/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../quaint/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../quaint/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -1017,36 +1017,10 @@
 <span id="1017">1017</span>
 <span id="1018">1018</span>
 <span id="1019">1019</span>
-<span id="1020">1020</span>
-<span id="1021">1021</span>
-<span id="1022">1022</span>
-<span id="1023">1023</span>
-<span id="1024">1024</span>
-<span id="1025">1025</span>
-<span id="1026">1026</span>
-<span id="1027">1027</span>
-<span id="1028">1028</span>
-<span id="1029">1029</span>
-<span id="1030">1030</span>
-<span id="1031">1031</span>
-<span id="1032">1032</span>
-<span id="1033">1033</span>
-<span id="1034">1034</span>
-<span id="1035">1035</span>
-<span id="1036">1036</span>
-<span id="1037">1037</span>
-<span id="1038">1038</span>
-<span id="1039">1039</span>
-<span id="1040">1040</span>
-<span id="1041">1041</span>
-<span id="1042">1042</span>
-<span id="1043">1043</span>
-<span id="1044">1044</span>
 </pre><pre class="rust"><code><span class="kw">use crate</span>::{
     ast::<span class="kw-2">*</span>,
     visitor::{<span class="self">self</span>, Visitor},
 };
-<span class="kw">use </span>std::borrow::Cow;
 <span class="kw">use </span>std::fmt::{<span class="self">self</span>, Write};
 
 <span class="doccomment">/// A visitor to generate queries for the PostgreSQL database.
@@ -1155,7 +1129,7 @@
             <span class="attribute">#[cfg(feature = <span class="string">&quot;bigdecimal&quot;</span>)]
             </span>Value::Numeric(r) =&gt; r.map(|r| <span class="self">self</span>.write(r)),
             <span class="attribute">#[cfg(feature = <span class="string">&quot;uuid&quot;</span>)]
-            </span>Value::Uuid(uuid) =&gt; uuid.map(|uuid| <span class="self">self</span>.write(<span class="macro">format!</span>(<span class="string">&quot;&#39;{}&#39;&quot;</span>, uuid.to_hyphenated().to_string()))),
+            </span>Value::Uuid(uuid) =&gt; uuid.map(|uuid| <span class="self">self</span>.write(<span class="macro">format!</span>(<span class="string">&quot;&#39;{}&#39;&quot;</span>, uuid.hyphenated()))),
             <span class="attribute">#[cfg(feature = <span class="string">&quot;chrono&quot;</span>)]
             </span>Value::DateTime(dt) =&gt; dt.map(|dt| <span class="self">self</span>.write(<span class="macro">format!</span>(<span class="string">&quot;&#39;{}&#39;&quot;</span>, dt.to_rfc3339(),))),
             <span class="attribute">#[cfg(feature = <span class="string">&quot;chrono&quot;</span>)]
@@ -1354,6 +1328,16 @@
     }
 
     <span class="attribute">#[cfg(all(feature = <span class="string">&quot;json&quot;</span>, any(feature = <span class="string">&quot;postgresql&quot;</span>, feature = <span class="string">&quot;mysql&quot;</span>)))]
+    </span><span class="kw">fn </span>visit_json_unquote(<span class="kw-2">&amp;mut </span><span class="self">self</span>, json_unquote: JsonUnquote&lt;<span class="lifetime">&#39;a</span>&gt;) -&gt; visitor::Result {
+        <span class="self">self</span>.write(<span class="string">&quot;(&quot;</span>)<span class="question-mark">?</span>;
+        <span class="self">self</span>.visit_expression(<span class="kw-2">*</span>json_unquote.expr)<span class="question-mark">?</span>;
+        <span class="self">self</span>.write(<span class="string">&quot;#&gt;&gt;ARRAY[]::text[]&quot;</span>)<span class="question-mark">?</span>;
+        <span class="self">self</span>.write(<span class="string">&quot;)&quot;</span>)<span class="question-mark">?</span>;
+
+        <span class="prelude-val">Ok</span>(())
+    }
+
+    <span class="attribute">#[cfg(all(feature = <span class="string">&quot;json&quot;</span>, any(feature = <span class="string">&quot;postgresql&quot;</span>, feature = <span class="string">&quot;mysql&quot;</span>)))]
     </span><span class="kw">fn </span>visit_json_array_contains(<span class="kw-2">&amp;mut </span><span class="self">self</span>, left: Expression&lt;<span class="lifetime">&#39;a</span>&gt;, right: Expression&lt;<span class="lifetime">&#39;a</span>&gt;, not: bool) -&gt; visitor::Result {
         <span class="kw">if </span>not {
             <span class="self">self</span>.write(<span class="string">&quot;( NOT &quot;</span>)<span class="question-mark">?</span>;
@@ -1391,12 +1375,18 @@
     }
 
     <span class="attribute">#[cfg(all(feature = <span class="string">&quot;json&quot;</span>, any(feature = <span class="string">&quot;postgresql&quot;</span>, feature = <span class="string">&quot;mysql&quot;</span>)))]
-    </span><span class="kw">fn </span>visit_json_type_equals(<span class="kw-2">&amp;mut </span><span class="self">self</span>, left: Expression&lt;<span class="lifetime">&#39;a</span>&gt;, json_type: JsonType) -&gt; visitor::Result {
+    </span><span class="kw">fn </span>visit_json_type_equals(<span class="kw-2">&amp;mut </span><span class="self">self</span>, left: Expression&lt;<span class="lifetime">&#39;a</span>&gt;, json_type: JsonType&lt;<span class="lifetime">&#39;a</span>&gt;, not: bool) -&gt; visitor::Result {
         <span class="self">self</span>.write(<span class="string">&quot;JSONB_TYPEOF&quot;</span>)<span class="question-mark">?</span>;
         <span class="self">self</span>.write(<span class="string">&quot;(&quot;</span>)<span class="question-mark">?</span>;
         <span class="self">self</span>.visit_expression(left)<span class="question-mark">?</span>;
         <span class="self">self</span>.write(<span class="string">&quot;)&quot;</span>)<span class="question-mark">?</span>;
-        <span class="self">self</span>.write(<span class="string">&quot; = &quot;</span>)<span class="question-mark">?</span>;
+
+        <span class="kw">if </span>not {
+            <span class="self">self</span>.write(<span class="string">&quot; != &quot;</span>)<span class="question-mark">?</span>;
+        } <span class="kw">else </span>{
+            <span class="self">self</span>.write(<span class="string">&quot; = &quot;</span>)<span class="question-mark">?</span>;
+        }
+
         <span class="kw">match </span>json_type {
             JsonType::Array =&gt; <span class="self">self</span>.visit_expression(Value::text(<span class="string">&quot;array&quot;</span>).into()),
             JsonType::Boolean =&gt; <span class="self">self</span>.visit_expression(Value::text(<span class="string">&quot;boolean&quot;</span>).into()),
@@ -1404,6 +1394,12 @@
             JsonType::Object =&gt; <span class="self">self</span>.visit_expression(Value::text(<span class="string">&quot;object&quot;</span>).into()),
             JsonType::String =&gt; <span class="self">self</span>.visit_expression(Value::text(<span class="string">&quot;string&quot;</span>).into()),
             JsonType::Null =&gt; <span class="self">self</span>.visit_expression(Value::text(<span class="string">&quot;null&quot;</span>).into()),
+            JsonType::ColumnRef(column) =&gt; {
+                <span class="self">self</span>.write(<span class="string">&quot;JSONB_TYPEOF&quot;</span>)<span class="question-mark">?</span>;
+                <span class="self">self</span>.write(<span class="string">&quot;(&quot;</span>)<span class="question-mark">?</span>;
+                <span class="self">self</span>.visit_column(<span class="kw-2">*</span>column)<span class="question-mark">?</span>;
+                <span class="self">self</span>.write(<span class="string">&quot;::jsonb)&quot;</span>)
+            }
         }
     }
 
@@ -1462,7 +1458,7 @@
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="kw">fn </span>visit_like(<span class="kw-2">&amp;mut </span><span class="self">self</span>, left: Expression&lt;<span class="lifetime">&#39;a</span>&gt;, right: Cow&lt;str&gt;) -&gt; visitor::Result {
+    <span class="kw">fn </span>visit_like(<span class="kw-2">&amp;mut </span><span class="self">self</span>, left: Expression&lt;<span class="lifetime">&#39;a</span>&gt;, right: Expression&lt;<span class="lifetime">&#39;a</span>&gt;) -&gt; visitor::Result {
         <span class="kw">let </span>need_cast = <span class="macro">matches!</span>(<span class="kw-2">&amp;</span>left.kind, ExpressionKind::Column(<span class="kw">_</span>));
         <span class="self">self</span>.visit_expression(left)<span class="question-mark">?</span>;
 
@@ -1472,90 +1468,26 @@
             <span class="self">self</span>.write(<span class="string">&quot;::text&quot;</span>)<span class="question-mark">?</span>;
         }
 
-        <span class="self">self</span>.add_parameter(Value::text(<span class="macro">format!</span>(
-            <span class="string">&quot;{}{}{}&quot;</span>,
-            <span class="self">Self</span>::C_WILDCARD,
-            right,
-            <span class="self">Self</span>::C_WILDCARD
-        )));
-
         <span class="self">self</span>.write(<span class="string">&quot; LIKE &quot;</span>)<span class="question-mark">?</span>;
-        <span class="self">self</span>.parameter_substitution()
+        <span class="self">self</span>.visit_expression(right)<span class="question-mark">?</span>;
+
+        <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="kw">fn </span>visit_not_like(<span class="kw-2">&amp;mut </span><span class="self">self</span>, left: Expression&lt;<span class="lifetime">&#39;a</span>&gt;, right: Cow&lt;str&gt;) -&gt; visitor::Result {
+    <span class="kw">fn </span>visit_not_like(<span class="kw-2">&amp;mut </span><span class="self">self</span>, left: Expression&lt;<span class="lifetime">&#39;a</span>&gt;, right: Expression&lt;<span class="lifetime">&#39;a</span>&gt;) -&gt; visitor::Result {
         <span class="kw">let </span>need_cast = <span class="macro">matches!</span>(<span class="kw-2">&amp;</span>left.kind, ExpressionKind::Column(<span class="kw">_</span>));
         <span class="self">self</span>.visit_expression(left)<span class="question-mark">?</span>;
 
-        <span class="kw">if </span>need_cast {
+        <span class="comment">// NOTE: Pg is strongly typed, LIKE comparisons are only between strings.
+        // to avoid problems with types without implicit casting we explicitly cast to text
+        </span><span class="kw">if </span>need_cast {
             <span class="self">self</span>.write(<span class="string">&quot;::text&quot;</span>)<span class="question-mark">?</span>;
         }
-
-        <span class="self">self</span>.add_parameter(Value::text(<span class="macro">format!</span>(
-            <span class="string">&quot;{}{}{}&quot;</span>,
-            <span class="self">Self</span>::C_WILDCARD,
-            right,
-            <span class="self">Self</span>::C_WILDCARD
-        )));
 
         <span class="self">self</span>.write(<span class="string">&quot; NOT LIKE &quot;</span>)<span class="question-mark">?</span>;
-        <span class="self">self</span>.parameter_substitution()
-    }
+        <span class="self">self</span>.visit_expression(right)<span class="question-mark">?</span>;
 
-    <span class="kw">fn </span>visit_begins_with(<span class="kw-2">&amp;mut </span><span class="self">self</span>, left: Expression&lt;<span class="lifetime">&#39;a</span>&gt;, right: Cow&lt;str&gt;) -&gt; visitor::Result {
-        <span class="kw">let </span>need_cast = <span class="macro">matches!</span>(<span class="kw-2">&amp;</span>left.kind, ExpressionKind::Column(<span class="kw">_</span>));
-        <span class="self">self</span>.visit_expression(left)<span class="question-mark">?</span>;
-
-        <span class="kw">if </span>need_cast {
-            <span class="self">self</span>.write(<span class="string">&quot;::text&quot;</span>)<span class="question-mark">?</span>;
-        }
-
-        <span class="self">self</span>.add_parameter(Value::text(<span class="macro">format!</span>(<span class="string">&quot;{}{}&quot;</span>, right, <span class="self">Self</span>::C_WILDCARD)));
-
-        <span class="self">self</span>.write(<span class="string">&quot; LIKE &quot;</span>)<span class="question-mark">?</span>;
-        <span class="self">self</span>.parameter_substitution()
-    }
-
-    <span class="kw">fn </span>visit_not_begins_with(<span class="kw-2">&amp;mut </span><span class="self">self</span>, left: Expression&lt;<span class="lifetime">&#39;a</span>&gt;, right: Cow&lt;str&gt;) -&gt; visitor::Result {
-        <span class="kw">let </span>need_cast = <span class="macro">matches!</span>(<span class="kw-2">&amp;</span>left.kind, ExpressionKind::Column(<span class="kw">_</span>));
-        <span class="self">self</span>.visit_expression(left)<span class="question-mark">?</span>;
-
-        <span class="kw">if </span>need_cast {
-            <span class="self">self</span>.write(<span class="string">&quot;::text&quot;</span>)<span class="question-mark">?</span>;
-        }
-
-        <span class="self">self</span>.add_parameter(Value::text(<span class="macro">format!</span>(<span class="string">&quot;{}{}&quot;</span>, right, <span class="self">Self</span>::C_WILDCARD)));
-
-        <span class="self">self</span>.write(<span class="string">&quot; NOT LIKE &quot;</span>)<span class="question-mark">?</span>;
-        <span class="self">self</span>.parameter_substitution()
-    }
-
-    <span class="kw">fn </span>visit_ends_with(<span class="kw-2">&amp;mut </span><span class="self">self</span>, left: Expression&lt;<span class="lifetime">&#39;a</span>&gt;, right: Cow&lt;str&gt;) -&gt; visitor::Result {
-        <span class="kw">let </span>need_cast = <span class="macro">matches!</span>(<span class="kw-2">&amp;</span>left.kind, ExpressionKind::Column(<span class="kw">_</span>));
-        <span class="self">self</span>.visit_expression(left)<span class="question-mark">?</span>;
-
-        <span class="kw">if </span>need_cast {
-            <span class="self">self</span>.write(<span class="string">&quot;::text&quot;</span>)<span class="question-mark">?</span>;
-        }
-
-        <span class="self">self</span>.add_parameter(Value::text(<span class="macro">format!</span>(<span class="string">&quot;{}{}&quot;</span>, <span class="self">Self</span>::C_WILDCARD, right,)));
-
-        <span class="self">self</span>.write(<span class="string">&quot; LIKE &quot;</span>)<span class="question-mark">?</span>;
-        <span class="self">self</span>.parameter_substitution()
-    }
-
-    <span class="kw">fn </span>visit_not_ends_with(<span class="kw-2">&amp;mut </span><span class="self">self</span>, left: Expression&lt;<span class="lifetime">&#39;a</span>&gt;, right: Cow&lt;str&gt;) -&gt; visitor::Result {
-        <span class="kw">let </span>need_cast = <span class="macro">matches!</span>(<span class="kw-2">&amp;</span>left.kind, ExpressionKind::Column(<span class="kw">_</span>));
-        <span class="self">self</span>.visit_expression(left)<span class="question-mark">?</span>;
-
-        <span class="kw">if </span>need_cast {
-            <span class="self">self</span>.write(<span class="string">&quot;::text&quot;</span>)<span class="question-mark">?</span>;
-        }
-
-        <span class="self">self</span>.add_parameter(Value::text(<span class="macro">format!</span>(<span class="string">&quot;{}{}&quot;</span>, <span class="self">Self</span>::C_WILDCARD, right,)));
-
-        <span class="self">self</span>.write(<span class="string">&quot; NOT LIKE &quot;</span>)<span class="question-mark">?</span>;
-        <span class="self">self</span>.parameter_substitution()
+        <span class="prelude-val">Ok</span>(())
     }
 
     <span class="kw">fn </span>visit_ordering(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ordering: Ordering&lt;<span class="lifetime">&#39;a</span>&gt;) -&gt; visitor::Result {
@@ -1578,6 +1510,24 @@
                 <span class="self">self</span>.write(<span class="string">&quot;, &quot;</span>)<span class="question-mark">?</span>;
             }
         }
+
+        <span class="prelude-val">Ok</span>(())
+    }
+
+    <span class="kw">fn </span>visit_concat(<span class="kw-2">&amp;mut </span><span class="self">self</span>, concat: Concat&lt;<span class="lifetime">&#39;a</span>&gt;) -&gt; visitor::Result {
+        <span class="kw">let </span>len = concat.exprs.len();
+
+        <span class="self">self</span>.surround_with(<span class="string">&quot;(&quot;</span>, <span class="string">&quot;)&quot;</span>, |s| {
+            <span class="kw">for </span>(i, expr) <span class="kw">in </span>concat.exprs.into_iter().enumerate() {
+                s.visit_expression(expr)<span class="question-mark">?</span>;
+
+                <span class="kw">if </span>i &lt; (len - <span class="number">1</span>) {
+                    s.write(<span class="string">&quot; || &quot;</span>)<span class="question-mark">?</span>;
+                }
+            }
+
+            <span class="prelude-val">Ok</span>(())
+        })<span class="question-mark">?</span>;
 
         <span class="prelude-val">Ok</span>(())
     }
@@ -1624,7 +1574,7 @@
     }
 
     <span class="attribute">#[test]
-    #[cfg(feature = <span class="string">&quot;postgres&quot;</span>)]
+    #[cfg(feature = <span class="string">&quot;postgresql&quot;</span>)]
     </span><span class="kw">fn </span>test_returning_insert() {
         <span class="kw">let </span>expected = expected_values(
             <span class="string">&quot;INSERT INTO \&quot;users\&quot; (\&quot;foo\&quot;) VALUES ($1) RETURNING \&quot;foo\&quot;&quot;</span>,
@@ -1956,7 +1906,7 @@
         <span class="kw">let </span>uuid = uuid::Uuid::new_v4();
         <span class="kw">let </span>(sql, params) = Postgres::build(Select::default().value(uuid.raw())).unwrap();
 
-        <span class="macro">assert_eq!</span>(<span class="macro">format!</span>(<span class="string">&quot;SELECT &#39;{}&#39;&quot;</span>, uuid.to_hyphenated().to_string()), sql);
+        <span class="macro">assert_eq!</span>(<span class="macro">format!</span>(<span class="string">&quot;SELECT &#39;{}&#39;&quot;</span>, uuid.hyphenated()), sql);
 
         <span class="macro">assert!</span>(params.is_empty());
     }
@@ -1985,7 +1935,7 @@
             <span class="macro">vec!</span>[<span class="string">&quot;%foo%&quot;</span>],
         );
 
-        <span class="kw">let </span>query = Select::from_table(<span class="string">&quot;test&quot;</span>).so_that(Column::from(<span class="string">&quot;jsonField&quot;</span>).like(<span class="string">&quot;foo&quot;</span>));
+        <span class="kw">let </span>query = Select::from_table(<span class="string">&quot;test&quot;</span>).so_that(Column::from(<span class="string">&quot;jsonField&quot;</span>).like(<span class="string">&quot;%foo%&quot;</span>));
         <span class="kw">let </span>(sql, params) = Postgres::build(query).unwrap();
 
         <span class="macro">assert_eq!</span>(expected.<span class="number">0</span>, sql);
@@ -1999,7 +1949,7 @@
             <span class="macro">vec!</span>[<span class="string">&quot;%foo%&quot;</span>],
         );
 
-        <span class="kw">let </span>query = Select::from_table(<span class="string">&quot;test&quot;</span>).so_that(Column::from(<span class="string">&quot;jsonField&quot;</span>).not_like(<span class="string">&quot;foo&quot;</span>));
+        <span class="kw">let </span>query = Select::from_table(<span class="string">&quot;test&quot;</span>).so_that(Column::from(<span class="string">&quot;jsonField&quot;</span>).not_like(<span class="string">&quot;%foo%&quot;</span>));
         <span class="kw">let </span>(sql, params) = Postgres::build(query).unwrap();
 
         <span class="macro">assert_eq!</span>(expected.<span class="number">0</span>, sql);
@@ -2010,10 +1960,10 @@
     </span><span class="kw">fn </span>test_begins_with_cast_to_string() {
         <span class="kw">let </span>expected = expected_values(
             <span class="string">r#&quot;SELECT &quot;test&quot;.* FROM &quot;test&quot; WHERE &quot;jsonField&quot;::text LIKE $1&quot;#</span>,
-            <span class="macro">vec!</span>[<span class="string">&quot;foo%&quot;</span>],
+            <span class="macro">vec!</span>[<span class="string">&quot;%foo&quot;</span>],
         );
 
-        <span class="kw">let </span>query = Select::from_table(<span class="string">&quot;test&quot;</span>).so_that(Column::from(<span class="string">&quot;jsonField&quot;</span>).begins_with(<span class="string">&quot;foo&quot;</span>));
+        <span class="kw">let </span>query = Select::from_table(<span class="string">&quot;test&quot;</span>).so_that(Column::from(<span class="string">&quot;jsonField&quot;</span>).like(<span class="string">&quot;%foo&quot;</span>));
         <span class="kw">let </span>(sql, params) = Postgres::build(query).unwrap();
 
         <span class="macro">assert_eq!</span>(expected.<span class="number">0</span>, sql);
@@ -2024,10 +1974,10 @@
     </span><span class="kw">fn </span>test_not_begins_with_cast_to_string() {
         <span class="kw">let </span>expected = expected_values(
             <span class="string">r#&quot;SELECT &quot;test&quot;.* FROM &quot;test&quot; WHERE &quot;jsonField&quot;::text NOT LIKE $1&quot;#</span>,
-            <span class="macro">vec!</span>[<span class="string">&quot;foo%&quot;</span>],
+            <span class="macro">vec!</span>[<span class="string">&quot;%foo&quot;</span>],
         );
 
-        <span class="kw">let </span>query = Select::from_table(<span class="string">&quot;test&quot;</span>).so_that(Column::from(<span class="string">&quot;jsonField&quot;</span>).not_begins_with(<span class="string">&quot;foo&quot;</span>));
+        <span class="kw">let </span>query = Select::from_table(<span class="string">&quot;test&quot;</span>).so_that(Column::from(<span class="string">&quot;jsonField&quot;</span>).not_like(<span class="string">&quot;%foo&quot;</span>));
         <span class="kw">let </span>(sql, params) = Postgres::build(query).unwrap();
 
         <span class="macro">assert_eq!</span>(expected.<span class="number">0</span>, sql);
@@ -2038,10 +1988,10 @@
     </span><span class="kw">fn </span>test_ends_with_cast_to_string() {
         <span class="kw">let </span>expected = expected_values(
             <span class="string">r#&quot;SELECT &quot;test&quot;.* FROM &quot;test&quot; WHERE &quot;jsonField&quot;::text LIKE $1&quot;#</span>,
-            <span class="macro">vec!</span>[<span class="string">&quot;%foo&quot;</span>],
+            <span class="macro">vec!</span>[<span class="string">&quot;foo%&quot;</span>],
         );
 
-        <span class="kw">let </span>query = Select::from_table(<span class="string">&quot;test&quot;</span>).so_that(Column::from(<span class="string">&quot;jsonField&quot;</span>).ends_into(<span class="string">&quot;foo&quot;</span>));
+        <span class="kw">let </span>query = Select::from_table(<span class="string">&quot;test&quot;</span>).so_that(Column::from(<span class="string">&quot;jsonField&quot;</span>).like(<span class="string">&quot;foo%&quot;</span>));
         <span class="kw">let </span>(sql, params) = Postgres::build(query).unwrap();
 
         <span class="macro">assert_eq!</span>(expected.<span class="number">0</span>, sql);
@@ -2052,10 +2002,10 @@
     </span><span class="kw">fn </span>test_not_ends_with_cast_to_string() {
         <span class="kw">let </span>expected = expected_values(
             <span class="string">r#&quot;SELECT &quot;test&quot;.* FROM &quot;test&quot; WHERE &quot;jsonField&quot;::text NOT LIKE $1&quot;#</span>,
-            <span class="macro">vec!</span>[<span class="string">&quot;%foo&quot;</span>],
+            <span class="macro">vec!</span>[<span class="string">&quot;foo%&quot;</span>],
         );
 
-        <span class="kw">let </span>query = Select::from_table(<span class="string">&quot;test&quot;</span>).so_that(Column::from(<span class="string">&quot;jsonField&quot;</span>).not_ends_into(<span class="string">&quot;foo&quot;</span>));
+        <span class="kw">let </span>query = Select::from_table(<span class="string">&quot;test&quot;</span>).so_that(Column::from(<span class="string">&quot;jsonField&quot;</span>).not_like(<span class="string">&quot;foo%&quot;</span>));
         <span class="kw">let </span>(sql, params) = Postgres::build(query).unwrap();
 
         <span class="macro">assert_eq!</span>(expected.<span class="number">0</span>, sql);
@@ -2087,4 +2037,4 @@
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="quaint" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0-nightly (060e47f74 2022-08-23)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="quaint" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0-nightly (b44197abb 2022-09-05)" ></div></body></html>
