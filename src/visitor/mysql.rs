@@ -613,7 +613,7 @@ impl<'a> Visitor<'a> for Mysql<'a> {
     }
 }
 
-fn get_target_table<'a>(query: Query<'a>) -> Option<Table<'a>> {
+fn get_target_table(query: Query<'_>) -> Option<Table<'_>> {
     match query {
         Query::Delete(delete) => Some(delete.table.clone()),
         Query::Update(update) => Some(update.table.clone()),
