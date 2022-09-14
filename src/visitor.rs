@@ -382,7 +382,7 @@ pub trait Visitor<'a> {
         }
     }
 
-    fn visit_sub_selection(&mut self, query: SelectQuery<'a>, _table: Option<Table<'a>>) -> Result {
+    fn visit_sub_selection(&mut self, query: SelectQuery<'a>) -> Result {
         self.visit_selection(query)
     }
 
@@ -485,7 +485,7 @@ pub trait Visitor<'a> {
             ExpressionKind::Column(column) => self.visit_column(*column)?,
             ExpressionKind::Row(row) => self.visit_row(row)?,
             ExpressionKind::Selection(selection) => {
-                self.surround_with("(", ")", |ref mut s| s.visit_sub_selection(selection, None))?
+                self.surround_with("(", ")", |ref mut s| s.visit_sub_selection(selection))?
             }
             ExpressionKind::Function(function) => self.visit_function(*function)?,
             ExpressionKind::Op(op) => self.visit_operation(*op)?,

@@ -3479,18 +3479,10 @@ async fn update_with_subselect_using_main_table_does_not_throw_error(api: &mut d
 
     let id1 = Column::from((&table_1, "id"));
     let conditions = Row::from(vec![id1]).in_selection(selection);
-    let update = Update::table(&table_1).set("val", 1).so_that(conditions);
+    let update = Update::table(&table_1).set("val", 2).so_that(conditions);
 
-    use crate::{
-        ast::*,
-        visitor::{Mysql, Visitor},
-    };
-    let (sql, _) = Mysql::build(update.clone())?;
-
-    println!("SQL {:?}", sql);
-
-    let r = api.conn().update(update).await?;
-    println!("RES {:?}", r);
+    let res = api.conn().update(update).await?;
+    assert_eq!(res, 1);
 
     Ok(())
 }
