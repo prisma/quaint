@@ -39,6 +39,17 @@ impl<'a> MySql<'a> {
 
         Ok(Self { names, conn, tag })
     }
+
+    fn render_perm_create_table(&mut self, table_name: &str, columns: &str) -> (String, String) {
+        let create = format!(
+            r##"
+            CREATE TABLE `{}` ({}) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci
+            "##,
+            table_name, columns,
+        );
+
+        (table_name.to_string(), create)
+    }
 }
 
 #[async_trait::async_trait]
@@ -56,6 +67,16 @@ impl<'a> TestApi for MySql<'a> {
         let name = self.get_name();
 
         let (name, create) = self.render_create_table(&name, columns);
+
+        self.conn().raw_cmd(&create).await?;
+
+        Ok(name)
+    }
+
+    async fn create_real_table(&mut self, columns: &str) -> crate::Result<String> {
+        let name = self.get_name();
+
+        let (name, create) = self.render_perm_create_table(&name, columns);
 
         self.conn().raw_cmd(&create).await?;
 

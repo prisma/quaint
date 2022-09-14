@@ -12,6 +12,7 @@ use std::fmt::{self, Write};
 pub struct Mysql<'a> {
     query: String,
     parameters: Vec<Value<'a>>,
+    table: Option<Table<'a>>,
 }
 
 impl<'a> Mysql<'a> {
@@ -105,6 +106,7 @@ impl<'a> Visitor<'a> for Mysql<'a> {
         let mut mysql = Mysql {
             query: String::with_capacity(4096),
             parameters: Vec::with_capacity(128),
+            table: None,
         };
 
         Mysql::visit_query(&mut mysql, query.into())?;
@@ -245,6 +247,87 @@ impl<'a> Visitor<'a> for Mysql<'a> {
         }
 
         Ok(())
+    }
+
+    // A walk through an `DELETE` statement for mysql
+    fn visit_delete(&mut self, delete: Delete<'a>) -> visitor::Result {
+        self.write("DELETE FROM ")?;
+        self.table = Some(delete.table.clone());
+        self.visit_table(delete.table, true)?;
+
+        if let Some(conditions) = delete.conditions {
+            self.write(" WHERE ")?;
+            self.visit_conditions(conditions)?;
+        }
+
+        if let Some(comment) = delete.comment {
+            self.write(" ")?;
+            self.visit_comment(comment)?;
+        }
+
+        Ok(())
+    }
+
+    /// A walk through an `UPDATE` statement for mysql
+    fn visit_update(&mut self, update: Update<'a>) -> visitor::Result {
+        self.write("UPDATE ")?;
+        self.table = Some(update.table.clone());
+        self.visit_table(update.table, true)?;
+
+        {
+            self.write(" SET ")?;
+            let pairs = update.columns.into_iter().zip(update.values.into_iter());
+            let len = pairs.len();
+
+            for (i, (key, value)) in pairs.enumerate() {
+                self.visit_column(key)?;
+                self.write(" = ")?;
+                self.visit_expression(value)?;
+
+                if i < (len - 1) {
+                    self.write(", ")?;
+                }
+            }
+        }
+
+        if let Some(conditions) = update.conditions {
+            self.write(" WHERE ")?;
+            self.visit_conditions(conditions)?;
+        }
+
+        if let Some(comment) = update.comment {
+            self.write(" ")?;
+            self.visit_comment(comment)?;
+        }
+
+        Ok(())
+    }
+
+    /// MySql will error if a `Update` or `Delete` query has a subselect
+    /// that references a table that is being updated or deleted
+    /// to get around that, we need to wrap the table in a tmp table name
+    ///
+    /// UPDATE `crabbywilderness` SET `val` = ?
+    /// WHERE (`crabbywilderness`.`id`)
+    /// IN (SELECT `t1`.`id` FROM `crabbywilderness` AS `t1`
+    /// INNER JOIN `breakabletomatoes` AS `j` ON `j`.`id` = `t1`.`id2`)
+    fn visit_sub_selection(&mut self, query: SelectQuery<'a>, _table: Option<Table<'a>>) -> visitor::Result {
+        match query {
+            SelectQuery::Select(select) => {
+                if let Some(table) = &self.table {
+                    if select.tables.contains(&table) {
+                        let tmp_name = "tmp_subselect_table";
+                        let tmp_table = Table::from(*select).alias(tmp_name);
+                        let sub_select = Select::from_table(tmp_table).value(Table::from(tmp_name).asterisk());
+
+                        return self.visit_select(sub_select);
+                    }
+                }
+
+                self.visit_select(*select)
+            }
+            SelectQuery::Union(union) => self.visit_union(*union),
+        }
     }
 
     fn parameter_substitution(&mut self) -> visitor::Result {

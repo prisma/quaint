@@ -3452,3 +3452,45 @@ async fn json_col_equal_json_col(api: &mut dyn TestApi) -> crate::Result<()> {
 
     Ok(())
 }
+
+#[test_each_connector(tags("mysql"))]
+async fn update_with_subselect_using_main_table_does_not_throw_error(api: &mut dyn TestApi) -> crate::Result<()> {
+    let table_1 = api.create_real_table("id int, id2 int, val int").await?;
+    let table_2 = api.create_real_table("id int").await?;
+
+    let insert = Insert::single_into(&table_1)
+        .value("id", 1)
+        .value("id2", 1)
+        .value("val", 1);
+    api.conn().insert(insert.into()).await?;
+
+    let insert = Insert::single_into(&table_1)
+        .value("id", 2)
+        .value("id2", 3)
+        .value("val", 1);
+    api.conn().insert(insert.into()).await?;
+
+    let insert = Insert::single_into(&table_2).value("id", 1);
+    api.conn().insert(insert.into()).await?;
+
+    let join = table_2.alias("j").on(("j", "id").equals(Column::from(("t1", "id2"))));
+    let a = table_1.clone().alias("t1");
+    let selection = Select::from_table(a).column(("t1", "id")).inner_join(join);
+
+    let id1 = Column::from((&table_1, "id"));
+    let conditions = Row::from(vec![id1]).in_selection(selection);
+    let update = Update::table(&table_1).set("val", 1).so_that(conditions);
+
+    use crate::{
+        ast::*,
+        visitor::{Mysql, Visitor},
+    };
+    let (sql, _) = Mysql::build(update.clone())?;
+
+    println!("SQL {:?}", sql);
+
+    let r = api.conn().update(update).await?;
+    println!("RES {:?}", r);
+
+    Ok(())
+}

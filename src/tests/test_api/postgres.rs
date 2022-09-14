@@ -36,6 +36,10 @@ impl<'a> TestApi for PostgreSql<'a> {
             .await
     }
 
+    async fn create_real_table(&mut self, _columns: &str) -> crate::Result<String> {
+        unimplemented!("only required for MySql nested sub select test")
+    }
+
     async fn create_table(&mut self, columns: &str) -> crate::Result<String> {
         let name = self.get_name();
 
