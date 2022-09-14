@@ -59,11 +59,11 @@ impl<'a> TestApi for MySql<'a> {
     }
 
     async fn create_type_table(&mut self, r#type: &str) -> crate::Result<String> {
-        self.create_table(&format!("{}, `value` {}", self.autogen_id("id"), r#type))
+        self.create_temp_table(&format!("{}, `value` {}", self.autogen_id("id"), r#type))
             .await
     }
 
-    async fn create_table(&mut self, columns: &str) -> crate::Result<String> {
+    async fn create_temp_table(&mut self, columns: &str) -> crate::Result<String> {
         let name = self.get_name();
 
         let (name, create) = self.render_create_table(&name, columns);
@@ -73,7 +73,7 @@ impl<'a> TestApi for MySql<'a> {
         Ok(name)
     }
 
-    async fn create_real_table(&mut self, columns: &str) -> crate::Result<String> {
+    async fn create_table(&mut self, columns: &str) -> crate::Result<String> {
         let name = self.get_name();
 
         let (name, create) = self.render_perm_create_table(&name, columns);
@@ -81,6 +81,16 @@ impl<'a> TestApi for MySql<'a> {
         self.conn().raw_cmd(&create).await?;
 
         Ok(name)
+    }
+
+    async fn delete_table(&mut self, table_name: &str) -> crate::Result<()> {
+        let delete = format!(
+            r##"
+            DROP TABLE `{}`
+            "##,
+            table_name
+        );
+        self.conn().raw_cmd(&delete).await
     }
 
     fn render_create_table(&mut self, table_name: &str, columns: &str) -> (String, String) {
