@@ -936,7 +936,7 @@ mod tests {
     }
 
     #[test]
-    fn test_subselect_temp_table_wrapper() {
+    fn test_subselect_temp_table_wrapper_for_update() {
         let table_1 = "table_1";
         let table_2 = "table2";
 
@@ -952,6 +952,27 @@ mod tests {
 
         assert_eq!(
             "UPDATE `table_1` SET `val` = ? WHERE (`table_1`.`id`) IN (SELECT `tmp_subselect_table`.* FROM (SELECT `t1`.`id` FROM `table_1` AS `t1` INNER JOIN `table2` AS `j` ON `j`.`id` = `t1`.`id2`) AS `tmp_subselect_table`)",
+            sql
+        );
+    }
+
+    #[test]
+    fn test_subselect_temp_table_wrapper_for_delete() {
+        let table_1 = "table_1";
+        let table_2 = "table2";
+
+        let join = table_2.alias("j").on(("j", "id").equals(Column::from(("t1", "id2"))));
+        let a = table_1.clone().alias("t1");
+        let selection = Select::from_table(a).column(("t1", "id")).inner_join(join);
+
+        let id1 = Column::from((table_1, "id"));
+        let conditions = Row::from(vec![id1]).in_selection(selection);
+        let update = Delete::from_table(table_1).so_that(conditions);
+
+        let (sql, _) = Mysql::build(update).unwrap();
+
+        assert_eq!(
+            "DELETE FROM `table_1` WHERE (`table_1`.`id`) IN (SELECT `tmp_subselect_table`.* FROM (SELECT `t1`.`id` FROM `table_1` AS `t1` INNER JOIN `table2` AS `j` ON `j`.`id` = `t1`.`id2`) AS `tmp_subselect_table`)",
             sql
         );
     }
