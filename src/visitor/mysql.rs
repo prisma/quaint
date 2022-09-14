@@ -12,7 +12,7 @@ use std::fmt::{self, Write};
 pub struct Mysql<'a> {
     query: String,
     parameters: Vec<Value<'a>>,
-    /// The table the query is acting on
+    /// The table a deleting or updating query is acting on.
     target_table: Option<Table<'a>>,
 }
 
