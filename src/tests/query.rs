@@ -3474,8 +3474,8 @@ async fn update_with_subselect_using_main_table_does_not_throw_error(api: &mut d
     api.conn().insert(insert.into()).await?;
 
     let join = table_2.alias("j").on(("j", "id").equals(Column::from(("t1", "id2"))));
-    let a = table_1.clone().alias("t1");
-    let selection = Select::from_table(a).column(("t1", "id")).inner_join(join);
+    let t1_alias = table_1.clone().alias("t1");
+    let selection = Select::from_table(t1_alias).column(("t1", "id")).inner_join(join);
 
     let id1 = Column::from((&table_1, "id"));
     let conditions = Row::from(vec![id1]).in_selection(selection);
