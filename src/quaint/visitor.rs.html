@@ -1082,6 +1082,10 @@
 <span id="1082">1082</span>
 <span id="1083">1083</span>
 <span id="1084">1084</span>
+<span id="1085">1085</span>
+<span id="1086">1086</span>
+<span id="1087">1087</span>
+<span id="1088">1088</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Visitors for reading an abstract SQL syntax tree, generating the query and
 //! gathering parameters in the right order.
 //!
@@ -1466,6 +1470,10 @@
         }
     }
 
+    <span class="kw">fn </span>visit_sub_selection(<span class="kw-2">&amp;mut </span><span class="self">self</span>, query: SelectQuery&lt;<span class="lifetime">&#39;a</span>&gt;) -&gt; <span class="prelude-ty">Result </span>{
+        <span class="self">self</span>.visit_selection(query)
+    }
+
     <span class="kw">fn </span>visit_selection(<span class="kw-2">&amp;mut </span><span class="self">self</span>, query: SelectQuery&lt;<span class="lifetime">&#39;a</span>&gt;) -&gt; <span class="prelude-ty">Result </span>{
         <span class="kw">match </span>query {
             SelectQuery::Select(select) =&gt; <span class="self">self</span>.visit_select(<span class="kw-2">*</span>select),
@@ -1565,7 +1573,7 @@
             ExpressionKind::Column(column) =&gt; <span class="self">self</span>.visit_column(<span class="kw-2">*</span>column)<span class="question-mark">?</span>,
             ExpressionKind::Row(row) =&gt; <span class="self">self</span>.visit_row(row)<span class="question-mark">?</span>,
             ExpressionKind::Selection(selection) =&gt; {
-                <span class="self">self</span>.surround_with(<span class="string">&quot;(&quot;</span>, <span class="string">&quot;)&quot;</span>, |<span class="kw-2">ref mut </span>s| s.visit_selection(selection))<span class="question-mark">?
+                <span class="self">self</span>.surround_with(<span class="string">&quot;(&quot;</span>, <span class="string">&quot;)&quot;</span>, |<span class="kw-2">ref mut </span>s| s.visit_sub_selection(selection))<span class="question-mark">?
             </span>}
             ExpressionKind::Function(function) =&gt; <span class="self">self</span>.visit_function(<span class="kw-2">*</span>function)<span class="question-mark">?</span>,
             ExpressionKind::Op(op) =&gt; <span class="self">self</span>.visit_operation(<span class="kw-2">*</span>op)<span class="question-mark">?</span>,
@@ -2167,4 +2175,4 @@
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="quaint" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0-nightly (b44197abb 2022-09-05)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="quaint" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0-nightly (750bd1a7f 2022-09-14)" ></div></body></html>

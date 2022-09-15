@@ -896,6 +896,87 @@
 <span id="896">896</span>
 <span id="897">897</span>
 <span id="898">898</span>
+<span id="899">899</span>
+<span id="900">900</span>
+<span id="901">901</span>
+<span id="902">902</span>
+<span id="903">903</span>
+<span id="904">904</span>
+<span id="905">905</span>
+<span id="906">906</span>
+<span id="907">907</span>
+<span id="908">908</span>
+<span id="909">909</span>
+<span id="910">910</span>
+<span id="911">911</span>
+<span id="912">912</span>
+<span id="913">913</span>
+<span id="914">914</span>
+<span id="915">915</span>
+<span id="916">916</span>
+<span id="917">917</span>
+<span id="918">918</span>
+<span id="919">919</span>
+<span id="920">920</span>
+<span id="921">921</span>
+<span id="922">922</span>
+<span id="923">923</span>
+<span id="924">924</span>
+<span id="925">925</span>
+<span id="926">926</span>
+<span id="927">927</span>
+<span id="928">928</span>
+<span id="929">929</span>
+<span id="930">930</span>
+<span id="931">931</span>
+<span id="932">932</span>
+<span id="933">933</span>
+<span id="934">934</span>
+<span id="935">935</span>
+<span id="936">936</span>
+<span id="937">937</span>
+<span id="938">938</span>
+<span id="939">939</span>
+<span id="940">940</span>
+<span id="941">941</span>
+<span id="942">942</span>
+<span id="943">943</span>
+<span id="944">944</span>
+<span id="945">945</span>
+<span id="946">946</span>
+<span id="947">947</span>
+<span id="948">948</span>
+<span id="949">949</span>
+<span id="950">950</span>
+<span id="951">951</span>
+<span id="952">952</span>
+<span id="953">953</span>
+<span id="954">954</span>
+<span id="955">955</span>
+<span id="956">956</span>
+<span id="957">957</span>
+<span id="958">958</span>
+<span id="959">959</span>
+<span id="960">960</span>
+<span id="961">961</span>
+<span id="962">962</span>
+<span id="963">963</span>
+<span id="964">964</span>
+<span id="965">965</span>
+<span id="966">966</span>
+<span id="967">967</span>
+<span id="968">968</span>
+<span id="969">969</span>
+<span id="970">970</span>
+<span id="971">971</span>
+<span id="972">972</span>
+<span id="973">973</span>
+<span id="974">974</span>
+<span id="975">975</span>
+<span id="976">976</span>
+<span id="977">977</span>
+<span id="978">978</span>
+<span id="979">979</span>
 </pre><pre class="rust"><code><span class="kw">use crate</span>::{
     ast::<span class="kw-2">*</span>,
     error::{Error, ErrorKind},
@@ -910,6 +991,8 @@
 </span><span class="kw">pub struct </span>Mysql&lt;<span class="lifetime">&#39;a</span>&gt; {
     query: String,
     parameters: Vec&lt;Value&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
+    <span class="doccomment">/// The table a deleting or updating query is acting on.
+    </span>target_table: <span class="prelude-ty">Option</span>&lt;Table&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
 }
 
 <span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; Mysql&lt;<span class="lifetime">&#39;a</span>&gt; {
@@ -1000,12 +1083,14 @@
     <span class="kw">where
         </span>Q: Into&lt;Query&lt;<span class="lifetime">&#39;a</span>&gt;&gt;,
     {
+        <span class="kw">let </span>query = query.into();
         <span class="kw">let </span><span class="kw-2">mut </span>mysql = Mysql {
             query: String::with_capacity(<span class="number">4096</span>),
             parameters: Vec::with_capacity(<span class="number">128</span>),
+            target_table: get_target_table(query.clone()),
         };
 
-        Mysql::visit_query(<span class="kw-2">&amp;mut </span>mysql, query.into())<span class="question-mark">?</span>;
+        Mysql::visit_query(<span class="kw-2">&amp;mut </span>mysql, query)<span class="question-mark">?</span>;
 
         <span class="prelude-val">Ok</span>((mysql.query, mysql.parameters))
     }
@@ -1143,6 +1228,33 @@
         }
 
         <span class="prelude-val">Ok</span>(())
+    }
+
+    <span class="doccomment">/// MySql will error if a `Update` or `Delete` query has a subselect
+    /// that references a table that is being updated or deleted
+    /// to get around that, we need to wrap the table in a tmp table name
+    ///
+    /// UPDATE `crabbywilderness` SET `val` = ?
+    /// WHERE (`crabbywilderness`.`id`)
+    /// IN (SELECT `t1`.`id` FROM `crabbywilderness` AS `t1`
+    /// INNER JOIN `breakabletomatoes` AS `j` ON `j`.`id` = `t1`.`id2`)
+    </span><span class="kw">fn </span>visit_sub_selection(<span class="kw-2">&amp;mut </span><span class="self">self</span>, query: SelectQuery&lt;<span class="lifetime">&#39;a</span>&gt;) -&gt; visitor::Result {
+        <span class="kw">match </span>query {
+            SelectQuery::Select(select) =&gt; {
+                <span class="kw">if let </span><span class="prelude-val">Some</span>(table) = <span class="kw-2">&amp;</span><span class="self">self</span>.target_table {
+                    <span class="kw">if </span>select.tables.contains(table) {
+                        <span class="kw">let </span>tmp_name = <span class="string">&quot;tmp_subselect_table&quot;</span>;
+                        <span class="kw">let </span>tmp_table = Table::from(<span class="kw-2">*</span>select).alias(tmp_name);
+                        <span class="kw">let </span>sub_select = Select::from_table(tmp_table).value(Table::from(tmp_name).asterisk());
+
+                        <span class="kw">return </span><span class="self">self</span>.visit_select(sub_select);
+                    }
+                }
+
+                <span class="self">self</span>.visit_select(<span class="kw-2">*</span>select)
+            }
+            SelectQuery::Union(union) =&gt; <span class="self">self</span>.visit_union(<span class="kw-2">*</span>union),
+        }
     }
 
     <span class="kw">fn </span>parameter_substitution(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; visitor::Result {
@@ -1480,6 +1592,14 @@
     }
 }
 
+<span class="kw">fn </span>get_target_table(query: Query&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; <span class="prelude-ty">Option</span>&lt;Table&lt;<span class="lifetime">&#39;_</span>&gt;&gt; {
+    <span class="kw">match </span>query {
+        Query::Delete(delete) =&gt; <span class="prelude-val">Some</span>(delete.table.clone()),
+        Query::Update(update) =&gt; <span class="prelude-val">Some</span>(update.table.clone()),
+        <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
+    }
+}
+
 <span class="attribute">#[cfg(test)]
 </span><span class="kw">mod </span>tests {
     <span class="kw">use </span><span class="kw">crate</span>::visitor::<span class="kw-2">*</span>;
@@ -1793,6 +1913,48 @@
             sql
         );
     }
+
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_subselect_temp_table_wrapper_for_update() {
+        <span class="kw">let </span>table_1 = <span class="string">&quot;table_1&quot;</span>;
+        <span class="kw">let </span>table_2 = <span class="string">&quot;table2&quot;</span>;
+
+        <span class="kw">let </span>join = table_2.alias(<span class="string">&quot;j&quot;</span>).on((<span class="string">&quot;j&quot;</span>, <span class="string">&quot;id&quot;</span>).equals(Column::from((<span class="string">&quot;t1&quot;</span>, <span class="string">&quot;id2&quot;</span>))));
+        <span class="kw">let </span>a = table_1.clone().alias(<span class="string">&quot;t1&quot;</span>);
+        <span class="kw">let </span>selection = Select::from_table(a).column((<span class="string">&quot;t1&quot;</span>, <span class="string">&quot;id&quot;</span>)).inner_join(join);
+
+        <span class="kw">let </span>id1 = Column::from((table_1, <span class="string">&quot;id&quot;</span>));
+        <span class="kw">let </span>conditions = Row::from(<span class="macro">vec!</span>[id1]).in_selection(selection);
+        <span class="kw">let </span>update = Update::table(table_1).set(<span class="string">&quot;val&quot;</span>, <span class="number">2</span>).so_that(conditions);
+
+        <span class="kw">let </span>(sql, <span class="kw">_</span>) = Mysql::build(update).unwrap();
+
+        <span class="macro">assert_eq!</span>(
+            <span class="string">&quot;UPDATE `table_1` SET `val` = ? WHERE (`table_1`.`id`) IN (SELECT `tmp_subselect_table`.* FROM (SELECT `t1`.`id` FROM `table_1` AS `t1` INNER JOIN `table2` AS `j` ON `j`.`id` = `t1`.`id2`) AS `tmp_subselect_table`)&quot;</span>,
+            sql
+        );
+    }
+
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_subselect_temp_table_wrapper_for_delete() {
+        <span class="kw">let </span>table_1 = <span class="string">&quot;table_1&quot;</span>;
+        <span class="kw">let </span>table_2 = <span class="string">&quot;table2&quot;</span>;
+
+        <span class="kw">let </span>join = table_2.alias(<span class="string">&quot;j&quot;</span>).on((<span class="string">&quot;j&quot;</span>, <span class="string">&quot;id&quot;</span>).equals(Column::from((<span class="string">&quot;t1&quot;</span>, <span class="string">&quot;id2&quot;</span>))));
+        <span class="kw">let </span>a = table_1.clone().alias(<span class="string">&quot;t1&quot;</span>);
+        <span class="kw">let </span>selection = Select::from_table(a).column((<span class="string">&quot;t1&quot;</span>, <span class="string">&quot;id&quot;</span>)).inner_join(join);
+
+        <span class="kw">let </span>id1 = Column::from((table_1, <span class="string">&quot;id&quot;</span>));
+        <span class="kw">let </span>conditions = Row::from(<span class="macro">vec!</span>[id1]).in_selection(selection);
+        <span class="kw">let </span>update = Delete::from_table(table_1).so_that(conditions);
+
+        <span class="kw">let </span>(sql, <span class="kw">_</span>) = Mysql::build(update).unwrap();
+
+        <span class="macro">assert_eq!</span>(
+            <span class="string">&quot;DELETE FROM `table_1` WHERE (`table_1`.`id`) IN (SELECT `tmp_subselect_table`.* FROM (SELECT `t1`.`id` FROM `table_1` AS `t1` INNER JOIN `table2` AS `j` ON `j`.`id` = `t1`.`id2`) AS `tmp_subselect_table`)&quot;</span>,
+            sql
+        );
+    }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="quaint" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0-nightly (b44197abb 2022-09-05)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="quaint" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0-nightly (750bd1a7f 2022-09-14)" ></div></body></html>
