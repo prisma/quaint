@@ -201,7 +201,7 @@ impl<'a> Visitor<'a> for Sqlite<'a> {
                 self.write(" RETURNING ")?;
 
                 for (i, column) in returning.into_iter().enumerate() {
-                    self.visit_column(column)?;
+                    self.delimited_identifiers(&[&*column.name])?;
 
                     if i < (values_len - 1) {
                         self.write(", ")?;
