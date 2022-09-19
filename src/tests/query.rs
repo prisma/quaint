@@ -698,7 +698,7 @@ async fn returning_insert(api: &mut dyn TestApi) -> crate::Result<()> {
     } else {
         assert_eq!(Some(1), row["id"].as_i32());
     }
-    assert_eq!(Some("Naukio"), row["`name`"].as_str());
+    assert_eq!(Some("Naukio"), row["name"].as_str());
 
     Ok(())
 }
