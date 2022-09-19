@@ -146,6 +146,9 @@ pub enum ErrorKind {
     #[error("Error querying the database: {}", _0)]
     QueryError(Box<dyn std::error::Error + Send + Sync + 'static>),
 
+    #[error("Invalid input provided to query: {}", _0)]
+    QueryInvalidInput(Box<dyn std::error::Error + Send + Sync + 'static>),
+
     #[error("Database does not exist: {}", db_name)]
     DatabaseDoesNotExist { db_name: Name },
 
