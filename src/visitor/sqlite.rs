@@ -205,6 +205,7 @@ impl<'a> Visitor<'a> for Sqlite<'a> {
                     self.delimited_identifiers(&[&*column.name])?;
                     self.write(" AS ")?;
                     self.delimited_identifiers(&[&*column.name])?;
+
                     if i < (values_len - 1) {
                         self.write(", ")?;
                     }
