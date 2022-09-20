@@ -974,6 +974,8 @@
 <span id="974">974</span>
 <span id="975">975</span>
 <span id="976">976</span>
+<span id="977">977</span>
+<span id="978">978</span>
 </pre><pre class="rust"><code><span class="kw">use crate</span>::{
     ast::<span class="kw-2">*</span>,
     error::{Error, ErrorKind},
@@ -1177,8 +1179,10 @@
                 <span class="self">self</span>.write(<span class="string">&quot; RETURNING &quot;</span>)<span class="question-mark">?</span>;
 
                 <span class="kw">for </span>(i, column) <span class="kw">in </span>returning.into_iter().enumerate() {
-                    <span class="self">self</span>.delimited_identifiers(<span class="kw-2">&amp;</span>[<span class="kw-2">&amp;*</span>column.name])<span class="question-mark">?</span>;
-
+                    <span class="comment">//yay https://sqlite.org/forum/info/6c141f151fa5c444db257eb4d95c302b70bfe5515901cf987e83ed8ebd434c49?t=h
+                    </span><span class="self">self</span>.surround_with_backticks(<span class="kw-2">&amp;*</span>column.name)<span class="question-mark">?</span>;
+                    <span class="self">self</span>.write(<span class="string">&quot; AS &quot;</span>)<span class="question-mark">?</span>;
+                    <span class="self">self</span>.surround_with_backticks(<span class="kw-2">&amp;*</span>column.name)<span class="question-mark">?</span>;
                     <span class="kw">if </span>i &lt; (values_len - <span class="number">1</span>) {
                         <span class="self">self</span>.write(<span class="string">&quot;, &quot;</span>)<span class="question-mark">?</span>;
                     }
@@ -1945,10 +1949,10 @@
         <span class="kw">let </span>(sql, <span class="kw">_</span>) = Sqlite::build(insert).unwrap();
 
         <span class="macro">assert_eq!</span>(
-            <span class="string">&quot;INSERT INTO `test` (`user id`, `txt`) VALUES (?,?) RETURNING `user id`&quot;</span>,
+            <span class="string">&quot;INSERT INTO `test` (`user id`, `txt`) VALUES (?,?) RETURNING `user id` AS `user id`&quot;</span>,
             sql
         );
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="quaint" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.66.0-nightly (a37499ae6 2022-09-18)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="quaint" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.66.0-nightly (2019147c5 2022-09-19)" ></div></body></html>

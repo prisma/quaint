@@ -324,6 +324,33 @@
 <span id="324">324</span>
 <span id="325">325</span>
 <span id="326">326</span>
+<span id="327">327</span>
+<span id="328">328</span>
+<span id="329">329</span>
+<span id="330">330</span>
+<span id="331">331</span>
+<span id="332">332</span>
+<span id="333">333</span>
+<span id="334">334</span>
+<span id="335">335</span>
+<span id="336">336</span>
+<span id="337">337</span>
+<span id="338">338</span>
+<span id="339">339</span>
+<span id="340">340</span>
+<span id="341">341</span>
+<span id="342">342</span>
+<span id="343">343</span>
+<span id="344">344</span>
+<span id="345">345</span>
+<span id="346">346</span>
+<span id="347">347</span>
+<span id="348">348</span>
+<span id="349">349</span>
+<span id="350">350</span>
+<span id="351">351</span>
+<span id="352">352</span>
+<span id="353">353</span>
 </pre><pre class="rust"><code><span class="kw">mod </span>conversion;
 <span class="kw">mod </span>error;
 
@@ -649,6 +676,33 @@
         <span class="kw">let </span>err = other_conn.select(select).<span class="kw">await</span>.unwrap_err();
         <span class="macro">assert!</span>(<span class="macro">matches!</span>(err.kind(), ErrorKind::TableDoesNotExist { .. }));
     }
+
+    <span class="attribute">#[tokio::test]
+    </span><span class="kw">async fn </span>quoting_in_returning_in_sqlite_works() {
+        <span class="kw">let </span>conn = Sqlite::new_in_memory().unwrap();
+
+        conn.raw_cmd(<span class="string">&quot;CREATE TABLE test (id  INTEGER PRIMARY KEY, `txt space` TEXT NOT NULL);&quot;</span>)
+            .<span class="kw">await
+            </span>.unwrap();
+
+        <span class="kw">let </span>insert = Insert::single_into(<span class="string">&quot;test&quot;</span>).value(<span class="string">&quot;txt space&quot;</span>, <span class="string">&quot;henlo&quot;</span>);
+        conn.insert(insert.into()).<span class="kw">await</span>.unwrap();
+
+        <span class="kw">let </span>select = Select::from_table(<span class="string">&quot;test&quot;</span>).value(asterisk());
+        <span class="kw">let </span>result = conn.select(select.clone()).<span class="kw">await</span>.unwrap();
+        <span class="kw">let </span>result = result.into_single().unwrap();
+
+        <span class="macro">assert_eq!</span>(result.get(<span class="string">&quot;id&quot;</span>).unwrap(), <span class="kw-2">&amp;</span>Value::int32(<span class="number">1</span>));
+        <span class="macro">assert_eq!</span>(result.get(<span class="string">&quot;txt space&quot;</span>).unwrap(), <span class="kw-2">&amp;</span>Value::text(<span class="string">&quot;henlo&quot;</span>));
+
+        <span class="kw">let </span>insert = Insert::single_into(<span class="string">&quot;test&quot;</span>).value(<span class="string">&quot;txt space&quot;</span>, <span class="string">&quot;henlo&quot;</span>);
+        <span class="kw">let </span>insert: Insert = Insert::from(insert).returning(<span class="kw-2">&amp;</span>[<span class="string">&quot;txt space&quot;</span>]).into();
+
+        <span class="kw">let </span>result = conn.insert(insert.into()).<span class="kw">await</span>.unwrap();
+        <span class="kw">let </span>result = result.into_single().unwrap();
+
+        <span class="macro">assert_eq!</span>(result.get(<span class="string">&quot;txt space&quot;</span>).unwrap(), <span class="kw-2">&amp;</span>Value::text(<span class="string">&quot;henlo&quot;</span>));
+    }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="quaint" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.66.0-nightly (a37499ae6 2022-09-18)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="quaint" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.66.0-nightly (2019147c5 2022-09-19)" ></div></body></html>

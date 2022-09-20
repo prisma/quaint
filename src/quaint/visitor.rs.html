@@ -1086,6 +1086,10 @@
 <span id="1086">1086</span>
 <span id="1087">1087</span>
 <span id="1088">1088</span>
+<span id="1089">1089</span>
+<span id="1090">1090</span>
+<span id="1091">1091</span>
+<span id="1092">1092</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Visitors for reading an abstract SQL syntax tree, generating the query and
 //! gathering parameters in the right order.
 //!
@@ -1437,16 +1441,20 @@
     </span><span class="kw">fn </span>delimited_identifiers(<span class="kw-2">&amp;mut </span><span class="self">self</span>, parts: <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span>str]) -&gt; <span class="prelude-ty">Result </span>{
         <span class="kw">let </span>len = parts.len();
 
-        <span class="kw">for </span>(i, parts) <span class="kw">in </span>parts.iter().enumerate() {
-            <span class="self">self</span>.surround_with(<span class="self">Self</span>::C_BACKTICK_OPEN, <span class="self">Self</span>::C_BACKTICK_CLOSE, |<span class="kw-2">ref mut </span>s| {
-                s.write(parts)
-            })<span class="question-mark">?</span>;
+        <span class="kw">for </span>(i, part) <span class="kw">in </span>parts.iter().enumerate() {
+            <span class="self">self</span>.surround_with_backticks(part)<span class="question-mark">?</span>;
 
             <span class="kw">if </span>i &lt; (len - <span class="number">1</span>) {
                 <span class="self">self</span>.write(<span class="string">&quot;.&quot;</span>)<span class="question-mark">?</span>;
             }
         }
 
+        <span class="prelude-val">Ok</span>(())
+    }
+
+    <span class="doccomment">/// A helper for delimiting a part of an identifier, surrounding it with `C_BACKTICK`
+    </span><span class="kw">fn </span>surround_with_backticks(<span class="kw-2">&amp;mut </span><span class="self">self</span>, part: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result </span>{
+        <span class="self">self</span>.surround_with(<span class="self">Self</span>::C_BACKTICK_OPEN, <span class="self">Self</span>::C_BACKTICK_CLOSE, |<span class="kw-2">ref mut </span>s| s.write(part))<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(())
     }
 
@@ -2175,4 +2183,4 @@
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="quaint" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.66.0-nightly (a37499ae6 2022-09-18)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="quaint" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.66.0-nightly (2019147c5 2022-09-19)" ></div></body></html>
