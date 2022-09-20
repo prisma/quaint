@@ -202,9 +202,9 @@ impl<'a> Visitor<'a> for Sqlite<'a> {
 
                 for (i, column) in returning.into_iter().enumerate() {
                     //yay https://sqlite.org/forum/info/6c141f151fa5c444db257eb4d95c302b70bfe5515901cf987e83ed8ebd434c49?t=h
-                    self.delimited_identifiers(&[&*column.name])?;
+                    self.surround_with_backticks(&*column.name)?;
                     self.write(" AS ")?;
-                    self.delimited_identifiers(&[&*column.name])?;
+                    self.surround_with_backticks(&*column.name)?;
                     if i < (values_len - 1) {
                         self.write(", ")?;
                     }
