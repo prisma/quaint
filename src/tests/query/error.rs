@@ -454,8 +454,8 @@ async fn concurrent_transaction_conflict(api: &mut dyn TestApi) -> crate::Result
         .insert(Insert::single_into(&table).value("id", 1).value("count", 1).into())
         .await?;
 
-    let conn1 = api.new_conn().await?;
-    let conn2 = api.new_conn().await?;
+    let conn1 = api.create_additional_connection().await?;
+    let conn2 = api.create_additional_connection().await?;
 
     let tx1 = conn1.start_transaction(Some(IsolationLevel::Serializable)).await?;
     let tx2 = conn2.start_transaction(Some(IsolationLevel::Serializable)).await?;

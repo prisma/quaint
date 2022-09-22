@@ -81,7 +81,7 @@ impl<'a> TestApi for Sqlite<'a> {
         &self.conn
     }
 
-    async fn new_conn(&self) -> crate::Result<Quaint> {
+    async fn create_additional_connection(&self) -> crate::Result<Quaint> {
         Quaint::new(CONN_STR).await
     }
 
