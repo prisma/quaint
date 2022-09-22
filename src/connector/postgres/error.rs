@@ -349,19 +349,7 @@ fn try_extracting_io_error(err: &tokio_postgres::error::Error) -> Option<Error> 
 
     err.source()
         .and_then(|err| err.downcast_ref::<std::io::Error>())
-        .map(|err| {
-            let inner_io_error = Box::new(std::io::Error::new(err.kind(), format!("{}", err)));
-            match err.kind() {
-                // tokio_postgres will throw `std::io::Error`s with kind `InvalidInput` in several occasions,
-                // e.g., when the number of provided bind variables is >= 32768.
-                // We map these to `quaint::error::ErrorKind::QueryInvalidInput` to avoid confusing user-facing
-                // error messages.
-                std::io::ErrorKind::InvalidInput => ErrorKind::QueryInvalidInput(inner_io_error),
-
-                // fall back to a generic `ConnectionError`
-                _ => ErrorKind::ConnectionError(inner_io_error),
-            }
-        })
+        .map(|err| ErrorKind::ConnectionError(Box::new(std::io::Error::new(err.kind(), format!("{}", err)))))
         .map(|kind| Error::builder(kind).build())
 }
 
