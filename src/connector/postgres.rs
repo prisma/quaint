@@ -609,7 +609,7 @@ impl PostgreSql {
                 i16::MAX,
                 params.len()
             ));
-            return Err(Error::builder(kind).build());
+            Err(Error::builder(kind).build())
         } else {
             Ok(())
         }
