@@ -235,6 +235,16 @@
 <span id="235">235</span>
 <span id="236">236</span>
 <span id="237">237</span>
+<span id="238">238</span>
+<span id="239">239</span>
+<span id="240">240</span>
+<span id="241">241</span>
+<span id="242">242</span>
+<span id="243">243</span>
+<span id="244">244</span>
+<span id="245">245</span>
+<span id="246">246</span>
+<span id="247">247</span>
 </pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::error::{DatabaseConstraint, Error, ErrorKind};
 <span class="kw">use </span>mysql_async <span class="kw">as </span>my;
 
@@ -451,6 +461,16 @@
             my::Error::Server(ServerError {
                 <span class="kw-2">ref </span>message,
                 code,
+                state: <span class="kw">_</span>,
+            }) <span class="kw">if </span>code == <span class="number">1213 </span>=&gt; {
+                <span class="kw">let </span><span class="kw-2">mut </span>builder = Error::builder(ErrorKind::TransactionWriteConflict);
+                builder.set_original_code(<span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, code));
+                builder.set_original_message(message);
+                builder.build()
+            }
+            my::Error::Server(ServerError {
+                <span class="kw-2">ref </span>message,
+                code,
                 <span class="kw-2">ref </span>state,
             }) =&gt; {
                 <span class="kw">let </span>kind = ErrorKind::QueryError(
@@ -473,4 +493,4 @@
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="quaint" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.66.0-nightly (2019147c5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="quaint" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.66.0-nightly (9062b780b 2022-09-21)" ></div></body></html>

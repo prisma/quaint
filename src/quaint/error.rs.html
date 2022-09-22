@@ -376,6 +376,9 @@
 <span id="376">376</span>
 <span id="377">377</span>
 <span id="378">378</span>
+<span id="379">379</span>
+<span id="380">380</span>
+<span id="381">381</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Error module
 </span><span class="kw">use </span><span class="kw">crate</span>::connector::IsolationLevel;
 <span class="kw">use </span>std::{borrow::Cow, fmt, io, num};
@@ -622,6 +625,9 @@
     <span class="attribute">#[error(<span class="string">&quot;Transaction was already closed: {}&quot;</span>, _0)]
     </span>TransactionAlreadyClosed(String),
 
+    <span class="attribute">#[error(<span class="string">&quot;Transaction write conflict&quot;</span>)]
+    </span>TransactionWriteConflict,
+
     <span class="attribute">#[error(<span class="string">&quot;Invalid isolation level: {}&quot;</span>, _0)]
     </span>InvalidIsolationLevel(String),
 
@@ -755,4 +761,4 @@
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="quaint" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.66.0-nightly (2019147c5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="quaint" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.66.0-nightly (9062b780b 2022-09-21)" ></div></body></html>

@@ -227,6 +227,14 @@
 <span id="227">227</span>
 <span id="228">228</span>
 <span id="229">229</span>
+<span id="230">230</span>
+<span id="231">231</span>
+<span id="232">232</span>
+<span id="233">233</span>
+<span id="234">234</span>
+<span id="235">235</span>
+<span id="236">236</span>
+<span id="237">237</span>
 </pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::error::{DatabaseConstraint, Error, ErrorKind};
 <span class="kw">use </span>tiberius::error::IoErrorKind;
 
@@ -443,6 +451,14 @@
 
                 builder.build()
             }
+            tiberius::error::Error::Server(e) <span class="kw">if </span>e.code() == <span class="number">1205 </span>=&gt; {
+                <span class="kw">let </span><span class="kw-2">mut </span>builder = Error::builder(ErrorKind::TransactionWriteConflict);
+
+                builder.set_original_code(<span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, e.code()));
+                builder.set_original_message(e.message().to_string());
+
+                builder.build()
+            }
             tiberius::error::Error::Server(e) =&gt; {
                 <span class="kw">let </span>kind = ErrorKind::QueryError(e.clone().into());
 
@@ -457,4 +473,4 @@
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="quaint" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.66.0-nightly (2019147c5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="quaint" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.66.0-nightly (9062b780b 2022-09-21)" ></div></body></html>
