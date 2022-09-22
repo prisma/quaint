@@ -642,7 +642,7 @@ impl Queryable for PostgreSql {
     }
 
     async fn query_raw(&self, sql: &str, params: &[Value<'_>]) -> crate::Result<ResultSet> {
-        self.check_bind_variables_len(&params)?;
+        self.check_bind_variables_len(params)?;
 
         metrics::query("postgres.query_raw", sql, params, move || async move {
             let stmt = self.fetch_cached(sql, &[]).await?;
@@ -672,7 +672,7 @@ impl Queryable for PostgreSql {
     }
 
     async fn query_raw_typed(&self, sql: &str, params: &[Value<'_>]) -> crate::Result<ResultSet> {
-        self.check_bind_variables_len(&params)?;
+        self.check_bind_variables_len(params)?;
 
         metrics::query("postgres.query_raw", sql, params, move || async move {
             let stmt = self.fetch_cached(sql, params).await?;
@@ -708,7 +708,7 @@ impl Queryable for PostgreSql {
     }
 
     async fn execute_raw(&self, sql: &str, params: &[Value<'_>]) -> crate::Result<u64> {
-        self.check_bind_variables_len(&params)?;
+        self.check_bind_variables_len(params)?;
 
         metrics::query("postgres.execute_raw", sql, params, move || async move {
             let stmt = self.fetch_cached(sql, &[]).await?;
@@ -732,7 +732,7 @@ impl Queryable for PostgreSql {
     }
 
     async fn execute_raw_typed(&self, sql: &str, params: &[Value<'_>]) -> crate::Result<u64> {
-        self.check_bind_variables_len(&params)?;
+        self.check_bind_variables_len(params)?;
 
         metrics::query("postgres.execute_raw", sql, params, move || async move {
             let stmt = self.fetch_cached(sql, params).await?;
