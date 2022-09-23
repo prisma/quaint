@@ -932,6 +932,29 @@
 <span id="932">932</span>
 <span id="933">933</span>
 <span id="934">934</span>
+<span id="935">935</span>
+<span id="936">936</span>
+<span id="937">937</span>
+<span id="938">938</span>
+<span id="939">939</span>
+<span id="940">940</span>
+<span id="941">941</span>
+<span id="942">942</span>
+<span id="943">943</span>
+<span id="944">944</span>
+<span id="945">945</span>
+<span id="946">946</span>
+<span id="947">947</span>
+<span id="948">948</span>
+<span id="949">949</span>
+<span id="950">950</span>
+<span id="951">951</span>
+<span id="952">952</span>
+<span id="953">953</span>
+<span id="954">954</span>
+<span id="955">955</span>
+<span id="956">956</span>
+<span id="957">957</span>
 </pre><pre class="rust"><code><span class="kw">mod </span>conversion;
 <span class="kw">mod </span>error;
 
@@ -1533,6 +1556,21 @@
             res =&gt; res,
         }
     }
+
+    <span class="kw">fn </span>check_bind_variables_len(<span class="kw-2">&amp;</span><span class="self">self</span>, params: <span class="kw-2">&amp;</span>[Value&lt;<span class="lifetime">&#39;_</span>&gt;]) -&gt; <span class="kw">crate</span>::Result&lt;()&gt; {
+        <span class="kw">if </span>params.len() &gt; i16::MAX <span class="kw">as </span>usize {
+            <span class="comment">// tokio_postgres would return an error here. Let&#39;s avoid calling the driver
+            // and return an error early.
+            </span><span class="kw">let </span>kind = ErrorKind::QueryInvalidInput(<span class="macro">format!</span>(
+                <span class="string">&quot;too many bind variables in prepared statement, expected maximum of {}, received {}&quot;</span>,
+                i16::MAX,
+                params.len()
+            ));
+            <span class="prelude-val">Err</span>(Error::builder(kind).build())
+        } <span class="kw">else </span>{
+            <span class="prelude-val">Ok</span>(())
+        }
+    }
 }
 
 <span class="comment">// A SetSearchPath statement (Display-impl) for connection initialization.
@@ -1561,6 +1599,8 @@
     </span>}
 
     <span class="kw">async fn </span>query_raw(<span class="kw-2">&amp;</span><span class="self">self</span>, sql: <span class="kw-2">&amp;</span>str, params: <span class="kw-2">&amp;</span>[Value&lt;<span class="lifetime">&#39;_</span>&gt;]) -&gt; <span class="kw">crate</span>::Result&lt;ResultSet&gt; {
+        <span class="self">self</span>.check_bind_variables_len(params)<span class="question-mark">?</span>;
+
         metrics::query(<span class="string">&quot;postgres.query_raw&quot;</span>, sql, params, <span class="kw">move </span>|| <span class="kw">async move </span>{
             <span class="kw">let </span>stmt = <span class="self">self</span>.fetch_cached(sql, <span class="kw-2">&amp;</span>[]).<span class="kw">await</span><span class="question-mark">?</span>;
 
@@ -1589,6 +1629,8 @@
     </span>}
 
     <span class="kw">async fn </span>query_raw_typed(<span class="kw-2">&amp;</span><span class="self">self</span>, sql: <span class="kw-2">&amp;</span>str, params: <span class="kw-2">&amp;</span>[Value&lt;<span class="lifetime">&#39;_</span>&gt;]) -&gt; <span class="kw">crate</span>::Result&lt;ResultSet&gt; {
+        <span class="self">self</span>.check_bind_variables_len(params)<span class="question-mark">?</span>;
+
         metrics::query(<span class="string">&quot;postgres.query_raw&quot;</span>, sql, params, <span class="kw">move </span>|| <span class="kw">async move </span>{
             <span class="kw">let </span>stmt = <span class="self">self</span>.fetch_cached(sql, params).<span class="kw">await</span><span class="question-mark">?</span>;
 
@@ -1623,6 +1665,8 @@
     </span>}
 
     <span class="kw">async fn </span>execute_raw(<span class="kw-2">&amp;</span><span class="self">self</span>, sql: <span class="kw-2">&amp;</span>str, params: <span class="kw-2">&amp;</span>[Value&lt;<span class="lifetime">&#39;_</span>&gt;]) -&gt; <span class="kw">crate</span>::Result&lt;u64&gt; {
+        <span class="self">self</span>.check_bind_variables_len(params)<span class="question-mark">?</span>;
+
         metrics::query(<span class="string">&quot;postgres.execute_raw&quot;</span>, sql, params, <span class="kw">move </span>|| <span class="kw">async move </span>{
             <span class="kw">let </span>stmt = <span class="self">self</span>.fetch_cached(sql, <span class="kw-2">&amp;</span>[]).<span class="kw">await</span><span class="question-mark">?</span>;
 
@@ -1645,6 +1689,8 @@
     </span>}
 
     <span class="kw">async fn </span>execute_raw_typed(<span class="kw-2">&amp;</span><span class="self">self</span>, sql: <span class="kw-2">&amp;</span>str, params: <span class="kw-2">&amp;</span>[Value&lt;<span class="lifetime">&#39;_</span>&gt;]) -&gt; <span class="kw">crate</span>::Result&lt;u64&gt; {
+        <span class="self">self</span>.check_bind_variables_len(params)<span class="question-mark">?</span>;
+
         metrics::query(<span class="string">&quot;postgres.execute_raw&quot;</span>, sql, params, <span class="kw">move </span>|| <span class="kw">async move </span>{
             <span class="kw">let </span>stmt = <span class="self">self</span>.fetch_cached(sql, params).<span class="kw">await</span><span class="question-mark">?</span>;
 
@@ -1867,4 +1913,4 @@
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="quaint" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.66.0-nightly (9062b780b 2022-09-21)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="quaint" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.66.0-nightly (e7119a030 2022-09-22)" ></div></body></html>
