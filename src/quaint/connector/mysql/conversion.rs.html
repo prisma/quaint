@@ -357,6 +357,12 @@
 <span id="357">357</span>
 <span id="358">358</span>
 <span id="359">359</span>
+<span id="360">360</span>
+<span id="361">361</span>
+<span id="362">362</span>
+<span id="363">363</span>
+<span id="364">364</span>
+<span id="365">365</span>
 </pre><pre class="rust"><code><span class="kw">use crate</span>::{
     ast::Value,
     connector::{queryable::TakeRow, TypeIdentifier},
@@ -467,30 +473,36 @@
     <span class="kw">fn </span>is_int32(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
         <span class="kw">use </span>ColumnType::<span class="kw-2">*</span>;
 
+        <span class="kw">let </span>is_unsigned = <span class="self">self</span>.flags().intersects(ColumnFlags::UNSIGNED_FLAG);
+
         <span class="comment">// https://dev.mysql.com/doc/internals/en/binary-protocol-value.html#packet-ProtocolBinary
         // MYSQL_TYPE_TINY  = i8
         // MYSQL_TYPE_SHORT = i16
         // MYSQL_TYPE_YEAR  = i16
-        // MYSQL_TYPE_LONG  = i32
-        // MYSQL_TYPE_INT24 = i32
+        // SIGNED MYSQL_TYPE_LONG  = i32
+        // SIGNED MYSQL_TYPE_INT24 = i32
         </span><span class="macro">matches!</span>(
-            <span class="self">self</span>.column_type(),
-            MYSQL_TYPE_TINY | MYSQL_TYPE_SHORT | MYSQL_TYPE_YEAR | MYSQL_TYPE_LONG | MYSQL_TYPE_INT24
+            (<span class="self">self</span>.column_type(), is_unsigned),
+            (MYSQL_TYPE_TINY, <span class="kw">_</span>)
+                | (MYSQL_TYPE_SHORT, <span class="kw">_</span>)
+                | (MYSQL_TYPE_YEAR, <span class="kw">_</span>)
+                | (MYSQL_TYPE_LONG, <span class="bool-val">false</span>)
+                | (MYSQL_TYPE_INT24, <span class="bool-val">false</span>)
         )
     }
 
     <span class="kw">fn </span>is_int64(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
         <span class="kw">use </span>ColumnType::<span class="kw-2">*</span>;
 
+        <span class="kw">let </span>is_unsigned = <span class="self">self</span>.flags().intersects(ColumnFlags::UNSIGNED_FLAG);
+
         <span class="comment">// https://dev.mysql.com/doc/internals/en/binary-protocol-value.html#packet-ProtocolBinary
         // MYSQL_TYPE_LONGLONG = i64
         // UNSIGNED MYSQL_TYPE_LONG = u32
         // UNSIGNED MYSQL_TYPE_INT24 = u32
         </span><span class="macro">matches!</span>(
-            (<span class="self">self</span>.column_type(), <span class="self">self</span>.flags()),
-            (MYSQL_TYPE_LONGLONG, <span class="kw">_</span>)
-                | (MYSQL_TYPE_LONG, ColumnFlags::UNSIGNED_FLAG)
-                | (MYSQL_TYPE_INT24, ColumnFlags::UNSIGNED_FLAG)
+            (<span class="self">self</span>.column_type(), is_unsigned),
+            (MYSQL_TYPE_LONGLONG, <span class="kw">_</span>) | (MYSQL_TYPE_LONG, <span class="bool-val">true</span>) | (MYSQL_TYPE_INT24, <span class="bool-val">true</span>)
         )
     }
 
@@ -717,4 +729,4 @@
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="quaint" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.66.0-nightly (e7119a030 2022-09-22)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="quaint" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.66.0-nightly (f5193a9fc 2022-09-25)" ></div></body></html>
