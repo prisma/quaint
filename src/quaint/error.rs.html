@@ -382,6 +382,9 @@
 <span id="382">382</span>
 <span id="383">383</span>
 <span id="384">384</span>
+<span id="385">385</span>
+<span id="386">386</span>
+<span id="387">387</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Error module
 </span><span class="kw">use </span><span class="kw">crate</span>::connector::IsolationLevel;
 <span class="kw">use </span>std::{borrow::Cow, fmt, io, num};
@@ -634,6 +637,9 @@
     <span class="attribute">#[error(<span class="string">&quot;Transaction write conflict&quot;</span>)]
     </span>TransactionWriteConflict,
 
+    <span class="attribute">#[error(<span class="string">&quot;ROLLBACK statement has no corresponding BEGIN statement&quot;</span>)]
+    </span>RollbackWithoutBegin,
+
     <span class="attribute">#[error(<span class="string">&quot;Invalid isolation level: {}&quot;</span>, _0)]
     </span>InvalidIsolationLevel(String),
 
@@ -767,4 +773,4 @@
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="quaint" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.66.0-nightly (470e518c4 2022-09-27)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="quaint" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.66.0-nightly (ce7f0f1aa 2022-09-28)" ></div></body></html>
