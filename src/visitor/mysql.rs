@@ -181,7 +181,7 @@ impl<'a> Visitor<'a> for Mysql<'a> {
     fn visit_insert(&mut self, insert: Insert<'a>) -> visitor::Result {
         match insert.on_conflict {
             Some(OnConflict::DoNothing) => self.write("INSERT IGNORE ")?,
-            None => self.write("INSERT ")?,
+            _ => self.write("INSERT ")?,
         };
 
         if let Some(table) = insert.table {
