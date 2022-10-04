@@ -345,24 +345,29 @@ pub trait Visitor<'a> {
     fn visit_upsert(&mut self, update: Update<'a>) -> Result {
         self.write("UPDATE ")?;
 
-        {
-            let pairs = update.columns.into_iter().zip(update.values.into_iter());
-            let len = pairs.len();
-
-            for (i, (key, value)) in pairs.enumerate() {
-                self.visit_column(key)?;
-                self.write(" = ")?;
-                self.visit_expression(value)?;
-
-                if i < (len - 1) {
-                    self.write(", ")?;
-                }
-            }
-        }
+        self.write("SET ")?;
+        self.visit_update_set(update.clone())?;
 
         if let Some(conditions) = update.conditions {
             self.write(" WHERE ")?;
             self.visit_conditions(conditions)?;
+        }
+
+        Ok(())
+    }
+
+    fn visit_update_set(&mut self, update: Update<'a>) -> Result {
+        let pairs = update.columns.into_iter().zip(update.values.into_iter());
+        let len = pairs.len();
+
+        for (i, (key, value)) in pairs.enumerate() {
+            self.visit_column(key)?;
+            self.write(" = ")?;
+            self.visit_expression(value)?;
+
+            if i < (len - 1) {
+                self.write(", ")?;
+            }
         }
 
         Ok(())

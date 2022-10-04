@@ -260,6 +260,18 @@ impl<'a> Visitor<'a> for Mysql<'a> {
         Ok(())
     }
 
+    fn visit_upsert(&mut self, update: Update<'a>) -> visitor::Result {
+        if update.conditions.is_some() {
+            //TODO should this rather be an error or do we just ignore?
+            panic!("cannot use a where clause for a mysql upsert");
+        }
+
+        self.write("UPDATE ")?;
+        self.visit_update_set(update)?;
+
+        Ok(())
+    }
+
     /// MySql will error if a `Update` or `Delete` query has a subselect
     /// that references a table that is being updated or deleted
     /// to get around that, we need to wrap the table in a tmp table name
