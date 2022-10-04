@@ -346,7 +346,6 @@ pub trait Visitor<'a> {
         self.write("UPDATE ")?;
 
         {
-            self.write("SET ")?;
             let pairs = update.columns.into_iter().zip(update.values.into_iter());
             let len = pairs.len();
 

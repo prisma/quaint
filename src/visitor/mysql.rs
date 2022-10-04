@@ -243,6 +243,15 @@ impl<'a> Visitor<'a> for Mysql<'a> {
             expr => self.surround_with("(", ")", |ref mut s| s.visit_expression(expr))?,
         }
 
+        match insert.on_conflict {
+            Some(OnConflict::Update(update, _constraints)) => {
+                self.write(" ON DUPLICATE KEY ")?;
+
+                self.visit_upsert(update)?;
+            }
+            _ => (),
+        }
+
         if let Some(comment) = insert.comment {
             self.write(" ")?;
             self.visit_comment(comment)?;
