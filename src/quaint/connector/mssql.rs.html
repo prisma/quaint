@@ -719,7 +719,7 @@
 
         <span class="kw">let </span>opts = TransactionOptions::new(isolation, <span class="self">self</span>.requires_isolation_first());
 
-        Transaction::new(<span class="self">self</span>, <span class="string">&quot;BEGIN TRAN&quot;</span>, opts).<span class="kw">await
+        Transaction::new(<span class="self">self</span>, <span class="self">self</span>.begin_statement(), opts).<span class="kw">await
     </span>}
 }
 
@@ -1223,4 +1223,4 @@
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="quaint" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.66.0-nightly (ce7f0f1aa 2022-09-28)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="quaint" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.66.0-nightly (01af5040f 2022-10-04)" ></div></body></html>
