@@ -195,15 +195,12 @@ impl<'a> Visitor<'a> for Sqlite<'a> {
             expr => self.visit_expression(expr)?,
         }
 
-        match insert.on_conflict {
-            Some(OnConflict::Update(update, constraints)) => {
-                self.write(" ON CONFLICT ")?;
-                self.columns_to_bracket_list(constraints)?;
-                self.write(" DO ")?;
+        if let Some(OnConflict::Update(update, constraints)) = insert.on_conflict {
+            self.write(" ON CONFLICT ")?;
+            self.columns_to_bracket_list(constraints)?;
+            self.write(" DO ")?;
 
-                self.visit_upsert(update)?;
-            }
-            _ => (),
+            self.visit_upsert(update)?;
         }
 
         if let Some(returning) = insert.returning {
