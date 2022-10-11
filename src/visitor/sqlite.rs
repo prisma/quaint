@@ -196,7 +196,6 @@ impl<'a> Visitor<'a> for Sqlite<'a> {
         }
 
         match insert.on_conflict {
-            Some(OnConflict::DoNothing) => self.write(" ON CONFLICT DO NOTHING")?,
             Some(OnConflict::Update(update, constraints)) => {
                 self.write(" ON CONFLICT ")?;
                 self.columns_to_bracket_list(constraints)?;
@@ -204,7 +203,7 @@ impl<'a> Visitor<'a> for Sqlite<'a> {
 
                 self.visit_upsert(update)?;
             }
-            None => (),
+            _ => (),
         }
 
         if let Some(returning) = insert.returning {

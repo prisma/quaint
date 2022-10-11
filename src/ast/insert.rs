@@ -29,6 +29,7 @@ pub struct MultiRowInsert<'a> {
 }
 
 /// `INSERT` conflict resolution strategies.
+#[allow(clippy::large_enum_variant)]
 #[derive(Clone, Debug, PartialEq)]
 pub enum OnConflict<'a> {
     /// When a row already exists, do nothing. Works with PostgreSQL, MySQL or
@@ -86,6 +87,7 @@ pub enum OnConflict<'a> {
     /// [`DefaultValue::Generated`]: enum.DefaultValue.html#variant.Generated
     /// [column has a default value]: struct.Column.html#method.default
     DoNothing,
+    /// ON CONFLICT UPDATE is supported for Sqlite and Postgres
     Update(Update<'a>, Vec<Column<'a>>),
 }
 

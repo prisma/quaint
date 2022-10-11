@@ -243,33 +243,15 @@ impl<'a> Visitor<'a> for Mysql<'a> {
             expr => self.surround_with("(", ")", |ref mut s| s.visit_expression(expr))?,
         }
 
-        match insert.on_conflict {
-            Some(OnConflict::Update(update, _constraints)) => {
-                self.write(" ON DUPLICATE KEY ")?;
-
-                self.visit_upsert(update)?;
-            }
-            _ => (),
-        }
-
         if let Some(comment) = insert.comment {
             self.write(" ")?;
             self.visit_comment(comment)?;
         }
-
         Ok(())
     }
 
-    fn visit_upsert(&mut self, update: Update<'a>) -> visitor::Result {
-        if update.conditions.is_some() {
-            //TODO should this rather be an error or do we just ignore?
-            panic!("cannot use a where clause for a mysql upsert");
-        }
-
-        self.write("UPDATE ")?;
-        self.visit_update_set(update)?;
-
-        Ok(())
+    fn visit_upsert(&mut self, _update: crate::ast::Update<'a>) -> visitor::Result {
+        unimplemented!("Upsert not supported for the underlying database.")
     }
 
     /// MySql will error if a `Update` or `Delete` query has a subselect
