@@ -919,6 +919,77 @@
 <span id="919">919</span>
 <span id="920">920</span>
 <span id="921">921</span>
+<span id="922">922</span>
+<span id="923">923</span>
+<span id="924">924</span>
+<span id="925">925</span>
+<span id="926">926</span>
+<span id="927">927</span>
+<span id="928">928</span>
+<span id="929">929</span>
+<span id="930">930</span>
+<span id="931">931</span>
+<span id="932">932</span>
+<span id="933">933</span>
+<span id="934">934</span>
+<span id="935">935</span>
+<span id="936">936</span>
+<span id="937">937</span>
+<span id="938">938</span>
+<span id="939">939</span>
+<span id="940">940</span>
+<span id="941">941</span>
+<span id="942">942</span>
+<span id="943">943</span>
+<span id="944">944</span>
+<span id="945">945</span>
+<span id="946">946</span>
+<span id="947">947</span>
+<span id="948">948</span>
+<span id="949">949</span>
+<span id="950">950</span>
+<span id="951">951</span>
+<span id="952">952</span>
+<span id="953">953</span>
+<span id="954">954</span>
+<span id="955">955</span>
+<span id="956">956</span>
+<span id="957">957</span>
+<span id="958">958</span>
+<span id="959">959</span>
+<span id="960">960</span>
+<span id="961">961</span>
+<span id="962">962</span>
+<span id="963">963</span>
+<span id="964">964</span>
+<span id="965">965</span>
+<span id="966">966</span>
+<span id="967">967</span>
+<span id="968">968</span>
+<span id="969">969</span>
+<span id="970">970</span>
+<span id="971">971</span>
+<span id="972">972</span>
+<span id="973">973</span>
+<span id="974">974</span>
+<span id="975">975</span>
+<span id="976">976</span>
+<span id="977">977</span>
+<span id="978">978</span>
+<span id="979">979</span>
+<span id="980">980</span>
+<span id="981">981</span>
+<span id="982">982</span>
+<span id="983">983</span>
+<span id="984">984</span>
+<span id="985">985</span>
+<span id="986">986</span>
+<span id="987">987</span>
+<span id="988">988</span>
+<span id="989">989</span>
+<span id="990">990</span>
+<span id="991">991</span>
+<span id="992">992</span>
 </pre><pre class="rust"><code><span class="attribute">#[cfg(feature = <span class="string">&quot;bigdecimal&quot;</span>)]
 </span><span class="kw">mod </span>decimal;
 
@@ -1553,11 +1624,53 @@
     ) -&gt; <span class="prelude-ty">Result</span>&lt;IsNull, Box&lt;<span class="kw">dyn </span>StdError + <span class="lifetime">&#39;static </span>+ Send + Sync&gt;&gt; {
         <span class="kw">let </span>res =
             <span class="kw">match </span>(<span class="self">self</span>, ty) {
-                (Value::Int32(integer), <span class="kw-2">&amp;</span>PostgresType::INT2) =&gt; integer.map(|integer| (integer <span class="kw">as </span>i16).to_sql(ty, out)),
+                (Value::Int32(integer), <span class="kw-2">&amp;</span>PostgresType::INT2) =&gt; <span class="kw">match </span>integer {
+                    <span class="prelude-val">Some</span>(i) =&gt; {
+                        <span class="kw">let </span>integer = i16::try_from(<span class="kw-2">*</span>i).map_err(|<span class="kw">_</span>| {
+                            <span class="kw">let </span>kind = ErrorKind::conversion(<span class="macro">format!</span>(
+                                <span class="string">&quot;Unable to fit integer value &#39;{}&#39; into an INT2 (16-bit signed integer).&quot;</span>,
+                                i
+                            ));
+
+                            Error::builder(kind).build()
+                        })<span class="question-mark">?</span>;
+
+                        <span class="prelude-val">Some</span>(integer.to_sql(ty, out))
+                    }
+                    <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
+                },
                 (Value::Int32(integer), <span class="kw-2">&amp;</span>PostgresType::INT4) =&gt; integer.map(|integer| (integer <span class="kw">as </span>i32).to_sql(ty, out)),
                 (Value::Int32(integer), <span class="kw-2">&amp;</span>PostgresType::INT8) =&gt; integer.map(|integer| (integer <span class="kw">as </span>i64).to_sql(ty, out)),
-                (Value::Int64(integer), <span class="kw-2">&amp;</span>PostgresType::INT2) =&gt; integer.map(|integer| (integer <span class="kw">as </span>i16).to_sql(ty, out)),
-                (Value::Int64(integer), <span class="kw-2">&amp;</span>PostgresType::INT4) =&gt; integer.map(|integer| (integer <span class="kw">as </span>i32).to_sql(ty, out)),
+                (Value::Int64(integer), <span class="kw-2">&amp;</span>PostgresType::INT2) =&gt; <span class="kw">match </span>integer {
+                    <span class="prelude-val">Some</span>(i) =&gt; {
+                        <span class="kw">let </span>integer = i16::try_from(<span class="kw-2">*</span>i).map_err(|<span class="kw">_</span>| {
+                            <span class="kw">let </span>kind = ErrorKind::conversion(<span class="macro">format!</span>(
+                                <span class="string">&quot;Unable to fit integer value &#39;{}&#39; into an INT2 (16-bit signed integer).&quot;</span>,
+                                i
+                            ));
+
+                            Error::builder(kind).build()
+                        })<span class="question-mark">?</span>;
+
+                        <span class="prelude-val">Some</span>(integer.to_sql(ty, out))
+                    }
+                    <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
+                },
+                (Value::Int64(integer), <span class="kw-2">&amp;</span>PostgresType::INT4) =&gt; <span class="kw">match </span>integer {
+                    <span class="prelude-val">Some</span>(i) =&gt; {
+                        <span class="kw">let </span>integer = i32::try_from(<span class="kw-2">*</span>i).map_err(|<span class="kw">_</span>| {
+                            <span class="kw">let </span>kind = ErrorKind::conversion(<span class="macro">format!</span>(
+                                <span class="string">&quot;Unable to fit integer value &#39;{}&#39; into an INT4 (32-bit signed integer).&quot;</span>,
+                                i
+                            ));
+
+                            Error::builder(kind).build()
+                        })<span class="question-mark">?</span>;
+
+                        <span class="prelude-val">Some</span>(integer.to_sql(ty, out))
+                    }
+                    <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
+                },
                 (Value::Int64(integer), <span class="kw-2">&amp;</span>PostgresType::INT8) =&gt; integer.map(|integer| (integer <span class="kw">as </span>i64).to_sql(ty, out)),
                 <span class="attribute">#[cfg(feature = <span class="string">&quot;bigdecimal&quot;</span>)]
                 </span>(Value::Int32(integer), <span class="kw-2">&amp;</span>PostgresType::NUMERIC) =&gt; integer
@@ -1575,7 +1688,36 @@
                 (Value::Int64(integer), <span class="kw-2">&amp;</span>PostgresType::TEXT) =&gt; {
                     integer.map(|integer| <span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, integer).to_sql(ty, out))
                 }
-                (Value::Int64(integer), <span class="kw-2">&amp;</span>PostgresType::OID) =&gt; integer.map(|integer| (integer <span class="kw">as </span>u32).to_sql(ty, out)),
+                (Value::Int32(integer), <span class="kw-2">&amp;</span>PostgresType::OID) =&gt; <span class="kw">match </span>integer {
+                    <span class="prelude-val">Some</span>(i) =&gt; {
+                        <span class="kw">let </span>integer = u32::try_from(<span class="kw-2">*</span>i).map_err(|<span class="kw">_</span>| {
+                            <span class="kw">let </span>kind = ErrorKind::conversion(<span class="macro">format!</span>(
+                                <span class="string">&quot;Unable to fit integer value &#39;{}&#39; into an OID (32-bit unsigned integer).&quot;</span>,
+                                i
+                            ));
+
+                            Error::builder(kind).build()
+                        })<span class="question-mark">?</span>;
+
+                        <span class="prelude-val">Some</span>(integer.to_sql(ty, out))
+                    }
+                    <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
+                },
+                (Value::Int64(integer), <span class="kw-2">&amp;</span>PostgresType::OID) =&gt; <span class="kw">match </span>integer {
+                    <span class="prelude-val">Some</span>(i) =&gt; {
+                        <span class="kw">let </span>integer = u32::try_from(<span class="kw-2">*</span>i).map_err(|<span class="kw">_</span>| {
+                            <span class="kw">let </span>kind = ErrorKind::conversion(<span class="macro">format!</span>(
+                                <span class="string">&quot;Unable to fit integer value &#39;{}&#39; into an OID (32-bit unsigned integer).&quot;</span>,
+                                i
+                            ));
+
+                            Error::builder(kind).build()
+                        })<span class="question-mark">?</span>;
+
+                        <span class="prelude-val">Some</span>(integer.to_sql(ty, out))
+                    }
+                    <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
+                },
                 (Value::Int32(integer), <span class="kw">_</span>) =&gt; integer.map(|integer| integer.to_sql(ty, out)),
                 (Value::Int64(integer), <span class="kw">_</span>) =&gt; integer.map(|integer| integer.to_sql(ty, out)),
                 (Value::Float(float), <span class="kw-2">&amp;</span>PostgresType::FLOAT8) =&gt; float.map(|float| (float <span class="kw">as </span>f64).to_sql(ty, out)),
@@ -1841,4 +1983,4 @@
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="quaint" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.66.0-nightly (a24a020e6 2022-10-18)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="quaint" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.66.0-nightly (4b8f43199 2022-10-19)" ></div></body></html>
