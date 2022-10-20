@@ -696,6 +696,21 @@ impl<'a> ToSql for Value<'a> {
                 (Value::Int64(integer), &PostgresType::TEXT) => {
                     integer.map(|integer| format!("{}", integer).to_sql(ty, out))
                 }
+                (Value::Int32(integer), &PostgresType::OID) => match integer {
+                    Some(i) => {
+                        let integer = u32::try_from(*i).map_err(|_| {
+                            let kind = ErrorKind::conversion(format!(
+                                "Unable to fit integer value '{}' into an OID (32-bit unsigned integer).",
+                                i
+                            ));
+
+                            Error::builder(kind).build()
+                        })?;
+
+                        Some(integer.to_sql(ty, out))
+                    }
+                    _ => None,
+                },
                 (Value::Int64(integer), &PostgresType::OID) => match integer {
                     Some(i) => {
                         let integer = u32::try_from(*i).map_err(|_| {
