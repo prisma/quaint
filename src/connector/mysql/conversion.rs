@@ -306,7 +306,8 @@ impl TakeRow for my::Row {
                         return Err(Error::builder(kind).build());
                     }
 
-                    let time = NaiveTime::from_hms_micro_opt(hours.into(), minutes.into(), seconds.into(), micros).unwrap();
+                    let time =
+                        NaiveTime::from_hms_micro_opt(hours.into(), minutes.into(), seconds.into(), micros).unwrap();
                     Value::time(time)
                 }
                 my::Value::NULL => match column {
