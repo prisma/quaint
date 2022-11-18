@@ -279,12 +279,7 @@ impl TakeRow for my::Row {
                 #[cfg(feature = "chrono")]
                 my::Value::Date(year, month, day, hour, min, sec, micro) => {
                     if day == 0 || month == 0 {
-                        let msg = format!(
-                            "The column `{}` contained an invalid datetime value with either day or month set to zero.",
-                            column.name_str()
-                        );
-                        let kind = ErrorKind::value_out_of_range(msg);
-                        return Err(Error::builder(kind).build());
+                        return Ok(Value::DateTime(None));
                     }
 
                     let time = NaiveTime::from_hms_micro_opt(hour.into(), min.into(), sec.into(), micro).unwrap();
