@@ -455,6 +455,11 @@ impl<'a> Value<'a> {
         matches!(self, Value::Int64(_))
     }
 
+    /// `true` if the `Value` is a 64-bit signed integer.
+    pub const fn is_uint32(&self) -> bool {
+        matches!(self, Value::UnsignedInt32(_))
+    }
+
     /// `true` if the `Value` is a signed integer.
     pub const fn is_integer(&self) -> bool {
         matches!(self, Value::Int32(_) | Value::Int64(_))
@@ -472,6 +477,14 @@ impl<'a> Value<'a> {
     pub const fn as_i32(&self) -> Option<i32> {
         match self {
             Value::Int32(i) => *i,
+            _ => None,
+        }
+    }
+
+    /// Returns an `i32` if the value is a 32-bit signed integer, otherwise `None`.
+    pub const fn as_uint32(&self) -> Option<u32> {
+        match self {
+            Value::UnsignedInt32(i) => *i,
             _ => None,
         }
     }
@@ -539,6 +552,7 @@ impl<'a> Value<'a> {
             // For schemas which don't tag booleans
             Value::Int32(Some(i)) if *i == 0 || *i == 1 => true,
             Value::Int64(Some(i)) if *i == 0 || *i == 1 => true,
+            Value::UnsignedInt32(Some(i)) if *i == 0 || *i == 1 => true,
             _ => false,
         }
     }
@@ -550,6 +564,7 @@ impl<'a> Value<'a> {
             // For schemas which don't tag booleans
             Value::Int32(Some(i)) if *i == 0 || *i == 1 => Some(*i == 1),
             Value::Int64(Some(i)) if *i == 0 || *i == 1 => Some(*i == 1),
+            Value::UnsignedInt32(Some(i)) if *i == 0 || *i == 1 => Some(*i == 1),
             _ => None,
         }
     }
@@ -675,6 +690,7 @@ impl<'a> Value<'a> {
 
 value!(val: i64, Int64, val);
 value!(val: i32, Int32, val);
+value!(val: u32, UnsignedInt32, val);
 value!(val: bool, Boolean, val);
 value!(val: &'a str, Text, val.into());
 value!(val: String, Text, val.into());
@@ -718,6 +734,16 @@ impl<'a> TryFrom<Value<'a>> for i32 {
         value
             .as_i32()
             .ok_or_else(|| Error::builder(ErrorKind::conversion("Not an i32")).build())
+    }
+}
+
+impl<'a> TryFrom<Value<'a>> for u32 {
+    type Error = Error;
+
+    fn try_from(value: Value<'a>) -> Result<u32, Self::Error> {
+        value
+            .as_uint32()
+            .ok_or_else(|| Error::builder(ErrorKind::conversion("Not a u32")).build())
     }
 }
 
@@ -941,6 +967,13 @@ mod tests {
     fn a_parameterized_value_of_ints64_can_be_converted_into_a_vec() {
         let pv = Value::array(vec![1_i64]);
         let values: Vec<i64> = pv.into_vec().expect("convert into Vec<i64>");
+        assert_eq!(values, vec![1]);
+    }
+
+    #[test]
+    fn a_parameterized_value_of_uints32_can_be_converted_into_a_vec() {
+        let pv = Value::array(vec![1_u32]);
+        let values: Vec<u32> = pv.into_vec().expect("convert into Vec<i64>");
         assert_eq!(values, vec![1]);
     }
 
