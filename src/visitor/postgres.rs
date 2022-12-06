@@ -72,6 +72,7 @@ impl<'a> Visitor<'a> for Postgres<'a> {
         let res = match value {
             Value::Int32(i) => i.map(|i| self.write(i)),
             Value::Int64(i) => i.map(|i| self.write(i)),
+            Value::UnsignedInt32(i) => i.map(|i| self.write(i)),
             Value::Text(t) => t.map(|t| self.write(format!("'{}'", t))),
             Value::Enum(e) => e.map(|e| self.write(e)),
             Value::Bytes(b) => b.map(|b| self.write(format!("E'{}'", hex::encode(b)))),

@@ -42,6 +42,7 @@ pub(crate) fn params_to_types(params: &[Value<'_>]) -> Vec<PostgresType> {
             match p {
                 Value::Int32(_) => PostgresType::INT4,
                 Value::Int64(_) => PostgresType::INT8,
+                Value::UnsignedInt32(_) => PostgresType::INT8,
                 Value::Float(_) => PostgresType::FLOAT4,
                 Value::Double(_) => PostgresType::FLOAT8,
                 Value::Text(_) => PostgresType::TEXT,
@@ -84,6 +85,7 @@ pub(crate) fn params_to_types(params: &[Value<'_>]) -> Vec<PostgresType> {
                     match first {
                         Value::Int32(_) => PostgresType::INT4_ARRAY,
                         Value::Int64(_) => PostgresType::INT8_ARRAY,
+                        Value::UnsignedInt32(_) => PostgresType::INT8_ARRAY,
                         Value::Float(_) => PostgresType::FLOAT4_ARRAY,
                         Value::Double(_) => PostgresType::FLOAT8_ARRAY,
                         Value::Text(_) => PostgresType::TEXT_ARRAY,
@@ -406,7 +408,7 @@ impl GetRow for PostgresRow {
                 PostgresType::OID_ARRAY => match row.try_get(i)? {
                     Some(val) => {
                         let val: Vec<Option<u32>> = val;
-                        let nums = val.into_iter().map(|oid| Value::Int64(oid.map(|oid| oid as i64)));
+                        let nums = val.into_iter().map(Value::UnsignedInt32);
 
                         Value::array(nums)
                     }
@@ -475,9 +477,9 @@ impl GetRow for PostgresRow {
                 PostgresType::OID => match row.try_get(i)? {
                     Some(val) => {
                         let val: u32 = val;
-                        Value::int64(val)
+                        Value::uint32(val)
                     }
-                    None => Value::Int64(None),
+                    None => Value::UnsignedInt32(None),
                 },
                 PostgresType::CHAR => match row.try_get(i)? {
                     Some(val) => {
@@ -680,6 +682,39 @@ impl<'a> ToSql for Value<'a> {
                     _ => None,
                 },
                 (Value::Int64(integer), &PostgresType::INT8) => integer.map(|integer| (integer as i64).to_sql(ty, out)),
+                (Value::UnsignedInt32(integer), &PostgresType::INT2) => match integer {
+                    Some(i) => {
+                        let integer = i16::try_from(*i).map_err(|_| {
+                            let kind = ErrorKind::conversion(format!(
+                                "Unable to fit unsigned integer value '{}' into an INT2 (16-bit signed integer).",
+                                i
+                            ));
+
+                            Error::builder(kind).build()
+                        })?;
+
+                        Some(integer.to_sql(ty, out))
+                    }
+                    None => None,
+                },
+                (Value::UnsignedInt32(integer), &PostgresType::INT4) => match integer {
+                    Some(i) => {
+                        let integer = i32::try_from(*i).map_err(|_| {
+                            let kind = ErrorKind::conversion(format!(
+                                "Unable to fit unsigned integer value '{}' into an INT2 (16-bit signed integer).",
+                                i
+                            ));
+
+                            Error::builder(kind).build()
+                        })?;
+
+                        Some(integer.to_sql(ty, out))
+                    }
+                    None => None,
+                },
+                (Value::UnsignedInt32(integer), &PostgresType::INT8) => {
+                    integer.map(|integer| (integer as i64).to_sql(ty, out))
+                }
                 #[cfg(feature = "bigdecimal")]
                 (Value::Int32(integer), &PostgresType::NUMERIC) => integer
                     .map(|integer| BigDecimal::from_i32(integer).unwrap())
@@ -728,6 +763,7 @@ impl<'a> ToSql for Value<'a> {
                 },
                 (Value::Int32(integer), _) => integer.map(|integer| integer.to_sql(ty, out)),
                 (Value::Int64(integer), _) => integer.map(|integer| integer.to_sql(ty, out)),
+                (Value::UnsignedInt32(integer), _) => integer.map(|integer| integer.to_sql(ty, out)),
                 (Value::Float(float), &PostgresType::FLOAT8) => float.map(|float| (float as f64).to_sql(ty, out)),
                 #[cfg(feature = "bigdecimal")]
                 (Value::Float(float), &PostgresType::NUMERIC) => float

@@ -76,6 +76,14 @@ test_type!(bigint(
     Value::int64(i64::MAX),
 ));
 
+test_type!(bigint_from_u32(
+    mssql,
+    "bigint",
+    (Value::UnsignedInt32(None), Value::Int64(None)),
+    (Value::uint32(u32::MIN), Value::int64(u32::MIN as i64)),
+    (Value::uint32(u32::MAX), Value::int64(u32::MAX as i64)),
+));
+
 test_type!(float_24(mssql, "float(24)", Value::Float(None), Value::float(1.23456),));
 
 test_type!(real(mssql, "real", Value::Float(None), Value::float(1.123456)));

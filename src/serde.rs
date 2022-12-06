@@ -118,6 +118,8 @@ impl<'de> Deserializer<'de> for ValueDeserializer<'de> {
             Value::Int32(None) => visitor.visit_none(),
             Value::Int64(Some(i)) => visitor.visit_i64(i),
             Value::Int64(None) => visitor.visit_none(),
+            Value::UnsignedInt32(Some(i)) => visitor.visit_u32(i),
+            Value::UnsignedInt32(None) => visitor.visit_none(),
             Value::Boolean(Some(b)) => visitor.visit_bool(b),
             Value::Boolean(None) => visitor.visit_none(),
             Value::Char(Some(c)) => visitor.visit_char(c),

@@ -23,6 +23,7 @@ pub fn conv_params(params: &[Value<'_>]) -> crate::Result<my::Params> {
             let res = match pv {
                 Value::Int32(i) => i.map(|i| my::Value::Int(i as i64)),
                 Value::Int64(i) => i.map(my::Value::Int),
+                Value::UnsignedInt32(u) => u.map(|u| my::Value::UInt(u as u64)),
                 Value::Float(f) => f.map(my::Value::Float),
                 Value::Double(f) => f.map(my::Value::Double),
                 Value::Text(s) => s.clone().map(|s| my::Value::Bytes((&*s).as_bytes().to_vec())),
@@ -110,7 +111,7 @@ impl TypeIdentifier for my::Column {
 
         let is_unsigned = self.flags().intersects(ColumnFlags::UNSIGNED_FLAG);
 
-        // https://dev.mysql.com/doc/internals/en/binary-protocol-value.html#packet-ProtocolBinary
+        // https://dev.mysql.com/doc/dev/mysql-server/latest/page_protocol_binary_resultset.html
         // MYSQL_TYPE_TINY  = i8
         // MYSQL_TYPE_SHORT = i16
         // MYSQL_TYPE_YEAR  = i16
@@ -129,16 +130,20 @@ impl TypeIdentifier for my::Column {
     fn is_int64(&self) -> bool {
         use ColumnType::*;
 
+        // https://dev.mysql.com/doc/dev/mysql-server/latest/page_protocol_binary_resultset.html
+        // MYSQL_TYPE_LONGLONG = i64
+        matches!(self.column_type(), MYSQL_TYPE_LONGLONG)
+    }
+
+    fn is_uint32(&self) -> bool {
+        use ColumnType::*;
+
         let is_unsigned = self.flags().intersects(ColumnFlags::UNSIGNED_FLAG);
 
-        // https://dev.mysql.com/doc/internals/en/binary-protocol-value.html#packet-ProtocolBinary
-        // MYSQL_TYPE_LONGLONG = i64
-        // UNSIGNED MYSQL_TYPE_LONG = u32
+        // https://dev.mysql.com/doc/dev/mysql-server/latest/page_protocol_binary_resultset.html
+        // UNSIGNED MYSQL_TYPE_LONG  = u32
         // UNSIGNED MYSQL_TYPE_INT24 = u32
-        matches!(
-            (self.column_type(), is_unsigned),
-            (MYSQL_TYPE_LONGLONG, _) | (MYSQL_TYPE_LONG, true) | (MYSQL_TYPE_INT24, true)
-        )
+        is_unsigned && matches!(self.column_type(), MYSQL_TYPE_LONG | MYSQL_TYPE_INT24)
     }
 
     fn is_datetime(&self) -> bool {
@@ -267,7 +272,9 @@ impl TakeRow for my::Row {
                 my::Value::Bytes(b) if column.character_set() == 63 => Value::bytes(b),
                 my::Value::Bytes(s) => Value::text(String::from_utf8(s)?),
                 my::Value::Int(i) if column.is_int64() => Value::int64(i),
+                my::Value::Int(i) if column.is_uint32() => Value::uint32(i as u32),
                 my::Value::Int(i) => Value::int32(i as i32),
+                my::Value::UInt(i) if column.is_uint32() => Value::uint32(u32::try_from(i)?),
                 my::Value::UInt(i) => Value::int64(i64::try_from(i).map_err(|_| {
                     let msg = "Unsigned integers larger than 9_223_372_036_854_775_807 are currently not handled.";
                     let kind = ErrorKind::value_out_of_range(msg);
@@ -315,6 +322,7 @@ impl TakeRow for my::Row {
                     t if t.is_enum() => Value::Enum(None),
                     t if t.is_null() => Value::Int32(None),
                     t if t.is_int64() => Value::Int64(None),
+                    t if t.is_uint32() => Value::UnsignedInt32(None),
                     t if t.is_int32() => Value::Int32(None),
                     t if t.is_float() => Value::Float(None),
                     t if t.is_double() => Value::Double(None),

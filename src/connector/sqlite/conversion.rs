@@ -76,6 +76,10 @@ impl TypeIdentifier for Column<'_> {
         )
     }
 
+    fn is_uint32(&self) -> bool {
+        false
+    }
+
     fn is_datetime(&self) -> bool {
         matches!(
             self.decl_type(),
@@ -253,6 +257,7 @@ impl<'a> ToSql for Value<'a> {
         let value = match self {
             Value::Int32(integer) => integer.map(ToSqlOutput::from),
             Value::Int64(integer) => integer.map(ToSqlOutput::from),
+            Value::UnsignedInt32(integer) => integer.map(|u| ToSqlOutput::from(u as i64)),
             Value::Float(float) => float.map(|f| f as f64).map(ToSqlOutput::from),
             Value::Double(double) => double.map(ToSqlOutput::from),
             Value::Text(cow) => cow.as_ref().map(|cow| ToSqlOutput::from(cow.as_ref())),

@@ -45,6 +45,8 @@ pub enum Value<'a> {
     Int32(Option<i32>),
     /// 64-bit signed integer.
     Int64(Option<i64>),
+    /// 32-bit unsigned integer.
+    UnsignedInt32(Option<u32>),
     /// 32-bit floating point.
     Float(Option<f32>),
     /// 64-bit floating point.
@@ -112,6 +114,7 @@ impl<'a> fmt::Display for Value<'a> {
         let res = match self {
             Value::Int32(val) => val.map(|v| write!(f, "{}", v)),
             Value::Int64(val) => val.map(|v| write!(f, "{}", v)),
+            Value::UnsignedInt32(val) => val.map(|v| write!(f, "{}", v)),
             Value::Float(val) => val.map(|v| write!(f, "{}", v)),
             Value::Double(val) => val.map(|v| write!(f, "{}", v)),
             Value::Text(val) => val.as_ref().map(|v| write!(f, "\"{}\"", v)),
@@ -161,6 +164,7 @@ impl<'a> From<Value<'a>> for serde_json::Value {
         let res = match pv {
             Value::Int32(i) => i.map(|i| serde_json::Value::Number(Number::from(i))),
             Value::Int64(i) => i.map(|i| serde_json::Value::Number(Number::from(i))),
+            Value::UnsignedInt32(u) => u.map(|u| serde_json::Value::Number(Number::from(u))),
             Value::Float(f) => f.map(|f| match Number::from_f64(f as f64) {
                 Some(number) => serde_json::Value::Number(number),
                 None => serde_json::Value::Null,
@@ -220,6 +224,14 @@ impl<'a> Value<'a> {
         I: Into<i64>,
     {
         Value::Int64(Some(value.into()))
+    }
+
+    /// Creates a new 32-bit signed integer.
+    pub fn uint32<I>(value: I) -> Self
+    where
+        I: Into<u32>,
+    {
+        Value::UnsignedInt32(Some(value.into()))
     }
 
     /// Creates a new 32-bit signed integer.
@@ -344,6 +356,7 @@ impl<'a> Value<'a> {
         match self {
             Value::Int32(i) => i.is_none(),
             Value::Int64(i) => i.is_none(),
+            Value::UnsignedInt32(u) => u.is_none(),
             Value::Float(i) => i.is_none(),
             Value::Double(i) => i.is_none(),
             Value::Text(t) => t.is_none(),
