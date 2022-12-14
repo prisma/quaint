@@ -418,7 +418,7 @@ impl PostgresUrl {
                         "require" => channel_binding = ChannelBinding::Require,
                         _ => {
                             tracing::debug!(
-                                message = "Unsupported Channel Binding channel_binding, defaulting to `prefer`",
+                                message = "Unsupported Channel Binding {channel_binding}, defaulting to `prefer`",
                                 channel_binding = &*v
                             );
                         }
