@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/connector/postgres.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>postgres.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-75894291877b32c0.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../../static.files/light-3bcdcab5f4113412.css"><link rel="stylesheet" disabled href="../../../static.files/dark-091ecdca18d5df85.css"><link rel="stylesheet" disabled href="../../../static.files/ayu-45445754dcd01ab2.css"><script id="default-settings" ></script><script src="../../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../../static.files/source-script-5cf2e01a42cc9858.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../static.files/main-458bffc4c06ccf37.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><div class="width-limiter"><nav class="sub"><a class="sub-logo-container" href="../../../quaint/index.html"><img class="rust-logo" src="../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/connector/postgres.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>postgres.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../../static.files/rustdoc-918aaffdca2f1bdb.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../../static.files/light-ebce58d0a40c3431.css"><link rel="stylesheet" disabled href="../../../static.files/dark-f23faae4a2daf9a6.css"><link rel="stylesheet" disabled href="../../../static.files/ayu-94f39d4346842c1e.css"><script id="default-settings" ></script><script src="../../../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../../../static.files/source-script-5cf2e01a42cc9858.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../static.files/main-a211dbb005fb8161.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"></nav><main><div class="width-limiter"><nav class="sub"><a class="sub-logo-container" href="../../../quaint/index.html"><img class="rust-logo" src="../../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="example-wrap"><pre class="src-line-numbers"><a href="#1" id="1">1</a>
 <a href="#2" id="2">2</a>
 <a href="#3" id="3">3</a>
 <a href="#4" id="4">4</a>
@@ -955,6 +955,48 @@
 <a href="#955" id="955">955</a>
 <a href="#956" id="956">956</a>
 <a href="#957" id="957">957</a>
+<a href="#958" id="958">958</a>
+<a href="#959" id="959">959</a>
+<a href="#960" id="960">960</a>
+<a href="#961" id="961">961</a>
+<a href="#962" id="962">962</a>
+<a href="#963" id="963">963</a>
+<a href="#964" id="964">964</a>
+<a href="#965" id="965">965</a>
+<a href="#966" id="966">966</a>
+<a href="#967" id="967">967</a>
+<a href="#968" id="968">968</a>
+<a href="#969" id="969">969</a>
+<a href="#970" id="970">970</a>
+<a href="#971" id="971">971</a>
+<a href="#972" id="972">972</a>
+<a href="#973" id="973">973</a>
+<a href="#974" id="974">974</a>
+<a href="#975" id="975">975</a>
+<a href="#976" id="976">976</a>
+<a href="#977" id="977">977</a>
+<a href="#978" id="978">978</a>
+<a href="#979" id="979">979</a>
+<a href="#980" id="980">980</a>
+<a href="#981" id="981">981</a>
+<a href="#982" id="982">982</a>
+<a href="#983" id="983">983</a>
+<a href="#984" id="984">984</a>
+<a href="#985" id="985">985</a>
+<a href="#986" id="986">986</a>
+<a href="#987" id="987">987</a>
+<a href="#988" id="988">988</a>
+<a href="#989" id="989">989</a>
+<a href="#990" id="990">990</a>
+<a href="#991" id="991">991</a>
+<a href="#992" id="992">992</a>
+<a href="#993" id="993">993</a>
+<a href="#994" id="994">994</a>
+<a href="#995" id="995">995</a>
+<a href="#996" id="996">996</a>
+<a href="#997" id="997">997</a>
+<a href="#998" id="998">998</a>
+<a href="#999" id="999">999</a>
 </pre><pre class="rust"><code><span class="kw">mod </span>conversion;
 <span class="kw">mod </span>error;
 
@@ -978,7 +1020,10 @@
     sync::atomic::{AtomicBool, Ordering},
     time::Duration,
 };
-<span class="kw">use </span>tokio_postgres::{config::SslMode, Client, Config, Statement};
+<span class="kw">use </span>tokio_postgres::{
+    config::{ChannelBinding, SslMode},
+    Client, Config, Statement,
+};
 <span class="kw">use </span>url::Url;
 
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const </span>DEFAULT_SCHEMA: <span class="kw-2">&amp;</span>str = <span class="string">&quot;public&quot;</span>;
@@ -1215,6 +1260,10 @@
         <span class="self">self</span>.query_params.application_name.as_deref()
     }
 
+    <span class="kw">pub fn </span>channel_binding(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; ChannelBinding {
+        <span class="self">self</span>.query_params.channel_binding
+    }
+
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>cache(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; LruCache&lt;String, Statement&gt; {
         <span class="kw">if </span><span class="self">self</span>.query_params.pg_bouncer {
             LruCache::new(<span class="number">0</span>)
@@ -1237,6 +1286,7 @@
         <span class="kw">let </span><span class="kw-2">mut </span>ssl_mode = SslMode::Prefer;
         <span class="kw">let </span><span class="kw-2">mut </span>host = <span class="prelude-val">None</span>;
         <span class="kw">let </span><span class="kw-2">mut </span>application_name = <span class="prelude-val">None</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>channel_binding = ChannelBinding::Prefer;
         <span class="kw">let </span><span class="kw-2">mut </span>socket_timeout = <span class="prelude-val">None</span>;
         <span class="kw">let </span><span class="kw-2">mut </span>connect_timeout = <span class="prelude-val">Some</span>(Duration::from_secs(<span class="number">5</span>));
         <span class="kw">let </span><span class="kw-2">mut </span>pool_timeout = <span class="prelude-val">Some</span>(Duration::from_secs(<span class="number">10</span>));
@@ -1360,6 +1410,19 @@
                 <span class="string">&quot;application_name&quot; </span>=&gt; {
                     application_name = <span class="prelude-val">Some</span>(v.to_string());
                 }
+                <span class="string">&quot;channel_binding&quot; </span>=&gt; {
+                    <span class="kw">match </span>v.as_ref() {
+                        <span class="string">&quot;disable&quot; </span>=&gt; channel_binding = ChannelBinding::Disable,
+                        <span class="string">&quot;prefer&quot; </span>=&gt; channel_binding = ChannelBinding::Prefer,
+                        <span class="string">&quot;require&quot; </span>=&gt; channel_binding = ChannelBinding::Require,
+                        <span class="kw">_ </span>=&gt; {
+                            <span class="macro">tracing::debug!</span>(
+                                message = <span class="string">&quot;Unsupported Channel Binding {channel_binding}, defaulting to `prefer`&quot;</span>,
+                                channel_binding = <span class="kw-2">&amp;*</span>v
+                            );
+                        }
+                    };
+                }
                 <span class="string">&quot;options&quot; </span>=&gt; {
                     options = <span class="prelude-val">Some</span>(v.to_string());
                 }
@@ -1388,6 +1451,7 @@
             max_connection_lifetime,
             max_idle_connection_lifetime,
             application_name,
+            channel_binding,
             options,
         })
     }
@@ -1425,6 +1489,8 @@
 
         config.ssl_mode(<span class="self">self</span>.query_params.ssl_mode);
 
+        config.channel_binding(<span class="self">self</span>.query_params.channel_binding);
+
         config
     }
 }
@@ -1444,6 +1510,7 @@
     max_connection_lifetime: <span class="prelude-ty">Option</span>&lt;Duration&gt;,
     max_idle_connection_lifetime: <span class="prelude-ty">Option</span>&lt;Duration&gt;,
     application_name: <span class="prelude-ty">Option</span>&lt;String&gt;,
+    channel_binding: ChannelBinding,
     options: <span class="prelude-ty">Option</span>&lt;String&gt;,
 }
 
@@ -1801,6 +1868,23 @@
     }
 
     <span class="attr">#[test]
+    </span><span class="kw">fn </span>should_have_channel_binding() {
+        <span class="kw">let </span>url =
+            PostgresUrl::new(Url::parse(<span class="string">&quot;postgresql:///localhost:5432/foo?channel_binding=require&quot;</span>).unwrap()).unwrap();
+        <span class="macro">assert_eq!</span>(ChannelBinding::Require, url.channel_binding());
+    }
+
+    <span class="attr">#[test]
+    </span><span class="kw">fn </span>should_have_default_channel_binding() {
+        <span class="kw">let </span>url =
+            PostgresUrl::new(Url::parse(<span class="string">&quot;postgresql:///localhost:5432/foo?channel_binding=invalid&quot;</span>).unwrap()).unwrap();
+        <span class="macro">assert_eq!</span>(ChannelBinding::Prefer, url.channel_binding());
+
+        <span class="kw">let </span>url = PostgresUrl::new(Url::parse(<span class="string">&quot;postgresql:///localhost:5432/foo&quot;</span>).unwrap()).unwrap();
+        <span class="macro">assert_eq!</span>(ChannelBinding::Prefer, url.channel_binding());
+    }
+
+    <span class="attr">#[test]
     </span><span class="kw">fn </span>should_not_enable_caching_with_pgbouncer() {
         <span class="kw">let </span>url = PostgresUrl::new(Url::parse(<span class="string">&quot;postgresql:///localhost:5432/foo?pgbouncer=true&quot;</span>).unwrap()).unwrap();
         <span class="macro">assert_eq!</span>(<span class="number">0</span>, url.cache().capacity());
@@ -1913,4 +1997,4 @@
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="quaint" data-themes="" data-resource-suffix="" data-rustdoc-version="1.67.0-nightly (80a96467e 2022-11-26)" data-search-js="search-df80cc3cb87b6482.js" data-settings-js="settings-7e1cf5cc683233f7.js" data-settings-css="settings-af96d9e2fc13e081.css" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="quaint" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.0-nightly (b70baa4f9 2022-12-14)" data-search-js="search-444266647c4dba98.js" data-settings-js="settings-bebeae96e00e4617.js" data-settings-css="settings-af96d9e2fc13e081.css" ></div></body></html>
