@@ -18,6 +18,13 @@ pub struct PooledConnection {
     pub(crate) inner: MobcPooled<QuaintManager>,
 }
 
+impl PooledConnection {
+    /// The connection's pool Manager instance.
+    pub fn manager(&self) -> &QuaintManager {
+        &*self.inner
+    }
+}
+
 impl TransactionCapable for PooledConnection {}
 
 #[async_trait]
