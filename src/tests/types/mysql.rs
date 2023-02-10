@@ -65,9 +65,9 @@ test_type!(mediumint(
 test_type!(mediumint_unsigned(
     mysql,
     "mediumint unsigned",
-    Value::Int64(None),
-    Value::int64(0),
-    Value::int64(16777215)
+    Value::UnsignedInt32(None),
+    Value::uint32(0u32),
+    Value::uint32(16777215u32)
 ));
 
 test_type!(int(
@@ -81,18 +81,18 @@ test_type!(int(
 test_type!(int_unsigned(
     mysql,
     "int unsigned",
-    Value::Int64(None),
-    Value::int64(0),
-    Value::int64(2173158296i64),
-    Value::int64(4294967295i64)
+    Value::UnsignedInt32(None),
+    Value::uint32(0u32),
+    Value::uint32(2173158296u32),
+    Value::uint32(4294967295u32)
 ));
 
 test_type!(int_unsigned_not_null(
     mysql,
     "int unsigned not null",
-    Value::int64(0),
-    Value::int64(2173158296i64),
-    Value::int64(4294967295i64)
+    Value::uint32(0_u32),
+    Value::uint32(2173158296_u32),
+    Value::uint32(4294967295_u32)
 ));
 
 test_type!(bigint(

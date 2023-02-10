@@ -13,6 +13,7 @@ impl<'a> IntoSql<'a> for &'a Value<'a> {
         match self {
             Value::Int32(val) => val.into_sql(),
             Value::Int64(val) => val.into_sql(),
+            Value::UnsignedInt32(val) => val.map(|val| val as i64).into_sql(),
             Value::Float(val) => val.into_sql(),
             Value::Double(val) => val.into_sql(),
             Value::Text(val) => val.as_deref().into_sql(),
