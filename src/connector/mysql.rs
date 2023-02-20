@@ -200,7 +200,7 @@ impl MysqlUrl {
                     };
                 }
                 "socket" => {
-                    socket = Some(v.replace('(', "").replace(')', ""));
+                    socket = Some(v.replace(['(', ')'], ""));
                 }
                 "socket_timeout" => {
                     let as_int = v
@@ -563,7 +563,7 @@ impl Queryable for Mysql {
             return Err(Error::builder(ErrorKind::invalid_isolation_level(&isolation_level)).build());
         }
 
-        self.raw_cmd(&format!("SET TRANSACTION ISOLATION LEVEL {}", isolation_level))
+        self.raw_cmd(&format!("SET TRANSACTION ISOLATION LEVEL {isolation_level}"))
             .await?;
 
         Ok(())
@@ -619,7 +619,7 @@ mod tests {
 
     #[tokio::test]
     async fn should_map_nonexisting_database_error() {
-        let mut url = Url::parse(&*CONN_STR).unwrap();
+        let mut url = Url::parse(&CONN_STR).unwrap();
         url.set_username("root").unwrap();
         url.set_path("/this_does_not_exist");
 
