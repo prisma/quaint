@@ -14,8 +14,16 @@ where
     U: Future<Output = crate::Result<T>>,
 {
     let span = info_span!("quaint:query", "db.statement" = %query);
+    do_query(tag, query, params, f).instrument(span).await
+}
+
+async fn do_query<'a, F, T, U>(tag: &'static str, query: &'a str, params: &'a [Value<'_>], f: F) -> crate::Result<T>
+where
+    F: FnOnce() -> U + 'a,
+    U: Future<Output = crate::Result<T>>,
+{
     let start = Instant::now();
-    let res = f().instrument(span).await;
+    let res = f().await;
 
     let result = match res {
         Ok(_) => "success",
@@ -42,7 +50,7 @@ where
         trace_query(query, params, result, start);
     }
 
-    histogram!(format!("{}.query.time", tag), start.elapsed());
+    histogram!(format!("{tag}.query.time"), start.elapsed());
     histogram!("prisma_datasource_queries_duration_histogram_ms", start.elapsed());
     increment_counter!("prisma_datasource_queries_total");
 
