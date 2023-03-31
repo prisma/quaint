@@ -1,7 +1,7 @@
 use crate::ast::*;
 
 /// Tree structures and leaves for condition building.
-#[derive(Debug, PartialEq, Clone, Default)]
+#[derive(Debug, PartialEq, Clone)]
 pub enum ConditionTree<'a> {
     /// `(left_expression AND right_expression)`
     And(Vec<Expression<'a>>),
@@ -12,10 +12,15 @@ pub enum ConditionTree<'a> {
     /// A single expression leaf
     Single(Box<Expression<'a>>),
     /// A leaf that does nothing to the condition, `1=1`
-    #[default]
     NoCondition,
     /// A leaf that cancels the condition, `1=0`
     NegativeCondition,
+}
+
+impl<'a> Default for ConditionTree<'a> {
+    fn default() -> Self {
+        ConditionTree::NoCondition
+    }
 }
 
 impl<'a> ConditionTree<'a> {
