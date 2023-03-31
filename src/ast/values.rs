@@ -641,7 +641,7 @@ impl<'a> Value<'a> {
         }
     }
 
-    /// Returns a Vec<T> if the value is an array of T, otherwise `None`.
+    /// Returns a `Vec<T>` if the value is an array of `T`, otherwise `None`.
     pub fn into_vec<T>(self) -> Option<Vec<T>>
     where
         // Implement From<Value>
