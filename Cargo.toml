@@ -9,8 +9,7 @@ authors = [
 ]
 description = "An abstraction layer for SQL databases."
 documentation = "https://docs.rs/quaint/"
-edition = "2018"
-rust = "1.48"
+edition = "2021"
 homepage = "https://github.com/prisma/quaint/"
 keywords = ["mysql", "postgresql", "sqlite", "sql"]
 license = "Apache-2.0"
@@ -70,7 +69,7 @@ bigdecimal = ["bigdecimal_"]
 fmt-sql = ["sqlformat"]
 
 [dependencies]
-connection-string = "0.1.10"
+connection-string = "0.2"
 percent-encoding = "2"
 tracing-core = "0.1"
 async-trait = "0.1"
