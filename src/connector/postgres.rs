@@ -37,7 +37,7 @@ pub use tokio_postgres;
 use super::IsolationLevel;
 
 #[derive(Clone)]
-struct Hidden<T>(T);
+pub struct Hidden<T>(pub T);
 
 impl<T> Debug for Hidden<T> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -81,10 +81,10 @@ pub struct SslParams {
 }
 
 #[derive(Debug)]
-struct SslAuth {
-    certificate: Hidden<Option<Certificate>>,
-    identity: Hidden<Option<Identity>>,
-    ssl_accept_mode: SslAcceptMode,
+pub struct SslAuth {
+    pub certificate: Hidden<Option<Certificate>>,
+    pub identity: Hidden<Option<Identity>>,
+    pub ssl_accept_mode: SslAcceptMode,
 }
 
 impl Default for SslAuth {
@@ -115,7 +115,7 @@ impl SslAuth {
 }
 
 impl SslParams {
-    async fn into_auth(self) -> crate::Result<SslAuth> {
+    pub async fn into_auth(self) -> crate::Result<SslAuth> {
         let mut auth = SslAuth::default();
         auth.accept_mode(self.ssl_accept_mode);
 
@@ -457,7 +457,7 @@ impl PostgresUrl {
         })
     }
 
-    pub(crate) fn ssl_params(&self) -> &SslParams {
+    pub fn ssl_params(&self) -> &SslParams {
         &self.query_params.ssl_params
     }
 
@@ -466,7 +466,7 @@ impl PostgresUrl {
         self.query_params.connection_limit
     }
 
-    pub(crate) fn to_config(&self) -> Config {
+    pub fn to_config(&self) -> Config {
         let mut config = Config::new();
 
         config.user(self.username().borrow());
