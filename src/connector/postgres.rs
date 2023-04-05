@@ -486,7 +486,11 @@ impl PostgresUrl {
 
         if let Some(connect_timeout) = self.query_params.connect_timeout {
             config.connect_timeout(connect_timeout);
-        };
+        }
+
+        if let Some(schema) = &self.query_params.schema {
+            config.search_path(schema.clone());
+        }
 
         config.ssl_mode(self.query_params.ssl_mode);
 
@@ -547,19 +551,6 @@ impl PostgreSql {
             }
         }));
 
-        // SET NAMES sets the client text encoding. It needs to be explicitly set for automatic
-        // conversion to and from UTF-8 to happen server-side.
-        //
-        // Relevant docs: https://www.postgresql.org/docs/current/multibyte.html
-        let session_variables = format!(
-            r##"
-            {set_search_path}
-            SET NAMES 'UTF8';
-            "##,
-            set_search_path = SetSearchPath(url.query_params.schema.as_deref())
-        );
-
-        client.simple_query(session_variables.as_str()).await?;
 
         Ok(Self {
             client: PostgresClient(client),
