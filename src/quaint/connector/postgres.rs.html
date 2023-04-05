@@ -972,6 +972,19 @@
 <a href="#972" id="972">972</a>
 <a href="#973" id="973">973</a>
 <a href="#974" id="974">974</a>
+<a href="#975" id="975">975</a>
+<a href="#976" id="976">976</a>
+<a href="#977" id="977">977</a>
+<a href="#978" id="978">978</a>
+<a href="#979" id="979">979</a>
+<a href="#980" id="980">980</a>
+<a href="#981" id="981">981</a>
+<a href="#982" id="982">982</a>
+<a href="#983" id="983">983</a>
+<a href="#984" id="984">984</a>
+<a href="#985" id="985">985</a>
+<a href="#986" id="986">986</a>
+<a href="#987" id="987">987</a>
 </pre><pre class="rust"><code><span class="kw">mod </span>conversion;
 <span class="kw">mod </span>error;
 
@@ -989,7 +1002,7 @@
 <span class="kw">use </span>postgres_native_tls::MakeTlsConnector;
 <span class="kw">use </span>std::{
     borrow::{Borrow, Cow},
-    fmt::Debug,
+    fmt::{Debug, Display},
     fs,
     future::Future,
     sync::atomic::{AtomicBool, Ordering},
@@ -1463,7 +1476,7 @@
         }
 
         <span class="kw">if let </span><span class="prelude-val">Some</span>(schema) = <span class="kw-2">&amp;</span><span class="self">self</span>.query_params.schema {
-            config.search_path(schema.clone());
+            config.search_path(SearchPath(schema.as_str()).to_string());
         }
 
         config.ssl_mode(<span class="self">self</span>.query_params.ssl_mode);
@@ -1602,6 +1615,19 @@
         } <span class="kw">else </span>{
             <span class="prelude-val">Ok</span>(())
         }
+    }
+}
+
+<span class="comment">// A SearchPath option (Display-impl) for connection initialization.
+</span><span class="kw">struct </span>SearchPath&lt;<span class="lifetime">&#39;a</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str);
+
+<span class="kw">impl </span>Display <span class="kw">for </span>SearchPath&lt;<span class="lifetime">&#39;_</span>&gt; {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; std::fmt::Result {
+        f.write_str(<span class="string">&quot;\&quot;&quot;</span>)<span class="question-mark">?</span>;
+        f.write_str(<span class="self">self</span>.<span class="number">0</span>)<span class="question-mark">?</span>;
+        f.write_str(<span class="string">&quot;\&quot;&quot;</span>)<span class="question-mark">?</span>;
+
+        <span class="prelude-val">Ok</span>(())
     }
 }
 
@@ -1865,7 +1891,7 @@
         <span class="kw">let </span>result_set = client.query_raw(<span class="string">&quot;SHOW search_path&quot;</span>, <span class="kw-2">&amp;</span>[]).<span class="kw">await</span>.unwrap();
         <span class="kw">let </span>row = result_set.first().unwrap();
 
-        <span class="macro">assert_eq!</span>(<span class="prelude-val">Some</span>(<span class="string">&quot;musti-test&quot;</span>), row[<span class="number">0</span>].as_str());
+        <span class="macro">assert_eq!</span>(<span class="prelude-val">Some</span>(<span class="string">&quot;\&quot;musti-test\&quot;&quot;</span>), row[<span class="number">0</span>].as_str());
     }
 
     <span class="attr">#[tokio::test]
