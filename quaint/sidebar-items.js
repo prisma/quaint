@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["Value"],"macro":["col","val","values"],"mod":["ast","connector","error","pooled","prelude","serde","single","visitor"],"type":["Result"]};
+window.SIDEBAR_ITEMS = {"macro":["col","val","values"],"mod":["ast","connector","error","pooled","prelude","serde","single","visitor"],"type":["Result"]};
