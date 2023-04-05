@@ -972,31 +972,6 @@
 <a href="#972" id="972">972</a>
 <a href="#973" id="973">973</a>
 <a href="#974" id="974">974</a>
-<a href="#975" id="975">975</a>
-<a href="#976" id="976">976</a>
-<a href="#977" id="977">977</a>
-<a href="#978" id="978">978</a>
-<a href="#979" id="979">979</a>
-<a href="#980" id="980">980</a>
-<a href="#981" id="981">981</a>
-<a href="#982" id="982">982</a>
-<a href="#983" id="983">983</a>
-<a href="#984" id="984">984</a>
-<a href="#985" id="985">985</a>
-<a href="#986" id="986">986</a>
-<a href="#987" id="987">987</a>
-<a href="#988" id="988">988</a>
-<a href="#989" id="989">989</a>
-<a href="#990" id="990">990</a>
-<a href="#991" id="991">991</a>
-<a href="#992" id="992">992</a>
-<a href="#993" id="993">993</a>
-<a href="#994" id="994">994</a>
-<a href="#995" id="995">995</a>
-<a href="#996" id="996">996</a>
-<a href="#997" id="997">997</a>
-<a href="#998" id="998">998</a>
-<a href="#999" id="999">999</a>
 </pre><pre class="rust"><code><span class="kw">mod </span>conversion;
 <span class="kw">mod </span>error;
 
@@ -1014,7 +989,7 @@
 <span class="kw">use </span>postgres_native_tls::MakeTlsConnector;
 <span class="kw">use </span>std::{
     borrow::{Borrow, Cow},
-    fmt::{Debug, Display},
+    fmt::Debug,
     fs,
     future::Future,
     sync::atomic::{AtomicBool, Ordering},
@@ -1485,7 +1460,11 @@
 
         <span class="kw">if let </span><span class="prelude-val">Some</span>(connect_timeout) = <span class="self">self</span>.query_params.connect_timeout {
             config.connect_timeout(connect_timeout);
-        };
+        }
+
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(schema) = <span class="kw-2">&amp;</span><span class="self">self</span>.query_params.schema {
+            config.search_path(schema.clone());
+        }
 
         config.ssl_mode(<span class="self">self</span>.query_params.ssl_mode);
 
@@ -1545,20 +1524,6 @@
                 <span class="macro">tracing::error!</span>(<span class="string">&quot;Error in PostgreSQL connection: {:?}&quot;</span>, e);
             }
         }));
-
-        <span class="comment">// SET NAMES sets the client text encoding. It needs to be explicitly set for automatic
-        // conversion to and from UTF-8 to happen server-side.
-        //
-        // Relevant docs: https://www.postgresql.org/docs/current/multibyte.html
-        </span><span class="kw">let </span>session_variables = <span class="macro">format!</span>(
-            <span class="string">r##&quot;
-            {set_search_path}
-            SET NAMES &#39;UTF8&#39;;
-            &quot;##</span>,
-            set_search_path = SetSearchPath(url.query_params.schema.as_deref())
-        );
-
-        client.simple_query(session_variables.as_str()).<span class="kw">await</span><span class="question-mark">?</span>;
 
         <span class="prelude-val">Ok</span>(<span class="self">Self </span>{
             client: PostgresClient(client),
@@ -1637,21 +1602,6 @@
         } <span class="kw">else </span>{
             <span class="prelude-val">Ok</span>(())
         }
-    }
-}
-
-<span class="comment">// A SetSearchPath statement (Display-impl) for connection initialization.
-</span><span class="kw">struct </span>SetSearchPath&lt;<span class="lifetime">&#39;a</span>&gt;(<span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str&gt;);
-
-<span class="kw">impl </span>Display <span class="kw">for </span>SetSearchPath&lt;<span class="lifetime">&#39;_</span>&gt; {
-    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; std::fmt::Result {
-        <span class="kw">if let </span><span class="prelude-val">Some</span>(schema) = <span class="self">self</span>.<span class="number">0 </span>{
-            f.write_str(<span class="string">&quot;SET search_path = \&quot;&quot;</span>)<span class="question-mark">?</span>;
-            f.write_str(schema)<span class="question-mark">?</span>;
-            f.write_str(<span class="string">&quot;\&quot;;\n&quot;</span>)<span class="question-mark">?</span>;
-        }
-
-        <span class="prelude-val">Ok</span>(())
     }
 }
 
@@ -1915,7 +1865,7 @@
         <span class="kw">let </span>result_set = client.query_raw(<span class="string">&quot;SHOW search_path&quot;</span>, <span class="kw-2">&amp;</span>[]).<span class="kw">await</span>.unwrap();
         <span class="kw">let </span>row = result_set.first().unwrap();
 
-        <span class="macro">assert_eq!</span>(<span class="prelude-val">Some</span>(<span class="string">&quot;\&quot;musti-test\&quot;&quot;</span>), row[<span class="number">0</span>].as_str());
+        <span class="macro">assert_eq!</span>(<span class="prelude-val">Some</span>(<span class="string">&quot;musti-test&quot;</span>), row[<span class="number">0</span>].as_str());
     }
 
     <span class="attr">#[tokio::test]
