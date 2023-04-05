@@ -15,7 +15,7 @@ use percent_encoding::percent_decode;
 use postgres_native_tls::MakeTlsConnector;
 use std::{
     borrow::{Borrow, Cow},
-    fmt::{Debug, Display},
+    fmt::Debug,
     fs,
     future::Future,
     sync::atomic::{AtomicBool, Ordering},
@@ -631,21 +631,6 @@ impl PostgreSql {
     }
 }
 
-// A SetSearchPath statement (Display-impl) for connection initialization.
-struct SetSearchPath<'a>(Option<&'a str>);
-
-impl Display for SetSearchPath<'_> {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        if let Some(schema) = self.0 {
-            f.write_str("SET search_path = \"")?;
-            f.write_str(schema)?;
-            f.write_str("\";\n")?;
-        }
-
-        Ok(())
-    }
-}
-
 impl TransactionCapable for PostgreSql {}
 
 #[async_trait]
@@ -906,7 +891,7 @@ mod tests {
         let result_set = client.query_raw("SHOW search_path", &[]).await.unwrap();
         let row = result_set.first().unwrap();
 
-        assert_eq!(Some("\"musti-test\""), row[0].as_str());
+        assert_eq!(Some("musti-test"), row[0].as_str());
     }
 
     #[tokio::test]
