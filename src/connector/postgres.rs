@@ -551,7 +551,6 @@ impl PostgreSql {
             }
         }));
 
-
         Ok(Self {
             client: PostgresClient(client),
             socket_timeout: url.query_params.socket_timeout,
