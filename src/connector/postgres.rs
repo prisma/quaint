@@ -466,7 +466,7 @@ impl PostgresUrl {
         self.query_params.connection_limit
     }
 
-    pub(crate) fn to_config(&self) -> Config {
+    pub fn to_config(&self) -> Config {
         let mut config = Config::new();
 
         config.user(self.username().borrow());
@@ -486,7 +486,11 @@ impl PostgresUrl {
 
         if let Some(connect_timeout) = self.query_params.connect_timeout {
             config.connect_timeout(connect_timeout);
-        };
+        }
+
+        if let Some(schema) = &self.query_params.schema {
+            config.search_path(SearchPath(schema.as_str()).to_string());
+        }
 
         config.ssl_mode(self.query_params.ssl_mode);
 
@@ -547,19 +551,19 @@ impl PostgreSql {
             }
         }));
 
-        // SET NAMES sets the client text encoding. It needs to be explicitly set for automatic
-        // conversion to and from UTF-8 to happen server-side.
-        //
-        // Relevant docs: https://www.postgresql.org/docs/current/multibyte.html
-        let session_variables = format!(
-            r##"
-            {set_search_path}
-            SET NAMES 'UTF8';
-            "##,
-            set_search_path = SetSearchPath(url.query_params.schema.as_deref())
-        );
+        // // SET NAMES sets the client text encoding. It needs to be explicitly set for automatic
+        // // conversion to and from UTF-8 to happen server-side.
+        // //
+        // // Relevant docs: https://www.postgresql.org/docs/current/multibyte.html
+        // let session_variables = format!(
+        //     r##"
+        //     {set_search_path}
+        //     SET NAMES 'UTF8';
+        //     "##,
+        //     set_search_path = SetSearchPath(url.query_params.schema.as_deref())
+        // );
 
-        client.simple_query(session_variables.as_str()).await?;
+        // client.simple_query(session_variables.as_str()).await?;
 
         Ok(Self {
             client: PostgresClient(client),
@@ -642,15 +646,16 @@ impl PostgreSql {
 }
 
 // A SetSearchPath statement (Display-impl) for connection initialization.
-struct SetSearchPath<'a>(Option<&'a str>);
+struct SearchPath<'a>(&'a str);
 
-impl Display for SetSearchPath<'_> {
+impl Display for SearchPath<'_> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        if let Some(schema) = self.0 {
-            f.write_str("SET search_path = \"")?;
-            f.write_str(schema)?;
-            f.write_str("\";\n")?;
-        }
+        // Uncomment me to make it work on Postgres
+        // Comment me to make it work on Cockroach
+
+        // f.write_str("\"")?;
+        f.write_str(self.0)?;
+        // f.write_str("\"")?;
 
         Ok(())
     }
