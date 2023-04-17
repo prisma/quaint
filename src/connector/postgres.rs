@@ -915,13 +915,126 @@ impl Queryable for PostgreSql {
     }
 }
 
+/// Sorted list of CockroachDB's reserved keywords.
+/// Taken from https://www.cockroachlabs.com/docs/stable/keywords-and-identifiers.html#keywords
+const RESERVED_KEYWORDS: [&str; 79] = [
+    "all",
+    "analyse",
+    "analyze",
+    "and",
+    "any",
+    "array",
+    "as",
+    "asc",
+    "asymmetric",
+    "both",
+    "case",
+    "cast",
+    "check",
+    "collate",
+    "column",
+    "concurrently",
+    "constraint",
+    "create",
+    "current_catalog",
+    "current_date",
+    "current_role",
+    "current_schema",
+    "current_time",
+    "current_timestamp",
+    "current_user",
+    "default",
+    "deferrable",
+    "desc",
+    "distinct",
+    "do",
+    "else",
+    "end",
+    "except",
+    "false",
+    "fetch",
+    "for",
+    "foreign",
+    "from",
+    "grant",
+    "group",
+    "having",
+    "in",
+    "initially",
+    "intersect",
+    "into",
+    "lateral",
+    "leading",
+    "limit",
+    "localtime",
+    "localtimestamp",
+    "not",
+    "null",
+    "offset",
+    "on",
+    "only",
+    "or",
+    "order",
+    "placing",
+    "primary",
+    "references",
+    "returning",
+    "select",
+    "session_user",
+    "some",
+    "symmetric",
+    "table",
+    "then",
+    "to",
+    "trailing",
+    "true",
+    "union",
+    "unique",
+    "user",
+    "using",
+    "variadic",
+    "when",
+    "where",
+    "window",
+    "with",
+];
+
+/// Sorted list of CockroachDB's reserved type function names.
+/// Taken from https://www.cockroachlabs.com/docs/stable/keywords-and-identifiers.html#keywords
+const RESERVED_TYPE_FUNCTION_NAMES: [&str; 18] = [
+    "authorization",
+    "collation",
+    "cross",
+    "full",
+    "ilike",
+    "inner",
+    "is",
+    "isnull",
+    "join",
+    "left",
+    "like",
+    "natural",
+    "none",
+    "notnull",
+    "outer",
+    "overlaps",
+    "right",
+    "similar",
+];
+
 /// Returns true if a Postgres identifier is considered "safe".
 ///
-/// In this context, "safe" means that the value of an identifier would be the same quoted and unquoted. In other words, that it does _not_ need to be quoted.
+/// In this context, "safe" means that the value of an identifier would be the same quoted and unquoted or that it's not part of reserved keywords. In other words, that it does _not_ need to be quoted.
 ///
 /// Spec can be found here: https://www.postgresql.org/docs/current/sql-syntax-lexical.html#SQL-SYNTAX-IDENTIFIERS
+/// or here: https://www.cockroachlabs.com/docs/stable/keywords-and-identifiers.html#rules-for-identifiers
 fn is_safe_identifier(ident: &str) -> bool {
     if ident.is_empty() {
+        return false;
+    }
+
+    // 1. Not equal any SQL keyword unless the keyword is accepted by the element's syntax. For example, name accepts Unreserved or Column Name keywords.
+    if RESERVED_KEYWORDS.binary_search(&ident).is_ok() || RESERVED_TYPE_FUNCTION_NAMES.binary_search(&ident).is_ok() {
         return false;
     }
 
@@ -929,13 +1042,13 @@ fn is_safe_identifier(ident: &str) -> bool {
 
     let first = chars.next().unwrap();
 
-    // 1. SQL identifiers must begin with a letter (a-z, but also letters with diacritical marks and non-Latin letters) or an underscore (_).
+    // 2. SQL identifiers must begin with a letter (a-z, but also letters with diacritical marks and non-Latin letters) or an underscore (_).
     if (!first.is_alphabetic() || !first.is_lowercase()) && first != '_' {
         return false;
     }
 
     for c in chars {
-        // 2. Subsequent characters in an identifier can be letters, underscores, digits (0-9), or dollar signs ($).
+        // 3. Subsequent characters in an identifier can be letters, underscores, digits (0-9), or dollar signs ($).
         if (!c.is_alphabetic() || !c.is_lowercase()) && c != '_' && !c.is_ascii_digit() && c != '$' {
             return false;
         }
@@ -1065,6 +1178,14 @@ mod tests {
         assert_eq!(test_path("HELLO").await.as_deref(), Some("\"HELLO\""));
         assert_eq!(test_path("HELLO$").await.as_deref(), Some("\"HELLO$\""));
         assert_eq!(test_path("ÀBRACADABRA").await.as_deref(), Some("\"ÀBRACADABRA\""));
+
+        for ident in RESERVED_KEYWORDS {
+            assert_eq!(test_path(ident).await.as_deref(), Some(format!("\"{ident}\"").as_str()));
+        }
+
+        for ident in RESERVED_TYPE_FUNCTION_NAMES {
+            assert_eq!(test_path(ident).await.as_deref(), Some(format!("\"{ident}\"").as_str()));
+        }
     }
 
     #[tokio::test]
@@ -1108,6 +1229,14 @@ mod tests {
         assert_eq!(test_path("HELLO").await.as_deref(), Some("\"HELLO\""));
         assert_eq!(test_path("HELLO$").await.as_deref(), Some("\"HELLO$\""));
         assert_eq!(test_path("ÀBRACADABRA").await.as_deref(), Some("\"ÀBRACADABRA\""));
+
+        for ident in RESERVED_KEYWORDS {
+            assert_eq!(test_path(ident).await.as_deref(), Some(format!("\"{ident}\"").as_str()));
+        }
+
+        for ident in RESERVED_TYPE_FUNCTION_NAMES {
+            assert_eq!(test_path(ident).await.as_deref(), Some(format!("\"{ident}\"").as_str()));
+        }
     }
 
     #[tokio::test]
@@ -1151,6 +1280,14 @@ mod tests {
         assert_eq!(test_path("HELLO").await.as_deref(), Some("\"HELLO\""));
         assert_eq!(test_path("HELLO$").await.as_deref(), Some("\"HELLO$\""));
         assert_eq!(test_path("ÀBRACADABRA").await.as_deref(), Some("\"ÀBRACADABRA\""));
+
+        for ident in RESERVED_KEYWORDS {
+            assert_eq!(test_path(ident).await.as_deref(), Some(format!("\"{ident}\"").as_str()));
+        }
+
+        for ident in RESERVED_TYPE_FUNCTION_NAMES {
+            assert_eq!(test_path(ident).await.as_deref(), Some(format!("\"{ident}\"").as_str()));
+        }
     }
 
     #[tokio::test]
@@ -1194,6 +1331,14 @@ mod tests {
         assert_eq!(test_path("HELLO").await.as_deref(), Some("\"HELLO\""));
         assert_eq!(test_path("HELLO$").await.as_deref(), Some("\"HELLO$\""));
         assert_eq!(test_path("ÀBRACADABRA").await.as_deref(), Some("\"ÀBRACADABRA\""));
+
+        for ident in RESERVED_KEYWORDS {
+            assert_eq!(test_path(ident).await.as_deref(), Some(format!("\"{ident}\"").as_str()));
+        }
+
+        for ident in RESERVED_TYPE_FUNCTION_NAMES {
+            assert_eq!(test_path(ident).await.as_deref(), Some(format!("\"{ident}\"").as_str()));
+        }
     }
 
     #[tokio::test]
@@ -1305,5 +1450,13 @@ mod tests {
         assert_eq!(is_safe_identifier("HELLO"), false);
         assert_eq!(is_safe_identifier("HELLO$"), false);
         assert_eq!(is_safe_identifier("ÀBRACADABRA"), false);
+
+        for ident in RESERVED_KEYWORDS {
+            assert_eq!(is_safe_identifier(ident), false);
+        }
+
+        for ident in RESERVED_TYPE_FUNCTION_NAMES {
+            assert_eq!(is_safe_identifier(ident), false);
+        }
     }
 }
