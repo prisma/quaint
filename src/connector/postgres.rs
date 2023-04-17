@@ -710,9 +710,7 @@ struct CockroachSearchPath<'a>(&'a str);
 
 impl Display for CockroachSearchPath<'_> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.write_str(self.0)?;
-
-        Ok(())
+        f.write_str(self.0)
     }
 }
 
