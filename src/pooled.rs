@@ -304,7 +304,11 @@ impl Builder {
     /// - Defaults to `PostgresFlavour::Unknown`.
     pub fn set_postgres_flavour(&mut self, flavour: PostgresFlavour) {
         if let ConnectionInfo::Postgres(ref mut url) = self.connection_info {
-            url.set_flavour(flavour)
+            url.set_flavour(flavour);
+        }
+
+        if let QuaintManager::Postgres { ref mut url } = self.manager {
+            url.set_flavour(flavour);
         }
     }
 
