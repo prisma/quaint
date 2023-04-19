@@ -3564,3 +3564,23 @@ async fn overflowing_int_errors_out(api: &mut dyn TestApi) -> crate::Result<()> 
 
     Ok(())
 }
+
+// TODO: Couldn't run this test on latest MySQL because of a compile error
+// TODO: Once the compile error is fixed and we get back to latest MySQL,
+// TODO: Uncomment me and make sure it returns `1` for mysql on a noop update
+// async fn noop_update(api: &mut dyn TestApi) -> crate::Result<()> {
+//     let table = api.create_temp_table("id int4 name varchar(255)").await?;
+// 
+//     let insert = Insert::multi_into(&table, vec!["id", name])
+//         .values(vec![1, "Romulus"])
+//         .values(vec![2, "Remus"]);
+// 
+//     api.conn().query(insert.into()).await?;
+// 
+//     let update = Update::table(&table).set("name", "Romulus").so_that("id".equals(1));
+//     let changes = api.conn().execute(update.into()).await?;
+// 
+//     assert_eq!(1, changes);
+// 
+//     Ok(())
+// }

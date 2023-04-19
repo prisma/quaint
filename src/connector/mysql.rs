@@ -314,7 +314,9 @@ impl MysqlUrl {
             .stmt_cache_size(Some(0))
             .user(Some(self.username()))
             .pass(self.password())
-            .db_name(Some(self.dbname()));
+            .db_name(Some(self.dbname()))
+            // See https://github.com/prisma/prisma-engines/pull/3679 as to why this is needed.
+            .client_found_rows(true);
 
         match self.socket() {
             Some(ref socket) => {
