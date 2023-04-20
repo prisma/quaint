@@ -1202,6 +1202,58 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn test_custom_search_path_pg_pgbouncer() {
+        async fn test_path(schema_name: &str) -> Option<String> {
+            let mut url = Url::parse(&CONN_STR).unwrap();
+            url.query_pairs_mut().append_pair("schema", schema_name);
+            url.query_pairs_mut().append_pair("pbbouncer", "true");
+
+            let mut pg_url = PostgresUrl::new(url).unwrap();
+            pg_url.set_flavour(PostgresFlavour::Postgres);
+
+            let client = PostgreSql::new(pg_url).await.unwrap();
+
+            let result_set = client.query_raw("SHOW search_path", &[]).await.unwrap();
+            let row = result_set.first().unwrap();
+
+            row[0].to_string()
+        }
+
+        // Safe
+        assert_eq!(test_path("hello").await.as_deref(), Some("\"hello\""));
+        assert_eq!(test_path("_hello").await.as_deref(), Some("\"_hello\""));
+        assert_eq!(test_path("àbracadabra").await.as_deref(), Some("\"àbracadabra\""));
+        assert_eq!(test_path("h3ll0").await.as_deref(), Some("\"h3ll0\""));
+        assert_eq!(test_path("héllo").await.as_deref(), Some("\"héllo\""));
+        assert_eq!(test_path("héll0$").await.as_deref(), Some("\"héll0$\""));
+        assert_eq!(test_path("héll_0$").await.as_deref(), Some("\"héll_0$\""));
+
+        // Not safe
+        assert_eq!(test_path("Hello").await.as_deref(), Some("\"Hello\""));
+        assert_eq!(test_path("hEllo").await.as_deref(), Some("\"hEllo\""));
+        assert_eq!(test_path("$hello").await.as_deref(), Some("\"$hello\""));
+        assert_eq!(test_path("hello!").await.as_deref(), Some("\"hello!\""));
+        assert_eq!(test_path("hello#").await.as_deref(), Some("\"hello#\""));
+        assert_eq!(test_path("he llo").await.as_deref(), Some("\"he llo\""));
+        assert_eq!(test_path(" hello").await.as_deref(), Some("\" hello\""));
+        assert_eq!(test_path("he-llo").await.as_deref(), Some("\"he-llo\""));
+        assert_eq!(test_path("hÉllo").await.as_deref(), Some("\"hÉllo\""));
+        assert_eq!(test_path("1337").await.as_deref(), Some("\"1337\""));
+        assert_eq!(test_path("_HELLO").await.as_deref(), Some("\"_HELLO\""));
+        assert_eq!(test_path("HELLO").await.as_deref(), Some("\"HELLO\""));
+        assert_eq!(test_path("HELLO$").await.as_deref(), Some("\"HELLO$\""));
+        assert_eq!(test_path("ÀBRACADABRA").await.as_deref(), Some("\"ÀBRACADABRA\""));
+
+        for ident in RESERVED_KEYWORDS {
+            assert_eq!(test_path(ident).await.as_deref(), Some(format!("\"{ident}\"").as_str()));
+        }
+
+        for ident in RESERVED_TYPE_FUNCTION_NAMES {
+            assert_eq!(test_path(ident).await.as_deref(), Some(format!("\"{ident}\"").as_str()));
+        }
+    }
+
+    #[tokio::test]
     async fn test_custom_search_path_crdb() {
         async fn test_path(schema_name: &str) -> Option<String> {
             let mut url = Url::parse(&CRDB_CONN_STR).unwrap();
