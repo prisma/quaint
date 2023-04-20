@@ -1472,4 +1472,63 @@ mod tests {
             assert_eq!(is_safe_identifier(ident), false);
         }
     }
+
+    #[test]
+    fn search_path_pgbouncer_should_be_set_with_query() {
+        let mut url = Url::parse(&CONN_STR).unwrap();
+        url.query_pairs_mut().append_pair("schema", "hello");
+        url.query_pairs_mut().append_pair("pgbouncer", "true");
+
+        let mut pg_url = PostgresUrl::new(url).unwrap();
+        pg_url.set_flavour(PostgresFlavour::Postgres);
+
+        let config = pg_url.to_config();
+
+        // PGBouncer does not support the `search_path` connection parameter.
+        // When `pgbouncer=true`, config.search_path should be None,
+        // And the `search_path` should be set via a db query after connection.
+        assert_eq!(config.get_search_path(), None);
+    }
+
+    #[test]
+    fn search_path_pg_should_be_set_with_param() {
+        let mut url = Url::parse(&CONN_STR).unwrap();
+        url.query_pairs_mut().append_pair("schema", "hello");
+
+        let mut pg_url = PostgresUrl::new(url).unwrap();
+        pg_url.set_flavour(PostgresFlavour::Postgres);
+
+        let config = pg_url.to_config();
+
+        // Postgres supports setting the search_path via a connection parameter.
+        assert_eq!(config.get_search_path(), Some(&"\"hello\"".to_owned()));
+    }
+
+    #[test]
+    fn search_path_crdb_safe_ident_should_be_set_with_param() {
+        let mut url = Url::parse(&CONN_STR).unwrap();
+        url.query_pairs_mut().append_pair("schema", "hello");
+
+        let mut pg_url = PostgresUrl::new(url).unwrap();
+        pg_url.set_flavour(PostgresFlavour::Cockroach);
+
+        let config = pg_url.to_config();
+
+        // CRDB supports setting the search_path via a connection parameter if the identifier is safe.
+        assert_eq!(config.get_search_path(), Some(&"hello".to_owned()));
+    }
+
+    #[test]
+    fn search_path_crdb_unsafe_ident_should_be_set_with_query() {
+        let mut url = Url::parse(&CONN_STR).unwrap();
+        url.query_pairs_mut().append_pair("schema", "HeLLo");
+
+        let mut pg_url = PostgresUrl::new(url).unwrap();
+        pg_url.set_flavour(PostgresFlavour::Cockroach);
+
+        let config = pg_url.to_config();
+
+        // CRDB does NOT support setting the search_path via a connection parameter if the identifier is unsafe.
+        assert_eq!(config.get_search_path(), None);
+    }
 }
