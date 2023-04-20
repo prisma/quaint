@@ -512,6 +512,27 @@ impl PostgresUrl {
         self.query_params.connection_limit
     }
 
+    /// On Postgres, we set the SEARCH_PATH and client-encoding through client connection parameters to save a network roundtrip on connection.
+    /// We can't always do it for CockroachDB because it does not expect quotes for unsafe identifiers (https://github.com/cockroachdb/cockroach/issues/101328), which might change once the issue is fixed.
+    /// To circumvent that problem, we only set the SEARCH_PATH through client connection parameters for Cockroach when the identifier is safe, so that the quoting does not matter.
+    fn set_search_path(&self, config: &mut Config) {
+        // PGBouncer does not support the search_path connection parameter.
+        // https://www.pgbouncer.org/config.html#ignore_startup_parameters
+        if self.query_params.pg_bouncer {
+            return;
+        }
+
+        if let Some(schema) = &self.query_params.schema {
+            if self.flavour().is_cockroach() && is_safe_identifier(schema) {
+                config.search_path(CockroachSearchPath(schema).to_string());
+            }
+
+            if self.flavour().is_postgres() {
+                config.search_path(PostgresSearchPath(schema).to_string());
+            }
+        }
+    }
+
     pub(crate) fn to_config(&self) -> Config {
         let mut config = Config::new();
 
@@ -534,18 +555,7 @@ impl PostgresUrl {
             config.connect_timeout(connect_timeout);
         }
 
-        // On Postgres, we set the SEARCH_PATH and client-encoding through client connection parameters to save a network roundtrip on connection.
-        // We can't always do it for CockroachDB because it does not expect quotes for unsafe identifiers (https://github.com/cockroachdb/cockroach/issues/101328), which might change once the issue is fixed.
-        // To circumvent that problem, we only set the SEARCH_PATH through client connection parameters for Cockroach when the identifier is safe, so that the quoting does not matter.
-        if let Some(schema) = &self.query_params.schema {
-            if self.flavour().is_cockroach() && is_safe_identifier(schema) {
-                config.search_path(CockroachSearchPath(schema).to_string());
-            }
-
-            if self.flavour().is_postgres() {
-                config.search_path(PostgresSearchPath(schema).to_string());
-            }
-        }
+        self.set_search_path(&mut config);
 
         config.ssl_mode(self.query_params.ssl_mode);
 
@@ -615,7 +625,12 @@ impl PostgreSql {
         // To circumvent that problem, we only set the SEARCH_PATH through client connection parameters for Cockroach when the identifier is safe, so that the quoting does not matter.
         // Finally, to ensure backward compatibility, we keep sending a database query in case the flavour is set to Unknown.
         if let Some(schema) = &url.query_params.schema {
-            if url.flavour().is_unknown() || (url.flavour().is_cockroach() && !is_safe_identifier(schema)) {
+            // PGBouncer does not support the search_path connection parameter.
+            // https://www.pgbouncer.org/config.html#ignore_startup_parameters
+            if url.query_params.pg_bouncer
+                || url.flavour().is_unknown()
+                || (url.flavour().is_cockroach() && !is_safe_identifier(schema))
+            {
                 let session_variables = format!(
                     r##"{set_search_path}"##,
                     set_search_path = SetSearchPath(url.query_params.schema.as_deref())
