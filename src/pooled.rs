@@ -339,7 +339,7 @@ impl Builder {
         let pg_bouncer = if info.pg_bouncer() { " in PgBouncer mode" } else { "" };
 
         tracing::info!(
-            "Starting a {} pool with {} connections{}.",
+            "Starting a {} pool for maximum {} connections{}.",
             family,
             connection_limit,
             pg_bouncer
